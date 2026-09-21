@@ -20,6 +20,7 @@ from alembic import command
 from app.config import get_settings
 from app.db import get_db
 from app.main import app
+from app.seed.catalog import seed_catalog
 
 settings = get_settings()
 
@@ -51,6 +52,14 @@ async def engine():
     await asyncio.to_thread(command.upgrade, cfg, "head")
 
     eng = create_async_engine(settings.test_database_url, future=True)
+
+    # The global catalog is part of the schema contract, not test data: every
+    # environment is expected to have it.
+    maker = async_sessionmaker(eng, class_=AsyncSession, expire_on_commit=False)
+    async with maker() as db:
+        await seed_catalog(db)
+        await db.commit()
+
     yield eng
     await eng.dispose()
 

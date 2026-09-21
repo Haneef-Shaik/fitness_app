@@ -13,16 +13,23 @@ async def _session(engine) -> AsyncSession:
 
 
 async def test_seed_is_idempotent(engine):
-    async with await _session(engine) as db:
-        first = await seed_catalog(db)
-        await db.commit()
-        assert first["muscle_groups"] > 0 and first["exercises"] > 0
+    """The session fixture already seeded, so every further run must be a no-op.
+    That is the property that lets any environment be rebuilt from scratch."""
+    for _ in range(2):
+        async with await _session(engine) as db:
+            result = await seed_catalog(db)
+            await db.commit()
+            assert result == {"muscle_groups": 0, "exercises": 0}
 
     async with await _session(engine) as db:
-        second = await seed_catalog(db)
-        await db.commit()
-        # Re-running must add nothing — any environment can be rebuilt from scratch.
-        assert second == {"muscle_groups": 0, "exercises": 0}
+        counts = {
+            "muscle_groups": await db.scalar(select(func.count()).select_from(MuscleGroup)),
+            "exercises": await db.scalar(
+                select(func.count()).select_from(Exercise).where(Exercise.owner_user_id.is_(None))
+            ),
+        }
+    assert counts["muscle_groups"] == 22, counts
+    assert counts["exercises"] == 29, counts
 
 
 async def test_every_exercise_has_a_primary_muscle(engine):

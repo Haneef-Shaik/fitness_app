@@ -34,14 +34,14 @@
 - [x] **1.7** Alembic revision + `alembic check` green + downgrade drops any new ENUMs
 - [x] **1.8** Seed: global exercise catalog + muscle-group tree, versioned and idempotent
 
-## 2 · Catalog API
+## 2 · Catalog API  ✅ *complete*
 
-- [ ] **2.1** `GET /exercises` — q, muscle, equipment, pattern, include_archived; cursor paginated
-- [ ] **2.2** `POST /exercises` — custom; **reject without ≥1 primary muscle** (W02.4)
-- [ ] **2.3** `GET|PATCH /exercises/{id}`, `POST /exercises/{id}/archive`
+- [x] **2.1** `GET /exercises` — q, muscle, equipment, pattern, include_archived; cursor paginated
+- [x] **2.2** `POST /exercises` — custom; **reject without ≥1 primary muscle** (W02.4)
+- [x] **2.3** `GET|PATCH /exercises/{id}`, `POST /exercises/{id}/archive`
       — archiving must not break history
-- [ ] **2.4** `GET /muscle-groups` — hierarchical
-- [ ] **2.5** Test: a global catalog exercise is read-only; "copy to custom" is the offered path
+- [x] **2.4** `GET /muscle-groups` — hierarchical
+- [x] **2.5** Test: a global catalog exercise is read-only; "copy to custom" is the offered path
 
 ## 3 · Programs API
 

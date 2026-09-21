@@ -14,22 +14,25 @@
 
 ---
 
-## 1 · Data model  *(nothing else can start without this)*
+## 1 · Data model  ✅ *complete*
 
-- [ ] **1.1** Models: `muscle_groups` (self-referencing `parent_id`), `exercises`, `exercise_muscles`
+- [x] **1.1** Models: `muscle_groups` (self-referencing `parent_id`), `exercises`, `exercise_muscles`
       — `role` enum primary/secondary
       · `exercises` needs `tracks_load/reps/duration/distance`, `default_unit`, `aliases[]`, `status`
-- [ ] **1.2** Models: `workout_programs`, `workout_plan_days`, `plan_exercises`
+- [x] **1.2** Models: `workout_programs`, `workout_plan_days`, `plan_exercises`
       — dense 0-based `order_index`, `scheduled_weekday` nullable
-- [ ] **1.3** Models: `workout_sessions`, `session_exercises`, `workout_sets`, `personal_records`
+- [x] **1.3** Models: `workout_sessions`, `session_exercises`, `workout_sets`, `personal_records`
       — `session_exercises.target_snapshot jsonb` freezes the prescription at start ([AC-12](07-TRACEABILITY.md))
       · `workout_sets` needs `load_unit_entered`, `e1rm_kg`, `formula_version`, `is_pr`
-- [ ] **1.4** `local_date` generated column on `workout_sessions` from `started_at` + profile tz
-- [ ] **1.5** Partial unique index — **one `in_progress` session per user**
+- [x] **1.4** ~~`local_date` **generated** column~~ → plain column written by the application.
+      Postgres refuses a generated column here: `started_at AT TIME ZONE <tz>` is STABLE, not
+      IMMUTABLE. Written via `domain.dates.to_local_date`, with `logged_timezone` stored beside
+      it so a timezone change (edge case T4) can recompute the affected rows auditably.
+- [x] **1.5** Partial unique index — **one `in_progress` session per user**
       `UNIQUE (user_id) WHERE status = 'in_progress'`
-- [ ] **1.6** Indexes from [02 §6.1](02-SYSTEM-ARCHITECTURE.md) — history, previous-occurrence, PR board
-- [ ] **1.7** Alembic revision + `alembic check` green + downgrade drops any new ENUMs
-- [ ] **1.8** Seed: global exercise catalog + muscle-group tree, versioned and idempotent
+- [x] **1.6** Indexes from [02 §6.1](02-SYSTEM-ARCHITECTURE.md) — history, previous-occurrence, PR board
+- [x] **1.7** Alembic revision + `alembic check` green + downgrade drops any new ENUMs
+- [x] **1.8** Seed: global exercise catalog + muscle-group tree, versioned and idempotent
 
 ## 2 · Catalog API
 

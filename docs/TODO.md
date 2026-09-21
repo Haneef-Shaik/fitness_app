@@ -43,14 +43,14 @@
 - [x] **2.4** `GET /muscle-groups` — hierarchical
 - [x] **2.5** Test: a global catalog exercise is read-only; "copy to custom" is the offered path
 
-## 3 · Programs API
+## 3 · Programs API  ✅ *complete*
 
-- [ ] **3.1** `GET|POST /workout-programs`, `GET|PATCH /workout-programs/{id}`
-- [ ] **3.2** `POST /workout-programs/{id}/duplicate` — **deep copy**, new IDs throughout
-- [ ] **3.3** `POST /workout-programs/{id}/archive` — and **block delete when referenced**
-- [ ] **3.4** `GET|POST /workout-programs/{id}/days`, `PATCH|DELETE /plan-days/{id}`
-- [ ] **3.5** `PUT /plan-days/{id}/exercises` — bulk reorder in **one transaction**, re-densify indices
-- [ ] **3.6** Test **AC-12**: edit a program, assert a completed session is byte-identical after
+- [x] **3.1** `GET|POST /workout-programs`, `GET|PATCH /workout-programs/{id}`
+- [x] **3.2** `POST /workout-programs/{id}/duplicate` — **deep copy**, new IDs throughout
+- [x] **3.3** `POST /workout-programs/{id}/archive` — and **block delete when referenced**
+- [x] **3.4** `GET|POST /workout-programs/{id}/days`, `PATCH|DELETE /plan-days/{id}`
+- [x] **3.5** `PUT /plan-days/{id}/exercises` — bulk reorder in **one transaction**, re-densify indices
+- [x] **3.6** Test **AC-12**: edit a program, assert a completed session is byte-identical after
 
 ## 4 · Session & set API  *(the critical path)*
 

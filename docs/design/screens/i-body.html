@@ -1,0 +1,206 @@
+<title>Body Progress — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">I · Body</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+window.VOLT={title:"Body Progress",intro:"Weight, measurements and photos. The weight chart leads with a 7-day moving average because daily weight is noise, and showing only raw points makes people panic about water weight.",screens:[
+
+{id:'I-01',name:'Progress overview',route:'/progress',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Progress',right:`${I.bell}<span class="avatar">AB</span>`})}</div>
+  <div class="scr-body">
+    <div class="card hero">
+      <div class="row btw"><span class="lbl">Weight</span><span class="c t3">&rsaquo;</span></div>
+      <div class="row btw mt8"><span class="display" style="font-size:40px">78.4<span class="f13 t3" style="font-size:15px"> kg</span></span>
+        <span class="dlt down">&#9660; 0.6 kg / 14d</span></div>
+      <svg class="chart mt12" viewBox="0 0 320 64" height="64" aria-label="Weight trend">
+        <path class="ar" d="M0 12 L30 18 L60 14 L90 24 L120 20 L150 30 L180 26 L210 36 L240 32 L270 42 L300 40 L320 44 L320 64 L0 64Z"/>
+        <path class="ln2" d="M0 10 L30 20 L60 12 L90 28 L120 18 L150 34 L180 24 L210 40 L240 30 L270 46 L300 38 L320 48"/>
+        <path class="ln" d="M0 12 L30 18 L60 14 L90 24 L120 20 L150 30 L180 26 L210 36 L240 32 L270 42 L300 40 L320 44"/>
+        <circle class="pt" cx="320" cy="44" r="4"/></svg>
+      <div class="row btw mt8 f12 t3"><span>7-day avg 78.6 kg</span>
+        <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 14px">Log today</button></div>
+    </div>
+    <div class="card accent mt16">
+      <div class="row btw"><span class="lbl" style="color:var(--accent)">Goal &middot; Lose fat</span><span class="c t3">&rsaquo;</span></div>
+      <div class="row btw mt8"><span class="num" style="font-size:22px">78.4 &rarr; 74.0 <span class="t3 f13">kg</span></span></div>
+      <div class="meter lg mt10"><i style="width:54%"></i></div>
+      <div class="row btw mt8 f12 t3"><span>5.1 kg lost since 2 Aug</span><span>4.4 kg to go</span></div>
+      <p class="note mt8">At this rate, around 12 Nov. An estimate from your last 4 weeks, not a prediction.</p></div>
+    <div class="lblrow mt24"><span class="lbl">Measurements</span><span class="f12 t2 w6">Edit</span></div>
+    <div class="stats"><div><div class="v">84.0</div><div class="k">Waist cm</div></div>
+      <div><div class="v">104.0</div><div class="k">Chest cm</div></div>
+      <div><div class="v">37.5</div><div class="k">Arm cm</div></div></div>
+    <div class="row g16 mt8 f12" style="justify-content:space-around">
+      <span class="dlt down">&#9660; 2.0</span><span class="dlt up">&#9650; 0.5</span><span class="dlt up">&#9650; 0.5</span></div>
+    <div class="card mt16"><div class="row btw"><span class="f13 t2">Body fat</span>
+      <span><span class="num" style="font-size:17px">18.2</span><span class="t3 f12">%</span>
+        <span class="dlt down" style="margin-left:6px">&#9660; 1.1</span></span></div></div>
+    <div class="card mt10"><div class="row g10"><span class="t3" style="width:17px;height:17px;display:block">${I.camera}</span>
+      <div class="t" style="flex:1"><b class="f14">Progress photos</b><div class="f12 t3">6 photos</div></div>
+      <span class="c t3">&rsaquo;</span></div></div>
+    <button class="btn btn-primary mt16">${I.plus} Log today&rsquo;s measurements</button>
+  </div>
+  ${tabbar('progress')}
+</div>`},
+
+{id:'I-02',name:'Log body metric',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Progress'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card hero"><div class="display" style="font-size:38px">78.4</div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Log measurements</b>
+    <div class="row g10 mt12"><div class="input" style="flex:1"><span style="flex:1">Today, Tue 21 Sep</span><span class="c t3">&#9662;</span></div>
+      <div class="input" style="flex:0 0 92px;justify-content:center">08:14</div></div>
+    <div class="field mt16"><label>Weight *</label>
+      <div class="row g10"><div class="input" style="flex:1;font-family:var(--ff-data);font-weight:700;font-size:22px">78.4</div>
+        <div class="seg" style="flex:0 0 106px"><span class="on">kg</span><span>lb</span></div></div>
+      <div class="helper">Last: 78.6 kg (2 days ago)</div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Body fat</label>
+      <div class="input"><span style="flex:1">18.2</span><span class="t3 f13">%</span></div></div>
+      <div class="field" style="flex:1"><label>Waist</label>
+      <div class="input"><span style="flex:1">84.0</span><span class="t3 f13">cm</span></div></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Chest</label>
+      <div class="input"><span style="flex:1">104.0</span><span class="t3 f13">cm</span></div></div>
+      <div class="field" style="flex:1"><label>Arm</label>
+      <div class="input"><span style="flex:1">37.5</span><span class="t3 f13">cm</span></div></div></div>
+    <div class="row btw"><span class="f12 t3">Choose which fields to track</span><span class="c t3">&rsaquo;</span></div>
+    <div class="field mt16"><label>Note</label><div class="input">morning, before food</div></div>
+    <button class="btn btn-primary">Save</button>
+  </div></div>
+</div>`},
+
+{id:'I-03',name:'Weight trend',route:'/progress/weight',html:()=>{
+  const e=(d,v,n)=>`<div class="linkrow"><div class="t"><b>${d}</b>${n?`<span>${n}</span>`:''}</div>
+    <span class="num" style="font-size:17px">${v}</span><span class="t3">${I.dots}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Weight',right:I.filter})}
+    <div class="chips mt12"><span class="chip">1 mo</span><span class="chip on">3 mo</span>
+      <span class="chip">6 mo</span><span class="chip">1 yr</span><span class="chip">All</span></div>
+    <p class="f12 t3 mt8">23 Jun – 21 Sep 2026</p></div>
+  <div class="scr-body">
+    <div class="card mt8">
+      <svg class="chart" viewBox="0 0 320 130" height="130" aria-label="Weight over 3 months with 7-day average">
+        <line class="grid" x1="0" y1="20" x2="320" y2="20"/><line class="grid" x1="0" y1="64" x2="320" y2="64"/>
+        <line class="tgt" x1="0" y1="106" x2="320" y2="106"/>
+        <path class="ln2" d="M8 22 L34 30 L60 24 L86 38 L112 30 L138 46 L164 38 L190 54 L216 46 L242 62 L268 56 L294 70 L312 66"/>
+        <path class="ln" d="M8 24 L34 28 L60 30 L86 36 L112 38 L138 44 L164 46 L190 52 L216 54 L242 60 L268 62 L294 68 L312 70"/>
+        <circle class="pt" cx="312" cy="70" r="5"/>
+        <text x="4" y="16">84</text><text x="4" y="60">80</text><text x="4" y="102">74 goal</text>
+        <text x="312" y="66" text-anchor="end">78.4</text>
+        <text x="8" y="126">Jun</text><text x="150" y="126">Aug</text><text x="296" y="126">Sep</text></svg>
+      <div class="row g16 mt8 f11 t3"><span>&#9679; daily</span><span>&mdash; 7-day average</span>
+        <span style="margin-left:auto" class="t2 w6">Table view</span></div></div>
+    <div class="stats mt16"><div><div class="v">78.4</div><div class="k">Latest kg</div></div>
+      <div><div class="v">&minus;5.6</div><div class="k">3 months</div></div>
+      <div><div class="v">&minus;0.43</div><div class="k">Per week</div></div></div>
+    <div class="lbl mt20">Entries</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${e('21 Sep 08:14','78.4','morning')}${e('19 Sep 08:02','78.6')}${e('17 Sep 07:58','78.9')}</div>
+    <p class="note mt12">A gap longer than the averaging window breaks the line rather than interpolating &mdash;
+      a straight line across three missing weeks asserts measurements that were never taken.</p>
+  </div>
+</div>`}},
+
+{id:'I-04',name:'Measurement detail',route:'/progress/measurements/[key]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Waist',right:I.filter})}
+    <div class="chips mt12"><span class="chip">1 mo</span><span class="chip on">3 mo</span><span class="chip">1 yr</span></div></div>
+  <div class="scr-body">
+    <div class="card mt8">
+      <div class="row btw"><span class="display" style="font-size:36px">84.0<span class="f13 t3" style="font-size:14px"> cm</span></span>
+        <span class="dlt down">&#9660; 2.0 cm</span></div>
+      <svg class="chart mt12" viewBox="0 0 320 88" height="88" aria-label="Waist over 3 months">
+        <line class="grid" x1="0" y1="72" x2="320" y2="72"/>
+        <path class="ar" d="M8 14 L64 22 L120 30 L176 40 L232 52 L288 62 L312 66 L312 72 L8 72Z"/>
+        <path class="ln" d="M8 14 L64 22 L120 30 L176 40 L232 52 L288 62 L312 66"/>
+        <circle class="pt" cx="312" cy="66" r="4.5"/>
+        <text x="8" y="84">Jun</text><text x="290" y="84">Sep</text></svg></div>
+    <div class="card mt12"><div class="row btw"><span class="f13 t2">Compare with weight</span>
+      <span class="sw on"><i></i></span></div>
+      <div style="height:1px;background:var(--line);margin:12px 0"></div>
+      <svg class="chart" viewBox="0 0 320 44" height="44" aria-label="Weight, same time axis">
+        <path class="ln2" d="M8 8 L64 14 L120 20 L176 26 L232 32 L288 36 L312 38"/>
+        <text x="318" y="42" text-anchor="end">78.4 kg</text></svg>
+      <p class="note mt8">A second stacked chart sharing the x-axis &mdash; never a second y-axis.</p></div>
+  </div>
+</div>`},
+
+{id:'I-05',name:'Progress photos',route:'/progress/photos',html:()=>{
+  const ph=(d,w)=>`<div style="flex:1">
+    <div style="aspect-ratio:3/4;border-radius:14px;background:var(--sunken);border:1px solid var(--line);
+      display:grid;place-items:center;color:var(--ink-3)"><span style="width:24px;height:24px;display:block">${I.user}</span></div>
+    <div class="ctr mt8"><div class="f13 w6">${d}</div><div class="num t3" style="font-size:15px">${w}</div></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Photos',right:`<span class="pill pill-live">${I.plus}</span>`})}
+    <div class="seg mt12"><span>Grid</span><span class="on">Compare</span></div></div>
+  <div class="scr-body">
+    <div class="row g12 mt12">${ph('2 Aug','83.5 kg')}${ph('21 Sep','78.4 kg')}</div>
+    <div class="row g12 mt10"><span class="f12 t3" style="flex:1;text-align:center">&#9664; pick &#9654;</span>
+      <span class="f12 t3" style="flex:1;text-align:center">&#9664; pick &#9654;</span></div>
+    <div class="card mt16 ctr"><div class="f13 t2">7 weeks apart</div>
+      <div class="display mt6" style="font-size:32px;color:var(--good)">&minus;5.1 kg</div></div>
+    <div class="btnrow mt16"><button class="btn btn-ghost btn-sm">Share</button>
+      <button class="btn btn-ghost btn-sm">Save</button></div>
+    <div class="well mt16"><div class="row g8"><span class="t3" style="width:15px;height:15px;display:block">${I.lock}</span>
+      <b class="f13">Photos are private</b></div>
+      <p class="note mt6">Stored encrypted, reachable only through short-lived links we generate for you.
+        There is no public address for your images. The comparison is rendered on your device &mdash;
+        nothing is uploaded to a sharing service.</p></div>
+  </div>
+</div>`}},
+
+{id:'I-06',name:'Measurement fields',route:'sheet',html:()=>{
+  const f=(n,on,lock)=>`<div class="swrow"><div class="t"><b>${n}</b>${lock?'<span>Always on</span>':''}</div>
+    <span class="sw ${on?'on':''}" ${lock?'style="opacity:.55"':''}><i></i></span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Progress'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card hero"><div class="display" style="font-size:38px">78.4</div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">What do you want to track?</b>
+    <div class="card mt12" style="padding:0 16px">
+      ${f('Weight',1,1)}${f('Body fat %',1)}${f('Waist',1)}${f('Chest',1)}${f('Arm',1)}
+      ${f('Thigh',0)}${f('Hips',0)}${f('Neck',0)}${f('Calf',0)}</div>
+    <button class="btn btn-ghost btn-sm mt12">${I.plus} Add a custom measurement</button>
+    <div class="field mt16"><label>Reminder</label>
+      <div class="seg"><span>Off</span><span class="on">Weekly</span><span>Daily</span></div></div>
+    <p class="note mt12">Unchecking a field hides it but never deletes its history &mdash;
+      re-enabling restores the full chart.</p>
+  </div></div>
+</div>`}}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

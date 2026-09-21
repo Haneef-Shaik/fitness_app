@@ -1,0 +1,441 @@
+{
+  "$comment": "Cross-language contract. Both packages/domain (TypeScript) and services/api (Python) MUST pass these. Generated from the formulas stated in docs/02 and docs/05. Edit the docs first, then regenerate.",
+  "tolerance": 1e-09,
+  "constants": {
+    "KG_PER_LB": 0.45359237,
+    "CM_PER_IN": 2.54,
+    "e1rm_formula": "epley_v1"
+  },
+  "volume": [
+    {
+      "name": "single working set",
+      "sets": [
+        {
+          "set_type": "working",
+          "load_kg": 100,
+          "reps": 8,
+          "completed": true
+        }
+      ],
+      "expected_volume_kg": 800
+    },
+    {
+      "name": "warm-up excluded (D6)",
+      "sets": [
+        {
+          "set_type": "warmup",
+          "load_kg": 40,
+          "reps": 12,
+          "completed": true
+        },
+        {
+          "set_type": "working",
+          "load_kg": 100,
+          "reps": 8,
+          "completed": true
+        }
+      ],
+      "expected_volume_kg": 800.0
+    },
+    {
+      "name": "incomplete set contributes nothing",
+      "sets": [
+        {
+          "set_type": "working",
+          "load_kg": 100,
+          "reps": 8,
+          "completed": false
+        }
+      ],
+      "expected_volume_kg": 0.0
+    },
+    {
+      "name": "bodyweight set has no load volume",
+      "sets": [
+        {
+          "set_type": "working",
+          "load_kg": null,
+          "reps": 15,
+          "completed": true
+        }
+      ],
+      "expected_volume_kg": 0.0
+    },
+    {
+      "name": "drop and failure sets count",
+      "sets": [
+        {
+          "set_type": "working",
+          "load_kg": 80,
+          "reps": 8,
+          "completed": true
+        },
+        {
+          "set_type": "drop",
+          "load_kg": 60,
+          "reps": 10,
+          "completed": true
+        },
+        {
+          "set_type": "failure",
+          "load_kg": 60,
+          "reps": 6,
+          "completed": true
+        }
+      ],
+      "expected_volume_kg": 1600
+    },
+    {
+      "name": "bench session from the designs",
+      "sets": [
+        {
+          "set_type": "warmup",
+          "load_kg": 40,
+          "reps": 12,
+          "completed": true
+        },
+        {
+          "set_type": "working",
+          "load_kg": 80,
+          "reps": 8,
+          "completed": true
+        },
+        {
+          "set_type": "working",
+          "load_kg": 80,
+          "reps": 8,
+          "completed": true
+        },
+        {
+          "set_type": "working",
+          "load_kg": 80,
+          "reps": 7,
+          "completed": true
+        },
+        {
+          "set_type": "working",
+          "load_kg": 77.5,
+          "reps": 8,
+          "completed": true
+        }
+      ],
+      "expected_volume_kg": 2460.0
+    },
+    {
+      "name": "empty session",
+      "sets": [],
+      "expected_volume_kg": 0
+    }
+  ],
+  "e1rm": [
+    {
+      "name": "standard working set",
+      "load_kg": 100,
+      "reps": 8,
+      "expected_e1rm_kg": 126.666666667
+    },
+    {
+      "name": "a true single returns the load itself",
+      "load_kg": 102.5,
+      "reps": 1,
+      "expected_e1rm_kg": 105.916666667
+    },
+    {
+      "name": "design mock value",
+      "load_kg": 80,
+      "reps": 8,
+      "expected_e1rm_kg": 101.333333333
+    },
+    {
+      "name": "high reps \u2014 formula unreliable above ~12, still defined",
+      "load_kg": 60,
+      "reps": 20,
+      "expected_e1rm_kg": 100.0
+    },
+    {
+      "name": "squat",
+      "load_kg": 140,
+      "reps": 5,
+      "expected_e1rm_kg": 163.333333333
+    },
+    {
+      "name": "deadlift",
+      "load_kg": 180,
+      "reps": 3,
+      "expected_e1rm_kg": 198.0
+    },
+    {
+      "name": "no load is not eligible",
+      "load_kg": null,
+      "reps": 10,
+      "expected_e1rm_kg": null
+    },
+    {
+      "name": "zero reps is not eligible",
+      "load_kg": 100,
+      "reps": 0,
+      "expected_e1rm_kg": null
+    }
+  ],
+  "personal_records": {
+    "name": "mixed set types",
+    "sets": [
+      {
+        "set_type": "warmup",
+        "load_kg": 40,
+        "reps": 12,
+        "completed": true
+      },
+      {
+        "set_type": "working",
+        "load_kg": 80,
+        "reps": 8,
+        "completed": true
+      },
+      {
+        "set_type": "working",
+        "load_kg": 102.5,
+        "reps": 1,
+        "completed": true
+      },
+      {
+        "set_type": "working",
+        "load_kg": 60,
+        "reps": 14,
+        "completed": true
+      },
+      {
+        "set_type": "working",
+        "load_kg": 110,
+        "reps": 1,
+        "completed": false
+      },
+      {
+        "set_type": "drop",
+        "load_kg": 120,
+        "reps": 1,
+        "completed": true
+      }
+    ],
+    "expected": {
+      "max_load_kg": 102.5,
+      "max_reps": 14,
+      "volume_kg": 1582.5,
+      "estimated_1rm_kg": 105.916666667
+    }
+  },
+  "units": {
+    "conversions": [
+      {
+        "name": "kg to lb",
+        "kg": 100,
+        "expected_lb": 220.462262185
+      },
+      {
+        "name": "kg to lb, plate weight",
+        "kg": 102.5,
+        "expected_lb": 225.973818739
+      },
+      {
+        "name": "cm to in",
+        "cm": 178,
+        "expected_in": 70.078740157
+      }
+    ],
+    "roundtrip_kg": [
+      100,
+      102.5,
+      77.5,
+      0.5,
+      1.25,
+      180,
+      0
+    ]
+  },
+  "local_date": [
+    {
+      "instant": "2026-09-21T18:20:00Z",
+      "timezone": "Asia/Kolkata",
+      "expected_local_date": "2026-09-21",
+      "note": "23:50 local \u2014 still the same day"
+    },
+    {
+      "instant": "2026-09-21T18:40:00Z",
+      "timezone": "Asia/Kolkata",
+      "expected_local_date": "2026-09-22",
+      "note": "00:10 local \u2014 rolled over"
+    },
+    {
+      "instant": "2026-09-21T23:40:00Z",
+      "timezone": "Asia/Kolkata",
+      "expected_local_date": "2026-09-22",
+      "note": "half-hour offset"
+    },
+    {
+      "instant": "2026-11-01T05:30:00Z",
+      "timezone": "America/New_York",
+      "expected_local_date": "2026-11-01",
+      "note": "01:30 EDT, before DST ends"
+    },
+    {
+      "instant": "2026-11-01T06:30:00Z",
+      "timezone": "America/New_York",
+      "expected_local_date": "2026-11-01",
+      "note": "01:30 EST, the repeated hour"
+    },
+    {
+      "instant": "2026-03-08T06:30:00Z",
+      "timezone": "America/New_York",
+      "expected_local_date": "2026-03-08",
+      "note": "23-hour day, spring forward"
+    },
+    {
+      "instant": "2026-09-21T11:00:00Z",
+      "timezone": "Pacific/Kiritimati",
+      "expected_local_date": "2026-09-22",
+      "note": "UTC+14, extreme positive"
+    },
+    {
+      "instant": "2026-09-21T10:00:00Z",
+      "timezone": "Pacific/Niue",
+      "expected_local_date": "2026-09-20",
+      "note": "UTC-11, extreme negative"
+    },
+    {
+      "instant": "2026-09-21T00:00:00Z",
+      "timezone": "UTC",
+      "expected_local_date": "2026-09-21",
+      "note": "baseline"
+    }
+  ],
+  "set_validity": [
+    {
+      "name": "reps only is valid",
+      "set": {
+        "reps": 10
+      },
+      "expected_valid": true
+    },
+    {
+      "name": "duration only is valid",
+      "set": {
+        "duration_seconds": 60
+      },
+      "expected_valid": true
+    },
+    {
+      "name": "distance only is valid",
+      "set": {
+        "distance_m": 400
+      },
+      "expected_valid": true
+    },
+    {
+      "name": "load alone is not a set",
+      "set": {
+        "load_kg": 100
+      },
+      "expected_valid": false,
+      "expected_error": "Add reps, time or distance to save this set."
+    },
+    {
+      "name": "empty set",
+      "set": {},
+      "expected_valid": false,
+      "expected_error": "Add reps, time or distance to save this set."
+    },
+    {
+      "name": "zero reps",
+      "set": {
+        "reps": 0
+      },
+      "expected_valid": false,
+      "expected_error": "Reps must be a whole number of at least 1."
+    },
+    {
+      "name": "negative load",
+      "set": {
+        "load_kg": -5,
+        "reps": 8
+      },
+      "expected_valid": false,
+      "expected_error": "Load cannot be negative."
+    },
+    {
+      "name": "bodyweight set is valid",
+      "set": {
+        "reps": 15,
+        "load_kg": null
+      },
+      "expected_valid": true
+    }
+  ],
+  "nutrition_day_totals": [
+    {
+      "name": "only confirmed items count (D5)",
+      "items": [
+        {
+          "calories": 304,
+          "protein_g": 10.6,
+          "carbs_g": 54,
+          "fat_g": 5.4,
+          "confirmed": true
+        },
+        {
+          "calories": 124,
+          "protein_g": 6.6,
+          "carbs_g": 9.6,
+          "fat_g": 6.4,
+          "confirmed": true
+        },
+        {
+          "calories": 620,
+          "protein_g": 31,
+          "carbs_g": 70,
+          "fat_g": 23,
+          "confirmed": false
+        }
+      ],
+      "expected": {
+        "calories": 428,
+        "protein_g": 17.2,
+        "carbs_g": 63.6,
+        "fat_g": 11.8,
+        "pending_count": 1,
+        "incomplete": false
+      }
+    },
+    {
+      "name": "null macros mark the total incomplete (N05.7)",
+      "items": [
+        {
+          "calories": 200,
+          "protein_g": null,
+          "carbs_g": 20,
+          "fat_g": 5,
+          "confirmed": true
+        }
+      ],
+      "expected": {
+        "calories": 200,
+        "protein_g": 0,
+        "carbs_g": 20,
+        "fat_g": 5,
+        "pending_count": 0,
+        "incomplete": true
+      }
+    },
+    {
+      "name": "nothing logged",
+      "items": [],
+      "expected": {
+        "calories": 0,
+        "protein_g": 0,
+        "carbs_g": 0,
+        "fat_g": 0,
+        "pending_count": 0,
+        "incomplete": false
+      }
+    }
+  ]
+}

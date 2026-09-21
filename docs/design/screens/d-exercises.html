@@ -1,0 +1,181 @@
+<title>Exercise Catalog — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">D · Exercises</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+window.VOLT={title:"Exercise Catalog",intro:"Search, custom exercises and muscle mapping. A custom exercise needs at least one primary muscle, because muscle-group analytics and the previous-chest-day query both depend on it.",screens:[
+
+{id:'D-01',name:'Exercise library',route:'/train/exercises',html:()=>{
+  const e=(n,eq,m,badge,meta)=>`<div class="linkrow"><div class="t"><b>${n}</b><span>${m}</span>
+    ${meta?`<div class="f12 t3 mt4">${meta}</div>`:''}</div>
+    ${badge||''}<span class="pill pill-mute">${eq}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Exercises',right:`<span class="pill pill-live">${I.plus}</span>`})}
+    <div class="search mt12">${I.search}<span>Search 412 exercises</span></div>
+    <div class="chips mt12"><span class="chip on">All</span><span class="chip">Mine</span>
+      <span class="chip">Chest</span><span class="chip">Back</span><span class="chip">${I.filter}</span></div></div>
+  <div class="scr-body">
+    <div class="lbl">A</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${e('Arnold Press','dumbbell','front delts &middot; side delts &middot; triceps')}</div>
+    <div class="lbl mt16">B</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${e('Barbell Bench Press','barbell','chest &middot; triceps &middot; front delts','<span class="pill pill-pr">PR</span>','last 5d ago &middot; PR 102.5 kg')}
+      ${e('Barbell Row','barbell','lats &middot; mid back &middot; biceps')}
+      ${e('Bulgarian Split Squat','dumbbell','quads &middot; glutes','<span class="pill pill-mute">Custom</span>')}
+    </div>
+    <div class="lbl mt16">C</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${e('Cable Fly','cable','chest')}${e('Close-Grip Bench Press','barbell','triceps &middot; chest')}</div>
+  </div>
+</div>`}},
+
+{id:'D-02',name:'Exercise detail',route:'/train/exercises/[id]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Barbell Bench Press',sub:'barbell &middot; horizontal push',right:I.dots})}</div>
+  <div class="scr-body">
+    <div class="musc"><span class="p">chest &middot; primary</span><span>triceps</span><span>front delts</span></div>
+    <div class="lbl mt20">Personal records</div>
+    <div class="stats four mt8">
+      <div><div class="v">102.5</div><div class="k">Max kg</div></div>
+      <div><div class="v">14</div><div class="k">Max reps</div></div>
+      <div><div class="v">3,240</div><div class="k">Best vol</div></div>
+      <div><div class="v">118</div><div class="k">e1RM</div></div>
+    </div>
+    <div class="lbl mt24">Estimated 1RM &middot; last 12 weeks</div>
+    <div class="card mt8">
+      <svg class="chart" viewBox="0 0 320 96" height="96" aria-label="Estimated 1RM trend">
+        <line class="grid" x1="0" y1="84" x2="320" y2="84"/><line class="grid" x1="0" y1="44" x2="320" y2="44"/>
+        <path class="ar" d="M8 72 L60 64 L112 66 L164 50 L216 42 L268 32 L312 18 L312 84 L8 84Z"/>
+        <path class="ln" d="M8 72 L60 64 L112 66 L164 50 L216 42 L268 32 L312 18"/>
+        <circle class="pt" cx="312" cy="18" r="4.5"/>
+        <text x="8" y="94">Jul</text><text x="150" y="94">Aug</text><text x="290" y="94">Sep</text>
+        <text x="312" y="13" text-anchor="end">118 kg</text></svg>
+      <div class="row btw mt8 f12 t3"><span>Epley &middot; working sets only</span><span class="t2 w6">Table view</span></div>
+    </div>
+    <div class="lbl mt24">Recent sessions</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>16 Sep</b><span>4 &times; 8 @ 80 kg &middot; 2,560 kg</span></div>
+        <span class="pill pill-pr">PR</span></div>
+      <div class="linkrow"><div class="t"><b>11 Sep</b><span>4 &times; 8 @ 77.5 kg &middot; 2,480 kg</span></div><span class="c">&rsaquo;</span></div>
+      <div class="linkrow"><div class="t"><b>6 Sep</b><span>4 &times; 7 @ 77.5 kg &middot; 2,170 kg</span></div><span class="c">&rsaquo;</span></div>
+    </div>
+  </div>
+  <div class="scr-foot"><div class="btnrow">
+    <button class="btn btn-primary btn-sm">Add to a workout</button>
+    <button class="btn btn-ghost btn-sm">Progression</button></div></div>
+</div>`},
+
+{id:'D-02b',name:'Exercise — never performed',route:'/train/exercises/[id]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Pendlay Row',sub:'barbell &middot; horizontal pull',right:I.dots})}</div>
+  <div class="scr-body">
+    <div class="musc"><span class="p">lats &middot; primary</span><span>mid back</span><span>biceps</span></div>
+    <div class="empty mt24"><div class="ic">${I.dumbbell}</div>
+      <b>You have not logged this yet</b>
+      <p>Records and progression appear once you have trained it.</p></div>
+  </div>
+  <div class="scr-foot"><button class="btn btn-primary">Add to a workout</button></div>
+</div>`},
+
+{id:'D-03',name:'Create custom exercise',route:'/train/exercises/new',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'New exercise',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="field"><label>Name *</label><div class="input">Bulgarian Split Squat</div>
+      <div class="helper" style="color:var(--warn)">Similar exercise exists: &ldquo;Split Squat&rdquo;. Use it instead?</div></div>
+    <div class="field"><label>Equipment</label>
+      <div class="chips"><span class="chip">barbell</span><span class="chip on">dumbbell</span><span class="chip">machine</span>
+        <span class="chip">cable</span><span class="chip">bodyweight</span></div></div>
+    <div class="field"><label>Movement pattern</label><div class="input">squat</div></div>
+    <div class="lbl mt8">Muscles *</div>
+    <div class="card mt8">
+      <div class="row btw"><span class="f12 t3">Primary</span></div>
+      <div class="chips mt6"><span class="chip on">quads &times;</span><span class="chip on">glutes &times;</span>
+        <span class="chip">${I.plus}</span></div>
+      <div class="row btw mt12"><span class="f12 t3">Secondary</span></div>
+      <div class="chips mt6"><span class="chip">hamstrings &times;</span><span class="chip">${I.plus}</span></div>
+      <p class="note mt10">At least one primary muscle is required &mdash; muscle-group analytics and
+        the previous-chest-day lookup both depend on it.</p>
+    </div>
+    <div class="lbl mt16">What to track</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="swrow"><div class="t"><b>Load</b></div><span class="sw on"><i></i></span></div>
+      <div class="swrow"><div class="t"><b>Reps</b></div><span class="sw on"><i></i></span></div>
+      <div class="swrow"><div class="t"><b>Duration</b></div><span class="sw"><i></i></span></div>
+      <div class="swrow"><div class="t"><b>Distance</b></div><span class="sw"><i></i></span></div>
+    </div>
+  </div>
+</div>`},
+
+{id:'D-04',name:'Muscle mapping',route:'sheet',html:()=>{
+  const m=(n,v)=>`<div class="linkrow"><div class="t"><b>${n}</b></div>
+    <div class="seg" style="flex:0 0 168px;padding:2px">
+      <span class="${v==='none'?'on':''}" style="padding:6px 4px;font-size:11.5px">None</span>
+      <span class="${v==='p'?'on':''}" style="padding:6px 4px;font-size:11.5px">Primary</span>
+      <span class="${v==='s'?'on':''}" style="padding:6px 4px;font-size:11.5px">Second</span></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'New exercise'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Bulgarian Split Squat</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Muscles &mdash; Bulgarian Split Squat</b>
+    <p class="note mt8">Primary muscles do most of the work. They are weighted fully in your volume numbers;
+      secondary muscles count half.</p>
+    <div class="lbl mt16">Lower body</div>
+    <div class="card mt8" style="padding:0 14px">
+      ${m('Quads','p')}${m('Glutes','p')}${m('Hamstrings','s')}${m('Calves','none')}</div>
+    <div class="lbl mt16">Upper body</div>
+    <div class="card mt8" style="padding:0 14px">${m('Core','none')}</div>
+  </div></div>
+</div>`}},
+
+{id:'D-05',name:'Aliases &amp; merge [P2]',route:'/train/exercises/[id]/aliases',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Aliases',sub:'Barbell Bench Press'})}</div>
+  <div class="scr-body">
+    <div class="row btw"><span class="lbl">Phase 2</span><span class="pill pill-mute">Not built at MVP</span></div>
+    <div class="lbl mt16">Search synonyms</div>
+    <div class="chips mt8"><span class="chip">bench &times;</span><span class="chip">BB bench &times;</span>
+      <span class="chip">flat bench &times;</span><span class="chip">${I.plus}</span></div>
+    <div class="dash mt20"><div class="row g8"><span style="color:var(--serious)">${I.warn}</span>
+      <b class="f13">Merging is irreversible</b></div>
+      <p class="note mt8">A merge repoints every logged set and plan entry, then recomputes records for the target.
+        It requires typing the exercise name to confirm.</p></div>
+    <button class="btn btn-ghost btn-sm mt16" style="opacity:.45">Merge a duplicate</button>
+    <p class="note ctr mt12">The aliases column ships at MVP so search can use it immediately.</p>
+  </div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

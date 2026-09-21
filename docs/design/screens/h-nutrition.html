@@ -1,0 +1,572 @@
+<title>Nutrition &amp; AI — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">H · Nutrition</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const mrow=(cls,n,v,t,pct)=>`<div class="m ${cls}"><span class="n">${n}</span>
+  <span class="b"><i style="width:${pct}%"></i></span><span class="v">${v}<span class="t3" style="font-size:11px">/${t}</span></span></div>`;
+const meal=(name,kcal,items)=>`<div class="mt16">
+  <div class="row btw" style="margin-bottom:8px"><span class="lbl">${name}</span>
+    <span class="row g10"><span class="num t2">${kcal}</span><span class="t3" style="width:15px;height:15px;display:block">${I.plus}</span></span></div>
+  <div class="card" style="padding:4px 16px">${items}</div></div>`;
+const fitem=(n,q,c)=>`<div class="food"><div class="t"><b>${n}</b><span>${q}</span></div><span class="cal">${c}</span></div>`;
+
+window.VOLT={title:"Nutrition &amp; AI",intro:"The governing rule for every screen here: AI output is an estimate; only user-confirmed values are truth. Estimated items carry the sparkle, a dashed border and an Est. chip — and contribute nothing to any total until confirmed.",screens:[
+
+{id:'H-01',name:'Nutrition diary',route:'/nutrition',html:()=>`
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <span class="t3" style="width:22px;height:22px;display:block">${I.back}</span>
+    <div class="ctr"><div class="ttl" style="font-size:16px;font-weight:600">Today</div>
+      <div class="f12 t3">Tue 21 Sep</div></div>
+    <span class="row g10"><span class="t3" style="width:18px;height:18px;display:block">${I.cal}</span>
+      <span class="t3" style="width:18px;height:18px;display:block">${I.dots}</span></span></div></div>
+  <div class="scr-body">
+    <div class="card hero ctr">
+      <div class="display" style="font-size:58px">1,180</div>
+      <div class="f13 t3 mt4">kcal left &middot; <span class="num">1,160</span> of <span class="num">2,340</span></div>
+      <div class="meter lg mt12"><i style="width:50%"></i></div>
+      <div class="macro mt16" style="text-align:left">
+        ${mrow('mp','Protein','78','176 g',44)}${mrow('mc','Carbs','104','234 g',44)}
+        ${mrow('mf','Fat','41','78 g',53)}${mrow('mr','Fiber','12','&mdash;',30)}</div>
+    </div>
+    <div class="dash mt16">
+      <div class="row g8"><span style="color:var(--accent);width:15px;height:15px;display:block">${I.sparkle}</span>
+        <span class="f13 w6" style="flex:1">1 item waiting for you to check</span></div>
+      <div class="row btw mt8"><span class="f12 t3">Chicken biryani &middot; ~620 kcal</span>
+        <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 16px">Review</button></div>
+      <p class="note mt8">Not counted in your totals until you confirm it.</p></div>
+    ${meal('Breakfast','420 kcal',fitem('Oats, rolled','80 g','304')+fitem('Milk, whole','200 ml','124'))}
+    ${meal('Lunch','740 kcal',
+      `<div class="food est"><div class="t"><div class="row g6"><span style="color:var(--accent);width:12px;height:12px;display:block">${I.sparkle}</span><b>Chicken biryani</b></div>
+        <span>350 g &middot; from a photo</span></div><span class="cal">620</span></div>`
+      +fitem('Curd, plain','120 g','74'))}
+    <div class="mt16"><div class="row btw" style="margin-bottom:8px"><span class="lbl">Dinner</span>
+      <span class="row g10"><span class="f12 t3">not logged</span><span class="t3" style="width:15px;height:15px;display:block">${I.plus}</span></span></div></div>
+    <div class="mt12"><div class="row btw"><span class="lbl">Snacks</span>
+      <span class="row g10"><span class="f12 t3">not logged</span><span class="t3" style="width:15px;height:15px;display:block">${I.plus}</span></span></div></div>
+    <div class="btnrow mt20"><button class="btn btn-ghost btn-sm">${I.chart} Week &amp; month</button>
+      <button class="btn btn-ghost btn-sm">${I.target} Targets</button></div>
+  </div>
+  ${tabbar('nutrition')}
+</div>`},
+
+{id:'H-01b',name:'Diary — over target',route:'/nutrition',html:()=>`
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <span class="t3" style="width:22px;height:22px;display:block">${I.back}</span>
+    <div class="ctr"><div class="ttl" style="font-size:16px;font-weight:600">Sunday</div><div class="f12 t3">19 Sep</div></div>
+    <span class="t3" style="width:18px;height:18px;display:block">${I.dots}</span></div></div>
+  <div class="scr-body">
+    <div class="card hero ctr">
+      <div class="display" style="font-size:54px;color:var(--serious)">320</div>
+      <div class="f13 t3 mt4">kcal over &middot; <span class="num">2,660</span> of <span class="num">2,340</span></div>
+      <div class="meter lg mt12"><i class="over" style="width:100%"></i></div>
+      <div class="macro mt16" style="text-align:left">
+        ${mrow('mp','Protein','182','176 g',100)}${mrow('mc','Carbs','290','234 g',100)}${mrow('mf','Fat','88','78 g',100)}</div>
+    </div>
+    <div class="well mt16"><p class="note">Neutral copy, always. No judgement, no &ldquo;you blew your budget&rdquo;.
+      One over-target day is information, not a failure.</p></div>
+    ${meal('Breakfast','520 kcal',fitem('Paratha','2 pieces','420')+fitem('Curd, plain','100 g','62'))}
+    ${meal('Lunch','980 kcal',fitem('Chicken biryani','450 g','795')+fitem('Raita','120 g','88'))}
+    ${meal('Dinner','1,160 kcal',fitem('Dal makhani','300 g','520')+fitem('Roti','3 pieces','330')+fitem('Paneer tikka','150 g','310'))}
+  </div>
+  ${tabbar('nutrition')}
+</div>`},
+
+{id:'H-02',name:'Meal detail',route:'/nutrition/meals/[id]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Lunch',sub:'Tue 21 Sep &middot; 13:20',right:I.dots})}</div>
+  <div class="scr-body">
+    <div class="card hero ctr">
+      <div class="display" style="font-size:44px">740</div><div class="f13 t3 mt2">kcal</div>
+      <div class="row g16 mt12" style="justify-content:center">
+        <span class="f12"><span class="num" style="color:var(--s1)">44</span> <span class="t3">P</span></span>
+        <span class="f12"><span class="num" style="color:var(--s2)">78</span> <span class="t3">C</span></span>
+        <span class="f12"><span class="num" style="color:var(--s3)">26</span> <span class="t3">F</span></span>
+        <span class="f12"><span class="num t2">6</span> <span class="t3">Fiber</span></span></div>
+      <div class="meter mt12"><i style="width:32%"></i></div>
+      <div class="f12 t3 mt6">32% of your day</div></div>
+    <div class="lblrow mt20"><span class="lbl">Items</span><span class="t3" style="width:15px;height:15px;display:block">${I.plus}</span></div>
+    <div class="dash">
+      <div class="row g6"><span style="color:var(--accent);width:13px;height:13px;display:block">${I.sparkle}</span>
+        <b class="f14" style="flex:1">Chicken biryani</b><span class="cal num" style="font-size:17px">620</span></div>
+      <div class="f12 t3 mt4">350 g &middot; P31 C70 F23</div>
+      <div class="conf"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+        <i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><span>82% confident &middot; from a photo</span></div>
+      <div class="btnrow mt12"><button class="btn btn-primary btn-xs">Looks right</button>
+        <button class="btn btn-ghost btn-xs">Edit</button></div></div>
+    <div class="card mt10" style="padding:4px 16px">${fitem('Curd, plain','120 g &middot; P4 C5 F4','74')}</div>
+    <div class="well mt16"><div class="lbl">Notes</div><p class="f13 t2 mt6">Ate out at the canteen</p></div>
+    <div class="btnrow mt16"><button class="btn btn-ghost btn-sm">Save as recipe</button>
+      <button class="btn btn-ghost btn-sm">Copy to…</button></div>
+    <p class="note mt12">Until you confirm, the estimated item adds nothing to your day.
+      The original AI result stays viewable afterwards.</p>
+  </div>
+</div>`},
+
+{id:'H-03',name:'Add food — modes',route:'sheet',html:()=>{
+  const r=(ic,n,ai,soon)=>`<div class="linkrow"><span class="ic">${ic}</span><div class="t"><b>${n}</b></div>
+    ${ai?'<span class="pill pill-live">AI</span>':''}${soon?'<span class="pill pill-mute">Soon</span>':''}
+    <span class="c">&rsaquo;</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Today'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:50px">1,180</div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <div class="row btw"><span class="lbl">Add to Lunch &middot; Tue 21 Sep</span><span class="f12 t2 w6">Change</span></div>
+    <div class="card mt12" style="padding:0 16px">
+      ${r(I.search,'Search foods')}${r(I.sparkle,'Describe what you ate',1)}${r(I.camera,'Take a photo',1)}
+      ${r(I.plus,'Quick add calories')}${r(I.book,'Recipes &amp; saved meals')}${r(I.timer,'Recent')}
+      ${r(I.chart,'Scan a barcode',0,1)}</div>
+    <div class="lbl mt20">Recently logged</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>Oats, rolled</b><span>80 g &middot; 304 kcal</span></div>
+        <span class="pill pill-live">${I.plus}</span></div>
+      <div class="linkrow"><div class="t"><b>Curd, plain</b><span>120 g &middot; 74 kcal</span></div>
+        <span class="pill pill-live">${I.plus}</span></div>
+      <div class="linkrow"><div class="t"><b>Chicken breast</b><span>150 g &middot; 248 kcal</span></div>
+        <span class="pill pill-live">${I.plus}</span></div></div>
+    <p class="note mt12">One tap re-logs at the same portion &mdash; the fastest path for repeat eaters.</p>
+  </div></div>
+</div>`}},
+
+{id:'H-04',name:'Food search',route:'/nutrition/search',html:()=>{
+  const f=(n,m,v)=>`<div class="linkrow"><div class="t"><b>${n}</b><span>${m}</span></div>${v||''}</div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">
+    <div class="row g10"><button class="ico" style="width:34px;height:34px;display:grid;place-items:center">${I.close}</button>
+      <div class="search" style="flex:1">${I.search}<span style="color:var(--ink)">chicken breast</span></div></div>
+    <div class="chips mt12"><span class="chip on">All</span><span class="chip">My foods</span>
+      <span class="chip">Recent</span><span class="chip">Verified</span></div></div>
+  <div class="scr-body">
+    <div class="card" style="padding:0 16px">
+      ${f('Chicken breast, grilled, skinless','165 kcal &middot; P31 C0 F3.6 per 100 g','<span class="pill pill-mute">Verified</span>')}
+      ${f('Chicken breast, raw','120 kcal &middot; P23 C0 F2.6 per 100 g','<span class="pill pill-mute">Verified</span>')}
+      ${f('Chicken breast tandoori','182 kcal &middot; P29 C2 F7 per 100 g','<span class="pill pill-live">Mine</span>')}
+    </div>
+    <div class="dash mt20"><div class="row btw"><span class="f13 t3">Cannot find it?</span></div>
+      <div class="btnrow mt10"><button class="btn btn-primary btn-xs">Create it</button>
+        <button class="btn btn-ghost btn-xs">Describe instead</button></div></div>
+    <p class="note mt12">A missing food is the most common reason nutrition logging gets abandoned &mdash;
+      so creating one is the primary action when search comes up empty.</p>
+  </div>
+</div>`}},
+
+{id:'H-05',name:'Portion picker',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Food search'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Chicken breast, grilled</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <div class="row btw"><b class="f14">Chicken breast, grilled, skinless</b><span class="pill pill-mute">Verified</span></div>
+    <div class="lbl mt16">How much?</div>
+    <div class="row g10 mt8"><div class="input" style="flex:0 0 108px;justify-content:center;font-size:22px;font-family:var(--ff-data);font-weight:700">150</div>
+      <div class="input" style="flex:1"><span style="flex:1">g</span><span class="c t3">&#9662;</span></div></div>
+    <div class="chips mt10"><span class="chip">100 g</span><span class="chip on">1 breast &asymp; 174 g</span><span class="chip">1 cup</span></div>
+    <div class="card hero mt16 ctr">
+      <div class="display" style="font-size:46px">248</div><div class="f13 t3 mt2">kcal</div>
+      <div class="macro mt16" style="text-align:left">
+        <div class="m mp"><span class="n">Protein</span><span class="b"><i style="width:92%"></i></span><span class="v">46.5 g</span></div>
+        <div class="m mc"><span class="n">Carbs</span><span class="b"><i style="width:0%"></i></span><span class="v">0 g</span></div>
+        <div class="m mf"><span class="n">Fat</span><span class="b"><i style="width:14%"></i></span><span class="v">5.4 g</span></div></div></div>
+    <div class="row g10 mt16"><div class="input" style="flex:1"><span style="flex:1">Lunch</span><span class="c t3">&#9662;</span></div>
+      <div class="input" style="flex:1"><span style="flex:1">Tue 21 Sep</span><span class="c t3">&#9662;</span></div></div>
+    <button class="btn btn-primary mt16">Add</button>
+  </div></div>
+</div>`},
+
+{id:'H-06',name:'Describe your meal',route:'/nutrition/describe',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'Describe your meal',
+    right:`<span style="color:var(--accent);width:17px;height:17px;display:block">${I.sparkle}</span>`})}</div>
+  <div class="scr-body">
+    <p class="f12 t3">Adding to Lunch &middot; Tue 21 Sep</p>
+    <div class="input mt12" style="min-height:120px;align-items:flex-start;padding-top:14px;line-height:1.55">
+      2 eggs, 3 rotis and 200g chicken curry</div>
+    <p class="helper">Write it however you would say it. Amounts help.</p>
+    <div class="lbl mt20">Try</div>
+    <div class="chips mt8"><span class="chip">a bowl of dal and 2 rotis</span></div>
+    <div class="chips mt6"><span class="chip">250 ml milk with 2 scoops whey</span></div>
+    <div class="well mt20"><p class="note">We will estimate the nutrition and
+      <b class="t2">show it to you before anything is saved</b>.</p></div>
+  </div>
+  <div class="scr-foot">
+    <button class="btn btn-primary">Estimate nutrition</button>
+    <button class="btn btn-ghost btn-sm mt12">Dictate</button></div>
+</div>`},
+
+{id:'H-07',name:'AI processing',route:'overlay',html:()=>{
+  const s=(st,t)=>`<div class="row g10" style="padding:6px 0"><span style="width:16px;height:16px;display:block;
+    color:${st==='done'?'var(--good)':st==='now'?'var(--accent)':'var(--ink-3)'}">${st==='done'?I.check:st==='now'?I.timer:'&middot;'}</span>
+    <span class="f13 ${st==='wait'?'t3':'t2'}">${t}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Lunch'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.3" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:44px">740</div></div></div>
+  <div class="ov mid"><div class="ovc ctr">
+    <div style="width:52px;height:52px;margin:0 auto;border-radius:17px;display:grid;place-items:center;
+      background:var(--accent-wash);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent)">
+      <span style="width:26px;height:26px;display:block">${I.sparkle}</span></div>
+    <b class="f14 mt16" style="display:block;font-size:17px">Working out what is in there…</b>
+    <div class="mt16" style="text-align:left">
+      ${s('done','Uploaded')}${s('now','Identifying foods')}${s('wait','Estimating portions')}${s('wait','Looking up nutrition')}</div>
+    <p class="note mt12">Usually about 10 seconds.</p>
+    <button class="btn btn-ghost btn-sm mt16">Do something else &mdash; we will tell you</button>
+  </div></div>
+</div>`}},
+
+{id:'H-07b',name:'AI failure',route:'overlay',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Lunch'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.3" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:44px">740</div></div></div>
+  <div class="ov mid"><div class="ovc ctr">
+    <div style="width:52px;height:52px;margin:0 auto;border-radius:17px;display:grid;place-items:center;
+      background:color-mix(in srgb,var(--serious) 16%,transparent);border:1px solid color-mix(in srgb,var(--serious) 45%,transparent);color:var(--serious)">
+      <span style="width:24px;height:24px;display:block">${I.warn}</span></div>
+    <b class="f14 mt16" style="display:block;font-size:17px">We could not analyse that photo</b>
+    <p class="f13 t2 mt8">The service did not respond. <b>Your meal has not changed.</b></p>
+    <div class="btnrow mt16"><button class="btn btn-ghost btn-sm">Enter manually</button>
+      <button class="btn btn-primary btn-sm">Try again</button></div>
+    <button class="btn btn-danger btn-sm mt10">Delete the photo</button>
+    <p class="note mt12">Reference: req_8f2a19c</p>
+  </div></div>
+</div>`},
+
+{id:'H-08',name:'AI review &amp; correct',route:'/nutrition/analysis/[id]',html:()=>{
+  const item=(n,q,kcal,macros,conf,lo,checked,extra)=>`
+  <div class="dash mt10" ${checked?'':'style="opacity:.62"'}>
+    <div class="row g10"><span class="cbx ${checked?'on':''}">${checked?I.check:''}</span>
+      <b class="f14" style="flex:1">${n}</b><span class="t3" style="width:15px;height:15px;display:block">${I.close}</span></div>
+    <div class="row g10 mt10" style="align-items:center">
+      <div class="input" style="flex:0 0 78px;min-height:42px;justify-content:center;font-family:var(--ff-data);font-weight:700;font-size:19px">${q}</div>
+      <div class="input" style="flex:0 0 62px;min-height:42px;justify-content:center">g</div>
+      <div style="flex:1;text-align:right"><span class="num" style="font-size:20px">${kcal}</span>
+        <div class="f11 t3">${macros}</div></div></div>
+    <div class="conf">${Array.from({length:10},(_,i)=>`<i class="${i<conf?(lo?'lo':'on'):''}"></i>`).join('')}
+      <span>${conf*10}% confident${lo?' &middot; please check':''}</span></div>
+    ${extra||''}
+  </div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'Check this before saving',
+    right:`<span style="color:var(--accent);width:17px;height:17px;display:block">${I.sparkle}</span>`})}
+    <div class="row g10 mt8">
+      <div style="width:44px;height:44px;border-radius:11px;background:var(--sunken);border:1px solid var(--line);
+        display:grid;place-items:center;color:var(--ink-3)"><span style="width:18px;height:18px;display:block">${I.camera}</span></div>
+      <div><div class="f13 t2">From your photo &middot; 13:20</div>
+        <div class="f12 t3">3 foods found &middot; adding to Lunch</div></div></div></div>
+  <div class="scr-body">
+    ${item('Chicken biryani','350','620','P31 &middot; C70 &middot; F23',8,0,1,
+      `<div class="row btw mt8"><span class="f12" style="color:var(--good)">${I.check} matched to &ldquo;Chicken biryani&rdquo;</span>
+        <span class="f12 t2 w6">Change</span></div>`)}
+    ${item('Raita','100','74','P3 &middot; C5 &middot; F4',4,1,1,
+      `<div class="row btw mt8"><span class="f12" style="color:var(--warn)">${I.warn} no nutrition match &mdash; using our estimate</span>
+        <span class="f12 t2 w6">Find it</span></div>`)}
+    ${item('Salad, mixed','60','18','&mdash;',6,0,0)}
+    <button class="btn btn-ghost btn-sm mt12">${I.plus} Add something we missed</button>
+    <div class="card mt16"><div class="row btw"><span class="lbl">Selected total</span>
+      <span class="num" style="font-size:22px">694 <span class="t3 f13">kcal</span></span></div>
+      <div class="f12 t3 mt4" style="text-align:right">P34 &middot; C75 &middot; F27</div></div>
+    <div class="well mt12"><p class="note"><b class="t2">Confidence is how sure we are we spotted the food</b>
+      &mdash; not how accurate the calories are. Check the amounts.</p></div>
+  </div>
+  <div class="scr-foot"><div class="btnrow">
+    <button class="btn btn-ghost btn-sm">Discard</button>
+    <button class="btn btn-primary btn-sm">Save 2 items</button></div></div>
+</div>`}},
+
+{id:'H-08b',name:'AI review — nothing found',route:'/nutrition/analysis/[id]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'Check this before saving'})}</div>
+  <div class="scr-body">
+    <div class="empty" style="padding-top:50px"><div class="ic">${I.sparkle}</div>
+      <b>We could not identify any food</b>
+      <p>Try including amounts, like &ldquo;2 eggs&rdquo; &mdash; or add it yourself.</p></div>
+    <div class="well mt12"><div class="lbl">What you wrote</div>
+      <p class="f13 t2 mt6">food</p>
+      <p class="note mt8">Kept exactly as you typed it. Making someone retype their meal is unforgivable.</p></div>
+    <div class="btnrow mt16"><button class="btn btn-ghost btn-sm">Try again</button>
+      <button class="btn btn-primary btn-sm">Add it manually</button></div>
+  </div>
+</div>`},
+
+{id:'H-09',name:'Photo capture',route:'/nutrition/photo',html:()=>`
+<div class="screen" style="background:#000">
+  <div class="scr-head"><div class="row btw">
+    <span style="color:#fff;width:22px;height:22px;display:block">${I.close}</span>
+    <span style="color:#fff;width:20px;height:20px;display:block">${I.sparkle}</span></div></div>
+  <div class="scr-body" style="display:flex;flex-direction:column;justify-content:center;padding:0">
+    <div style="aspect-ratio:1;margin:0 20px;border-radius:20px;border:1px solid rgba(255,255,255,.18);
+      background:radial-gradient(70% 60% at 50% 40%, rgba(176,164,255,.12), rgba(255,255,255,.03));
+      display:grid;place-items:center;color:rgba(255,255,255,.35)">
+      <span style="width:46px;height:46px;display:block">${I.camera}</span></div>
+    <p class="ctr mt16" style="color:rgba(255,255,255,.62);font-size:13px;line-height:1.5">
+      Fit the whole plate in the frame.<br>Shoot from above if you can.</p>
+  </div>
+  <div class="scr-foot" style="background:transparent;border-color:rgba(255,255,255,.1)">
+    <div class="row btw" style="padding:0 6px">
+      <div style="width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.2);
+        display:grid;place-items:center;color:#fff"><span style="width:19px;height:19px;display:block">${I.book}</span></div>
+      <div style="width:64px;height:64px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,.28)"></div>
+      <div style="width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.2);
+        display:grid;place-items:center;color:#fff"><span style="width:19px;height:19px;display:block">${I.repeat}</span></div></div>
+    <div class="row btw mt12" style="color:rgba(255,255,255,.7);font-size:12.5px">
+      <span class="row g6"><i style="width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.15);display:block"></i>
+        <i style="width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.15);display:block"></i>
+        <span style="margin-left:4px">2 photos</span></span>
+      <button class="btn btn-primary btn-xs" style="width:auto;padding:0 18px">Analyse 2</button></div>
+  </div>
+</div>`},
+
+{id:'H-10',name:'Create custom food',route:'/nutrition/foods/new',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'New food',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="field"><label>Name *</label><div class="input">Mum&rsquo;s rajma</div></div>
+    <div class="field"><label>Brand</label><div class="input ph">optional</div></div>
+    <div class="field"><label>Nutrition per</label>
+      <div class="seg"><span class="on">100 g</span><span>100 ml</span><span>1 serving</span></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Calories *</label>
+      <div class="input"><span style="flex:1">142</span><span class="t3 f13">kcal</span></div></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Protein</label>
+      <div class="input"><span style="flex:1">8.2</span><span class="t3 f13">g</span></div></div>
+      <div class="field" style="flex:1"><label>Carbs</label>
+      <div class="input"><span style="flex:1">19.4</span><span class="t3 f13">g</span></div></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Fat</label>
+      <div class="input"><span style="flex:1">3.1</span><span class="t3 f13">g</span></div></div>
+      <div class="field" style="flex:1"><label>Fiber</label>
+      <div class="input"><span style="flex:1">6.8</span><span class="t3 f13">g</span></div></div></div>
+    <div class="well"><p class="note">Macros suggest ~138 kcal against your stated 142. Close enough &mdash;
+      we warn past 15% but never block.</p></div>
+    <div class="field mt16"><label>A typical serving</label>
+      <div class="row g10"><div class="input" style="flex:0 0 96px">200</div>
+        <div class="input" style="flex:1"><span style="flex:1">g</span><span class="t3 f13">= 284 kcal</span></div></div></div>
+  </div>
+</div>`},
+
+{id:'H-11',name:'Recipes',route:'/nutrition/recipes',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Recipes',right:`<span class="pill pill-live">${I.plus}</span>`})}
+    <div class="search mt12">${I.search}<span>Search</span></div></div>
+  <div class="scr-body">
+    <div class="card mt8"><div class="row btw"><b class="f14">Morning oats</b><span class="pill pill-mute">4 items</span></div>
+      <div class="f12 t3 mt4">428 kcal &middot; P24 C52 F12 per serving</div>
+      <button class="btn btn-primary btn-xs mt12">Log it</button></div>
+    <div class="card mt10"><div class="row btw"><b class="f14">Post-gym shake</b><span class="pill pill-mute">3 items</span></div>
+      <div class="f12 t3 mt4">340 kcal &middot; P42 C28 F6 per serving</div>
+      <button class="btn btn-ghost btn-xs mt12">Log it</button></div>
+    <p class="note mt16">Editing a recipe never changes meals already logged from it &mdash;
+      the same snapshot rule that protects foods.</p>
+  </div>
+</div>`},
+
+{id:'H-12',name:'Copy meal / day',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Lunch'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:44px">740</div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Copy &ldquo;Lunch &middot; Tue 21 Sep&rdquo;</b>
+    <div class="card mt16" style="padding:0 16px">
+      <div class="linkrow"><span class="radio on"></span><div class="t"><b>Tomorrow, Wed 22 Sep</b></div></div>
+      <div class="linkrow"><span class="radio"></span><div class="t"><b>A specific date</b></div><span class="c">&#9662;</span></div>
+      <div class="linkrow"><span class="radio"></span><div class="t"><b>Every day this week</b></div></div></div>
+    <div class="row g10 mt16"><span class="f13 t3" style="flex:0 0 58px">Add to</span>
+      <div class="input" style="flex:1"><span style="flex:1">Lunch</span><span class="c t3">&#9662;</span></div></div>
+    <div class="row g12 mt14"><span class="cbx on">${I.check}</span><span class="f13 t2">Keep the original amounts</span></div>
+    <button class="btn btn-primary mt16">Copy 2 items</button>
+    <p class="note mt12">Copies are manual entries, not new estimates &mdash; AI provenance is not carried over.</p>
+  </div></div>
+</div>`},
+
+{id:'H-13',name:'Quick add',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Today'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:50px">1,180</div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Quick add to Lunch</b>
+    <p class="note mt6">When nothing else fits. Works offline.</p>
+    <div class="field mt16"><label>Calories *</label>
+      <div class="input"><span style="flex:1">540</span><span class="t3 f13">kcal</span></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Protein</label>
+      <div class="input"><span style="flex:1">28</span><span class="t3 f13">g</span></div></div>
+      <div class="field" style="flex:1"><label>Carbs</label>
+      <div class="input"><span style="flex:1">62</span><span class="t3 f13">g</span></div></div></div>
+    <div class="field"><label>Fat</label><div class="input"><span style="flex:1">18</span><span class="t3 f13">g</span></div></div>
+    <div class="field"><label>Label</label><div class="input">Canteen lunch</div></div>
+    <button class="btn btn-primary">Add</button>
+  </div></div>
+</div>`},
+
+{id:'H-14',name:'Nutrition analytics',route:'/nutrition/analytics',html:()=>{
+  const cols=[82,95,78,100,70,88,96,76,92,84,79,97,86,100,68,88,94,80];
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Nutrition'})}
+    <div class="chips mt12"><span class="chip">Week</span><span class="chip on">Month</span>
+      <span class="chip">3 mo</span><span class="chip">Custom</span></div>
+    <p class="f12 t3 mt8">1 – 21 Sep 2026 &middot; 21 days</p></div>
+  <div class="scr-body">
+    <div class="stats two"><div><div class="v">2,280</div><div class="k">kcal avg</div></div>
+      <div><div class="v">168</div><div class="k">g protein avg</div></div></div>
+    <div class="stats two mt8"><div><div class="v">18</div><div class="k">of 21 logged</div></div>
+      <div><div class="v">12</div><div class="k">within 10%</div></div></div>
+    <div class="lbl mt24">Daily calories</div>
+    <div class="card mt8">
+      <svg class="chart" viewBox="0 0 320 96" height="96" aria-label="Daily calories against target">
+        <line class="tgt" x1="0" y1="26" x2="320" y2="26"/>
+        ${cols.map((v,i)=>`<rect class="bar" x="${i*17.6+2}" y="${88-v*0.62}" width="13" height="${v*0.62}" rx="3"/>`).join('')}
+        <line class="grid" x1="0" y1="88" x2="320" y2="88"/>
+        <text x="318" y="22" text-anchor="end">target 2,340</text></svg>
+      <div class="row btw mt6 f12"><span class="t3">1 &mdash; 21 Sep</span><span class="t2 w6">Table view</span></div></div>
+    <div class="lbl mt20">Macro split &middot; daily average</div>
+    <div class="card mt8"><div class="macro">
+      <div class="m mp"><span class="n">Protein</span><span class="b"><i style="width:29%"></i></span><span class="v">168 g</span></div>
+      <div class="m mc"><span class="n">Carbs</span><span class="b"><i style="width:42%"></i></span><span class="v">241 g</span></div>
+      <div class="m mf"><span class="n">Fat</span><span class="b"><i style="width:29%"></i></span><span class="v">73 g</span></div></div></div>
+    <div class="lbl mt20">Training vs rest days</div>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Training (12)</span><span class="v">2,410 <span class="t3 f12">kcal &middot; 181 g P</span></span></div>
+      <div class="kv"><span class="k">Rest (6)</span><span class="v">2,020 <span class="t3 f12">kcal &middot; 142 g P</span></span></div></div>
+    <div class="well mt16"><p class="note">Averages use the <b class="t2">18 days you logged</b>, and the count is
+      always shown beside the average. Unlogged days are excluded, never counted as zero.</p></div>
+    <div class="lbl mt20">Weight &amp; intake</div>
+    <div class="card mt8">
+      <svg class="chart" viewBox="0 0 320 44" height="44" aria-label="Weight trend">
+        <path class="ln" d="M6 10 L60 14 L114 18 L168 22 L222 26 L276 30 L314 34"/>
+        <text x="318" y="42" text-anchor="end">78.4 kg</text></svg>
+      <div style="height:1px;background:var(--line);margin:8px 0"></div>
+      <svg class="chart" viewBox="0 0 320 44" height="44" aria-label="Daily calories">
+        ${cols.slice(0,12).map((v,i)=>`<rect class="bar dim" x="${i*26+3}" y="${40-v*0.3}" width="19" height="${v*0.3}" rx="3"/>`).join('')}
+      </svg>
+      <p class="note mt8"><b class="t2">Two charts, one shared time axis</b> &mdash; never a dual-axis chart.
+        Two measures on two y-scales is the single most misleading chart this product could ship.</p></div>
+  </div>
+</div>`}},
+
+{id:'H-15',name:'Calorie &amp; macro targets',route:'/nutrition/targets',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Targets',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="seg mt8"><span class="on">Calculate for me</span><span>Set my own</span></div>
+    <div class="row g10 mt16"><div class="field" style="flex:1;margin:0"><label>Activity</label>
+      <div class="input"><span style="flex:1">Moderate</span><span class="c t3">&#9662;</span></div></div>
+      <div class="field" style="flex:1;margin:0"><label>Goal</label>
+      <div class="input"><span style="flex:1">Lose fat</span><span class="c t3">&#9662;</span></div></div></div>
+    <div class="dash mt16 ctr" style="padding:18px">
+      <div class="row g8" style="justify-content:center;color:var(--accent)">
+        <span style="width:13px;height:13px;display:block">${I.sparkle}</span><span class="lbl" style="color:var(--accent)">Estimated</span></div>
+      <div class="display mt10" style="font-size:50px">2,340</div><div class="f13 t3">kcal / day</div>
+      <p class="note mt10">BMR 1,680 &times; 1.55 = 2,604 &rarr; &minus;10%</p></div>
+    <div class="lbl mt20">Macros</div>
+    <div class="card mt8">
+      <div class="macro">
+        <div class="m mp"><span class="n">Protein</span><span class="b"><i style="width:30%"></i></span><span class="v">30% &middot; 176 g</span></div>
+        <div class="m mc"><span class="n">Carbs</span><span class="b"><i style="width:40%"></i></span><span class="v">40% &middot; 234 g</span></div>
+        <div class="m mf"><span class="n">Fat</span><span class="b"><i style="width:30%"></i></span><span class="v">30% &middot; 78 g</span></div></div>
+      <div class="row btw mt12 f12"><span class="t3">Total</span><span style="color:var(--good)">100% ${I.check}</span></div>
+      <div class="chips mt12"><span class="chip on">Balanced</span><span class="chip">High protein</span><span class="chip">Low carb</span></div></div>
+    <div class="well mt16"><p class="note">Changing targets affects <b class="t2">today onward</b>.
+      Your past days keep the numbers they had.</p></div>
+  </div>
+</div>`},
+
+{id:'H-16',name:'Meal categories',route:'/nutrition/categories',html:()=>{
+  const c=(n,t,locked)=>`<div class="linkrow"><span class="t3" style="width:16px">${I.drag}</span>
+    <div class="t"><b>${n}</b><span>Default ${t}</span></div>
+    ${locked?'<span class="pill pill-mute">In use</span>':`<span class="t3">${I.dots}</span>`}</div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Meal categories',right:`<span class="pill pill-live">${I.plus}</span>`})}</div>
+  <div class="scr-body">
+    <div class="card mt8" style="padding:0 16px">
+      ${c('Breakfast','08:00',1)}${c('Lunch','13:00',1)}${c('Dinner','20:00',1)}
+      ${c('Snacks','&mdash;',1)}${c('Pre-workout','17:00')}${c('Post-workout','19:30')}</div>
+    <p class="note mt16">A category with logged meals cannot be deleted, only hidden &mdash;
+      the same soft-delete principle as exercises and programs. Hidden categories still render in history.</p>
+  </div>
+</div>`}},
+
+{id:'H-17',name:'Barcode scanner [P2]',route:'/nutrition/barcode',html:()=>`
+<div class="screen" style="background:#000">
+  <div class="scr-head"><div class="row btw"><span style="color:#fff;width:22px;height:22px;display:block">${I.close}</span>
+    <span class="pill pill-mute">Phase 2</span></div></div>
+  <div class="scr-body" style="display:flex;align-items:center;justify-content:center">
+    <div style="width:250px;height:150px;border-radius:16px;border:2px solid rgba(176,164,255,.55);
+      background:rgba(176,164,255,.06);display:grid;place-items:center;position:relative">
+      <div style="width:210px;height:2px;background:var(--accent);box-shadow:0 0 14px var(--accent)"></div></div>
+  </div>
+  <div class="scr-foot" style="background:transparent;border-color:rgba(255,255,255,.1)">
+    <p class="ctr" style="color:rgba(255,255,255,.6);font-size:13px">Point at a barcode</p>
+    <p class="note ctr mt8">Shown as &ldquo;soon&rdquo; in the add-food sheet at MVP &mdash; never as a broken entry point.</p></div>
+</div>`},
+
+{id:'H-18',name:'Analysis history (audit)',route:'/nutrition/analyses',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Food analyses'})}</div>
+  <div class="scr-body">
+    <div class="card mt8"><div class="row g10">
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--sunken);border:1px solid var(--line);
+        display:grid;place-items:center;color:var(--ink-3)"><span style="width:16px;height:16px;display:block">${I.camera}</span></div>
+      <div style="flex:1"><b class="f14">21 Sep 13:20 &middot; photo</b>
+        <div class="f12 t3 mt2">3 foods &middot; 2 saved &middot; you edited 1</div></div><span class="c t3">&rsaquo;</span></div></div>
+    <div class="card mt10"><div class="row g10">
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--sunken);border:1px solid var(--line);
+        display:grid;place-items:center;color:var(--ink-3)"><span style="width:16px;height:16px;display:block">${I.sparkle}</span></div>
+      <div style="flex:1"><b class="f14">20 Sep 08:10 &middot; text</b>
+        <div class="f12 t3 mt2">&ldquo;2 eggs, 3 rotis…&rdquo; &middot; 3 saved</div></div><span class="c t3">&rsaquo;</span></div></div>
+    <div class="lbl mt24">What we estimated vs what you saved</div>
+    <div class="card mt8">
+      <div class="row btw" style="padding:8px 0;border-bottom:1px solid var(--line)">
+        <span class="f12 t3" style="flex:1">Estimated</span><span class="f12 t3" style="flex:1;text-align:right">Saved</span></div>
+      <div class="row btw" style="padding:9px 0;border-bottom:1px solid var(--line)">
+        <div style="flex:1"><div class="f13">Chicken biryani 350 g</div><div class="f12 t3">620 kcal &middot; 82%</div></div>
+        <div style="flex:1;text-align:right"><div class="f13">300 g</div><div class="f12" style="color:var(--accent)">531 kcal &middot; edited</div></div></div>
+      <div class="row btw" style="padding:9px 0;border-bottom:1px solid var(--line)">
+        <div style="flex:1"><div class="f13">Raita 100 g</div><div class="f12 t3">74 kcal &middot; 41%</div></div>
+        <div style="flex:1;text-align:right"><div class="f13">100 g</div><div class="f12 t3">74 kcal</div></div></div>
+      <div class="row btw" style="padding:9px 0">
+        <div style="flex:1"><div class="f13">Salad 60 g</div><div class="f12 t3">18 kcal &middot; 63%</div></div>
+        <div style="flex:1;text-align:right"><div class="f13 t3">not saved</div></div></div>
+      <p class="note mt10">Model: provider/model@version</p></div>
+    <button class="btn btn-ghost btn-sm mt16">Delete all photos</button>
+    <p class="note mt12">Deleting photos keeps the confirmed nutrition &mdash; the numbers live on the meal items.</p>
+  </div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

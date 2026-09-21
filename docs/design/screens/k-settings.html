@@ -1,0 +1,318 @@
+<title>Profile &amp; Settings — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">K · Settings</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const row=(ic,n,v,sub)=>`<div class="linkrow">${ic?`<span class="ic">${ic}</span>`:''}
+  <div class="t"><b>${n}</b>${sub?`<span>${sub}</span>`:''}</div>
+  ${v?`<span class="f13 t3">${v}</span>`:''}<span class="c">&rsaquo;</span></div>`;
+const sw=(n,on,sub)=>`<div class="swrow"><div class="t"><b>${n}</b>${sub?`<span>${sub}</span>`:''}</div>
+  <span class="sw ${on?'on':''}"><i></i></span></div>`;
+
+window.VOLT={title:"Profile &amp; Settings",intro:"BRD §15 customization and the user-facing half of §18. Any setting that changes displayed numbers states that it changes the display, not the stored data.",screens:[
+
+{id:'K-01',name:'Profile',route:'/settings',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Profile'})}</div>
+  <div class="scr-body">
+    <div class="card hero"><div class="row g12">
+      <div class="avatar" style="width:52px;height:52px;font-size:18px">AB</div>
+      <div style="flex:1"><b class="f14" style="font-size:16px">Aditya B.</b>
+        <div class="f12 t3 mt2">you@example.com &nbsp;<span style="color:var(--good)">${I.check} verified</span></div>
+        <div class="f12 t3">Member since Aug 2026</div></div>
+      <span class="c t3">&rsaquo;</span></div></div>
+    <div class="stats mt16"><div><div class="v">84</div><div class="k">Workouts</div></div>
+      <div><div class="v">412</div><div class="k">Meals</div></div>
+      <div><div class="v">24</div><div class="k">PRs</div></div></div>
+    <div class="lbl mt24">You</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${row('','Height','178 cm')}${row('','Birth date','12 Mar 1996')}${row('','Activity level','Moderate')}</div>
+    <div class="lbl mt24">Settings</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${row(I.scale,'Units, time zone &amp; week start')}
+      ${row(I.edit,'Logging preferences')}
+      ${row(I.target,'Calorie &amp; macro targets')}
+      ${row(I.home,'Dashboard layout')}
+      ${row(I.bell,'Notifications &amp; reminders')}
+      ${row(I.sparkle,'AI preferences')}
+      ${row(I.lock,'Data &amp; privacy')}
+      ${row(I.user,'Account &amp; security')}
+      ${row(I.gear,'Integrations','Soon')}
+      ${row(I.book,'About')}</div>
+    <button class="btn btn-ghost btn-sm mt16">Sign out</button>
+    <p class="note ctr mt12">You have an unfinished workout on this device.
+      It will still be here when you sign back in.</p>
+  </div>
+</div>`},
+
+{id:'K-02',name:'Account &amp; security',route:'/settings/account',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Account &amp; security'})}</div>
+  <div class="scr-body">
+    <div class="lbl">Email</div>
+    <div class="card mt8" style="padding:0 16px">${row('','you@example.com','Verified')}</div>
+    <div class="lbl mt20">Password</div>
+    <div class="card mt8" style="padding:0 16px">${row('','Change password','','Last changed 3 months ago')}</div>
+    <div class="lbl mt20">Signed in on</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><span style="width:8px;height:8px;border-radius:50%;background:var(--good);display:block"></span>
+        <div class="t"><b>This device</b><span>Chrome, macOS &middot; now</span></div></div>
+      <div class="linkrow"><span style="width:8px;height:8px;border-radius:50%;background:var(--line-2);display:block"></span>
+        <div class="t"><b>iPhone</b><span>Safari &middot; 2 days ago</span></div>
+        <span class="f12" style="color:var(--crit)">Sign out</span></div></div>
+    <button class="btn btn-ghost btn-sm mt12">Sign out everywhere else</button>
+    <div class="dash mt24"><p class="note">Changing your password revokes every other session.
+      Local workout drafts are never touched.</p></div>
+    <button class="btn btn-danger btn-sm mt16">Delete my account</button>
+  </div>
+</div>`},
+
+{id:'K-03',name:'Units &amp; time zone',route:'/settings/units',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Units &amp; time zone'})}</div>
+  <div class="scr-body">
+    <div class="lbl">Unit system</div>
+    <div class="seg mt8"><span class="on">Metric</span><span>Imperial</span></div>
+    <p class="helper">kg &middot; cm &middot; g &middot; ml &middot; km</p>
+    <div class="card mt12" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>Body weight</b></div>
+        <div class="seg" style="flex:0 0 92px;padding:2px"><span class="on" style="padding:5px;font-size:12px">kg</span><span style="padding:5px;font-size:12px">lb</span></div></div>
+      <div class="linkrow"><div class="t"><b>Load</b></div>
+        <div class="seg" style="flex:0 0 92px;padding:2px"><span class="on" style="padding:5px;font-size:12px">kg</span><span style="padding:5px;font-size:12px">lb</span></div></div>
+      <div class="linkrow"><div class="t"><b>Height</b></div>
+        <div class="seg" style="flex:0 0 92px;padding:2px"><span class="on" style="padding:5px;font-size:12px">cm</span><span style="padding:5px;font-size:12px">ft</span></div></div>
+    </div>
+    <div class="lbl mt20">Time zone</div>
+    <div class="card mt8"><div class="input" style="background:transparent;border:0;padding:0">
+      <span style="flex:1">Asia/Kolkata</span><span class="c t3">&#9662;</span></div>
+      <div class="swrow mt8" style="border:0;padding-bottom:0"><div class="t"><b>Follow this device</b></div>
+        <span class="sw on"><i></i></span></div>
+      <p class="note mt8">Your day runs 00:00–23:59 here. It decides which day a workout or meal belongs to.</p></div>
+    <div class="lbl mt20">Week starts on</div>
+    <div class="seg mt8"><span>Sun</span><span class="on">Mon</span><span>Sat</span></div>
+    <div class="well mt20"><p class="note"><b class="t2">Changing units only changes what you see.</b>
+      Your stored data never changes.</p></div>
+  </div>
+</div>`},
+
+{id:'K-04',name:'Logging preferences',route:'/settings/logging',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Logging'})}</div>
+  <div class="scr-body">
+    <div class="lbl">What to show while logging</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${sw('RPE',1,'Rate of perceived exertion')}${sw('RIR',0,'Reps in reserve')}
+      ${sw('Rest timer',1)}${sw('Duration',0)}${sw('Distance',0)}
+      ${sw('Set type',1,'Warm-up, drop, failure')}${sw('Per-set notes',1)}</div>
+    <div class="lbl mt20">Defaults</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>Load step</b></div>
+        <div class="seg" style="flex:0 0 130px;padding:2px"><span style="padding:5px;font-size:12px">1</span>
+          <span class="on" style="padding:5px;font-size:12px">2.5</span><span style="padding:5px;font-size:12px">5</span></div></div>
+      ${row('','Rest default','120 s')}
+      ${sw('Auto-start rest timer',1)}${sw('Keep the screen on',1)}
+      ${sw('Rest sound',0)}${sw('Rest vibration',1)}</div>
+    <div class="lbl mt20">How numbers are calculated</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${sw('Count warm-ups in volume',0)}
+      ${row('','Secondary muscles count as','50%')}
+      ${row('','1RM formula','Epley')}</div>
+    <div class="well mt12"><p class="note">These change what your <b class="t2">charts</b> show.
+      They never change your stored sets.</p></div>
+    <div class="lbl mt20">Plate inventory</div>
+    <div class="card mt8"><div class="chips">
+      <span class="chip on">25</span><span class="chip on">20</span><span class="chip on">15</span>
+      <span class="chip on">10</span><span class="chip on">5</span><span class="chip on">2.5</span>
+      <span class="chip on">1.25</span><span class="chip">0.5</span></div>
+      <p class="note mt8">Used by the plate calculator. kg.</p></div>
+  </div>
+</div>`},
+
+{id:'K-06',name:'Notifications',route:'/settings/notifications',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Notifications'})}</div>
+  <div class="scr-body">
+    <div class="dash" style="border-color:color-mix(in srgb,var(--warn) 45%,transparent)">
+      <div class="row g8"><span style="color:var(--warn)">${I.warn}</span>
+        <span class="f13" style="flex:1">Notifications are off for this app</span>
+        <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 14px">Turn on</button></div></div>
+    <div class="lbl mt20">Workouts</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${sw('Workout reminder',1,'07:00 on scheduled days')}
+      ${sw('Only on scheduled days',1)}
+      ${sw('Unfinished workout',1,'After 2 hours')}</div>
+    <div class="lbl mt20">Nutrition</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${sw('Meal reminders',1,'Breakfast 08:00 · Lunch 13:00 · Dinner 20:00')}
+      ${sw('Only if nothing is logged',1,'The setting that separates useful from annoying')}
+      ${sw('Food analysis finished',1)}</div>
+    <div class="lbl mt20">Body</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>Weigh-in reminder</b><span>Sunday 08:00</span></div>
+        <div class="seg" style="flex:0 0 132px;padding:2px"><span style="padding:5px;font-size:12px">Off</span>
+          <span class="on" style="padding:5px;font-size:12px">Weekly</span><span style="padding:5px;font-size:12px">Daily</span></div></div></div>
+    <div class="lbl mt20">Other</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${sw('New personal records',1)}${sw('Sync problems',1)}
+      ${sw('Quiet hours',1,'22:00 – 07:00')}</div>
+  </div>
+</div>`},
+
+{id:'K-07',name:'Data &amp; privacy',route:'/settings/privacy',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Data &amp; privacy'})}</div>
+  <div class="scr-body">
+    <div class="lbl">Your data</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${row(I.book,'Export everything','','JSON or CSV, emailed to you')}
+      ${row(I.sparkle,'Food analyses &amp; photos','','6 photos · 42 analyses')}</div>
+    <div class="btnrow mt12"><button class="btn btn-ghost btn-xs">Delete food photos</button>
+      <button class="btn btn-ghost btn-xs">Delete progress photos</button></div>
+    <div class="well mt20"><div class="row g8"><span class="t3" style="width:15px;height:15px;display:block">${I.lock}</span>
+      <b class="f13">How photos are stored</b></div>
+      <p class="note mt6">Encrypted, private, and only reachable through short-lived links we generate for you.
+        <b class="t2">There is no public address for your images.</b></p>
+      <div class="row btw mt10"><span class="f12 t3">Keep food photos for</span><span class="f13 t2 w6">90 days</span></div></div>
+    <div class="lbl mt20">Analytics</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${sw('Share anonymous usage data',1,'Never your photos, meals or measurements')}</div>
+    <div class="dash mt24" style="border-color:color-mix(in srgb,var(--crit) 40%,transparent)">
+      <b class="f13" style="color:var(--crit)">Delete my account</b>
+      <p class="note mt8">84 workouts &middot; 1,840 sets &middot; 412 meals &middot; 6 photos &middot; 96 weight entries.
+        All of it, permanently, after a 30-day grace period.</p>
+      <div class="btnrow mt12"><button class="btn btn-ghost btn-xs">Export it first</button>
+        <button class="btn btn-danger btn-xs">Continue</button></div></div>
+  </div>
+</div>`},
+
+{id:'K-08',name:'AI preferences',route:'/settings/ai',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'AI preferences'})}</div>
+  <div class="scr-body">
+    <div class="lbl">Food analysis</div>
+    <div class="card mt8">
+      <div class="row btw"><span class="f13 t2">Today&rsquo;s usage</span>
+        <span><span class="num">6</span> <span class="t3 f12">of 20</span></span></div>
+      <div class="meter mt8"><i style="width:30%"></i></div>
+      <p class="note mt8">Resets at midnight.</p></div>
+    <div class="card mt12" style="padding:0 16px">
+      ${row('','Flag items below','50% confidence','Low-confidence items start unticked so you check them')}</div>
+    <div class="dash mt12">
+      <div class="row g10"><span class="cbx on">${I.check}</span>
+        <div style="flex:1"><b class="f13">Always show me the result before saving</b></div>
+        <span class="t3" style="width:15px;height:15px;display:block">${I.lock}</span></div>
+      <p class="note mt8">This cannot be turned off. Estimates are never saved without you seeing them &mdash;
+        auto-confirming would break the confirmed-vs-estimated distinction the whole data model is built around.</p></div>
+    <div class="card mt12" style="padding:0 16px">
+      ${row('','Keep analyses for','90 days')}${row('','View past analyses')}</div>
+    <div class="well mt20"><div class="lbl">How it works</div>
+      <p class="note mt8">Photos and descriptions are sent to a vision model to identify foods and estimate
+        portions, then matched against a nutrition database. <b class="t2">Confidence is how sure we are we
+        spotted the food</b> &mdash; not how accurate the calories are.</p>
+      <p class="note mt8">Model: provider/model@version</p></div>
+  </div>
+</div>`},
+
+{id:'K-10',name:'About &amp; legal',route:'/settings/about',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'About'})}</div>
+  <div class="scr-body">
+    <div class="ctr mt12">
+      <div style="width:56px;height:56px;margin:0 auto;border-radius:18px;display:grid;place-items:center;
+        background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);box-shadow:var(--glow)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg></div>
+      <div class="display mt12" style="font-size:26px;letter-spacing:.06em">VOLT</div>
+      <div class="f12 t3 mt4">Version 1.0.0 &middot; build 482</div></div>
+    <div class="card mt24" style="padding:0 16px">
+      ${row('','What is new')}${row('','Terms of service')}${row('','Privacy policy')}
+      ${row('','Open-source licences')}${row('','Nutrition data attribution')}</div>
+    <div class="card mt12" style="padding:0 16px">
+      ${row('','Contact support','','Pre-fills version, platform and your last request ID')}
+      ${row('','Copy diagnostics')}</div>
+    <p class="note ctr mt20">Nutrition data attribution is a licensing requirement for most providers,
+      not an optional credit.</p>
+  </div>
+</div>`},
+
+{id:'K-05',name:'Dashboard layout',route:'/settings/dashboard',html:()=>{
+  const r=(n,on,sub)=>`<div class="swrow"><span class="t3" style="width:18px">${I.drag}</span>
+    <div class="t"><b>${n}</b>${sub?`<span>${sub}</span>`:''}</div>
+    <span class="sw ${on?'on':''}"><i></i></span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Dashboard layout',sub:'Drag to reorder',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="card" style="padding:0 16px">
+      ${r("Today's workout",1)}${r("Today's nutrition",1)}${r("Weight",1)}${r("This week",1)}
+      ${r("Progress chart",1,"e1RM · Bench press · 8 weeks")}
+      ${r("Personal records",0)}${r("Muscle balance",0)}${r("Recent meals",0)}
+      ${r("Goal progress",0,"Nothing to show yet")}</div>
+    <p class="note mt12">At least one card must stay visible. Layout is per-user, not per-device, and syncs.</p>
+    <button class="btn btn-ghost btn-sm mt16">Reset to default</button>
+    <div class="well mt16"><p class="note">Reached from Settings, but the same surface as
+      <b class="t2">B-02</b> on the dashboard &mdash; one screen, two entry points, never two implementations.</p></div>
+  </div>
+</div>`}},
+
+{id:'K-11',name:'Subscription [P2]',route:'/settings/subscription',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Subscription'})}</div>
+  <div class="scr-body">
+    <div class="empty" style="padding-top:60px"><div class="ic">${I.lock}</div>
+      <b>Not part of the MVP</b>
+      <p>There is no paid tier at launch.</p></div>
+    <div class="well mt16"><div class="lbl">Deliberate</div>
+      <p class="note mt8">No pricing surface, no locked features, no upsell placeholders and no
+        &ldquo;Pro&rdquo; badges on anything. A half-built paywall teaches users that parts of the app
+        are off-limits before there is anything to sell.</p>
+      <p class="note mt8">This route exists as a stub so the decision is recorded, not so it can be
+        quietly filled in later.</p></div>
+    <p class="note ctr mt16">Open question Q6 in the PRD &mdash; confirm before any billing work starts.</p>
+  </div>
+</div>`},
+
+{id:'K-09',name:'Integrations [P2]',route:'/settings/integrations',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Integrations'})}</div>
+  <div class="scr-body">
+    <div class="empty" style="padding-top:60px"><div class="ic">${I.gear}</div>
+      <b>Coming in Phase 2</b>
+      <p>Apple Health, Google Fit, Garmin and Fitbit.</p></div>
+    <div class="card mt12" style="padding:0 16px;opacity:.5">
+      ${row('','Apple Health','Soon')}${row('','Google Fit','Soon')}
+      ${row('','Garmin','Soon')}${row('','Fitbit','Soon')}</div>
+    <button class="btn btn-ghost btn-sm mt16">Notify me</button>
+    <p class="note ctr mt12">Shown as a single honest row at MVP &mdash; never a broken toggle.</p>
+  </div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

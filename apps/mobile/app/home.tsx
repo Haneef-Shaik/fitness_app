@@ -1,0 +1,158 @@
+/** B-01 Home Dashboard — BRD §14. First-run shows a checklist, never zeroed charts. */
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Card, Meter, Pill, Stat, StatRow, Text, Well } from '@/ui';
+import { useTheme, space, radius, font } from '@/theme';
+import { useSession } from '@/lib/session';
+import { goalsApi, type Goal } from '@/lib/api';
+import { dayTotals, remainingKcal } from '@volt/domain';
+
+function todayLabel(tz: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: tz, weekday: 'long', day: 'numeric', month: 'short',
+  }).format(new Date());
+}
+
+export default function Home() {
+  const { c } = useTheme();
+  const { profile, email, signOut, refreshProfile } = useSession();
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const load = async () => {
+    try { setGoals(await goalsApi.list()); } catch { /* surfaced by the empty state */ }
+  };
+  useEffect(() => { load(); }, []);
+
+  // No meals logged yet — the totals come from the domain package, not a hardcoded 0.
+  const totals = dayTotals([]);
+  const target = profile?.daily_calorie_target ?? 0;
+  const remaining = remainingKcal(totals.calories, target);
+  const tz = profile?.timezone ?? 'UTC';
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
+      <ScrollView
+        contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge }}
+        refreshControl={
+          <RefreshControl refreshing={busy} tintColor={c.ink3}
+            onRefresh={async () => { setBusy(true); await Promise.all([load(), refreshProfile()]); setBusy(false); }} />
+        }
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text variant="title">{todayLabel(tz)}</Text>
+          <Pressable onPress={signOut} accessibilityRole="button" accessibilityLabel="Sign out"
+            style={{ width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: c.line2,
+              alignItems: 'center', justifyContent: 'center' }}>
+            <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi }}>
+              {(email ?? 'U').slice(0, 2).toUpperCase()}
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Today's workout */}
+        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Today's workout</Text>
+        <Card hero>
+          <Pill>No program yet</Pill>
+          <Text variant="display" style={{ fontSize: 28, marginTop: 10 }}>Nothing planned</Text>
+          <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+            Build a program, or start an empty session.
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: space.base }}>
+            <Button title="Start workout" size="sm" style={{ flex: 1 }} />
+            <Button title="Browse" kind="ghost" size="sm" style={{ width: 92 }} />
+          </View>
+        </Card>
+
+        {/* Today's nutrition */}
+        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Today's nutrition</Text>
+        <Card hero>
+          {target > 0 ? (
+            <>
+              <View style={{ alignItems: 'center' }}>
+                <Text variant="hero" style={{ fontSize: 56 }}>{remaining.toLocaleString()}</Text>
+                <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+                  kcal left · {totals.calories.toLocaleString()} of {target.toLocaleString()}
+                </Text>
+              </View>
+              <View style={{ marginTop: space.md }}>
+                <Meter value={totals.calories} max={target} />
+              </View>
+              <View style={{ marginTop: space.base, gap: 9 }}>
+                {([['Protein', profile?.protein_g_target, c.s1],
+                   ['Carbs', profile?.carbs_g_target, c.s2],
+                   ['Fat', profile?.fat_g_target, c.s3]] as const).map(([n, t, col]) => (
+                  <View key={n} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <Text variant="caption" tone="ink3" style={{ width: 54 }}>{n}</Text>
+                    <View style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: c.sunken,
+                      borderWidth: 1, borderColor: c.line, overflow: 'hidden' }}>
+                      <View style={{ width: '0%', height: '100%', backgroundColor: col }} />
+                    </View>
+                    <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi, fontSize: 14 }}>
+                      0/{t ?? 0} g
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <Text variant="caption" tone="ink3" style={{ marginTop: space.md }}>Nothing logged yet.</Text>
+            </>
+          ) : (
+            <>
+              <Text variant="body" tone="ink2">No targets set yet.</Text>
+              <Button title="Set a target" kind="ghost" size="sm" style={{ marginTop: space.md }} />
+            </>
+          )}
+        </Card>
+
+        {/* Goals */}
+        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Goals</Text>
+        {goals.length === 0 ? (
+          <Card>
+            <Text variant="body" style={{ fontFamily: font.uiSemi }}>No goals yet</Text>
+            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+              Set a goal to track progress against.
+            </Text>
+            <Button title="Set a goal" kind="ghost" size="sm" style={{ marginTop: space.md }}
+              onPress={async () => {
+                await goalsApi.create({
+                  goal_type: 'fat_loss', metric_key: 'body_weight', direction: 'down',
+                  start_value: 78.4, target_value: 74, target_unit: 'kg',
+                  start_date: new Date().toISOString().slice(0, 10),
+                } as never);
+                load();
+              }} />
+          </Card>
+        ) : goals.map(g => (
+          <Card key={g.id} style={{ marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text variant="label">{g.goal_type.replace('_', ' ')}</Text>
+              <Pill kind="accent">{g.status}</Pill>
+            </View>
+            <Text variant="stat" style={{ marginTop: 8 }}>
+              {g.start_value ?? '—'} → {g.target_value} <Text variant="caption" tone="ink3">{g.target_unit}</Text>
+            </Text>
+            <View style={{ marginTop: space.md }}>
+              <Meter value={0.54} max={1} />
+            </View>
+          </Card>
+        ))}
+
+        {/* Profile summary — proves the API round-trip */}
+        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Your setup</Text>
+        <StatRow>
+          <Stat value={profile?.preferred_unit_system === 'metric' ? 'kg' : 'lb'} label="Units" />
+          <Stat value={String(profile?.daily_calorie_target ?? '—')} label="kcal target" />
+          <Stat value={String(profile?.protein_g_target ?? '—')} label="g protein" />
+        </StatRow>
+        <Well style={{ marginTop: space.md }}>
+          <Text variant="caption" tone="ink3">
+            Signed in as {email} · time zone {tz}. Your day starts and ends there — that decides
+            which day a workout or meal belongs to.
+          </Text>
+        </Well>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

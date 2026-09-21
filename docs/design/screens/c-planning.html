@@ -1,0 +1,248 @@
+<title>Workout Planning — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">C · Planning</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+window.VOLT={title:"Workout Planning",intro:"Programs, plan days and prescriptions. Everything here writes only to the plan tree — editing a program never touches a logged session, which is acceptance criterion AC-12.",screens:[
+
+{id:'C-01',name:'Train hub',route:'/train',html:()=>{
+  const l=(ic,n,s)=>`<div class="linkrow"><span class="ic">${ic}</span><div class="t"><b>${n}</b><span>${s}</span></div><span class="c">&rsaquo;</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Train',right:`${I.bell}<span class="avatar">AB</span>`})}</div>
+  <div class="scr-body">
+    <div class="card hero">
+      <div class="lbl">Today</div>
+      <div class="display mt8" style="font-size:30px">Chest &amp; Triceps</div>
+      <div class="f13 t3 mt4">6 exercises &middot; about 52 min</div>
+      <div class="btnrow mt16"><button class="btn btn-primary btn-sm">Start workout</button>
+        <button class="btn btn-ghost btn-sm" style="flex:0 0 84px">Change</button></div>
+    </div>
+    <div class="tiles mt12">
+      <button class="tile">${I.plus}<span>Empty</span></button>
+      <button class="tile">${I.repeat}<span>Repeat</span></button>
+      <button class="tile">${I.cal}<span>Past date</span></button>
+    </div>
+    <div class="card mt20" style="padding:0 16px">
+      ${l(I.book,'Programs','3 active')}${l(I.dumbbell,'Exercise library','412 exercises')}
+      ${l(I.timer,'History','84 sessions')}${l(I.chart,'Analytics','Volume, PRs, frequency')}
+      ${l(I.trophy,'Personal records','24 PRs')}
+    </div>
+    <div class="lbl mt24">Recent sessions</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>Chest &amp; Triceps</b><span>16 Sep &middot; 8,240 kg</span></div>
+        <span class="pill pill-pr">PR</span></div>
+      <div class="linkrow"><div class="t"><b>Legs</b><span>14 Sep &middot; 11,900 kg</span></div><span class="c">&rsaquo;</span></div>
+      <div class="linkrow"><div class="t"><b>Back &amp; Biceps</b><span>12 Sep &middot; 9,100 kg</span></div><span class="c">&rsaquo;</span></div>
+    </div>
+  </div>
+  ${tabbar('train')}
+</div>`}},
+
+{id:'C-02',name:'Programs list',route:'/train/programs',html:()=>{
+  const p=(n,d,sch,last)=>`<div class="card mt10"><div class="row btw">
+    <b class="f14">${n}</b><span class="t3">${I.dots}</span></div>
+    <div class="f12 t3 mt4">${d}</div>
+    <div class="row btw mt10"><span class="f12 ${sch?'':'t3'}">${sch||'Not scheduled'}</span>
+    <span class="f12 t3">${last}</span></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Programs',right:`<span class="pill pill-live">${I.plus}</span>`})}
+    <div class="seg mt12"><span class="on">Active</span><span>Archived</span></div></div>
+  <div class="scr-body">
+    ${p('Push / Pull / Legs','3 days &middot; 18 exercises','Mon &middot; Wed &middot; Fri','Used 5d ago')}
+    ${p('Upper / Lower','4 days &middot; 22 exercises','','Used 6w ago')}
+    ${p('Deload Week','3 days &middot; 12 exercises','','Never used')}
+    <div class="dash mt16"><p class="note"><b class="t2">Delete vs archive.</b> A program used by any session cannot be
+      deleted, only archived &mdash; the menu item is disabled with the reason.</p></div>
+  </div>
+</div>`}},
+
+{id:'C-03',name:'Program detail',route:'/train/programs/[id]',html:()=>{
+  const d=(i,n,day,ex,lines)=>`<div class="card mt10">
+    <div class="row btw"><span class="lbl">Day ${i} &middot; ${day}</span><span class="t3">${I.dots}</span></div>
+    <b class="f14" style="display:block;margin-top:6px">${n}</b>
+    <div class="f12 t3 mt4">${ex}</div>
+    ${lines?`<div class="mt10">${lines}</div>`:''}</div>`;
+  const ln=(n,s)=>`<div class="row btw f12" style="padding:5px 0"><span class="t2">${n}</span><span class="num t3">${s}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Push / Pull / Legs',sub:'3 days &middot; 18 exercises',right:I.dots})}</div>
+  <div class="scr-body">
+    <p class="f13 t2">Classic 3-day split. Progressive overload on the main lifts.</p>
+    ${d(1,'Push — Chest &amp; Triceps','Mon','6 exercises &middot; ~52 min',
+      ln('Barbell Bench Press','4 &times; 6-8 @ 80 kg')+ln('Incline DB Press','3 &times; 8-10')+ln('Cable Fly','3 &times; 12-15')+
+      `<div class="f12 t3" style="padding:5px 0">+ 3 more</div>
+       <div class="btnrow mt10"><button class="btn btn-primary btn-xs">Start this workout</button>
+       <button class="btn btn-ghost btn-xs" style="flex:0 0 72px">Edit</button></div>`)}
+    ${d(2,'Pull — Back &amp; Biceps','Wed','6 exercises')}
+    ${d(3,'Legs','Fri','6 exercises')}
+    <button class="btn btn-ghost btn-sm mt12">${I.plus} Add a day</button>
+    <div class="lbl mt24">Adherence &middot; last 4 weeks</div>
+    <div class="card mt8"><div class="row btw"><span class="num" style="font-size:22px">9 <span class="t3 f13">of 12</span></span>
+      <span class="num t2">75%</span></div>
+      <div class="meter mt10"><i style="width:75%"></i></div></div>
+  </div>
+</div>`}},
+
+{id:'C-04',name:'Create / edit program',route:'/train/programs/new',html:()=>{
+  const r=(i,n,day)=>`<div class="linkrow"><span class="t3" style="width:16px">${I.drag}</span>
+    <span class="num t3" style="width:14px">${i}</span>
+    <div class="t"><b>${n}</b></div><span class="pill pill-mute">${day}</span>
+    <span class="t3">${I.close}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'New program',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="field"><label>Name *</label><div class="input">Push / Pull / Legs</div></div>
+    <div class="field"><label>Description</label><div class="input ph">Classic 3-day split…</div></div>
+    <div class="lbl mt8">Days</div>
+    <div class="card mt8" style="padding:0 14px">
+      ${r(1,'Push — Chest &amp; Triceps','Mon')}${r(2,'Pull — Back &amp; Biceps','Wed')}${r(3,'Legs','Fri')}
+    </div>
+    <button class="btn btn-ghost btn-sm mt12">${I.plus} Add a day</button>
+    <button class="btn btn-ghost btn-sm mt8">Start from a template</button>
+  </div>
+</div>`}},
+
+{id:'C-05',name:'Plan day editor',route:'/train/plan-days/[id]',html:()=>{
+  const e=(i,n,m,p)=>`<div class="linkrow"><span class="t3" style="width:16px">${I.drag}</span>
+    <div class="t"><b>${n}</b><span>${m}</span>
+      <div class="f12 t2 num mt4">${p}</div></div><span class="t3">${I.dots}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'Push — Chest &amp; Triceps',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="field"><label>Day name</label><div class="input">Push — Chest &amp; Triceps</div></div>
+    <div class="field"><label>Scheduled</label>
+      <div class="chips"><span class="chip">&mdash;</span><span class="chip on">Mon</span><span class="chip">Tue</span>
+        <span class="chip">Wed</span><span class="chip">Thu</span><span class="chip">Fri</span></div></div>
+    <div class="lblrow mt16"><span class="lbl">Exercises</span><span class="num t3">6</span></div>
+    <div class="card" style="padding:0 14px">
+      ${e(1,'Barbell Bench Press','chest &middot; triceps &middot; front delts','4 sets &middot; 6–8 reps &middot; 80 kg &middot; 180 s')}
+      ${e(2,'Incline Dumbbell Press','chest &middot; front delts','3 sets &middot; 8–10 reps &middot; 120 s')}
+      ${e(3,'Cable Fly','chest','3 sets &middot; 12–15 reps &middot; 90 s')}
+    </div>
+    <button class="btn btn-ghost btn-sm mt12">${I.plus} Add exercises</button>
+    <div class="field mt16"><label>Notes</label><div class="input" style="min-height:64px;align-items:flex-start;padding-top:13px">Bench first, always warm up shoulders.</div></div>
+    <div class="well mt8"><div class="lbl">Live set count</div>
+      <p class="f12 t2 mt6">Estimated 52 min &middot; chest 13 sets &middot; triceps 7 &middot; delts 4</p>
+      <p class="note mt6">Primary muscles count fully, secondary at half &mdash; the same weighting analytics uses,
+        so planning and reporting agree.</p></div>
+  </div>
+</div>`}},
+
+{id:'C-06',name:'Exercise picker',route:'sheet',html:()=>{
+  const r=(n,eq,m,on)=>`<div class="linkrow"><span class="cbx ${on?'on':''}">${on?I.check:''}</span>
+    <div class="t"><b>${n}</b><span>${m}</span></div><span class="pill pill-mute">${eq}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Push — Chest &amp; Triceps'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Barbell Bench Press</b></div><div class="card mt10"><b>Incline DB Press</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <div class="search">${I.search}<span style="color:var(--ink)">bench</span></div>
+    <div class="chips mt12"><span class="chip">All</span><span class="chip on">Chest</span>
+      <span class="chip">Back</span><span class="chip">Legs</span><span class="chip">${I.filter}</span></div>
+    <div class="mt12">
+      ${r('Barbell Bench Press','barbell','chest &middot; triceps &middot; front delts',1)}
+      ${r('Incline Barbell Bench Press','barbell','upper chest &middot; front delts')}
+      ${r('Dumbbell Bench Press','dumbbell','chest &middot; triceps',1)}
+      ${r('Close-Grip Bench Press','barbell','triceps &middot; chest')}
+    </div>
+    <div class="dash mt12"><div class="row btw"><span class="f13 t3">Cannot find it?</span>
+      <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 14px">Create &ldquo;bench&rdquo;</button></div></div>
+    <div class="row btw mt16"><span class="f13 t2"><b class="num">2</b> selected</span>
+      <button class="btn btn-primary btn-sm" style="width:auto;padding:0 26px">Add 2</button></div>
+  </div></div>
+</div>`}},
+
+{id:'C-07',name:'Prescription editor',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Push — Chest &amp; Triceps'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Barbell Bench Press</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Barbell Bench Press</b>
+    <div class="musc mt8"><span class="p">chest</span><span>triceps</span><span>front delts</span></div>
+    <div class="row btw mt20"><span class="f14 t2">Target sets</span>
+      <div class="steps"><button class="sbtn">&minus;</button><span class="num" style="font-size:24px;min-width:32px;text-align:center">4</span><button class="sbtn">+</button></div></div>
+    <div class="field mt16"><label>Rep range</label>
+      <div class="row g10"><div class="input" style="flex:1;justify-content:center">6</div>
+        <span class="t3">to</span><div class="input" style="flex:1;justify-content:center">8</div></div></div>
+    <div class="field"><label>Target load</label>
+      <div class="row g10"><div class="input" style="flex:1">80</div>
+        <div class="seg" style="flex:0 0 108px"><span class="on">kg</span><span>lb</span></div></div>
+      <div class="helper">Leave blank to work up.</div></div>
+    <div class="field"><label>Rest between sets</label>
+      <div class="chips"><span class="chip">90s</span><span class="chip">2m</span><span class="chip on">3m</span><span class="chip">5m</span></div></div>
+    <div class="well"><div class="row btw"><div><div class="lbl">Last time</div>
+      <div class="num mt4" style="font-size:16px">4 &times; 8 @ 77.5 kg</div></div><span class="c t3">&rsaquo;</span></div></div>
+    <div class="btnrow mt16"><button class="btn btn-danger btn-sm">Remove</button>
+      <button class="btn btn-primary btn-sm">Save</button></div>
+  </div></div>
+</div>`},
+
+{id:'C-08',name:'Program schedule',route:'/train/programs/[id]/schedule',html:()=>{
+  const d=(day,v,rest)=>`<div class="linkrow"><span class="lbl" style="width:42px">${day}</span>
+    <div class="t"><b class="${rest?'t3':''}">${v}</b></div><span class="c">&#9662;</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Schedule',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <p class="f13 t2">Which days do you train?</p>
+    <div class="card mt16" style="padding:0 16px">
+      ${d('Mon','Push — Chest &amp; Triceps')}${d('Tue','Rest',1)}${d('Wed','Pull — Back &amp; Biceps')}
+      ${d('Thu','Rest',1)}${d('Fri','Legs')}${d('Sat','Rest',1)}${d('Sun','Rest',1)}
+    </div>
+    <div class="well mt16"><p class="note">This drives your dashboard&rsquo;s &ldquo;today&rsquo;s workout&rdquo; card
+      and your adherence number. Without a schedule, adherence reports &ldquo;not enough data&rdquo; rather than 0%.</p></div>
+    <button class="btn btn-ghost btn-sm mt16">Clear all</button>
+  </div>
+</div>`}},
+
+{id:'C-09',name:'Archive confirm',route:'dialog',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Programs'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Push / Pull / Legs</b></div><div class="card mt10"><b>Upper / Lower</b></div></div>
+  <div class="ov mid"><div class="ovc">
+    <b class="f14" style="font-size:17px">Archive this program?</b>
+    <p class="f13 t2 mt8" style="line-height:1.55"><b>Push / Pull / Legs</b> moves to Archived and stops appearing
+      when you start a workout. Your history stays exactly as it is.</p>
+    <div class="btnrow mt20"><button class="btn btn-ghost btn-sm">Cancel</button>
+      <button class="btn btn-primary btn-sm">Archive</button></div>
+    <p class="note mt12">Every archive is reversible from the Archived tab.</p>
+  </div></div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

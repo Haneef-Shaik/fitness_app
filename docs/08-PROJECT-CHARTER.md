@@ -116,9 +116,9 @@ Distinct from the product risks in [PRD §12](01-PRD.md#12-risks).
 
 | # | Risk | Impact | Mitigation | Status |
 |---|------|--------|------------|--------|
-| DR1 | **No migrations yet** — schema is created with `create_all` | Any real data becomes unmigratable | Alembic before M2 writes anything persistent | 🔴 Open |
+| DR1 | ~~No migrations~~ | Any real data becomes unmigratable | Alembic landed 21 Sep. The test suite **runs the migrations** rather than `create_all`, and `alembic check` fails the build on model drift | 🟢 Resolved |
 | DR2 | Nutrition provider undecided ([Q1](01-PRD.md#13-open-questions)) | Blocks M5/M6 food coverage and a licensing attribution requirement | Resolver interface built behind an abstraction; seed a small internal catalog to unblock | 🟡 Open |
-| DR3 | No CI — nothing enforces the shared vectors on every change | The cross-language guard only works if it runs | GitHub Actions running both suites | 🔴 Open |
+| DR3 | ~~No CI~~ | The cross-language guard only works if it runs | GitHub Actions landed 21 Sep: both suites, migrations, lint, and a check that neither suite stops loading the shared vectors | 🟢 Resolved |
 | DR4 | Device testing unverified — no Xcode/Android SDK locally | LAN connectivity and native behaviour untested | Expo Go on a physical device; verify before M2 ships | 🟡 Open |
 | DR5 | Scope pressure from 103 designed screens | Designing everything invites building everything | `[P2]` screens are hidden or explicitly "soon", never half-built | 🟢 Controlled |
 | DR6 | Two-language domain drift | User-visible inconsistency after sync | Shared vectors + mutation testing | 🟢 Controlled |

@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# builds & caches
+dist/
+build/
+.expo/
+.next/
+coverage/
+.pytest_cache/
+.ruff_cache/
+*.tsbuildinfo
+
+# environment — never commit secrets
+.env
+.env.*
+!.env.example
+
+# editors / OS
+.DS_Store
+.idea/
+*.swp

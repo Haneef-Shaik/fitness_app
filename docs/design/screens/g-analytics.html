@@ -1,0 +1,243 @@
+<title>Performance Analytics — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">G · Analytics</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const bars=(vals,w=320,h=80)=>{const m=Math.max(...vals),bw=w/vals.length-4;
+  return `<svg class="chart" viewBox="0 0 ${w} ${h+16}" height="${h+16}">
+    <line class="grid" x1="0" y1="${h}" x2="${w}" y2="${h}"/>
+    ${vals.map((v,i)=>{const bh=Math.round(v/m*(h-8));
+      return `<rect class="bar ${i<vals.length-3?'dim':''}" x="${i*(w/vals.length)+2}" y="${h-bh}" width="${bw}" height="${bh}" rx="3"/>`}).join('')}
+  </svg>`;};
+
+window.VOLT={title:"Performance Analytics",intro:"BRD §10 made visible. Two rules govern every screen here: each figure states its date range and unit, and every chart offers a table view.",screens:[
+
+{id:'G-01',name:'Analytics overview',route:'/train/analytics',html:()=>{
+  const mb=(n,v,pct)=>`<div class="m" style="grid-template-columns:54px 1fr auto">
+    <span class="n">${n}</span><span class="b"><i style="width:${pct}%;background:var(--accent)"></i></span>
+    <span class="v">${v}</span></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Analytics'})}
+    <div class="chips mt12"><span class="chip">4 wk</span><span class="chip on">12 wk</span>
+      <span class="chip">6 mo</span><span class="chip">1 yr</span><span class="chip">Custom</span></div>
+    <p class="f12 t3 mt8">29 Jun – 21 Sep 2026 &middot; 12 weeks</p></div>
+  <div class="scr-body">
+    <div class="stats two"><div><div class="v">38</div><div class="k">Sessions</div></div>
+      <div><div class="v">412,800</div><div class="k">kg volume</div></div></div>
+    <div class="stats two mt8"><div><div class="v">3.2</div><div class="k">Per week</div></div>
+      <div><div class="v">11</div><div class="k">New PRs</div></div></div>
+    <div class="lbl mt24">Weekly volume &middot; kg</div>
+    <div class="card mt8">${bars([18,24,31,28,34,38,30,39,42,36,44,46])}
+      <div class="row btw mt8 f12 t3"><span>avg 34,400 kg/wk</span><span class="dlt up">&#9650; 12%</span></div></div>
+    <div class="lbl mt24">Volume by muscle group &middot; kg</div>
+    <div class="card mt8"><div class="macro">
+      ${mb('Back','98,400',100)}${mb('Legs','94,100',96)}${mb('Chest','78,200',79)}
+      ${mb('Delts','41,900',43)}${mb('Arms','36,800',37)}${mb('Core','14,200',14)}</div></div>
+  </div>
+</div>`}},
+
+{id:'G-02',name:'Volume analytics',route:'/train/analytics/volume',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Volume'})}
+    <div class="chips mt12"><span class="chip">4wk</span><span class="chip on">12wk</span><span class="chip">6mo</span></div>
+    <div class="seg mt10"><span>Session</span><span class="on">Week</span><span>Month</span></div></div>
+  <div class="scr-body">
+    <div class="lbl mt12">Weekly volume &middot; kg</div>
+    <div class="card mt8">${bars([18,24,31,28,34,38,30,39,42,36,44,46])}
+      <div class="row btw mt8 f12"><span class="t3">W27 – W36</span><span class="t2 w6">Table view</span></div></div>
+    <div class="lbl mt20">By muscle group</div>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Back</span><span class="v">98,400 <span class="t3 f12">24%</span></span></div>
+      <div class="kv"><span class="k">Legs</span><span class="v">94,100 <span class="t3 f12">23%</span></span></div>
+      <div class="kv"><span class="k">Chest</span><span class="v">78,200 <span class="t3 f12">19%</span></span></div>
+      <div class="kv"><span class="k">Delts</span><span class="v">41,900 <span class="t3 f12">10%</span></span></div>
+    </div>
+    <div class="well mt16"><div class="lbl">How this is calculated</div>
+      <p class="note mt8">Volume = load &times; reps, for completed working sets. Warm-ups excluded.
+        Primary muscles count fully, secondary at half.</p>
+      <div class="row btw mt10"><span class="f12 t3">Change these rules</span><span class="c t3">&rsaquo;</span></div></div>
+    <div class="dash mt12"><p class="note">Bodyweight exercises contribute 0 to load&times;reps and are counted
+      separately as sets &mdash; otherwise a calisthenics user sees an inexplicably empty chart.</p></div>
+  </div>
+</div>`},
+
+{id:'G-03',name:'Exercise progression',route:'/train/analytics/exercises/[id]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Barbell Bench Press',right:I.filter})}
+    <div class="seg mt12"><span class="on">Top set</span><span>e1RM</span><span>Volume</span><span>Reps</span></div></div>
+  <div class="scr-body">
+    <div class="lbl mt12">Top set load &middot; kg</div>
+    <div class="card mt8">
+      <svg class="chart" viewBox="0 0 320 120" height="120" aria-label="Top set load over 12 weeks">
+        <line class="grid" x1="0" y1="104" x2="320" y2="104"/><line class="grid" x1="0" y1="62" x2="320" y2="62"/>
+        <path class="ar" d="M10 94 L54 86 L98 78 L142 78 L186 64 L230 58 L274 44 L310 18 L310 104 L10 104Z"/>
+        <path class="ln" d="M10 94 L54 86 L98 78 L142 78 L186 64 L230 58 L274 44 L310 18"/>
+        <circle class="pt" cx="10" cy="94" r="4"/><circle class="pt" cx="310" cy="18" r="5"/>
+        <text x="10" y="116">Jul</text><text x="150" y="116">Aug</text><text x="290" y="116">Sep</text>
+        <text x="10" y="88" text-anchor="start">72.5</text><text x="310" y="13" text-anchor="end">102.5</text></svg>
+      <div class="row btw mt6 f12"><span class="t3">12 weeks</span><span class="t2 w6">Table view</span></div></div>
+    <div class="stats mt16"><div><div class="v">102.5</div><div class="k">Best kg</div></div>
+      <div><div class="v">+30</div><div class="k">Over 12wk</div></div>
+      <div><div class="v">14</div><div class="k">Sessions</div></div></div>
+    <div class="lbl mt20">Session history</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>21 Sep</b><span>4 sets &middot; top 102.5&times;1 &middot; 2,560 kg</span></div>
+        <span class="pill pill-pr">PR</span></div>
+      <div class="linkrow"><div class="t"><b>16 Sep</b><span>4 sets &middot; top 80&times;8 &middot; 2,480 kg</span></div><span class="c">&rsaquo;</span></div>
+      <div class="linkrow"><div class="t"><b>11 Sep</b><span>4 sets &middot; top 80&times;8 &middot; 2,400 kg</span></div><span class="c">&rsaquo;</span></div>
+    </div>
+    <button class="btn btn-ghost btn-sm mt16">Compare with another exercise</button>
+    <p class="note mt10">A long gap breaks the line rather than interpolating &mdash; a straight line across three
+      missing months asserts data that does not exist.</p>
+  </div>
+</div>`},
+
+{id:'G-04',name:'Personal records',route:'/train/analytics/records',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Personal records',right:I.filter})}
+    <div class="search mt12">${I.search}<span>Search exercises</span></div>
+    <div class="seg mt10"><span class="on">Recent</span><span>A–Z</span><span>Most improved</span></div></div>
+  <div class="scr-body">
+    <div class="lbl mt12">Recent &middot; last 30 days</div>
+    <div class="card accent mt8">
+      <div class="row btw"><b class="f14">Barbell Bench Press</b><span class="f12 t3">21 Sep</span></div>
+      <div class="kv"><span class="k">Max load</span><span class="v">102.5 <span class="t3 f12">was 100</span> <span class="dlt up">&#9650; 2.5</span></span></div>
+      <div class="kv"><span class="k">e1RM</span><span class="v">118 <span class="t3 f12">was 115</span> <span class="dlt up">&#9650; 3</span></span></div>
+    </div>
+    <div class="card mt10">
+      <div class="row btw"><b class="f14">Barbell Squat</b><span class="f12 t3">19 Sep</span></div>
+      <div class="kv"><span class="k">Max load</span><span class="v">140 <span class="t3 f12">was 135</span> <span class="dlt up">&#9650; 5</span></span></div>
+    </div>
+    <div class="lbl mt20">All records</div>
+    <div class="card mt8">
+      <table class="settbl"><thead><tr><th style="width:auto;text-align:left">Exercise</th><th>Load</th><th>Reps</th><th style="width:auto">e1RM</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:13px;color:var(--ink)">Bench</td><td>102.5</td><td>14</td><td>118</td></tr>
+        <tr><td style="font-size:13px;color:var(--ink)">Squat</td><td>140</td><td>12</td><td>163</td></tr>
+        <tr><td style="font-size:13px;color:var(--ink)">Deadlift</td><td>180</td><td>8</td><td>208</td></tr>
+        <tr><td style="font-size:13px;color:var(--ink)">OHP</td><td>62.5</td><td>10</td><td>72</td></tr>
+      </tbody></table></div>
+    <p class="note mt12">From completed working sets only. e1RM uses Epley: load &times; (1 + reps/30).</p>
+  </div>
+</div>`},
+
+{id:'G-05',name:'Frequency &amp; balance',route:'/train/analytics/frequency',html:()=>{
+  const lv=[[1,2,4,3,4,4],[3,4,4,4,3,4],[4,1,3,4,4,3],[2,2,3,2,3,2],[2,3,2,3,2,3],[1,1,2,1,1,2]];
+  const names=['Chest','Back','Legs','Delts','Arms','Core'];
+  const col=v=>['var(--sunken)','rgba(176,164,255,.22)','rgba(176,164,255,.45)','rgba(176,164,255,.7)','var(--accent)'][v];
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Frequency'})}
+    <div class="chips mt12"><span class="chip">4wk</span><span class="chip on">12wk</span><span class="chip">6mo</span></div></div>
+  <div class="scr-body">
+    <div class="stats two mt12"><div><div class="v">3.2</div><div class="k">Sessions / wk</div></div>
+      <div><div class="v">38</div><div class="k">Total</div></div></div>
+    <div class="lbl mt24">Sets per muscle per week</div>
+    <div class="card mt8">
+      <div class="row g6" style="margin-left:52px;margin-bottom:6px">
+        ${['W31','W32','W33','W34','W35','W36'].map(w=>`<span class="f11 t3" style="flex:1;text-align:center">${w}</span>`).join('')}</div>
+      ${names.map((n,r)=>`<div class="row g6" style="margin-bottom:4px">
+        <span class="f12 t3" style="width:46px">${n}</span>
+        ${lv[r].map(v=>`<i style="flex:1;height:20px;border-radius:4px;background:${col(v)};border:1px solid var(--line);display:block"></i>`).join('')}
+      </div>`).join('')}
+      <div class="row g6 mt10 f11 t3" style="align-items:center"><span>0</span>
+        ${[0,1,2,3,4].map(v=>`<i style="width:16px;height:10px;border-radius:3px;background:${col(v)};border:1px solid var(--line);display:block"></i>`).join('')}
+        <span>20+ sets</span><span style="margin-left:auto" class="t2 w6">Table view</span></div>
+    </div>
+    <div class="dash mt16"><div class="row g8"><span style="color:var(--serious)">${I.warn}</span>
+      <span class="f13"><b>Core: 2 sets/week</b> over 12 weeks</span></div>
+      <p class="note mt6">Noticeably less than everything else. An observation, not advice.</p></div>
+    <div class="lbl mt20">Training days</div>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Monday</span><span class="v">11</span></div>
+      <div class="kv"><span class="k">Wednesday</span><span class="v">9</span></div>
+      <div class="kv"><span class="k">Friday</span><span class="v">10</span></div>
+      <div class="kv"><span class="k">Sunday</span><span class="v t3">0</span></div></div>
+  </div>
+</div>`}},
+
+{id:'G-06',name:'Adherence',route:'/train/analytics/adherence',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Adherence',sub:'Push / Pull / Legs'})}
+    <div class="chips mt12"><span class="chip">4wk</span><span class="chip on">12wk</span></div></div>
+  <div class="scr-body">
+    <div class="card hero mt12 ctr">
+      <div class="display" style="font-size:56px">86<span style="font-size:30px">%</span></div>
+      <div class="f13 t3 mt4"><b class="num t2">31</b> of <b class="num t2">36</b> planned sessions</div>
+      <div class="meter lg mt12"><i style="width:86%"></i></div></div>
+    <div class="lbl mt20">By week</div>
+    <div class="card mt8">
+      ${['W31','W32','W33','W34','W35','W36'].map((w,i)=>{
+        const p=[[1,1,1],[1,1,0],[1,1,1],[1,1,1],[1,0,1],[1,1,2]][i];
+        return `<div class="row btw" style="padding:7px 0"><span class="f12 t3">${w}</span>
+          <div class="dots">${p.map(v=>`<i class="${v===1?'on':''}" style="${v===2?'opacity:.3':''}"></i>`).join('')}</div></div>`}).join('')}
+      <div class="row g16 mt10 f11 t3"><span>&#9679; completed</span><span>&#9675; missed</span><span>&middot; upcoming</span></div></div>
+    <div class="lbl mt20">By plan day</div>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Push</span><span class="v">11/12 <span class="t3 f12">92%</span></span></div>
+      <div class="kv"><span class="k">Pull</span><span class="v">10/12 <span class="t3 f12">83%</span></span></div>
+      <div class="kv"><span class="k">Legs</span><span class="v">10/12 <span class="t3 f12">83%</span></span></div></div>
+    <div class="well mt16"><div class="lbl">Most missed</div>
+      <p class="f13 t2 mt6">Friday &middot; Legs &mdash; 2 of the 5 misses</p></div>
+    <p class="note mt12">Planned sessions come from your program schedule. Unscheduled programs are not counted.</p>
+  </div>
+</div>`},
+
+{id:'G-07',name:'Estimated 1RM',route:'/train/analytics/one-rep-max',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Estimated 1RM'})}
+    <div class="input mt12"><span style="flex:1">Barbell Bench Press</span><span class="c t3">&#9662;</span></div>
+    <div class="chips mt10"><span class="chip">12wk</span><span class="chip on">6mo</span><span class="chip">1yr</span></div></div>
+  <div class="scr-body">
+    <div class="card mt12">
+      <svg class="chart" viewBox="0 0 320 120" height="120" aria-label="Estimated 1RM over 6 months">
+        <line class="grid" x1="0" y1="104" x2="320" y2="104"/><line class="grid" x1="0" y1="62" x2="320" y2="62"/>
+        <path class="ar" d="M10 92 L56 86 L102 76 L148 72 L194 58 L240 48 L286 34 L310 22 L310 104 L10 104Z"/>
+        <path class="ln" d="M10 92 L56 86 L102 76 L148 72 L194 58 L240 48 L286 34 L310 22"/>
+        <circle class="pt" cx="310" cy="22" r="5"/>
+        <text x="10" y="116">Apr</text><text x="120" y="116">Jun</text><text x="220" y="116">Aug</text>
+        <text x="310" y="17" text-anchor="end">118 kg</text><text x="10" y="86">104</text></svg>
+      <div class="row btw mt6 f12"><span class="t3">6 months</span><span class="t2 w6">Table view</span></div></div>
+    <div class="stats two mt16"><div><div class="v">118</div><div class="k">Estimated kg</div></div>
+      <div><div class="v">102.5</div><div class="k">Best actual</div></div></div>
+    <div class="well mt16"><div class="lbl">Epley formula</div>
+      <p class="note mt8">load &times; (1 + reps/30), calculated per working set, best per session.
+        An estimate &mdash; it is <b class="t2">not a tested one-rep max</b>.</p></div>
+    <div class="field mt16"><label>Formula</label>
+      <div class="seg"><span class="on">Epley</span><span>Brzycki</span><span>Lombardi</span></div>
+      <div class="helper">Changing this recalculates the chart only. Your stored sets never change.</div></div>
+    <p class="note mt12">Sets above ~12 reps make every e1RM formula unreliable; those points are marked.</p>
+  </div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

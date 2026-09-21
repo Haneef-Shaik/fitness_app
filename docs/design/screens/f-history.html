@@ -1,0 +1,246 @@
+<title>Workout History — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">F · History</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+window.VOLT={title:"Workout History",intro:"Retrieval — the half of the product that answers the twelve questions in BRD §22. F-05 exists solely so you can find your previous chest day without knowing its date.",screens:[
+
+{id:'F-01',name:'History list',route:'/train/history',html:()=>{
+  const s=(d,n,meta,musc,pr)=>`<div class="linkrow"><div class="t">
+    <div class="row btw"><b>${d} &nbsp;${n}</b>${pr?'<span class="pill pill-pr">PR</span>':''}</div>
+    <span>${meta}</span><div class="f12 t3 mt4">${musc}</div></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'History',right:`${I.cal}${I.filter}`})}
+    <div class="chips mt12"><span class="chip on">All</span><span class="chip on">Chest</span>
+      <span class="chip on">This month</span><span class="chip">${I.close}</span></div></div>
+  <div class="scr-body">
+    <div class="lbl">September 2026</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${s('Tue 21','Chest &amp; Triceps','58 min &middot; 21 sets &middot; 8,940 kg','chest 13 &middot; triceps 7 &middot; delts 4',1)}
+      ${s('Sun 19','Legs','64 min &middot; 24 sets &middot; 12,100 kg','quads 10 &middot; hams 8 &middot; glutes 6')}
+      ${s('Fri 17','Back &amp; Biceps','51 min &middot; 19 sets &middot; 9,340 kg','lats 9 &middot; mid back 6 &middot; biceps 4')}
+      ${s('Wed 16','Chest &amp; Triceps','62 min &middot; 20 sets &middot; 8,240 kg','chest 12 &middot; triceps 8',1)}
+    </div>
+    <div class="lbl mt20">August 2026</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${s('Sat 30','Legs','59 min &middot; 22 sets &middot; 11,200 kg','quads 9 &middot; hams 7')}
+    </div>
+    <button class="btn btn-ghost btn-sm mt16">Load more</button>
+    <p class="note ctr mt12">84 sessions since 2 Aug 2025</p>
+  </div>
+</div>`}},
+
+{id:'F-01b',name:'History — filtered empty',route:'/train/history?…',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'History',right:`${I.cal}${I.filter}`})}
+    <div class="chips mt12"><span class="chip on">Calves</span><span class="chip on">Last 7 days</span>
+      <span class="chip">${I.close}</span></div></div>
+  <div class="scr-body">
+    <div class="empty" style="padding-top:70px"><div class="ic">${I.filter}</div>
+      <b>No sessions match these filters</b>
+      <p>Try widening the date range or the muscle filter.</p>
+      <button class="btn btn-ghost btn-sm mt16" style="width:auto;padding:0 22px">Clear filters</button></div>
+    <div class="dash mt20"><p class="note">This is <b class="t2">not</b> the same as having no history.
+      You have 84 sessions &mdash; conflating the two is a common and confusing bug.</p></div>
+  </div>
+</div>`},
+
+{id:'F-02',name:'History filters',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'History'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Chest &amp; Triceps</b></div><div class="card mt10"><b>Legs</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <div class="row btw"><span class="lbl">Date range</span><span class="f13 t3">Reset</span></div>
+    <div class="chips mt8"><span class="chip">All time</span><span class="chip on">This month</span>
+      <span class="chip">Last 3 mo</span><span class="chip">This year</span><span class="chip">Custom</span></div>
+    <div class="lbl mt20">Muscle group</div>
+    <div class="chips mt8"><span class="chip on">Chest</span><span class="chip">Back</span><span class="chip">Shoulders</span>
+      <span class="chip">Arms</span><span class="chip">Legs</span><span class="chip">Core</span></div>
+    <div class="card mt12" style="padding:0 14px">
+      <div class="linkrow"><span class="radio on"></span><div class="t"><b>Primary only</b>
+        <span>What most people mean by a chest day</span></div></div>
+      <div class="linkrow"><span class="radio"></span><div class="t"><b>Primary or secondary</b>
+        <span>Anything that trained chest at all</span></div></div>
+    </div>
+    <div class="lbl mt20">Exercise</div>
+    <div class="search mt8">${I.search}<span>Search…</span></div>
+    <button class="btn btn-primary mt20">Show 12 sessions</button>
+    <button class="btn btn-ghost btn-sm mt10">Jump to the previous Chest day</button>
+  </div></div>
+</div>`},
+
+{id:'F-03',name:'Session detail',route:'/train/sessions/[id]',html:()=>{
+  const row=(n,l,r,rpe,pr)=>`<tr><td>${n}</td><td>${l}</td><td>${r}</td><td>${rpe}</td>
+    <td>${pr?'<span class="pill pill-pr" style="font-size:9px;padding:2px 6px">PR</span>':''}</td></tr>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Chest &amp; Triceps',sub:'Tue 21 Sep &middot; 18:42–19:40',right:I.dots})}</div>
+  <div class="scr-body">
+    <div class="stats"><div><div class="v">6</div><div class="k">Exercises</div></div>
+      <div><div class="v">21</div><div class="k">Sets</div></div>
+      <div><div class="v">8,940</div><div class="k">kg volume</div></div></div>
+    <p class="f12 t3 mt10">chest 13 sets &middot; triceps 7 &middot; front delts 4</p>
+    <div class="card mt16">
+      <div class="row btw"><b class="f14">1 &nbsp;Barbell Bench Press</b><span class="pill pill-pr">PR</span></div>
+      <table class="settbl mt10"><thead><tr><th>Set</th><th>kg</th><th>Reps</th><th>RPE</th><th></th></tr></thead>
+        <tbody><tr class="warm"><td>W</td><td>40</td><td>12</td><td>&mdash;</td><td></td></tr>
+        ${row(1,80,8,8)}${row(2,80,8,8)}${row(3,80,7,9)}${row(4,'102.5',1,10,1)}</tbody></table>
+      <div class="row btw mt10 f12 t3"><span>Volume <b class="num t2">2,560</b> kg</span>
+        <span>e1RM <b class="num t2">118</b> kg</span></div>
+      <p class="f12 t2 mt8" style="font-style:italic">&ldquo;felt light today&rdquo;</p>
+    </div>
+    <div class="card mt10"><div class="row btw"><b class="f14">2 &nbsp;Incline Dumbbell Press</b><span class="t3">&#9662;</span></div>
+      <div class="f12 t2 num mt6">3 sets &middot; 30&times;10, 30&times;9, 30&times;8 &middot; 810 kg</div></div>
+    <div class="card mt10"><div class="row btw"><b class="f14">3 &nbsp;Cable Fly</b><span class="t3">&#9662;</span></div>
+      <div class="f12 t2 num mt6">3 sets &middot; 592 kg</div></div>
+    <div class="well mt16"><div class="lbl">Session notes</div>
+      <p class="f13 t2 mt6">Felt strong on bench today.</p></div>
+    <p class="note mt12">Volume excludes warm-ups and incomplete sets, so it always reconciles with Analytics.</p>
+  </div>
+  <div class="scr-foot"><div class="btnrow">
+    <button class="btn btn-ghost btn-sm">Compare</button>
+    <button class="btn btn-ghost btn-sm">Repeat this</button></div></div>
+</div>`}},
+
+{id:'F-04',name:'Edit past session',route:'/train/sessions/[id]/edit',html:()=>`
+<div class="screen">
+  <div class="scr-head">
+    <div class="dash" style="border-color:color-mix(in srgb,var(--serious) 50%,transparent);padding:9px 12px;margin-bottom:10px">
+      <div class="row g8"><span style="color:var(--serious)">${I.edit}</span>
+        <span class="f12 w6" style="color:var(--serious)">Editing a past workout &middot; 21 Sep</span></div></div>
+    ${nav({close:true,title:'Chest &amp; Triceps',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="card"><b class="f14">Barbell Bench Press</b>
+      <table class="settbl mt10"><thead><tr><th>Set</th><th>kg</th><th>Reps</th><th>RPE</th><th></th></tr></thead>
+        <tbody><tr><td>1</td><td>80</td><td>8</td><td>8</td><td><span class="t3">${I.edit}</span></td></tr>
+        <tr><td>2</td><td>80</td><td>8</td><td>8</td><td><span class="t3">${I.edit}</span></td></tr>
+        <tr><td>3</td><td>80</td><td>7</td><td>9</td><td><span class="t3">${I.trash}</span></td></tr></tbody></table></div>
+    <div class="dash mt16"><div class="row g8"><span style="color:var(--warn)">${I.warn}</span>
+      <b class="f13">Saving recalculates your records</b></div>
+      <p class="note mt8">Personal records for these exercises are re-scanned from your full history &mdash;
+        a record can be <b class="t2">demoted</b> by an edit, so this is a full recompute, not an increment.</p></div>
+    <div class="well mt12"><div class="lbl">Differences from live logging</div>
+      <div class="kv"><span class="k">Rest timer</span><span class="v f13 t3">Off</span></div>
+      <div class="kv"><span class="k">Previous performance</span><span class="v f13 t3">Before 21 Sep</span></div>
+      <div class="kv"><span class="k">New set time</span><span class="v f13 t3">That session&rsquo;s date</span></div></div>
+  </div>
+  <div class="scr-foot"><button class="btn btn-primary">Save changes</button></div>
+</div>`},
+
+{id:'F-05',name:'Previous occurrence',route:'/train/history/previous?muscle=chest',html:()=>{
+  const e=(n,sets,v)=>`<div class="card mt10"><b class="f14">${n}</b>
+    <div class="num t2 mt6" style="font-size:15px">${sets}</div>
+    <div class="f12 t3 mt4">volume <b class="num t2">${v}</b> kg</div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Your previous Chest day'})}</div>
+  <div class="scr-body">
+    <div class="card hero">
+      <div class="row btw"><span class="lbl">Wed 16 Sep</span><span class="pill pill-mute">5 days ago</span></div>
+      <div class="display mt8" style="font-size:26px">Chest &amp; Triceps</div>
+      <div class="f13 t3 mt4">62 min &middot; 8,240 kg</div>
+      <div class="well mt12" style="padding:10px 12px"><p class="note">Found by: exercises with
+        <b class="t2">chest as a primary muscle</b>, most recent completed session.</p></div>
+    </div>
+    <div class="lbl mt20">Chest work</div>
+    ${e('Barbell Bench Press','80&times;8 &middot; 80&times;8 &middot; 80&times;7 &middot; 77.5&times;8','2,480')}
+    ${e('Incline Dumbbell Press','30&times;10 &middot; 30&times;9 &middot; 27.5&times;10','810')}
+    ${e('Cable Fly','15&times;14 &middot; 15&times;12 &middot; 12.5&times;15','592')}
+    <div class="row btw mt12 f13"><span class="t3">Chest volume</span>
+      <span><b class="num">3,882</b> <span class="t3">kg &middot; 10 sets</span></span></div>
+    <div class="well mt16"><div class="row btw"><span class="f13 t2">Also in that session</span><span class="t3">&#9662;</span></div>
+      <p class="f12 t3 mt6">Overhead Press &middot; Triceps Pushdown &middot; Overhead Triceps Extension</p></div>
+    <div class="btnrow mt16"><button class="btn btn-ghost btn-sm">&#9664; The one before</button>
+      <button class="btn btn-ghost btn-sm">Compare both</button></div>
+  </div>
+  <div class="scr-foot"><button class="btn btn-primary">Repeat this workout</button></div>
+</div>`}},
+
+{id:'F-06',name:'Session comparison',route:'/train/history/compare',html:()=>{
+  const db=(lbl,x1,x2,v)=>`<div style="padding:9px 0">
+    <div class="row btw f12"><span class="t3">${lbl}</span><span class="num t2">${v}</span></div>
+    <svg class="chart mt6" viewBox="0 0 300 14" height="14">
+      <line x1="${x1}" y1="7" x2="${x2}" y2="7" stroke="var(--line-2)" stroke-width="2"/>
+      <circle cx="${x1}" cy="7" r="5" fill="var(--ink-3)"/><circle cx="${x2}" cy="7" r="5" fill="var(--accent)"/></svg></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Compare',right:I.filter})}</div>
+  <div class="scr-body">
+    <div class="stats"><div><div class="v">8,940</div><div class="k">21 Sep</div></div>
+      <div><div class="v">8,240</div><div class="k">16 Sep</div></div>
+      <div><div class="v">8,050</div><div class="k">11 Sep</div></div></div>
+    <div class="lbl mt20">Barbell Bench Press</div>
+    <div class="card mt8">
+      ${db('11 Sep',40,180,'77.5–80 kg')}${db('16 Sep',40,196,'77.5–80 kg')}${db('21 Sep',60,280,'80–102.5 kg')}
+      <div class="kv mt6"><span class="k">Volume</span><span class="v">2,560 <span class="dlt up">&#9650; 80</span></span></div>
+      <div class="kv"><span class="k">Best set</span><span class="v">102.5 &times; 1</span></div>
+    </div>
+    <div class="lbl mt20">Incline Dumbbell Press</div>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Volume</span><span class="v">810 <span class="dlt up">&#9650; 30</span></span></div>
+      <div class="kv"><span class="k">Best set</span><span class="v">30 &times; 10</span></div></div>
+    <div class="well mt16"><div class="lbl">Only in 21 Sep</div>
+      <p class="f13 t2 mt6">Overhead Triceps Extension</p>
+      <div class="lbl mt12">Only in 11 Sep</div>
+      <p class="f13 t2 mt6">Machine Chest Press</p></div>
+    <p class="note ctr mt12">A dumbbell chart &mdash; the form for before &rarr; after per item.</p>
+  </div>
+</div>`}},
+
+{id:'F-07',name:'Training calendar',route:'/train/history/calendar',html:()=>{
+  const days=[0,1,0,1,0,1,0, 1,0,1,0,1,0,0, 0,1,1,0,1,0,2, 3,0,3,0,3,0,0];
+  const cell=(v,n)=>{
+    const cls=v===1?'done':v===2?'done':v===3?'part':'';
+    return `<div><div class="m ${cls}" style="height:30px;position:relative">${v===1||v===2?I.check:''}
+      <span style="position:absolute;top:1px;left:4px;font-size:9px;font-weight:600;color:${v?'inherit':'var(--ink-3)'};opacity:.75">${n}</span></div></div>`;};
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'September 2026',right:`${I.back}${I.fwd}`})}</div>
+  <div class="scr-body">
+    <div class="week" style="grid-template-columns:repeat(7,1fr)">
+      ${['M','T','W','T','F','S','S'].map(d=>`<div class="d">${d}</div>`).join('')}</div>
+    <div class="heat mt6" style="grid-template-columns:repeat(7,1fr);gap:6px">
+      ${days.map((v,i)=>cell(v,i+1)).join('')}</div>
+    <div class="row g16 mt12 f12 t3">
+      <span class="row g6"><span style="width:10px;height:10px;border-radius:3px;background:var(--accent);display:block"></span>completed</span>
+      <span class="row g6"><span style="width:10px;height:10px;border-radius:3px;background:var(--accent-wash);border:1px solid var(--line-2);display:block"></span>planned</span>
+      <span class="row g6"><span style="width:10px;height:10px;border-radius:3px;background:var(--sunken);border:1px solid var(--line);display:block"></span>rest</span></div>
+    <div class="lbl mt24">Tue 21 Sep</div>
+    <div class="card mt8"><div class="row btw"><div><b class="f14">Chest &amp; Triceps</b>
+      <div class="f12 t3 mt2">58 min &middot; 8,940 kg</div></div><span class="pill pill-pr">PR</span></div></div>
+    <div class="row btw mt16 f12 t3"><span>12 sessions this month</span><span><b class="num t2">104,200</b> kg</span></div>
+  </div>
+</div>`}}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

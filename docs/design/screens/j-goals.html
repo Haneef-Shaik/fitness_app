@@ -1,0 +1,154 @@
+<title>Goals — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">J · Goals</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+window.VOLT={title:"Goals",intro:"Multiple goals can be active. Progress copy is factual and never moralising — a missed target date asks what you want to do, it does not declare failure.",screens:[
+
+{id:'J-01',name:'Goals list',route:'/progress/goals',html:()=>{
+  const g=(t,n,pct,left,meta)=>`<div class="card mt10">
+    <div class="row btw"><span class="lbl">${t}</span><span class="t3">${I.dots}</span></div>
+    <b class="f14" style="display:block;margin-top:6px">${n}</b>
+    <div class="meter mt10"><i style="width:${pct}%"></i></div>
+    <div class="row btw mt8 f12"><span class="t3">${meta}</span><span class="t2 w6">${left}</span></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Goals',right:`<span class="pill pill-live">${I.plus}</span>`})}
+    <div class="seg mt12"><span class="on">Active</span><span>Paused</span><span>Completed</span></div></div>
+  <div class="scr-body">
+    ${g('Lose fat','Reach 74.0 kg',54,'4.4 kg to go','Started 2 Aug &middot; target 30 Nov')}
+    ${g('Strength','Bench press 110 kg',78,'7.5 kg to go','Started 1 Jul &middot; no end date')}
+    <div class="empty mt20" style="padding:24px 16px"><div class="ic">${I.target}</div>
+      <b>That is everything</b><p>Multiple goals can run at once.</p></div>
+  </div>
+</div>`}},
+
+{id:'J-02',name:'Create goal',route:'/progress/goals/new',html:()=>{
+  const o=(n,s,on)=>`<div class="linkrow"><span class="radio ${on?'on':''}"></span>
+    <div class="t"><b>${n}</b><span>${s}</span></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({close:true,title:'New goal',right:'<span class="pill pill-live">Save</span>'})}</div>
+  <div class="scr-body">
+    <div class="lbl">What kind?</div>
+    <div class="card mt8" style="padding:0 16px">
+      ${o('Lose fat','Calorie deficit, keep your lifts',1)}${o('Build muscle','Slight surplus, progressive overload')}
+      ${o('Maintain','Hold weight, keep training')}${o('Get stronger','Strength focus')}
+      ${o('Something else','Set your own target')}</div>
+    <div class="field mt20"><label>Track it with</label>
+      <div class="input"><span style="flex:1">Body weight</span><span class="c t3">&#9662;</span></div>
+      <div class="helper">body weight &middot; body fat % &middot; a measurement &middot; an exercise 1RM &middot; daily calories</div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>From (now)</label>
+      <div class="input t3"><span style="flex:1">78.4</span><span class="f13">kg</span></div></div>
+      <div class="field" style="flex:1"><label>To</label>
+      <div class="input"><span style="flex:1">74.0</span><span class="t3 f13">kg</span></div></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Start</label>
+      <div class="input"><span style="flex:1">Today</span><span class="c t3">&#9662;</span></div></div>
+      <div class="field" style="flex:1"><label>Target date</label>
+      <div class="input"><span style="flex:1">30 Nov</span><span class="c t3">&#9662;</span></div></div></div>
+    <div class="well"><p class="note">That is about <b class="t2">0.45 kg per week</b>.
+      Above roughly 1% of bodyweight a week we say so &mdash; a caution, never a block, never medical advice.</p></div>
+    <div class="row g12 mt16"><span class="cbx"></span>
+      <span class="f13 t2" style="flex:1">Update my calorie target to match</span>
+      <span style="color:var(--accent);width:14px;height:14px;display:block">${I.sparkle}</span></div>
+    <p class="note mt8">Unchecked by default &mdash; nothing silently changes another setting.</p>
+  </div>
+</div>`}},
+
+{id:'J-03',name:'Goal detail',route:'/progress/goals/[id]',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Lose fat',sub:'Reach 74.0 kg by 30 Nov',right:I.dots})}</div>
+  <div class="scr-body">
+    <div class="card hero ctr">
+      <div class="display" style="font-size:46px">54<span style="font-size:26px">%</span></div>
+      <div class="f13 t3 mt4"><b class="num t2">5.1</b> of <b class="num t2">9.5</b> kg</div>
+      <div class="meter lg mt12"><i style="width:54%"></i></div></div>
+    <div class="card mt16">
+      <svg class="chart" viewBox="0 0 320 120" height="120" aria-label="Weight against goal and on-pace line">
+        <line class="grid" x1="0" y1="20" x2="320" y2="20"/>
+        <line class="tgt" x1="0" y1="100" x2="320" y2="100"/>
+        <path d="M8 18 L312 100" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="2 5" fill="none" opacity=".6"/>
+        <path class="ln" d="M8 20 L60 30 L112 44 L164 54 L216 62 L268 66 L300 70"/>
+        <circle class="pt" cx="300" cy="70" r="5"/>
+        <text x="4" y="16">83.5</text><text x="4" y="114">74.0 target</text>
+        <text x="300" y="66" text-anchor="end">78.4</text></svg>
+      <div class="row g16 mt8 f11 t3"><span>&mdash; actual</span><span>&middot;&middot; on pace</span>
+        <span style="margin-left:auto" class="t2 w6">Table view</span></div></div>
+    <div class="stats mt16"><div><div class="v">&minus;0.43</div><div class="k">kg / week</div></div>
+      <div><div class="v">10</div><div class="k">Weeks in</div></div>
+      <div><div class="v">12 Nov</div><div class="k">Projected</div></div></div>
+    <div class="well mt16"><div class="row g8"><span style="color:var(--good)">${I.check}</span>
+      <b class="f13">Slightly ahead of pace</b></div>
+      <p class="note mt6">Factual, never moralising. No streaks, no guilt.</p></div>
+    <div class="btnrow mt16"><button class="btn btn-ghost btn-sm">Adjust</button>
+      <button class="btn btn-ghost btn-sm">Pause</button>
+      <button class="btn btn-ghost btn-sm">Done</button></div>
+  </div>
+</div>`},
+
+{id:'J-04',name:'Goal outcome',route:'dialog',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Lose fat'})}</div>
+  <div class="scr-body" style="filter:blur(3px);opacity:.34" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:44px">100%</div></div></div>
+  <div class="ov mid"><div class="ovc ctr">
+    <div style="width:58px;height:58px;margin:0 auto;border-radius:50%;display:grid;place-items:center;
+      background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);box-shadow:var(--glow)">
+      <span style="width:26px;height:26px;display:block">${I.target}</span></div>
+    <div class="lbl mt16">You reached your goal</div>
+    <div class="display mt8" style="font-size:52px">74.0</div>
+    <div class="f13 t3">kilograms &middot; from 83.5 kg in 16 weeks</div>
+    <div class="stack g10 mt20">
+      <button class="btn btn-primary btn-sm">Set a new goal</button>
+      <button class="btn btn-ghost btn-sm">Switch to maintenance</button>
+      <button class="btn btn-ghost btn-sm">Keep it here</button></div>
+  </div></div>
+</div>`},
+
+{id:'J-04b',name:'Goal — date passed',route:'dialog',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Lose fat'})}</div>
+  <div class="scr-body" style="filter:blur(3px);opacity:.34" aria-hidden="true">
+    <div class="card hero ctr"><div class="display" style="font-size:44px">54%</div></div></div>
+  <div class="ov mid"><div class="ovc">
+    <b style="font-size:17px;font-weight:600">Your target date has passed</b>
+    <p class="f13 t2 mt8" style="line-height:1.55">You are <b>4.4 kg</b> from 74.0 kg.</p>
+    <div class="stack g10 mt20">
+      <button class="btn btn-ghost btn-sm">Extend the date</button>
+      <button class="btn btn-ghost btn-sm">Adjust the target</button>
+      <button class="btn btn-ghost btn-sm">Close this goal</button></div>
+    <p class="note mt12">No failure language, no streak-breaking, no guilt.
+      You decide what the outcome means.</p>
+  </div></div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

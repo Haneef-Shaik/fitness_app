@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  domain-typescript:
+    name: TypeScript domain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Domain tests (shared vectors)
+        run: pnpm --filter @volt/domain test
+      - run: pnpm --filter @volt/domain typecheck
+
+  api-python:
+    name: Python domain + API
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: volt
+          POSTGRES_PASSWORD: volt
+          POSTGRES_DB: volt_test
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U volt -d volt_test"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://volt:volt@localhost:5433/volt_test
+      DATABASE_URL: postgresql+asyncpg://volt:volt@localhost:5433/volt_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with: { enable-cache: true }
+      - working-directory: services/api
+        run: uv sync --frozen
+      - name: Lint
+        working-directory: services/api
+        run: uv run ruff check .
+      - name: Tests — domain vectors, migrations, API integration
+        working-directory: services/api
+        run: uv run pytest -q
+
+  contract:
+    name: Cross-language contract
+    runs-on: ubuntu-latest
+    needs: [domain-typescript, api-python]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Both suites load the same vectors
+        run: |
+          set -e
+          grep -q "contracts/vectors/domain.json" packages/domain/test/vectors.test.ts \
+            || { echo "TypeScript suite no longer loads the shared vectors"; exit 1; }
+          grep -q '"contracts"' services/api/tests/test_vectors.py \
+            || { echo "Python suite no longer loads the shared vectors"; exit 1; }
+          echo "Both suites are wired to contracts/vectors/domain.json"

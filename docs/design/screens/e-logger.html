@@ -1,0 +1,385 @@
+<title>Workout Logger — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">E · Logger</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const PREV=[{load:30,reps:10},{load:30,reps:9},{load:27.5,reps:10}];
+const fresh=()=>({sets:[{k:'W',load:20,reps:12,rpe:null,s:'synced'},{k:1,load:30,reps:10,rpe:8,s:'synced'},
+  {k:2,load:30,reps:9,rpe:9,s:'pending'}],entry:{load:30,reps:9,rpe:9},rest:0,restOn:false});
+let St=fresh(), timer=null;
+const working=()=>St.sets.filter(x=>x.k!=='W');
+const vol=()=>working().reduce((t,x)=>t+x.load*x.reps,0);
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('en-GB');
+function delta(i,s){const p=PREV[i]; if(!p) return '<span class="dlt flat">new</span>';
+  const d=(s.load*s.reps)-(p.load*p.reps);
+  if(Math.abs(d)<.5) return '<span class="dlt flat">=</span>';
+  return d>0?'<span class="dlt up">&#9650; '+fmt(d)+'</span>':'<span class="dlt down">&#9660; '+fmt(-d)+'</span>';}
+
+window.VOLT={title:"Workout Logger",intro:"The critical path. Every set commit is local-first: it renders instantly and syncs behind the scenes, so the screen never waits on a network. E-03 is live — use the steppers and save a set.",screens:[
+
+{id:'E-01',name:'Start a workout',route:'/train/start',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Start a workout',sub:'Tuesday, 21 September'})}</div>
+  <div class="scr-body">
+    <div class="lblrow"><span class="lbl">Today</span><span class="pill pill-mute">Push / Pull / Legs</span></div>
+    <div class="card hero">
+      <div class="display" style="font-size:38px">Chest<br>&amp; Triceps</div>
+      <div class="musc mt12"><span class="p">chest</span><span class="p">triceps</span><span>front delts</span></div>
+      <div class="stats mt16"><div><div class="v">6</div><div class="k">Exercises</div></div>
+        <div><div class="v">52</div><div class="k">Min est.</div></div>
+        <div><div class="v">8,240</div><div class="k">Last kg</div></div></div>
+      <button class="btn btn-primary mt16" data-go="E-02">Start workout ${I.arrow}</button></div>
+    <div class="tiles mt16">
+      <button class="tile">${I.repeat}<span>Repeat</span></button>
+      <button class="tile">${I.plus}<span>Empty</span></button>
+      <button class="tile">${I.cal}<span>Past date</span></button></div>
+    <div class="mt24">
+      <div class="lblrow"><span class="lbl">This week</span><span class="f12 t3"><b class="num t2">2</b> of 4</span></div>
+      <div class="week">${['M','T','W','T','F','S','S'].map((d,i)=>
+        `<div><div class="d">${d}</div><div class="m ${i<2?'done':''} ${i===1?'today':''}">${i<2?I.check:''}</div></div>`).join('')}</div>
+      <div class="row btw mt12 f12"><span class="t3">Volume this week</span>
+        <span><span class="num" style="font-size:16px">14,280</span> <span class="t3">kg</span>
+        <span class="dlt up" style="margin-left:5px">&#9650; 8%</span></span></div></div>
+    <div class="mt24"><div class="lbl" style="margin-bottom:6px">Up next</div>
+      <div class="linkrow"><div class="t"><b>Pull &mdash; Back &amp; Biceps</b><span>6 exercises &middot; Wednesday</span></div><span class="c">&rsaquo;</span></div>
+      <div class="linkrow"><div class="t"><b>Legs</b><span>6 exercises &middot; Friday</span></div><span class="c">&rsaquo;</span></div></div>
+  </div>
+</div>`},
+
+{id:'E-02',name:'Active session',route:'/session/[id]',html:()=>{
+  const rows=[
+    {st:'done',n:'Barbell Bench Press',m:'4 of 4 sets &middot; 2,560 kg',s:'80&times;8 &middot; 80&times;8 &middot; 80&times;7 &middot; 77.5&times;8',pr:1,d:[1,1,1,1]},
+    {st:'now',n:'Incline Dumbbell Press',m:'2 of 3 sets',s:'30&times;10 &middot; 30&times;9',d:[1,1,0]},
+    {st:'todo',n:'Cable Fly',m:'12&ndash;15 reps',d:[0,0,0]},
+    {st:'todo',n:'Overhead Press',m:'8&ndash;10 reps',d:[0,0,0]},
+    {st:'todo',n:'Triceps Pushdown',m:'12&ndash;15 reps',d:[0,0,0]},
+    {st:'todo',n:'Overhead Triceps Ext.',m:'12&ndash;15 reps',d:[0,0,0]}];
+  return `
+<div class="screen">
+  <div class="scr-head">
+    ${nav({close:true,title:'Chest &amp; Triceps',sub:'Push / Pull / Legs',
+      right:'<span class="pill pill-live">&#9679; 24:13</span>'+I.dots})}
+    <div class="mt12"><div class="row btw" style="margin-bottom:7px">
+      <span><span class="num" style="font-size:19px">8</span><span class="t3 num" style="font-size:15px"> / 21 sets</span></span>
+      <span class="f12 t3"><span class="num t2" style="font-size:15px">8,940</span> kg</span></div>
+      <div class="meter"><i style="width:38%"></i></div></div></div>
+  <div class="scr-body">
+    <div class="exlist">${rows.map((r,i)=>`<div class="ex ${r.st==='now'?'now':''}" ${r.st==='now'?'data-go="E-03" style="cursor:pointer"':''}>
+      <div class="exn ${r.st==='done'?'done':r.st==='now'?'now':''}">${r.st==='done'?I.check:r.st==='now'?I.play:i+1}</div>
+      <div class="exb"><div class="row btw"><div class="exname">${r.n}</div>${r.pr?'<span class="pill pill-pr">PR</span>':''}</div>
+        <div class="exmeta">${r.m}</div>${r.s?`<div class="exsets">${r.s}</div>`:''}
+        <div class="dots mt8">${r.d.map(x=>`<i class="${x?'on':''}"></i>`).join('')}</div></div></div>`).join('')}</div>
+    <button class="btn btn-ghost btn-sm mt16">${I.plus} Add an exercise</button>
+    <div class="well mt12"><div class="lbl">Session notes</div>
+      <div class="f13 t2 mt4">Felt strong on bench today.</div></div>
+  </div>
+  <div class="scr-foot"><div class="btnrow">
+    <button class="btn btn-danger btn-sm" style="flex:0 0 106px">Discard</button>
+    <button class="btn btn-primary btn-sm" data-go="E-08">Finish</button></div></div>
+</div>`}},
+
+{id:'E-03',name:'Set logger (live)',route:'/session/[id]/[exercise]',html:()=>{
+  let w=-1;
+  const rows=St.sets.map(s=>{const warm=s.k==='W'; if(!warm) w++;
+    return `<tr class="${warm?'warm':''}"><td>${warm?'W':w+1}</td>
+      <td>${fmt(s.load)}${warm?'':delta(w,s)}</td><td>${s.reps}</td><td>${s.rpe??'&mdash;'}</td>
+      <td><span class="sync ${s.s}"></span><span class="tick">${I.check}</span></td></tr>`;}).join('');
+  const n=working().length+1;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({title:'Incline Dumbbell Press',sub:'Exercise 2 of 6 &middot; target 3 &times; 8&ndash;10',
+    right:I.dots,back:true})}</div>
+  <div class="scr-body">
+    ${St.restOn?`<div class="rest"><span class="t" data-rest>${Math.floor(St.rest/60)}:${String(St.rest%60).padStart(2,'0')}</span>
+      <span class="x">Rest &middot; next up set ${n}</span><button data-act="skip">Skip</button></div>`:''}
+    <div class="well"><div class="row btw"><span class="lbl">Last time &middot; 16 Sep</span><span class="f12 t3">View &rsaquo;</span></div>
+      <div class="prevchips">${PREV.map(p=>`<b>${fmt(p.load)}&times;${p.reps}</b>`).join('')}</div></div>
+    <div class="mt16">
+      <div class="lblrow"><span class="lbl">Today</span>
+        <span class="f12 t3"><span class="num t2" style="font-size:15px">${fmt(vol())}</span> kg</span></div>
+      <table class="settbl"><thead><tr><th>Set</th><th>kg</th><th>Reps</th><th>RPE</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+    <div class="pad"><div class="lbl">Set ${n}</div>
+      <div class="padvals">
+        <div class="padv"><span class="n">${fmt(St.entry.load)}</span><span class="u">kg</span></div>
+        <span class="padx">&times;</span>
+        <div class="padv"><span class="n">${St.entry.reps}</span><span class="u">reps</span></div></div>
+      <div class="padctl">
+        <div class="steps"><button class="sbtn" data-act="l-" aria-label="Decrease load">&minus;</button>
+          <span class="cap">2.5</span><button class="sbtn" data-act="l+" aria-label="Increase load">+</button></div>
+        <div class="steps"><button class="sbtn" data-act="r-" aria-label="One rep fewer">&minus;</button>
+          <span class="cap">rep</span><button class="sbtn" data-act="r+" aria-label="One rep more">+</button></div></div></div>
+  </div>
+  <div class="scr-foot">
+    <button class="btn btn-primary" data-act="save">${I.check} Save set ${n}</button>
+    <div class="btnrow mt12"><button class="btn btn-ghost btn-sm" data-act="rep">Same as last</button>
+      <button class="btn btn-ghost btn-sm" style="flex:0 0 92px">More</button></div>
+    <div class="row btw f12 t3" style="padding:12px 4px 0"><span>&lsaquo; Bench Press</span><span>Cable Fly &rsaquo;</span></div></div>
+</div>`}},
+
+{id:'E-05',name:'Add / swap exercise',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Chest &amp; Triceps'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Incline Dumbbell Press</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Swap &ldquo;Incline Dumbbell Press&rdquo;</b>
+    <div class="dash mt10"><p class="note">Your <b class="t2">2 logged sets move with it</b>.
+      Deleting them instead would silently destroy work.</p></div>
+    <div class="lbl mt16">Suggested alternatives</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><div class="t"><b>Incline Barbell Press</b><span>chest &middot; front delts</span></div><span class="c">&rsaquo;</span></div>
+      <div class="linkrow"><div class="t"><b>Machine Chest Press</b><span>chest</span></div><span class="c">&rsaquo;</span></div>
+      <div class="linkrow"><div class="t"><b>Push-up (weighted)</b><span>chest &middot; triceps</span></div><span class="c">&rsaquo;</span></div></div>
+    <div class="search mt12">${I.search}<span>Search all exercises…</span></div>
+  </div></div>
+</div>`},
+
+{id:'E-06',name:'Advanced set editor',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Incline Dumbbell Press'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><div class="padvals"><div class="padv"><span class="n">30</span><span class="u">kg</span></div></div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <b class="f14">Set 3 &middot; Incline Dumbbell Press</b>
+    <div class="field mt16"><label>Set type</label>
+      <div class="seg"><span>Warm-up</span><span class="on">Working</span><span>Drop</span><span>Failure</span></div></div>
+    <div class="row g10"><div class="field" style="flex:1"><label>Load</label>
+      <div class="input"><span style="flex:1">30</span><span class="t3 f13">kg</span></div></div>
+      <div class="field" style="flex:1"><label>Reps</label><div class="input">9</div></div></div>
+    <div class="field"><label>RPE &middot; 9</label>
+      <div class="meter lg"><i style="width:90%"></i></div></div>
+    <div class="field"><label>RIR &middot; 1</label>
+      <div class="meter lg"><i style="width:10%"></i></div>
+      <div class="helper">RPE and RIR are two views of one judgement &mdash; editing one suggests the other.</div></div>
+    <div class="field"><label>Note</label><div class="input">Left side felt weak</div></div>
+    <div class="well"><div class="lbl">What set type changes</div>
+      <div class="kv"><span class="k">Warm-up</span><span class="v f13 t3">No volume, no PR</span></div>
+      <div class="kv"><span class="k">Working</span><span class="v f13">Volume + PR</span></div>
+      <div class="kv"><span class="k">Drop</span><span class="v f13 t3">Volume only</span></div></div>
+    <div class="btnrow mt16"><button class="btn btn-danger btn-sm">Delete set</button>
+      <button class="btn btn-primary btn-sm">Save</button></div>
+  </div></div>
+</div>`},
+
+{id:'E-07',name:'Session notes',route:'sheet',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Chest &amp; Triceps'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><b>Barbell Bench Press</b></div><div class="card mt10"><b>Incline DB Press</b></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <div class="row btw"><b class="f14">Session notes</b><span class="f13 t2 w6">Done</span></div>
+    <div class="input mt12" style="min-height:104px;align-items:flex-start;padding-top:13px;line-height:1.55">
+      Felt strong on bench today. Shoulder twinge on the last incline set.</div>
+    <div class="lbl mt16">Quick tags</div>
+    <div class="chips mt8"><span class="chip on">felt strong</span><span class="chip">tired</span>
+      <span class="chip">short on time</span><span class="chip">elbow pain</span><span class="chip">deload</span></div>
+    <p class="note mt12">Autosaves on blur into the session draft. Up to 2,000 characters.
+      Per-exercise notes use this same sheet, bound to the exercise instead.</p>
+  </div></div>
+</div>`},
+
+{id:'E-04',name:'Rest timer',route:'overlay',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Incline Dumbbell Press',sub:'Exercise 2 of 6',right:I.dots})}</div>
+  <div class="scr-body">
+    <div class="rest"><span class="t">1:47</span><span class="x">Rest &middot; next up set 4</span>
+      <button>Skip</button></div>
+    <div class="card hero ctr mt12">
+      <div class="lbl">Rest</div>
+      <div class="display mt10" style="font-size:72px;color:var(--accent)">1:47</div>
+      <div class="meter lg mt16"><i style="width:60%"></i></div>
+      <div class="row g10 mt16" style="justify-content:center">
+        <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 16px">&minus;15s</button>
+        <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 16px">+15s</button>
+        <button class="btn btn-ghost btn-xs" style="width:auto;padding:0 16px">Skip</button></div>
+      <p class="note mt16">Next: set 4 &middot; 30 kg &times; 9</p></div>
+    <div class="well mt16"><p class="note">Counts from a <b class="t2">target timestamp</b>, not an interval,
+      so it stays accurate after the tab is throttled or the phone sleeps. Collapses to a bar
+      so set entry is never blocked.</p></div>
+  </div>
+</div>`},
+
+{id:'E-08',name:'Finish summary',route:'/session/[id]/finish',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Finish workout'})}</div>
+  <div class="scr-body">
+    <div class="lbl">Tue 21 Sep &middot; 58 min</div>
+    <div class="display mt8" style="font-size:36px">Chest<br>&amp; Triceps</div>
+    <div class="card hero mt16 ctr">
+      <div class="lbl">Total volume</div>
+      <div class="display" style="font-size:66px;margin-top:6px">8,940</div>
+      <div class="f13 t3" style="margin-top:2px">kilograms &middot; <span class="dlt up">&#9650; 700 (+8.5%)</span></div>
+      <div class="stats mt16"><div><div class="v">6</div><div class="k">Exercises</div></div>
+        <div><div class="v">21</div><div class="k">Sets</div></div>
+        <div><div class="v">58</div><div class="k">Minutes</div></div></div></div>
+    <div class="card accent mt16">
+      <div class="row g8" style="color:var(--accent)"><span style="width:16px;height:16px;display:block">${I.trophy}</span>
+        <span class="lbl" style="color:var(--accent)">2 new records</span></div>
+      <div class="w6 mt8" style="font-size:15px">Barbell Bench Press</div>
+      <div class="kv"><span class="k">Max load</span><span class="v">102.5 <span class="t3 f12">kg</span> <span class="dlt up">&#9650; 2.5</span></span></div>
+      <div class="kv"><span class="k">Estimated 1RM</span><span class="v">118 <span class="t3 f12">kg</span> <span class="dlt up">&#9650; 3</span></span></div></div>
+    <div class="dash mt16"><div class="row g8"><span style="color:var(--serious)">${I.warn}</span>
+      <span class="f13 w6">Cable Fly &mdash; no sets logged</span></div>
+      <div class="btnrow mt12"><button class="btn btn-ghost btn-xs">Mark skipped</button>
+        <button class="btn btn-ghost btn-xs">Go back</button></div></div>
+  </div>
+  <div class="scr-foot">
+    <button class="btn btn-primary" data-go="E-11">Finish workout</button>
+    <button class="btn btn-ghost btn-sm mt12" data-go="E-02">Keep training</button></div>
+</div>`},
+
+{id:'E-09',name:'Discard session',route:'dialog',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Chest &amp; Triceps'})}</div>
+  <div class="scr-body" style="filter:blur(3px);opacity:.32" aria-hidden="true">
+    <div class="card"><b>Barbell Bench Press</b></div><div class="card mt10"><b>Incline DB Press</b></div></div>
+  <div class="ov mid"><div class="ovc">
+    <b style="font-size:17px;font-weight:600">Discard this workout?</b>
+    <p class="f13 t2 mt8" style="line-height:1.55">You have logged <b>8 sets</b> across <b>2 exercises</b>.
+      They will be deleted. This cannot be undone.</p>
+    <div class="btnrow mt20"><button class="btn btn-primary btn-sm">Keep training</button>
+      <button class="btn btn-danger btn-sm">Discard</button></div>
+    <p class="note mt12">Always names the exact count of what will be lost.
+      Focus lands on &ldquo;Keep training&rdquo;, never on the destructive action.</p>
+  </div></div>
+</div>`},
+
+{id:'E-10',name:'Session recovery',route:'overlay &rarr; /home',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Tuesday, 21 Sep',right:'<span class="avatar">AB</span>'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.42" aria-hidden="true">
+    <div class="lbl">Today</div>
+    <div class="card hero mt8"><div class="display" style="font-size:34px">Chest<br>&amp; Triceps</div></div>
+    <div class="lbl mt24">Nutrition</div>
+    <div class="card mt8 ctr"><div class="display" style="font-size:44px">1,180</div></div></div>
+  <div class="ov"><div class="ovc">
+    <div class="row g8" style="color:var(--accent)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+      <span class="lbl" style="color:var(--accent)">Unfinished workout</span></div>
+    <div class="display mt12" style="font-size:30px">Chest &amp; Triceps</div>
+    <div class="f13 t3 mt4">Started 1h 12m ago &middot; 8 sets logged</div>
+    <div class="well mt12"><div class="f12 t3">Last set</div>
+      <div class="f14 w6 mt4">Incline DB Press &nbsp;<span class="num" style="font-size:17px">30</span>
+        <span class="t3 f12">kg</span> &times; <span class="num" style="font-size:17px">9</span></div></div>
+    <div class="stack g10 mt16">
+      <button class="btn btn-primary btn-sm" data-go="E-02">Resume</button>
+      <button class="btn btn-ghost btn-sm" data-go="E-08">Finish it now</button>
+      <button class="btn btn-danger btn-sm">Discard</button></div>
+    <p class="note mt12">Everything you logged is saved on this device. Nothing is lost.</p>
+  </div></div>
+</div>`},
+
+{id:'E-11',name:'Personal record',route:'overlay',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Finish workout'})}</div>
+  <div class="scr-body" style="filter:blur(3px);opacity:.34" aria-hidden="true">
+    <div class="display" style="font-size:34px">Chest<br>&amp; Triceps</div>
+    <div class="card hero mt16 ctr"><div class="display" style="font-size:62px">8,940</div></div></div>
+  <div class="ov mid"><div class="ovc ctr">
+    <div style="width:56px;height:56px;margin:0 auto;border-radius:50%;display:grid;place-items:center;
+      background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);
+      box-shadow:0 14px 30px -12px rgba(176,164,255,.9)">
+      <span style="width:27px;height:27px;display:block">${I.trophy}</span></div>
+    <div class="lbl mt16">New personal record</div>
+    <div class="w6 mt8" style="font-size:19px">Barbell Bench Press</div>
+    <div class="display" style="font-size:76px;color:var(--accent);margin-top:8px">102.5</div>
+    <div class="f13 t3">kilograms &middot; previous best 100 kg</div>
+    <div class="btnrow mt20"><button class="btn btn-ghost btn-sm">Progression</button>
+      <button class="btn btn-primary btn-sm" data-go="E-01">Nice</button></div>
+    <p class="note mt12">Shown only after the summary &mdash; never mid-set.</p>
+  </div></div>
+</div>`},
+
+{id:'E-12',name:'Plate calculator',route:'sheet',html:()=>{
+  const pl=(w,n)=>`<div style="width:${n}px;height:${w}px;border-radius:3px;
+    background:linear-gradient(180deg,var(--accent-hi),var(--accent));box-shadow:var(--elev-1)"></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head">${nav({back:false,title:'Incline Dumbbell Press'})}</div>
+  <div class="scr-body" style="filter:blur(2px);opacity:.35" aria-hidden="true">
+    <div class="card"><div class="padvals"><div class="padv"><span class="n">102.5</span><span class="u">kg</span></div></div></div></div>
+  <div class="ov"><div class="sheet"><div class="grab"></div>
+    <div class="row btw"><b class="f14">Load 102.5 kg</b><span class="pill pill-mute">Bar 20 kg</span></div>
+    <div class="seg mt12"><span>15</span><span class="on">20</span><span>25</span><span>Custom</span></div>
+    <div class="card hero mt16">
+      <div class="lbl">Per side</div>
+      <div class="row g6 mt12" style="align-items:center;justify-content:center">
+        ${pl(56,13)}${pl(56,13)}${pl(26,7)}
+        <div style="flex:1;height:7px;background:var(--line-2);border-radius:4px;margin:0 4px"></div>
+        <span class="lbl">bar</span></div>
+      <div class="num ctr mt16" style="font-size:20px">20 &middot; 20 &middot; 1.25</div></div>
+    <div class="row btw mt16"><span class="f13 t2">Closest achievable</span>
+      <span style="color:var(--good)"><span class="num">102.5</span> kg ${I.check}</span></div>
+    <div class="row btw mt12"><span class="f13 t3">Available plates</span><span class="c t3">&rsaquo;</span></div>
+  </div></div>
+</div>`}},
+
+{id:'E-13',name:'Supersets [P2]',route:'—',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Supersets'})}</div>
+  <div class="scr-body">
+    <div class="row btw"><span class="lbl">Phase 2</span><span class="pill pill-mute">Not built at MVP</span></div>
+    <div class="empty mt20"><div class="ic">${I.repeat}</div>
+      <b>Grouped exercises</b>
+      <p>The logger alternates between paired exercises and the rest timer applies to the group.</p></div>
+    <div class="well mt16"><p class="note">Needs a <code>group_id</code> and <code>group_order</code> on
+      session exercises. Those columns are <b class="t2">not added until the feature is scheduled</b> &mdash;
+      a half-used schema is worse than none.</p></div>
+  </div>
+</div>`}
+
+],
+
+onClick(e,ctx){
+  const a=e.target.closest('[data-act]'); if(!a) return;
+  const stop=()=>{if(timer){clearInterval(timer);timer=null;} St.restOn=false;St.rest=0;};
+  switch(a.dataset.act){
+    case 'l+':St.entry.load=Math.min(200,St.entry.load+2.5);break;
+    case 'l-':St.entry.load=Math.max(0,St.entry.load-2.5);break;
+    case 'r+':St.entry.reps=Math.min(100,St.entry.reps+1);break;
+    case 'r-':St.entry.reps=Math.max(1,St.entry.reps-1);break;
+    case 'rep':{const l=[...St.sets].reverse().find(x=>x.k!=='W'); if(l){St.entry.load=l.load;St.entry.reps=l.reps;} break;}
+    case 'skip':stop();ctx.repaint();return;
+    case 'save':{
+      St.sets.push({k:working().length+1,load:St.entry.load,reps:St.entry.reps,rpe:St.entry.rpe,s:'pending'});
+      const saved=St.sets[St.sets.length-1];
+      setTimeout(()=>{saved.s='synced'; if(ctx.active()==='E-03') ctx.repaint();},1400);
+      stop(); St.restOn=true; St.rest=120; ctx.repaint();
+      timer=setInterval(()=>{St.rest--;
+        if(St.rest<=0){stop();ctx.repaint();return;}
+        const el=document.querySelector('[data-rest]');
+        if(el) el.textContent=Math.floor(St.rest/60)+':'+String(St.rest%60).padStart(2,'0'); else stop();},1000);
+      return;}
+  }
+  ctx.repaint();
+}};
+
+VoltShell.mount();
+})();
+</script>

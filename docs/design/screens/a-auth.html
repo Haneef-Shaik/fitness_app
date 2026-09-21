@@ -1,0 +1,287 @@
+<title>Auth &amp; Onboarding — Volt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../volt.css">
+
+<div class="topbar"><div class="topbar-in">
+  <a class="wordmark" href="../index.html">
+    <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
+    Volt <span class="sub">A · Auth</span></a>
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
+  </div>
+  <span class="spacer"></span>
+  <a class="chip-btn" href="../index.html">All domains</a>
+  <button class="chip-btn" id="themeBtn" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    <span id="themeLbl">Dark</span></button>
+</div></div>
+
+<div class="sheetwrap">
+  <section id="view-board"></section>
+  <section id="view-play" hidden></section>
+</div>
+
+<script src="../volt-shell.js"></script>
+<script>
+(function(){
+const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const dots=(n,of)=>`<div class="row g6">${Array.from({length:of},(_,i)=>
+  `<span style="width:${i===n?18:6}px;height:6px;border-radius:3px;background:${i<=n?'var(--accent)':'var(--line-2)'};display:block"></span>`).join('')}</div>`;
+
+window.VOLT={title:"Auth &amp; Onboarding",intro:"Sign-up through to a dashboard that is not empty. Step 2 of the wizard cannot be skipped because units and timezone decide what every later number means; everything else has a documented default.",screens:[
+
+{id:'A-01',name:'Splash / bootstrap',route:'/',html:()=>`
+<div class="screen" style="justify-content:center;align-items:center">
+  <div class="ctr" style="padding:0 40px">
+    <div style="width:64px;height:64px;margin:0 auto;border-radius:20px;display:grid;place-items:center;
+      background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);
+      box-shadow:0 18px 40px -14px rgba(176,164,255,.9)">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg></div>
+    <div class="display mt20" style="font-size:34px;letter-spacing:.06em">VOLT</div>
+    <div class="skel mt20" style="width:120px;height:4px;margin:20px auto 0"></div>
+  </div>
+</div>`},
+
+{id:'A-02',name:'Welcome',route:'/welcome',html:()=>`
+<div class="screen">
+  <div class="scr-body" style="padding-top:26px">
+    <div style="width:52px;height:52px;border-radius:17px;display:grid;place-items:center;
+      background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);box-shadow:var(--glow)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg></div>
+    <div class="display mt24" style="font-size:40px">Train. Eat.<br>See what<br>changed.</div>
+    <p class="f14 t2 mt16" style="line-height:1.55">Log workouts in seconds. Track calories from a photo. Watch the numbers move.</p>
+    <div class="card hero mt24">
+      <div class="lbl">A set takes one tap</div>
+      <div class="padvals" style="margin:10px 0 0"><div class="padv"><span class="n" style="font-size:44px">102.5</span><span class="u">kg</span></div>
+        <span class="padx" style="font-size:20px">&times;</span><div class="padv"><span class="n" style="font-size:44px">8</span><span class="u">reps</span></div></div>
+      <div class="row btw mt16"><span class="pill pill-pr">New PR</span><span class="dlt up">&#9650; 2.5 kg</span></div>
+    </div>
+  </div>
+  <div class="scr-foot">
+    <button class="btn btn-primary">Create account</button>
+    <button class="btn btn-ghost btn-sm mt12">I already have one</button>
+    <p class="note ctr mt12">By continuing you agree to the Terms and Privacy Policy.</p>
+  </div>
+</div>`},
+
+{id:'A-03',name:'Sign up',route:'/register',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Create your account'})}</div>
+  <div class="scr-body">
+    <div class="field"><label>Email</label><div class="input ph">you@example.com</div></div>
+    <div class="field"><label>Password</label>
+      <div class="input focus"><span style="flex:1">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span>
+        <span class="t3">${I.user}</span></div>
+      <div class="row g6 mt8">
+        <span style="flex:1;height:4px;border-radius:2px;background:var(--good)"></span>
+        <span style="flex:1;height:4px;border-radius:2px;background:var(--good)"></span>
+        <span style="flex:1;height:4px;border-radius:2px;background:var(--good)"></span>
+        <span style="flex:1;height:4px;border-radius:2px;background:var(--line-2)"></span>
+        <span class="f11 t2 w6" style="margin-left:6px">Strong</span></div>
+      <div class="helper">At least 10 characters.</div></div>
+    <div class="row g12 mt8"><span class="cbx"></span><span class="f13 t2">Email me reminders and product updates</span></div>
+    <button class="btn btn-primary mt20">Create account</button>
+    <div class="row g12 mt20"><span style="flex:1;height:1px;background:var(--line)"></span>
+      <span class="f12 t3">or</span><span style="flex:1;height:1px;background:var(--line)"></span></div>
+    <button class="btn btn-ghost btn-sm mt16">Continue with Apple</button>
+    <button class="btn btn-ghost btn-sm mt8">Continue with Google</button>
+    <p class="note ctr mt16">Already have an account? <b class="t2">Log in</b></p>
+  </div>
+</div>`},
+
+{id:'A-04',name:'Log in',route:'/login',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Welcome back'})}</div>
+  <div class="scr-body">
+    <div class="field"><label>Email</label><div class="input">you@example.com</div></div>
+    <div class="field"><label>Password</label><div class="input err"><span style="flex:1">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></div>
+      <div class="errtext">Email or password is incorrect.</div></div>
+    <div class="row btw"><span></span><span class="f13 t2 w6">Forgot password?</span></div>
+    <button class="btn btn-primary mt20">Log in</button>
+    <div class="row g12 mt20"><span style="flex:1;height:1px;background:var(--line)"></span>
+      <span class="f12 t3">or</span><span style="flex:1;height:1px;background:var(--line)"></span></div>
+    <button class="btn btn-ghost btn-sm mt16">Continue with Apple</button>
+    <p class="note ctr mt20">New here? <b class="t2">Create an account</b></p>
+  </div>
+</div>`},
+
+{id:'A-05',name:'Reset password',route:'/reset-password',html:()=>`
+<div class="screen">
+  <div class="scr-head">${nav({title:'Reset your password'})}</div>
+  <div class="scr-body">
+    <p class="f14 t2">We will email you a link.</p>
+    <div class="field mt16"><label>Email</label><div class="input">you@example.com</div></div>
+    <button class="btn btn-primary">Send reset link</button>
+    <div class="well mt24">
+      <div class="row g10"><span class="t3" style="width:16px;height:16px;display:block">${I.check}</span>
+        <span class="f13 t2" style="flex:1">If an account exists for that address, we have sent a reset link.</span></div>
+      <div class="row btw mt12"><span class="f12 t3">Did not get it?</span>
+        <span class="f12 t3 num">Resend in 0:45</span></div></div>
+    <p class="note mt16">We never say whether an account exists. That is deliberate.</p>
+  </div>
+</div>`},
+
+{id:'A-06',name:'Verify email',route:'/verify-email',html:()=>`
+<div class="screen">
+  <div class="scr-body" style="padding-top:60px">
+    <div class="empty">
+      <div class="ic" style="color:var(--accent)">${I.bell}</div>
+      <b>Confirm your email</b>
+      <p>We sent a link to you@example.com.</p>
+    </div>
+    <button class="btn btn-primary mt16">Open mail app</button>
+    <button class="btn btn-ghost btn-sm mt12">Resend link &middot; 0:45</button>
+    <button class="btn btn-ghost btn-sm mt8">Use a different email</button>
+    <div class="dash mt24"><p class="note">You have 7 days to confirm. Until then everything works &mdash;
+      and <b class="t2">workout logging never locks</b>, even after that.</p></div>
+    <p class="note ctr mt16"><b class="t2">Skip for now &rarr;</b></p>
+  </div>
+</div>`},
+
+{id:'A-07a',name:'Onboarding — basics',route:'/onboarding/basics',html:()=>`
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <button class="ico" style="width:34px;height:34px;display:grid;place-items:center">${I.back}</button>
+    ${dots(0,6)}<span class="f13 t3">Skip</span></div></div>
+  <div class="scr-body">
+    <div class="display mt12" style="font-size:30px">A bit about you</div>
+    <p class="f13 t3 mt8">This makes your calorie estimate more accurate. You can skip it.</p>
+    <div class="field mt20"><label>Name</label><div class="input">Aditya</div></div>
+    <div class="field"><label>Height</label><div class="input"><span style="flex:1">178</span><span class="t3 f13">cm</span></div></div>
+    <div class="field"><label>Birth date</label><div class="input ph">12 Mar 1996</div></div>
+    <div class="field"><label>Sex</label>
+      <div class="seg"><span class="on">Male</span><span>Female</span><span>Prefer not to say</span></div></div>
+  </div>
+  <div class="scr-foot"><button class="btn btn-primary">Continue</button></div>
+</div>`},
+
+{id:'A-07b',name:'Onboarding — units',route:'/onboarding/units',html:()=>`
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <button class="ico" style="width:34px;height:34px;display:grid;place-items:center">${I.back}</button>
+    ${dots(1,6)}<span class="f13 t3" style="opacity:.35">Skip</span></div></div>
+  <div class="scr-body">
+    <div class="display mt12" style="font-size:30px">How should we<br>show your numbers?</div>
+    <div class="row g10 mt20">
+      <div class="card" style="flex:1"><div class="row g10"><span class="radio on"></span>
+        <div><b class="f14">Metric</b><div class="f12 t3">kg &middot; cm &middot; g</div></div></div></div>
+      <div class="card" style="flex:1"><div class="row g10"><span class="radio"></span>
+        <div><b class="f14">Imperial</b><div class="f12 t3">lb &middot; in &middot; oz</div></div></div></div>
+    </div>
+    <div class="field mt20"><label>Time zone</label>
+      <div class="input"><span style="flex:1">Asia/Kolkata</span><span class="pill pill-mute">Detected</span></div>
+      <div class="helper">This sets when your day starts and ends for calories and workouts.</div></div>
+    <div class="field"><label>Week starts on</label>
+      <div class="seg"><span>Sun</span><span class="on">Mon</span><span>Sat</span></div></div>
+    <div class="dash mt8"><p class="note">This step cannot be skipped &mdash; every date and unit in the app depends on it.</p></div>
+  </div>
+  <div class="scr-foot"><button class="btn btn-primary">Continue</button></div>
+</div>`},
+
+{id:'A-07c',name:'Onboarding — goal',route:'/onboarding/goal',html:()=>{
+  const o=(n,s,on)=>`<div class="card mt10" ${on?'style="border-color:color-mix(in srgb,var(--accent) 45%,transparent)"':''}>
+    <div class="row g12"><span class="radio ${on?'on':''}"></span><div class="t" style="flex:1">
+    <b class="f14">${n}</b><div class="f12 t3">${s}</div></div></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <button class="ico" style="width:34px;height:34px;display:grid;place-items:center">${I.back}</button>
+    ${dots(3,6)}<span class="f13 t3">Skip</span></div></div>
+  <div class="scr-body">
+    <div class="display mt12" style="font-size:30px">What are you<br>working toward?</div>
+    ${o('Lose fat','Calorie deficit, keep your lifts',1)}
+    ${o('Build muscle','Slight surplus, progressive overload')}
+    ${o('Maintain','Hold weight, keep training')}
+    ${o('Get stronger','Strength focus, weight secondary')}
+    ${o('Something else','Set your own target')}
+    <div class="field mt16"><label>Target weight</label>
+      <div class="input"><span style="flex:1">74.0</span><span class="t3 f13">kg</span></div>
+      <div class="helper">You are at 78.4 kg now. That is about 0.45 kg per week to 30 Nov.</div></div>
+  </div>
+  <div class="scr-foot"><button class="btn btn-primary">Continue</button></div>
+</div>`}},
+
+{id:'A-08',name:'Target review',route:'/onboarding/targets',html:()=>`
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <button class="ico" style="width:34px;height:34px;display:grid;place-items:center">${I.back}</button>
+    ${dots(4,6)}<span class="f13 t3">Skip</span></div></div>
+  <div class="scr-body">
+    <div class="display mt12" style="font-size:30px">Your starting<br>targets</div>
+    <div class="dash mt20" style="padding:18px">
+      <div class="row g8"><span style="color:var(--accent);width:14px;height:14px;display:block">${I.sparkle}</span>
+        <span class="lbl" style="color:var(--accent)">Estimated from your profile</span></div>
+      <div class="ctr mt12"><div class="display" style="font-size:54px">2,340</div>
+        <div class="f13 t3">kcal per day</div></div>
+      <div class="macro mt20">
+        <div class="m mp"><span class="n">Protein</span><span class="b"><i style="width:30%"></i></span><span class="v">176 g</span></div>
+        <div class="m mc"><span class="n">Carbs</span><span class="b"><i style="width:40%"></i></span><span class="v">234 g</span></div>
+        <div class="m mf"><span class="n">Fat</span><span class="b"><i style="width:30%"></i></span><span class="v">78 g</span></div>
+      </div>
+    </div>
+    <div class="well mt16">
+      <div class="row btw"><span class="lbl">How we got there</span><span class="t3">&#9662;</span></div>
+      <p class="note mt8">BMR 1,680 &times; activity 1.55 = 2,604, then &minus;10% for fat loss.
+        Mifflin&ndash;St Jeor. An estimate, not medical advice. Change it any time in Settings.</p>
+    </div>
+  </div>
+  <div class="scr-foot"><div class="btnrow">
+    <button class="btn btn-ghost btn-sm">Adjust</button>
+    <button class="btn btn-primary btn-sm">Looks good</button></div></div>
+</div>`},
+
+{id:'A-09',name:'Program starter',route:'/onboarding/program',html:()=>{
+  const p=(n,d,ex,on)=>`<div class="card mt10" ${on?'style="border-color:color-mix(in srgb,var(--accent) 45%,transparent)"':''}>
+    <div class="row g12"><span class="radio ${on?'on':''}"></span>
+    <div style="flex:1"><div class="row btw"><b class="f14">${n}</b><span class="pill pill-mute">${d}</span></div>
+    <div class="f12 t3 mt4">${ex}</div></div></div></div>`;
+  return `
+<div class="screen">
+  <div class="scr-head"><div class="row btw">
+    <button class="ico" style="width:34px;height:34px;display:grid;place-items:center">${I.back}</button>
+    ${dots(5,6)}<span class="f13 t3">Skip</span></div></div>
+  <div class="scr-body">
+    <div class="display mt12" style="font-size:30px">Pick a starting<br>point</div>
+    <p class="f13 t3 mt8">You can change everything later.</p>
+    ${p('Push / Pull / Legs','3 days','Chest+shoulders &middot; back &middot; legs &middot; 18 exercises',1)}
+    ${p('Upper / Lower','4 days','22 exercises')}
+    ${p('Full Body','3 days','15 exercises')}
+    ${p('Build my own','&mdash;','Start from an empty program')}
+  </div>
+  <div class="scr-foot"><div class="btnrow">
+    <button class="btn btn-ghost btn-sm">Skip</button>
+    <button class="btn btn-primary btn-sm">Use this</button></div></div>
+</div>`}},
+
+{id:'A-10',name:'Onboarding complete',route:'/onboarding/done',html:()=>`
+<div class="screen">
+  <div class="scr-body" style="padding-top:50px">
+    <div class="ctr">
+      <div style="width:64px;height:64px;margin:0 auto;border-radius:50%;display:grid;place-items:center;
+        background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);box-shadow:var(--glow)">
+        <span style="width:30px;height:30px;display:block">${I.check}</span></div>
+      <div class="display mt20" style="font-size:34px">You are all set</div>
+    </div>
+    <div class="lbl mt24">What happens next</div>
+    <div class="card mt8" style="padding:0 16px">
+      <div class="linkrow"><span class="ic">${I.dumbbell}</span><div class="t"><b>Push is scheduled Monday</b>
+        <span>6 exercises &middot; about 52 min</span></div></div>
+      <div class="linkrow"><span class="ic">${I.target}</span><div class="t"><b>2,340 kcal &middot; 176 g protein</b>
+        <span>Your daily target</span></div></div>
+      <div class="linkrow"><span class="ic">${I.scale}</span><div class="t"><b>Log your weight</b>
+        <span>Starts the trend line</span></div></div>
+    </div>
+  </div>
+  <div class="scr-foot">
+    <button class="btn btn-primary">Log my weight now</button>
+    <button class="btn btn-ghost btn-sm mt12">Go to my dashboard</button></div>
+</div>`}
+
+]};
+
+VoltShell.mount();
+})();
+</script>

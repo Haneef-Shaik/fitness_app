@@ -1,0 +1,142 @@
+/**
+ * Typed client for the Volt API.
+ *
+ * Every response uses the envelope from docs/02 §7:
+ *   { success, data, error: { code, message, fields, request_id } }
+ * The client unwraps it and throws ApiError, so callers never inspect `success`.
+ */
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
+
+function defaultBase(): string {
+  const fromEnv = process.env.EXPO_PUBLIC_API_URL;
+  if (fromEnv) return fromEnv;
+  if (Platform.OS === 'web') return 'http://localhost:8000';
+  // A physical device cannot reach the laptop on localhost — use the Metro host LAN IP.
+  const host = Constants.expoConfig?.hostUri?.split(':')[0];
+  return host ? `http://${host}:8000` : 'http://localhost:8000';
+}
+
+export const API_BASE = defaultBase();
+
+export class ApiError extends Error {
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly status: number,
+    readonly fields: Record<string, string> = {},
+    readonly requestId?: string,
+  ) { super(message); }
+
+  /** The message for a specific field, if the server named one. */
+  field(name: string): string | undefined { return this.fields[name]; }
+}
+
+let accessToken: string | null = null;
+export const setAccessToken = (t: string | null) => { accessToken = t; };
+export const getAccessToken = () => accessToken;
+
+type Method = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+
+async function raw<T>(method: Method, path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE}/v1${path}`, {
+    method,
+    headers: {
+      'content-type': 'application/json',
+      ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+    },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+
+  let json: any = null;
+  try { json = await res.json(); } catch { /* non-JSON error page */ }
+
+  if (!res.ok || json?.success === false) {
+    const e = json?.error ?? {};
+    throw new ApiError(
+      e.code ?? 'NETWORK',
+      e.message ?? 'Could not reach the server. Check your connection.',
+      res.status, e.fields ?? {}, e.request_id,
+    );
+  }
+  return json?.data as T;
+}
+
+/** Runs the request; on a 401 it tries one silent refresh before surfacing the error. */
+async function request<T>(method: Method, path: string, body?: unknown): Promise<T> {
+  try {
+    return await raw<T>(method, path, body);
+  } catch (err) {
+    if (!(err instanceof ApiError) || err.status !== 401 || path.startsWith('/auth/')) throw err;
+    const refreshed = await tryRefresh();
+    if (!refreshed) throw err;
+    return raw<T>(method, path, body);
+  }
+}
+
+export interface TokenPair { access_token: string; refresh_token: string; expires_in: number }
+
+async function tryRefresh(): Promise<boolean> {
+  const token = await getRefreshToken();
+  if (!token) return false;
+  try {
+    const data = await raw<TokenPair>('POST', '/auth/refresh', { refresh_token: token });
+    setAccessToken(data.access_token);
+    await setRefreshToken(data.refresh_token);
+    return true;
+  } catch {
+    // Reuse detection may have revoked the whole family — this session is finished.
+    await clearRefreshToken();
+    setAccessToken(null);
+    return false;
+  }
+}
+
+export const api = {
+  get:   <T>(p: string) => request<T>('GET', p),
+  post:  <T>(p: string, b?: unknown) => request<T>('POST', p, b),
+  patch: <T>(p: string, b?: unknown) => request<T>('PATCH', p, b),
+  del:   <T>(p: string) => request<T>('DELETE', p),
+  tryRefresh,
+};
+
+/* ---------------- typed endpoints ---------------- */
+export interface Profile {
+  display_name: string | null;
+  height_cm: number | null;
+  preferred_unit_system: 'metric' | 'imperial';
+  timezone: string;
+  week_starts_on: number;
+  activity_level: string;
+  daily_calorie_target: number | null;
+  protein_g_target: number | null;
+  carbs_g_target: number | null;
+  fat_g_target: number | null;
+  onboarding_completed: boolean;
+}
+
+export interface Goal {
+  id: string; goal_type: string; metric_key: string; direction: string;
+  start_value: number | null; target_value: number; target_unit: string;
+  start_date: string; target_date: string | null; status: string;
+}
+
+export const auth = {
+  register: (email: string, password: string) =>
+    api.post<{ user: { id: string; email: string } } & TokenPair>('/auth/register', { email, password }),
+  login: (email: string, password: string) =>
+    api.post<{ user: { id: string; email: string } } & TokenPair>('/auth/login', { email, password }),
+  me: () => api.get<{ id: string; email: string; status: string }>('/auth/me'),
+  logout: (refresh_token: string) => api.post('/auth/logout', { refresh_token }),
+};
+
+export const profileApi = {
+  get: () => api.get<Profile>('/profile'),
+  patch: (patch: Partial<Profile>) => api.patch<Profile>('/profile', patch),
+};
+
+export const goalsApi = {
+  list: () => api.get<Goal[]>('/goals'),
+  create: (g: Partial<Goal>) => api.post<Goal>('/goals', g),
+};

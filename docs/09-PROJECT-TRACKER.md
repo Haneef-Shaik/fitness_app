@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-21 · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-21 (M1 closed) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -15,16 +15,18 @@
 
 | | |
 |---|---|
-| **Milestones complete** | M0, M1 *(minus migrations)* — **2 of 9** |
-| **Tests passing** | **113** — 48 TypeScript, 65 Python |
+| **Milestones complete** | M0, M1 — **2 of 9** |
+| **Tests passing** | **115** — 48 TypeScript, 67 Python |
 | **API endpoints live** | 11 |
 | **App screens built** | 6 of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
+| **Version control** | git initialised, first commit `5b2ada9` (118 files) |
+| **CI** | GitHub Actions — both suites + contract check |
 
 ```
 M0 ████████████ done      specs, design system, 103 screens
-M1 ██████████░░ 90%       auth · profile · goals — migrations outstanding
+M1 ████████████ done      auth · profile · goals · migrations · CI
 M2 ░░░░░░░░░░░░ next      training core
 M3 ░░░░░░░░░░░░           retrieval
 M4 ░░░░░░░░░░░░           training analytics
@@ -41,7 +43,7 @@ M8 ░░░░░░░░░░░░           hardening
 | # | Milestone | Exit criterion | Status |
 |---|-----------|----------------|--------|
 | M0 | Specs & design system | Every screen specified; design system validated | 🟢 |
-| M1 | Foundations | Sign up → onboarding → dashboard, real DB | 🟡 90% |
+| M1 | Foundations | Sign up → onboarding → dashboard, real DB | 🟢 |
 | M2 | Training core | [AC-01, AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) | ⚪ |
 | M3 | Retrieval | AC-03, AC-04, AC-05, AC-12 | ⚪ |
 | M4 | Training analytics | AC-06 | ⚪ |
@@ -66,7 +68,7 @@ M8 ░░░░░░░░░░░░           hardening
 - [x] [Design file](design/index.html) — 103 screens as running HTML/CSS, 12 domains
 - [x] Verified: 0 broken links, 103/103 screens covered
 
-## M1 · Foundations 🟡
+## M1 · Foundations 🟢
 
 **Exit:** a user can sign up, complete onboarding and reach a dashboard backed by a real database.
 
@@ -96,13 +98,18 @@ M8 ░░░░░░░░░░░░           hardening
 - [x] A-01 splash · A-02 welcome · A-03 register · A-04 login · A-07 onboarding · B-01 dashboard
 - [x] Verified end-to-end in a browser: register → onboarding → dashboard → create goal
 
-### Infrastructure 🟡
+### Infrastructure 🟢
 - [x] `docker-compose` — dev Postgres + ephemeral tmpfs test Postgres
 - [x] `scripts/seed_demo.py` — idempotent demo account
-- [ ] **Alembic migrations** 🔴 *(DR1 — blocks any persistent data)*
-- [ ] `git init` and first commit
-- [ ] CI running both suites 🔴 *(DR3 — the vector guard only works if it runs)*
-- [ ] OpenAPI → TypeScript codegen checked in
+- [x] **Alembic migrations** — async env, URL from `app.config`, never hardcoded
+- [x] Migration downgrade drops the Postgres ENUM types *(they survive `DROP TABLE`;
+      without this a `downgrade` → `upgrade` fails with "type already exists")*
+- [x] Test suite **runs the migrations** rather than `create_all`, so drift cannot hide
+- [x] `test_migrations.py` — `alembic check` guard + destructive round trip on its own database
+- [x] `git init`, `.gitignore` verified to exclude `.env`, first commit `5b2ada9`
+- [x] CI: TypeScript domain, Python domain + migrations + API, cross-language contract check
+- [x] `ruff` clean and enforced in CI
+- [ ] OpenAPI → TypeScript codegen checked in *(deferred to M2, when the surface grows)*
 
 ## M2 · Training core ⚪  ← next
 
@@ -168,10 +175,11 @@ M8 ░░░░░░░░░░░░           hardening
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **Alembic migrations** | Schema is `create_all`; any data written now is unmigratable | All persistent data |
-| 2 | **git init + first commit** | No version control on a working codebase | Everything |
-| 3 | **CI running both suites** | The cross-language guard only protects if it runs on every change | D3c |
-| 4 | **M2 training core** | The product's critical path | AC-01, AC-02 |
+| 1 | **M2 training core** | The product's critical path — exercises, programs, sessions, sets | AC-01, AC-02 |
+| 2 | Device verification via Expo Go | LAN connectivity and native behaviour are untested | DR4 |
+| 3 | OpenAPI → TS codegen | Worth wiring once M2 widens the API surface | D3b |
+
+*Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 
 ## Blocked
 
@@ -185,10 +193,12 @@ M8 ░░░░░░░░░░░░           hardening
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 113 | grows with each milestone |
+| Tests passing | 115 | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | 18 | every endpoint, happy + failure |
+| Migration guards | 2 — drift check + destructive round trip | kept green |
 | Mutation checks | 3 verified catches | every shared-vector change |
+| Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | not enforced | 80% (house rule) |
 | Acceptance criteria passing | 0 of 12 | 12 of 12 |
 
@@ -203,3 +213,6 @@ M8 ░░░░░░░░░░░░           hardening
 | 21 Sep | M1 API + mobile complete; verified register → onboarding → dashboard → goal |
 | 21 Sep | Fixed: refresh-token family revocation was discarded by session rollback |
 | 21 Sep | Fixed: React 19/18 mismatch, ESM `query-string`, Metro `.js` resolution, missing CORS |
+| 21 Sep | **M1 closed** — Alembic migrations, git init, CI. DR1 and DR3 resolved |
+| 21 Sep | Fixed: migration downgrade left Postgres ENUM types behind, breaking re-upgrade |
+| 21 Sep | Test suite now runs migrations instead of `create_all` — drift cannot hide |

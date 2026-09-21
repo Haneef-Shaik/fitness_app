@@ -54,21 +54,21 @@
 
 ## 4 · Session & set API  *(the critical path)*
 
-- [ ] **4.1** `POST /workout-sessions` — from plan day / template / repeat / empty / past date
+- [x] **4.1** `POST /workout-sessions` — from plan day / template / repeat / empty / past date
       · snapshots the prescription · **rejects a future date**
-- [ ] **4.2** `GET /workout-sessions/active`, `GET /workout-sessions/{id}`
-- [ ] **4.3** `POST /session-exercises/{id}/sets` — **`Idempotency-Key` mandatory**
+- [x] **4.2** `GET /workout-sessions/active`, `GET /workout-sessions/{id}`
+- [x] **4.3** `POST /session-exercises/{id}/sets` — **`Idempotency-Key` mandatory**
       a retried offline write must never duplicate a set
-- [ ] **4.4** `PATCH|DELETE /workout-sets/{id}` — re-densify `set_index` in one transaction
-- [ ] **4.5** `POST /workout-sessions/{id}/sets/batch` — outbox flush, idempotent per set
-- [ ] **4.6** `POST /workout-sessions/{id}/finish` — volume, e1RM, PR evaluation **inside the
+- [x] **4.4** `PATCH|DELETE /workout-sets/{id}` — re-densify `set_index` in one transaction
+- [x] **4.5** `POST /workout-sessions/{id}/sets/batch` — outbox flush, idempotent per set
+- [x] **4.6** `POST /workout-sessions/{id}/finish` — volume, e1RM, PR evaluation **inside the
       finish transaction** so the summary is correct immediately
-- [ ] **4.7** `POST /workout-sessions/{id}/cancel` — `status = cancelled`, rows retained,
+- [x] **4.7** `POST /workout-sessions/{id}/cancel` — `status = cancelled`, rows retained,
       never appears in history or analytics
-- [ ] **4.8** `GET /exercises/{id}/previous-performance?before=` — the resolution rule in
+- [x] **4.8** `GET /exercises/{id}/previous-performance?before=` — the resolution rule in
       [PRD §7.2](01-PRD.md#72-review-the-previous-chest-day)
-- [ ] **4.9** Test: starting a second session while one is `in_progress` is refused
-- [ ] **4.10** Test: server-computed volume/e1RM/PR match `contracts/vectors/domain.json`
+- [x] **4.9** Test: starting a second session while one is `in_progress` is refused
+- [x] **4.10** Test: server-computed volume/e1RM/PR match `contracts/vectors/domain.json`
 
 ## 5 · Mobile — catalog & planning
 
@@ -111,7 +111,7 @@
 
 - [ ] **DR4** — verify on a physical device via Expo Go; LAN connectivity is untested
 - [ ] **D3b** — OpenAPI → TypeScript codegen, worth wiring now the API surface widens
-- [ ] **Q3** — confirm "max reps" PR definition *(default: most reps in a single working set)*
+- [x] **Q3** — "max reps" PR is the most reps in a single working set, any load. Recorded as **D11** in the [charter](08-PROJECT-CHARTER.md#6-decision-log) and implemented
 
 ## Blocked — needs a decision from the user
 

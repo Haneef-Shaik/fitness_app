@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-21 (M1 closed) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-21 (M2 server side complete) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -16,18 +16,18 @@
 | | |
 |---|---|
 | **Milestones complete** | M0, M1 — **2 of 9** |
-| **Tests passing** | **115** — 48 TypeScript, 67 Python |
-| **API endpoints live** | 11 |
+| **Tests passing** | **181** — 48 TypeScript, 133 Python *(3 skipped)* |
+| **API endpoints live** | 43 operations across 32 paths |
 | **App screens built** | 6 of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git initialised, first commit `5b2ada9` (118 files) |
+| **Version control** | git, 6 commits · `6d83b6a` plan tree |
 | **CI** | GitHub Actions — both suites + contract check |
 
 ```
 M0 ████████████ done      specs, design system, 103 screens
 M1 ████████████ done      auth · profile · goals · migrations · CI
-M2 ░░░░░░░░░░░░ next      training core
+M2 ████████░░░░ in prog   training core — API done, logger client next
 M3 ░░░░░░░░░░░░           retrieval
 M4 ░░░░░░░░░░░░           training analytics
 M5 ░░░░░░░░░░░░           nutrition core
@@ -44,7 +44,7 @@ M8 ░░░░░░░░░░░░           hardening
 |---|-----------|----------------|--------|
 | M0 | Specs & design system | Every screen specified; design system validated | 🟢 |
 | M1 | Foundations | Sign up → onboarding → dashboard, real DB | 🟢 |
-| M2 | Training core | [AC-01, AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) | ⚪ |
+| M2 | Training core | [AC-01, AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) | 🟡 |
 | M3 | Retrieval | AC-03, AC-04, AC-05, AC-12 | ⚪ |
 | M4 | Training analytics | AC-06 | ⚪ |
 | M5 | Nutrition core | AC-07 | ⚪ |
@@ -111,23 +111,42 @@ M8 ░░░░░░░░░░░░           hardening
 - [x] `ruff` clean and enforced in CI
 - [ ] OpenAPI → TypeScript codegen checked in *(deferred to M2, when the surface grows)*
 
-## M2 · Training core ⚪  ← next
+## M2 · Training core 🟡  ← in progress
 
 **Exit:** AC-01 (build a Chest workout) and AC-02 (record every set).
+The whole server half is done and verified against a running instance; the logger
+client is what remains.
 
-- [ ] Models: `exercises`, `muscle_groups`, `exercise_muscles`, `workout_programs`, `workout_plan_days`, `plan_exercises`
-- [ ] Models: `workout_sessions`, `session_exercises`, `workout_sets`, `personal_records`
-- [ ] Partial unique index — one `in_progress` session per user
-- [ ] `local_date` generated column on sessions
-- [ ] Seed the global exercise catalog + muscle-group tree
-- [ ] `GET|POST /exercises`, `/muscle-groups`
-- [ ] `GET|POST|PATCH /workout-programs`, plan days, bulk reorder
-- [ ] `POST /workout-sessions`, `/finish`, `/cancel`, `GET /active`
-- [ ] `POST /session-exercises/{id}/sets` with `Idempotency-Key`
-- [ ] `GET /exercises/{id}/previous-performance`
-- [ ] Derived metrics computed in the finish transaction
+### Data model 🟢
+- [x] Models: `exercises`, `muscle_groups`, `exercise_muscles`, `workout_programs`, `workout_plan_days`, `plan_exercises`
+- [x] Models: `workout_sessions`, `session_exercises`, `workout_sets`, `personal_records`
+- [x] Partial unique index — one `in_progress` session per user *(proved by test, not by a code path)*
+- [x] `local_date` on sessions — **a plain column, not a generated one.** `AT TIME ZONE`
+      and the timezone lookup are `STABLE`, not `IMMUTABLE`, which Postgres refuses in a
+      generated column. Written through `domain.dates.to_local_date` and stored next to
+      `logged_timezone` so a later recompute is auditable. [02 §6](02-SYSTEM-ARCHITECTURE.md)
+- [x] Ordering constraints `DEFERRABLE INITIALLY DEFERRED` — densifying an ordered list
+      walks rows through values their neighbours still hold *(migration `b3c07d41f2a1`)*
+- [x] Seed the global exercise catalog + muscle-group tree — 22 groups, 29 exercises
+
+### API 🟢
+- [x] `GET|POST /exercises`, `/muscle-groups`
+- [x] `GET|POST|PATCH /workout-programs`, plan days, bulk reorder, duplicate, archive
+- [x] `POST /workout-sessions` — plan day / repeat / ad-hoc / empty · backdated · **future refused**
+- [x] `GET /workout-sessions/active` *(`null`, not 404)*, `GET /workout-sessions/{id}`, history list
+- [x] `POST /session-exercises/{id}/sets` — **`Idempotency-Key` mandatory**
+- [x] `PATCH|DELETE /workout-sets/{id}` — re-densify in one transaction
+- [x] `POST /workout-sessions/{id}/sets/batch` — outbox flush, idempotent per set
+- [x] `/finish`, `/cancel`, `/reopen`
+- [x] `GET /exercises/{id}/previous-performance`, `GET /exercises/{id}/records`
+- [x] Derived metrics computed **inside** the finish transaction
+- [x] PR recomputation is a full re-scan, so a record can be **demoted** by an edit
+- [x] Volume record is the best **single session**, not a lifetime total
+- [x] 8 mutation checks — each guard proved to fail a named test when removed
+
+### Client ⚪
 - [ ] Screens: D-01, D-02, D-03, C-02…C-07, E-01, E-02, **E-03**, E-04, E-08
-- [ ] Local-first set commits: Zustand draft + IndexedDB-equivalent persistence
+- [ ] Local-first set commits: Zustand draft + persisted store
 - [ ] Write outbox with idempotent replay
 - [ ] E-10 session recovery
 
@@ -136,11 +155,13 @@ M8 ░░░░░░░░░░░░           hardening
 - [ ] `GET /history/previous-occurrence` — the muscle-group resolution rule
 - [ ] `GET /history/compare`
 - [ ] Screens: F-01…F-07
-- [ ] AC-03 timezone test matrix · AC-05 previous chest day · AC-12 plan edits leave history alone
+- [ ] AC-03 timezone test matrix · AC-05 previous chest day
+- [x] AC-12 plan edits leave history alone — the plan day is rewritten mid-session and
+      the snapshot is asserted unchanged *(`test_sessions.py`, mutation-checked)*
 
 ## M4 · Training analytics ⚪
 - [ ] `/analytics/workouts`, `/muscle-volume`, `/exercises/{id}`, `/personal-records`, `/frequency`, `/adherence`
-- [ ] PR recomputation on retroactive edit *(full re-scan — a PR can be demoted)*
+- [x] PR recomputation on retroactive edit *(full re-scan — a PR can be demoted)* — landed early with M2's finish transaction
 - [ ] Screens: G-01…G-07 with charts
 
 ## M5 · Nutrition core ⚪
@@ -195,14 +216,15 @@ Granular, ordered breakdown of the current milestone: **[TODO.md](TODO.md)**
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 115 | grows with each milestone |
+| Tests passing | 181 | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | 18 | every endpoint, happy + failure |
+| API integration tests | 83 | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
-| Mutation checks | 3 verified catches | every shared-vector change |
+| Migrations | 3 — M1 foundations, M2 training core, M3 deferrable ordering | kept reversible |
+| Mutation checks | 11 verified catches | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | not enforced | 80% (house rule) |
-| Acceptance criteria passing | 0 of 12 | 12 of 12 |
+| Acceptance criteria passing | 1 of 12 — **AC-12** | 12 of 12 |
 
 ## Changelog
 
@@ -212,6 +234,9 @@ Granular, ordered breakdown of the current milestone: **[TODO.md](TODO.md)**
 | 21 Sep | Accent changed lime → **Iris** after CVD measurement showed ΔE 0.3 against series green |
 | 21 Sep | Platform changed to **React Native (Expo)**; API to **Python FastAPI**; docs corrected before code |
 | 21 Sep | Shared cross-language test vectors established and mutation-verified |
+| 21 Sep | M2 server side complete — catalog, plan tree, sessions, sets, records |
+| 21 Sep | **AC-12 proved by test**: the plan day is rewritten mid-session and the snapshot holds |
+| 21 Sep | Ordering constraints made deferrable after a densify collided — it had been passing on luck |
 | 21 Sep | M1 API + mobile complete; verified register → onboarding → dashboard → goal |
 | 21 Sep | Fixed: refresh-token family revocation was discarded by session rollback |
 | 21 Sep | Fixed: React 19/18 mismatch, ESM `query-string`, Metro `.js` resolution, missing CORS |

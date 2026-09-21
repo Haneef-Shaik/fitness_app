@@ -405,8 +405,8 @@ Matches BRD §24's recommended build order.
 | # | Question | Blocks | Default if unanswered |
 |---|----------|--------|-----------------------|
 | Q1 | Which nutrition database provider? | H-04 coverage, food resolution quality | Build the resolver interface; seed a small internal catalog |
-| Q2 | Web-only, mobile-only or both at MVP? | Client strategy | D1: responsive PWA |
-| Q3 | Is "max_reps" a PR at any load, or at a fixed load? | G-04, E-11 | Most reps in a single working set, tracked per exercise regardless of load |
+| Q2 | Web-only, mobile-only or both at MVP? | Client strategy | **Closed by D1** — React Native (Expo), iOS + Android; web deferred |
+| Q3 | Is "max_reps" a PR at any load, or at a fixed load? | G-04, E-11 | **Closed by D11** — most reps in a single working set, any load |
 | Q4 | Should warm-ups count toward volume? | G-02 | D6: excluded, user-toggleable |
 | Q5 | Multiple weigh-ins per day — which is canonical? | I-01, G/analytics | First of the day |
 | Q6 | Is there a paid tier? | K-11 | No; K-11 is a stub |

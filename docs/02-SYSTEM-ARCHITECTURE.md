@@ -293,7 +293,7 @@ Fields below are **additions/refinements** the BRD schema needs to satisfy its o
 | `fitness_goals` | `metric_key`, `direction` | §P02.4 progress needs to know which metric a custom goal tracks |
 | `exercises` | `default_unit`, `tracks_load/reps/duration/distance` (bool) | Cardio and bodyweight exercises must not demand load (W04.8) |
 | `exercises` | `aliases text[]` | §15 custom aliases; resolution quality |
-| `workout_sessions` | `local_date date` (generated from `started_at` + profile tz) | AC-03 and every §22 date query; avoids a tz function in every WHERE clause |
+| `workout_sessions` | `local_date date` + `logged_timezone` | AC-03 and every §22 date query. **Not a generated column** — `started_at AT TIME ZONE <tz>` is STABLE, not IMMUTABLE, which Postgres rejects. Written by the application; `logged_timezone` makes a recompute on timezone change (T4) auditable |
 | `workout_sessions` | `total_volume_kg`, `duration_seconds` | Cheap list rendering without aggregating sets |
 | `session_exercises` | `plan_exercise_id` nullable, `target_snapshot jsonb` | Preserves what was *prescribed* at the time (§7 "plan changes never rewrite history") |
 | `workout_sets` | `load_unit_entered`, `e1rm_kg`, `formula_version` | §10 "store formula/version"; lets display echo the user's entry unit |

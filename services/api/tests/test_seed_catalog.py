@@ -1,0 +1,72 @@
+"""The seed must be idempotent and must satisfy the catalog's own invariants."""
+from __future__ import annotations
+
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from app.models import Exercise, ExerciseMuscle, MuscleGroup, MuscleRole
+from app.seed.catalog import seed_catalog
+
+
+async def _session(engine) -> AsyncSession:
+    return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)()
+
+
+async def test_seed_is_idempotent(engine):
+    async with await _session(engine) as db:
+        first = await seed_catalog(db)
+        await db.commit()
+        assert first["muscle_groups"] > 0 and first["exercises"] > 0
+
+    async with await _session(engine) as db:
+        second = await seed_catalog(db)
+        await db.commit()
+        # Re-running must add nothing — any environment can be rebuilt from scratch.
+        assert second == {"muscle_groups": 0, "exercises": 0}
+
+
+async def test_every_exercise_has_a_primary_muscle(engine):
+    """W02.4 — without a primary muscle, muscle-group analytics and the
+    previous-chest-day lookup cannot work."""
+    async with await _session(engine) as db:
+        await seed_catalog(db)
+        await db.commit()
+
+        rows = (await db.execute(
+            select(Exercise.name)
+            .outerjoin(
+                ExerciseMuscle,
+                (ExerciseMuscle.exercise_id == Exercise.id)
+                & (ExerciseMuscle.role == MuscleRole.primary),
+            )
+            .where(Exercise.owner_user_id.is_(None))
+            .group_by(Exercise.id, Exercise.name)
+            .having(func.count(ExerciseMuscle.muscle_group_id) == 0)
+        )).all()
+        assert not rows, f"seeded exercises without a primary muscle: {[r[0] for r in rows]}"
+
+
+async def test_every_exercise_tracks_at_least_one_field(engine):
+    """A set needs reps, duration or distance — load alone is not a set (W04.7)."""
+    async with await _session(engine) as db:
+        await seed_catalog(db)
+        await db.commit()
+        bad = (await db.scalars(
+            select(Exercise.name).where(
+                Exercise.tracks_reps.is_(False),
+                Exercise.tracks_duration.is_(False),
+                Exercise.tracks_distance.is_(False),
+            )
+        )).all()
+        assert not bad, f"exercises that could never hold a valid set: {list(bad)}"
+
+
+async def test_muscle_hierarchy_resolves(engine):
+    """Chest must have Upper Chest as a descendant — 'previous chest day' widens through it."""
+    async with await _session(engine) as db:
+        await seed_catalog(db)
+        await db.commit()
+        chest = await db.scalar(select(MuscleGroup).where(MuscleGroup.slug == "chest"))
+        upper = await db.scalar(select(MuscleGroup).where(MuscleGroup.slug == "upper-chest"))
+        assert chest.parent_id is None
+        assert upper.parent_id == chest.id

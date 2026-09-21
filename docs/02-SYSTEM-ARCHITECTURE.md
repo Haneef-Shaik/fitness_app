@@ -330,6 +330,28 @@ CREATE INDEX ON body_metrics (user_id, recorded_at DESC);
 CREATE INDEX ON foods USING gin (to_tsvector('simple', name));
 ```
 
+### 6.1b Ordering constraints are deferrable
+
+An ordered list is densified by renumbering: deleting set 0 of three moves 1 into 0
+and 2 into 1. Postgres checks a plain `UNIQUE` constraint row by row as the `UPDATE`s
+apply, so the renumber collides with a value its neighbour has not vacated yet —
+and whether it collides depends on the order the ORM happens to emit the statements
+in, which for UUID primary keys is luck. These three are therefore deferred to commit,
+where the ordering is dense again (migration `b3c07d41f2a1`, decision D13):
+
+```sql
+ALTER TABLE workout_plan_days  ADD CONSTRAINT uq_plan_day_index
+  UNIQUE (program_id, day_index)            DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE session_exercises  ADD CONSTRAINT uq_session_exercise_order
+  UNIQUE (session_id, order_index)          DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE workout_sets       ADD CONSTRAINT uq_set_index
+  UNIQUE (session_exercise_id, set_index)   DEFERRABLE INITIALLY DEFERRED;
+```
+
+`uq_set_client_id (session_exercise_id, client_id)` is deliberately **not** deferred.
+It is the idempotency guard, and a race on it must surface inside the request handler
+as a `409` naming the conflict — not at commit time as an unattributable `500`.
+
 ### 6.2 Reference queries for BRD §22
 
 ```sql
@@ -385,10 +407,10 @@ Base `/{version}` = `/v1`. All responses use the envelope from the house pattern
 | Muscle groups | `GET /muscle-groups` |
 | Programs | `GET|POST /workout-programs`, `GET|PATCH /workout-programs/:id`, `POST /workout-programs/:id/duplicate`, `POST /workout-programs/:id/archive` |
 | Plan days | `GET|POST /workout-programs/:id/days`, `PATCH|DELETE /plan-days/:id`, `PUT /plan-days/:id/exercises` (bulk reorder) |
-| Sessions | `POST /workout-sessions` (from plan day / template / empty / repeat), `GET /workout-sessions/:id`, `PATCH /workout-sessions/:id`, `POST /workout-sessions/:id/finish`, `POST /workout-sessions/:id/cancel`, `GET /workout-sessions/active` |
+| Sessions | `POST /workout-sessions` (from plan day / template / empty / repeat), `GET /workout-sessions/:id`, `PATCH /workout-sessions/:id`, `POST /workout-sessions/:id/finish`, `POST /workout-sessions/:id/cancel`, `POST /workout-sessions/:id/reopen`, `GET /workout-sessions/active` (`null` when nothing is open, never a 404) |
 | Session exercises | `POST /workout-sessions/:id/exercises`, `PATCH|DELETE /session-exercises/:id`, `PUT /workout-sessions/:id/exercises/order` |
 | Sets | `POST /session-exercises/:id/sets`, `PATCH|DELETE /workout-sets/:id`, `POST /workout-sessions/:id/sets/batch` (offline outbox flush) |
-| Previous perf | `GET /exercises/:id/previous-performance?before=<session_id>` |
+| Previous perf | `GET /exercises/:id/previous-performance?before=<timestamp>`, `GET /exercises/:id/records` — `before` is an instant, not a session id: the logger asks "what had I done by now", and a session id would need resolving to a time anyway |
 | History | `GET /history/workouts?from=&to=&muscle=&exercise=&program=&cursor=`, `GET /history/previous-occurrence?muscle=|exercise=`, `GET /history/compare?session_ids=` |
 | Analytics | `GET /analytics/workouts?from=&to=&group_by=`, `GET /analytics/muscle-volume`, `GET /analytics/exercises/:id`, `GET /analytics/personal-records`, `GET /analytics/frequency`, `GET /analytics/adherence` |
 | Foods | `GET /foods?q=&source=`, `POST /foods` (custom), `GET|PATCH /foods/:id`, `GET /foods/recent`, `GET /foods/barcode/:code` `[P2]` |

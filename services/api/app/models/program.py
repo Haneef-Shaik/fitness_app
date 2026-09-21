@@ -57,7 +57,12 @@ class WorkoutPlanDay(Base, TimestampMixin):
     )
 
     __table_args__ = (
-        UniqueConstraint("program_id", "day_index", name="uq_plan_day_index"),
+        # Deferred: deleting a day renumbers the ones after it through values their
+        # neighbours still hold until the transaction settles.
+        UniqueConstraint(
+            "program_id", "day_index", name="uq_plan_day_index",
+            deferrable=True, initially="DEFERRED",
+        ),
         Index("ix_plan_days_weekday", "program_id", "scheduled_weekday"),
     )
 

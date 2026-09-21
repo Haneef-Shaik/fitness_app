@@ -44,7 +44,7 @@ async def _program_with_day(client) -> tuple[str, str, list[str]]:
 
 
 async def test_create_program_with_days_and_prescriptions(auth_client):
-    pid, day_id, _ = await _program_with_day(auth_client)
+    pid, _, _ = await _program_with_day(auth_client)
     p = (await auth_client.get(f"/v1/workout-programs/{pid}")).json()["data"]
     assert p["name"] == "Push / Pull / Legs"
     assert len(p["days"]) == 1
@@ -100,13 +100,20 @@ async def test_archive_clears_the_schedule(auth_client):
 
 
 async def test_deleting_a_day_redensifies_indices(auth_client):
-    pid, day_id, _ = await _program_with_day(auth_client)
+    """Renumbering walks 1->0 and 2->1, so each row passes through a value its
+    neighbour has not vacated yet. Postgres checks a plain UNIQUE constraint row by
+    row, and whether that collides depended on the order SQLAlchemy happened to emit
+    the UPDATEs in — which for UUID primary keys is luck. uq_plan_day_index is
+    DEFERRABLE INITIALLY DEFERRED (migration b3c07d41f2a1) so it cannot be luck."""
+    pid, _, _ = await _program_with_day(auth_client)
     for name in ("Pull", "Legs"):
-        await auth_client.post(f"/v1/workout-programs/{pid}/days", json={"name": name})
+        r = await auth_client.post(f"/v1/workout-programs/{pid}/days", json={"name": name})
+        assert r.status_code == 201, r.text
     p = (await auth_client.get(f"/v1/workout-programs/{pid}")).json()["data"]
     assert [d["day_index"] for d in p["days"]] == [0, 1, 2]
 
-    await auth_client.delete(f"/v1/plan-days/{p['days'][0]['id']}")
+    r = await auth_client.delete(f"/v1/plan-days/{p['days'][0]['id']}")
+    assert r.status_code == 200, r.text
     p = (await auth_client.get(f"/v1/workout-programs/{pid}")).json()["data"]
     assert [d["day_index"] for d in p["days"]] == [0, 1]
     assert [d["name"] for d in p["days"]] == ["Pull", "Legs"]
@@ -171,7 +178,7 @@ async def test_ac12_editing_a_plan_leaves_a_logged_session_untouched(auth_client
                 load_kg=load, reps=reps, completed=True, performed_at=datetime.now(UTC),
             ))
         await db.commit()
-        session_id, se_id = s.id, se.id
+        se_id = se.id
 
     async def snapshot():
         async with maker() as db:
@@ -206,3 +213,4 @@ async def test_ac12_editing_a_plan_leaves_a_logged_session_untouched(auth_client
     # ...and the logged performance did not.
     after = await snapshot()
     assert after == before, "a plan edit changed logged performance — AC-12 violated"
+

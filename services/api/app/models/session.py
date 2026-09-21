@@ -132,7 +132,14 @@ class SessionExercise(Base, TimestampMixin):
     )
 
     __table_args__ = (
-        UniqueConstraint("session_id", "order_index", name="uq_session_exercise_order"),
+        # DEFERRABLE: reordering shifts several rows through values their neighbours
+        # still hold. Postgres checks a plain unique constraint row-by-row, so an
+        # honest renumber would collide mid-statement; deferring moves the check to
+        # commit, where the ordering is dense again.
+        UniqueConstraint(
+            "session_id", "order_index", name="uq_session_exercise_order",
+            deferrable=True, initially="DEFERRED",
+        ),
         Index("ix_session_exercises_exercise", "session_id", "exercise_id"),
     )
 
@@ -174,7 +181,12 @@ class WorkoutSet(Base, TimestampMixin):
     session_exercise: Mapped[SessionExercise] = relationship(back_populates="sets")
 
     __table_args__ = (
-        UniqueConstraint("session_exercise_id", "set_index", name="uq_set_index"),
+        # Deferred for the same reason as uq_session_exercise_order: deleting set 0
+        # of three renumbers 1->0 and 2->1 in one transaction.
+        UniqueConstraint(
+            "session_exercise_id", "set_index", name="uq_set_index",
+            deferrable=True, initially="DEFERRED",
+        ),
         UniqueConstraint("session_exercise_id", "client_id", name="uq_set_client_id"),
         Index("ix_sets_performed_at", "performed_at", postgresql_where=(completed == True)),
     )

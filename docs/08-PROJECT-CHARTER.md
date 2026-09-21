@@ -109,6 +109,9 @@ Decisions that shaped the build. Reversing one is a project-level change, not a 
 | D8 | Epley as default e1RM, stored as `epley_v1` | 21 Sep | BRD §10 example; version stored so history stays reproducible |
 | D9 | **Iris** (`#B0A4FF` / `#5A31C4`) as the single accent | 21 Sep | Chosen by CVD separation sweep, not taste. Lime measured ΔE 0.3 from series green — an accessibility failure |
 | D10 | Refresh token in the device keychain, not an httpOnly cookie | 21 Sep | Native apps cannot use cookies; rotation + family revocation replaces that protection |
+| D11 | `max_reps` PR = most reps in a single working set, **any load** (closes Q3) | 21 Sep | A fixed-load definition needs a reference load the user never sets; "any load" is what a lifter means by a rep PR |
+| D12 | `volume` PR = best **single session** for that exercise, not a lifetime total | 21 Sep | A lifetime sum only ever rises, so it is not a record. The other three types are per-set bests |
+| D13 | Ordering constraints are `DEFERRABLE INITIALLY DEFERRED`; the idempotency constraint stays immediate | 21 Sep | Densifying an ordered list walks rows through values their neighbours still hold. The idempotency key stays immediate so a race surfaces as a friendly 409 inside the handler, not a 500 at commit |
 
 ## 7. Delivery risks
 

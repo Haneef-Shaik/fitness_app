@@ -3,8 +3,8 @@
 > **Source of requirements:** `../fitness_nutrition_tracking_BRD_data_model.docx` (BRD v1.0)
 > This repository turns that BRD into a specified, designed and partly built product.
 
-**Where the project is right now → [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)**
-That file is the only place that claims current status; everything else describes intent.
+**Status → [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)** · **Next tasks → [TODO.md](TODO.md)**
+The tracker is the only place that claims current status; everything else describes intent.
 
 ---
 
@@ -13,6 +13,7 @@ That file is the only place that claims current status; everything else describe
 | If you want to… | Open |
 |-----------------|------|
 | See the current status | [Project Tracker](09-PROJECT-TRACKER.md) |
+| Pick up the next task | [TODO.md](TODO.md) |
 | Understand why this exists and what "done" means | [Project Charter](08-PROJECT-CHARTER.md) |
 | See the actual UI | [design/index.html](design/index.html) — open in a browser |
 | Know what the product does | [PRD](01-PRD.md) |
@@ -46,7 +47,8 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 06 | [Edge Cases & States](06-EDGE-CASES.md) | Every failure, empty, conflict, boundary and recovery case. |
 | 07 | [Traceability Matrix](07-TRACEABILITY.md) | BRD requirement → screen → API → acceptance criterion. |
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |
-| 09 | [Project Tracker](09-PROJECT-TRACKER.md) | **Live status** — milestones, tasks, blockers. |
+| 09 | [Project Tracker](09-PROJECT-TRACKER.md) | **Live status** — milestones, blockers. |
+| — | [TODO.md](TODO.md) | **Active work** — the current milestone's tasks in execution order. |
 | — | [wireframes/](wireframes/) | Page-by-page: layout, every control, every state. |
 | — | [design/](design/) | The UI as running code — 103 screens, 12 domains. |
 

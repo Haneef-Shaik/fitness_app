@@ -173,6 +173,8 @@ M8 ░░░░░░░░░░░░           hardening
 
 ## Immediate queue
 
+Granular, ordered breakdown of the current milestone: **[TODO.md](TODO.md)**
+
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
 | 1 | **M2 training core** | The product's critical path — exercises, programs, sessions, sets | AC-01, AC-02 |

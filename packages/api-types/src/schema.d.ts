@@ -644,6 +644,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/exercises/{exercise_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exercise History
+         * @description D-02 — what this exercise looks like over time.
+         *
+         *     Only completed sessions: an in-progress one belongs to the logger, and a
+         *     cancelled one never happened as far as history is concerned.
+         */
+        get: operations["exercise_history_v1_exercises__exercise_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/exercises/{exercise_id}/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exercise Stats
+         * @description D-02's header: the four records, an e1RM trend, and how often it is trained.
+         *
+         *     `records` is read from the same `personal_records` rows `/records` serves, so
+         *     the detail screen and the PR board can never disagree.
+         */
+        get: operations["exercise_stats_v1_exercises__exercise_id__stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -674,6 +720,21 @@ export interface components {
             /** Deleted */
             deleted: boolean;
         };
+        /**
+         * E1rmPointOut
+         * @description A value without its formula is not reproducible, so they travel together (D8).
+         */
+        E1rmPointOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** E1Rm Kg */
+            e1rm_kg: number;
+            /** Formula Version */
+            formula_version: string;
+        };
         /** Envelope[AuthOut] */
         Envelope_AuthOut_: {
             /** Success */
@@ -693,6 +754,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["ExerciseOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[ExerciseStatsOut] */
+        Envelope_ExerciseStatsOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["ExerciseStatsOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[GoalOut] */
@@ -799,6 +867,49 @@ export interface components {
             /** Request Id */
             request_id: string;
         };
+        /**
+         * ExerciseHistoryEntryOut
+         * @description One completed session, seen from a single exercise's point of view (D-02).
+         */
+        ExerciseHistoryEntryOut: {
+            /**
+             * Session Id
+             * Format: uuid
+             */
+            session_id: string;
+            /**
+             * Session Exercise Id
+             * Format: uuid
+             */
+            session_exercise_id: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Target Snapshot */
+            target_snapshot?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Sets
+             * @default []
+             */
+            sets: components["schemas"]["SetOut"][];
+            /**
+             * Volume Kg
+             * @default 0
+             */
+            volume_kg: number;
+            /** Best E1Rm Kg */
+            best_e1rm_kg?: number | null;
+            /** Formula Version */
+            formula_version?: string | null;
+        };
         /** ExerciseIn */
         ExerciseIn: {
             /** Name */
@@ -904,6 +1015,38 @@ export interface components {
             tracks_distance?: boolean | null;
             /** Default Unit */
             default_unit?: string | null;
+        };
+        /** ExerciseStatsOut */
+        ExerciseStatsOut: {
+            /**
+             * Exercise Id
+             * Format: uuid
+             */
+            exercise_id: string;
+            /**
+             * Session Count
+             * @default 0
+             */
+            session_count: number;
+            /** Last Performed At */
+            last_performed_at?: string | null;
+            /**
+             * Total Volume Kg
+             * @default 0
+             */
+            total_volume_kg: number;
+            /**
+             * Records
+             * @default {}
+             */
+            records: {
+                [key: string]: components["schemas"]["RecordEntryOut"];
+            };
+            /**
+             * E1Rm Series
+             * @default []
+             */
+            e1rm_series: components["schemas"]["E1rmPointOut"][];
         };
         /** GoalIn */
         GoalIn: {
@@ -1080,6 +1223,15 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["SetBatchOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+            meta?: components["schemas"]["Meta"] | null;
+        };
+        /** PagedEnvelope[list[ExerciseHistoryEntryOut]] */
+        PagedEnvelope_list_ExerciseHistoryEntryOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["ExerciseHistoryEntryOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
             meta?: components["schemas"]["Meta"] | null;
         };
@@ -3044,6 +3196,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_PreviousPerformanceOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exercise_history_v1_exercises__exercise_id__history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                exercise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedEnvelope_list_ExerciseHistoryEntryOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exercise_stats_v1_exercises__exercise_id__stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exercise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ExerciseStatsOut_"];
                 };
             };
             /** @description Validation Error */

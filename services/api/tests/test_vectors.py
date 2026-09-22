@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 
+from app.domain.adherence import adherence, planned_occurrences
 from app.domain.dates import to_local_date
 from app.domain.nutrition import MealItem, day_totals
 from app.domain.training import (
@@ -119,3 +120,19 @@ def test_nutrition_day_totals(case):
     assert got.fat_g == pytest.approx(exp["fat_g"], abs=TOL)
     assert got.pending_count == exp["pending_count"]
     assert got.incomplete is exp["incomplete"]
+
+
+@pytest.mark.parametrize("case", VECTORS["adherence"], ids=lambda c: c["note"][:40])
+def test_adherence(case):
+    assert adherence(case["completed_planned"], case["planned"]) == case["expected"]
+
+
+@pytest.mark.parametrize(
+    "case", VECTORS["planned_occurrences"], ids=lambda c: c["note"][:40]
+)
+def test_planned_occurrences(case):
+    assert planned_occurrences(
+        case["weekdays"],
+        date.fromisoformat(case["start"]),
+        date.fromisoformat(case["end"]),
+    ) == case["expected"]

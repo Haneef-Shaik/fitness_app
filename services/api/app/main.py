@@ -7,7 +7,16 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.envelope import fail
-from app.api.routes import auth, exercises, goals, history, profile, programs, sessions
+from app.api.routes import (
+    analytics,
+    auth,
+    exercises,
+    goals,
+    history,
+    profile,
+    programs,
+    sessions,
+)
 from app.core.errors import AppError
 
 app = FastAPI(
@@ -83,5 +92,6 @@ async def health():
 for r in (
     auth.router, profile.router, goals.router,
     exercises.router, programs.router, sessions.router, history.router,
+    analytics.router,
 ):
     app.include_router(r, prefix="/v1")

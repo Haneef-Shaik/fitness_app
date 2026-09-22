@@ -220,15 +220,15 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **538** — 326 client, 164 API (+3 skipped), 48 domain | grows with each milestone |
+| Tests passing | **714** — 414 client, 241 API (+3 skipped), 59 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **164** | every endpoint, happy + failure |
+| API integration tests | **241** | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
 | Migrations | **4** — M1 foundations, M2 training core, M3 deferrable ordering, **M4 plan time/distance targets** | kept reversible |
-| Mutation checks | **12** verified catches — G4 added the commit-timing double-call guard (deleting it makes a named test fail). Every other G4 fix was written test-first and seen red before it went green | every guard and shared-vector change |
+| Mutation checks | **19** verified catches — G5 added 3 (recursion, widening order, and the vacuous test the mutation itself exposed), G6 added 4 (volume summed outside the domain, secondary weighted 1.0, one-level ancestors, and the palette ceiling raised past the spacer) | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | **enforced**, and **ratcheted in G4** from 45/38/42/46 to **51/47/48/52**. Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed 55.66% includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **51.90%** statements / **52.31%** lines | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **6 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), **AC-03** and **AC-05** (23 Sep) and AC-12 | 12 of 12 |
+| Acceptance criteria passing | **7 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), AC-03, AC-05 and **AC-06** (23 Sep) and AC-12 | 12 of 12 |
 | tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
 
 ## Changelog
@@ -261,6 +261,14 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 23 Sep | **G6 — analytics.** Six `/analytics/*` endpoints, a chart kit (**H6.1**) and screens **G-01…G-07**. **AC-06 proven** — **7 of 12**. API tests 209 → 241, client 370 → 414 |
+| 23 Sep | **AC-06 is an agreement, and it has a test that breaks when the agreement does.** One session read on the finish summary, in session detail and in analytics, asserted identical. Mutation-checked by summing volume in the route instead of deferring to `app.domain.training`: AC-06 fails, which is exactly what it is for |
+| 23 Sep | **Adherence had a definition but no implementation.** PRD W07.7 (`completed planned ÷ planned`) is now in `app/domain/adherence.py` **and** `packages/domain/.../adherence.ts`, pinned by new shared vectors — two implementations are allowed, a third in SQL is not. It carries two judgements the ratio does not: **no plan is undefined, never 0**, and **more than planned is 1.0, not 1.25** |
+| 23 Sep | Writing those vectors caught my own arithmetic: a "Saturday is outside the range" case ended on 2026-09-26, which **is** a Saturday. The vector was wrong, not the code |
+| 23 Sep | **The muscle tree is now one module walked both ways.** G5's CTE answers "everything below this group" for a filter; `MuscleTree.ancestors` answers "which groups receive this volume". Same `parent_id` edges, opposite directions, same file so they cannot drift. Mutation: stopping at the first parent fails the grandchild test |
+| 23 Sep | **No index was added for analytics, and that is evidenced.** `EXPLAIN` shows the session scan using `ix_sessions_user_local_date` with the range as an index condition; two tests assert the plan and forbid a `Seq Scan`, so widening the filter to `started_at` later fails the build rather than quietly scanning |
+| 23 Sep | `react-native-svg@15.8.0` added for the one chart type that needs a polyline — checked against `bundledNativeModules.json` first, the same way D14 checked `expo-sqlite`, so it ships inside Expo Go and DR4 is unaffected |
+| 23 Sep | Two classes named `E1rmPointOut` made the generated client fall back to `app__schemas__analytics__E1rmPointOut` and broke an existing alias. The drift gate caught it immediately; renamed to `ProgressionPointOut` |
 | 23 Sep | **G5 — retrieval.** `GET /history/workouts` (keyset pagination), `/history/previous-occurrence` (**AC-05**) and `/history/compare`, plus screens **F-01…F-07**. **AC-03** and **AC-05** proven — **6 of 12**. API tests 164 → 209, client 326 → 370 |
 | 23 Sep | **"Or a descendant" is recursive, and the seeded tree is two levels deep** — so a one-level join passes every fixture and is still wrong. `muscle_subtree_ids` is a recursive CTE written **once** and shared by AC-05's resolution and F-02's filter, because two tree walks drift into "history and analytics disagree about what a chest day is" (which is how AC-06 fails later). Tested against a **grandchild** built for the purpose |
 | 23 Sep | **Widening is a second query, not a looser first one.** `role IN ('primary','secondary')` in one pass returns a NEWER secondary match over an older primary one, which is the opposite of the rule. Caught by a mutation — and the mutation first exposed that the test guarding it was **vacuous**: it compared a session id against an *exercise* id, which is never equal, so it passed against a deliberately broken rule |
@@ -465,6 +473,53 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G6 · Analytics                                   closed 23 Sep
+
+**Outcome claimed.** Training data is a trend, and the numbers agree with the logger's. **AC-06**
+proven — **7 of 12**.
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H5.1 | ✅ | The cursor convention was there to copy. G6's analytics reads are ranged rather than paged, so none of them needed it — which is the convention doing its job quietly |
+| H5.2 | ✅ | `/history/compare` is reused rather than reimplemented for F-06 |
+| H1.3 | ✅ | Every empty chart is a `DataBoundary` empty state with a sentence, not a blank plot. Asserted per screen |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H6.1 | `src/ui/charts/` | Palette, axis, legend, empty state, obeying 05 §3 | 8-slot palette asserted hex-for-hex in both themes; spacer unassignable; six-series ceiling; a regression is never red. 24 tests, 2 mutations |
+| H6.2 | Analytics read model | Does not scan every set per request | `EXPLAIN` asserted in two tests: index scan, no `Seq Scan`. No migration needed, and that is measured rather than claimed |
+| — | `app/domain/adherence.py` + `adherence.ts` | PRD W07.7 has an implementation in both languages | 11 new shared vectors; TS and Python run the same ones |
+
+**Verified.** AC-01, AC-02, AC-03, AC-04, AC-05, **AC-06**, AC-12 — **7 of 12**.
+API tests 209 → 241. Client 370 → 414. Domain vectors 48 → 59.
+
+**Left undone, and why.**
+- **G-07 shares G-03's screen.** Both are "one exercise's progression over time"; the wireframes
+  differ in entry point, not in content, and two screens would be one chart built twice.
+- **No tooltip.** 05 §3.5 asks for a hovered direct label, which has no meaning without a pointer.
+  First, last and max are labelled instead; a touch equivalent belongs with the interaction pass.
+- **The charts are not on a device yet.** They typecheck and render in tests, in both themes, but
+  G4's lesson is that rendering in a test is not rendering on a phone. The emulator cannot drive
+  touch, so this is owed a device pass.
+
+**Traps hit.**
+- **The ceiling test was vacuous.** "Never hands out the spacer" passed six keys, so slot 7 was
+  unreachable whatever the ceiling was — it passed against a ceiling deliberately raised to 7. Found
+  by the mutation, fixed by supplying seven keys and then twenty.
+- **My own vectors were wrong before the code was.** A "Saturday is outside this range" case ended
+  on a Saturday.
+- **Two schema classes with one name** broke a generated alias by forcing fully-qualified names. The
+  D3b drift gate surfaced it on the first regeneration.
+- **The docstring claimed a shared CTE that the code did not use.** The roll-up walks *up* the tree
+  while G5's CTE walks *down*. Rather than leave the comment lying, the upward walk moved into
+  `app/domain/muscles.py` beside the CTE — same module, same edges, opposite directions.
 
 ---
 

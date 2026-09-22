@@ -83,6 +83,13 @@ export default function Home() {
               style={{ flex: 1 }}
               onPress={() => router.push('/train/history')}
             />
+            <Button
+              title="Trends"
+              kind="ghost"
+              size="sm"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/train/analytics')}
+            />
           </View>
         </Card>
 

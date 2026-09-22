@@ -22,6 +22,12 @@ import type {
   PreviousPerformance,
   Program,
   ProgramIn,
+  Adherence,
+  ExerciseProgression,
+  Frequency,
+  MuscleVolume,
+  PersonalRecordRow,
+  WorkoutAnalytics,
   HistoryItem,
   PreviousOccurrence,
   SessionComparison,
@@ -29,6 +35,7 @@ import type {
 import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
+import { analyticsApi, type GroupBy, type RangeQuery } from '../api-analytics';
 import { staleTimes } from './client';
 import { applyInvalidation } from './invalidation';
 import { qk } from './queryKeys';
@@ -248,5 +255,68 @@ export function useSessionComparison(sessionIds: readonly string[]) {
     queryFn: () => historyApi.compare(sessionIds),
     staleTime: staleTimes.sessionComparison,
     enabled: sessionIds.length > 0,
+  });
+}
+
+
+/* ------------------------------------------------------------- analytics (G6) */
+
+/**
+ * G-02's volume column chart.
+ *
+ * This is the read **AC-06** compares against the logger: the same session's
+ * volume must be identical here, on the finish summary and in session detail.
+ */
+export function useWorkoutAnalytics(range: RangeQuery & { groupBy?: GroupBy } = {}) {
+  return useQuery<WorkoutAnalytics>({
+    queryKey: qk.analyticsWorkouts(range),
+    queryFn: () => analyticsApi.workouts(range),
+    staleTime: staleTimes.analytics,
+  });
+}
+
+/** G-02's sorted horizontal bar. Already sorted by the server — do not re-sort. */
+export function useMuscleVolume(range: RangeQuery = {}) {
+  return useQuery<MuscleVolume[]>({
+    queryKey: qk.analyticsMuscleVolume(range),
+    queryFn: () => analyticsApi.muscleVolume(range),
+    staleTime: staleTimes.analytics,
+  });
+}
+
+/** G-03 / G-07. The payload states its `formula_version` (I5) — show it. */
+export function useExerciseProgression(exerciseId: string, range: RangeQuery = {}) {
+  return useQuery<ExerciseProgression>({
+    queryKey: qk.analyticsExercise(exerciseId, range),
+    queryFn: () => analyticsApi.exercise(exerciseId, range),
+    staleTime: staleTimes.analytics,
+    enabled: Boolean(exerciseId),
+  });
+}
+
+/** G-04's PR board. */
+export function usePersonalRecords(range: RangeQuery = {}) {
+  return useQuery<PersonalRecordRow[]>({
+    queryKey: qk.analyticsRecords(range),
+    queryFn: () => analyticsApi.personalRecords(range),
+    staleTime: staleTimes.analytics,
+  });
+}
+
+/** G-05's week × muscle heatmap. */
+export function useFrequency(range: RangeQuery = {}) {
+  return useQuery<Frequency>({
+    queryKey: qk.analyticsFrequency(range),
+    queryFn: () => analyticsApi.frequency(range),
+    staleTime: staleTimes.analytics,
+  });
+}
+
+/** G-06's meter. `adherence` is null when nothing was planned — not zero. */
+export function useAdherence(range: RangeQuery = {}) {
+  return useQuery<Adherence>({
+    queryKey: qk.analyticsAdherence(range),
+    queryFn: () => analyticsApi.adherence(range),
+    staleTime: staleTimes.analytics,
   });
 }

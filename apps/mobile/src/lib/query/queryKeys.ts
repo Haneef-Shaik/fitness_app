@@ -23,6 +23,12 @@ export interface HistoryFilters {
   limit?: number;
 }
 
+export interface AnalyticsFilters {
+  from?: string;
+  to?: string;
+  groupBy?: 'day' | 'week' | 'month';
+}
+
 export interface SessionFilters {
   from?: string;
   to?: string;
@@ -62,6 +68,16 @@ export const qk = {
   previousOccurrence: (muscle: string) => ['previous-occurrence', muscle] as const,
   sessionComparison: (sessionIds: readonly string[]) =>
     ['session-comparison', [...sessionIds].sort().join(',')] as const,
+
+  // analytics (G6). All derived from completed sessions, so all of them go
+  // stale together — hence one shared `analytics` prefix for invalidation.
+  analyticsWorkouts: (f: AnalyticsFilters = {}) => ['analytics', 'workouts', f] as const,
+  analyticsMuscleVolume: (f: AnalyticsFilters = {}) => ['analytics', 'muscle-volume', f] as const,
+  analyticsExercise: (exerciseId: string, f: AnalyticsFilters = {}) =>
+    ['analytics', 'exercise', exerciseId, f] as const,
+  analyticsRecords: (f: AnalyticsFilters = {}) => ['analytics', 'records', f] as const,
+  analyticsFrequency: (f: AnalyticsFilters = {}) => ['analytics', 'frequency', f] as const,
+  analyticsAdherence: (f: AnalyticsFilters = {}) => ['analytics', 'adherence', f] as const,
 } as const;
 
 /** The prefixes invalidation targets. Kept beside the registry so they cannot drift. */
@@ -77,4 +93,5 @@ export const qkPrefix = {
   history: () => ['history'] as const,
   previousOccurrence: () => ['previous-occurrence'] as const,
   sessionComparison: () => ['session-comparison'] as const,
+  analytics: () => ['analytics'] as const,
 } as const;

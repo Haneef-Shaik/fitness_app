@@ -80,10 +80,15 @@ module.exports = {
     // from `global`, so the printed 55.66% includes src/lib/query and
     // DataBoundary while this bucket is everything else.
     //
-    // Measured remainder 23 Sep (G5): 54.58 / 50.28 / 50.72 / 55.14 — up from
-    // G4's 51.90 / 47.15 / 48.33 / 52.31. G5 added seven screens AND their
-    // tests, so the floor rose with the ceiling rather than being held down to
-    // accommodate new untested code.
+    // Measured remainder, goal by goal:
+    //   G4  51.90 / 47.15 / 48.33 / 52.31
+    //   G5  54.58 / 50.28 / 50.72 / 55.14
+    //   G6  54.97 / 50.03 / 50.84 / 55.40
+    // Each goal added screens AND their tests, so the floor rises with the
+    // ceiling rather than being held down to accommodate untested code. G6's
+    // branch figure barely moved because charts are branch-heavy by nature —
+    // the thresholds stay where the measurement is, not where it would be
+    // flattering.
     global: { statements: 54, branches: 50, functions: 50, lines: 55 },
     './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
     './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },

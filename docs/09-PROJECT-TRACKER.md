@@ -21,7 +21,7 @@
 | **App screens built** | **22** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 24 commits · `b1ec1da` the logger (G3) |
+| **Version control** | git, 25 commits · `60b0bd4` the logger (G3) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -532,7 +532,7 @@ against live data rather than asserted:
 
 ---
 
-### Handoff — G3 · The logger            closed 22 Sep · `<this commit>`
+### Handoff — G3 · The logger            closed 22 Sep · `60b0bd4`
 
 **Outcome claimed.** A user can start a workout, log sets one-handed with the UI never waiting on the
 network, keep logging with the server unreachable, and finish with numbers the server agrees with.

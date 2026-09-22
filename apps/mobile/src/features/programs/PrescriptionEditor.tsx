@@ -10,7 +10,7 @@
  * not an error worth stopping on, and the server swaps it the same way.
  */
 import React, { useMemo, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { ScrollView, TextInput, View } from 'react-native';
 import type { Exercise, PlanExerciseIn } from '@volt/api-types';
 import { Button, Text } from '../../ui';
 import { Sheet } from '../../ui/Sheet';
@@ -35,8 +35,13 @@ function Stepper({
   const { c } = useTheme();
   const shown = value === null ? '—' : (format ? format(value) : String(value));
   const bump = (d: number) => {
-    const base = value ?? min;
-    const next = Math.min(max, Math.max(min, base + d * step));
+    // From unset the first press reveals the floor rather than stepping off it.
+    // The old `(value ?? min) + d * step` opened the sequence at min + step, so
+    // + on an empty field skipped a value: four taps on a phone read 5 sets,
+    // and rest could only reach an explicit "none" by pressing DOWN.
+    const next = value === null
+      ? min
+      : Math.min(max, Math.max(min, value + d * step));
     onChange(next);
   };
   const btn = (text: string, onPress: () => void, a11y: string) => (
@@ -142,7 +147,16 @@ export function PrescriptionEditor({
         </View>
       }
     >
-      <View style={{ padding: space.lg, gap: space.lg }}>
+      {/* Scrollable, not a plain View. With the keyboard up the sheet has barely
+          half its height, and a fixed-size body simply overflowed: the footer
+          was drawn across the load field and "Rest between sets" could not be
+          reached at all. Seen on a phone; a browser has the room to hide it.
+          `handled` so a tap on a control still acts on the first press instead
+          of being spent dismissing the IME. */}
+      <ScrollView
+        contentContainerStyle={{ padding: space.lg, gap: space.lg }}
+        keyboardShouldPersistTaps="handled"
+      >
         {exercise && muscleSummary(exercise) ? (
           <Text variant="caption" tone="ink3">{muscleSummary(exercise)}</Text>
         ) : null}
@@ -221,7 +235,7 @@ export function PrescriptionEditor({
           format={(n) => (n === 0 ? 'none' : `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`)}
           testID="rest-seconds"
         />
-      </View>
+      </ScrollView>
     </Sheet>
   );
 }

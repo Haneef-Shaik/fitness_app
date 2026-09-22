@@ -2,7 +2,8 @@
 
     uv run python scripts/seed_demo.py
 
-Idempotent: re-running wipes and recreates the demo user's data.
+Idempotent, but NOT a wipe: it creates what is missing and cancels whatever
+session was left open. Existing programs and completed history are kept.
 """
 from __future__ import annotations
 
@@ -96,12 +97,18 @@ async def _seed_program(c, h, catalog: dict[str, str]) -> dict[str, str]:
 
 
 async def _seed_history(c, h, day_ids: dict[str, str]) -> int:
-    if (await c.get("/v1/workout-sessions", headers=h)).json()["meta"]["count"]:
-        return 0
-
+    # Cancel FIRST, and unconditionally. This used to sit below the early return,
+    # so it ran only on a brand-new account — and an account with any history at
+    # all kept whatever session was left open. E-01 shows only "You're mid-workout"
+    # while one exists, so every E2E flow that reaches for a plan day found none
+    # and failed on a selector, which reads like a broken app rather than a dirty
+    # fixture. "Starts from a known state" has to include "nothing is open".
     open_session = (await c.get("/v1/workout-sessions/active", headers=h)).json()["data"]
     if open_session:
         await c.post(f"/v1/workout-sessions/{open_session['id']}/cancel", headers=h)
+
+    if (await c.get("/v1/workout-sessions", headers=h)).json()["meta"]["count"]:
+        return 0
 
     made = 0
     for days_ago, day_name, plan in PAST_SESSIONS:

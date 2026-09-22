@@ -49,6 +49,7 @@ export function createOutbox(deps: OutboxDeps) {
   const maxAttempts = deps.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
 
   let flushing: Promise<FlushOutcome> | null = null;
+  let trailing: Promise<FlushOutcome> | null = null;
 
   async function run(): Promise<FlushOutcome> {
     const at = now();
@@ -93,13 +94,34 @@ export function createOutbox(deps: OutboxDeps) {
     return outcome;
   }
 
-  return {
-    /** Flushes once. Concurrent calls share the in-flight run rather than racing. */
-    flush(): Promise<FlushOutcome> {
-      if (flushing) return flushing;
+  /**
+   * Flushes once, and never two runs at a time.
+   *
+   * A caller that arrives mid-run is NOT given the in-flight promise: `run()`
+   * reads its work list up front, so that run can never see an entry enqueued
+   * since it started. Sharing it silently stranded the caller's write — on a
+   * phone, the third set of three stayed "Waiting to sync" for ever while the
+   * server held two. Such callers are coalesced onto one trailing run instead,
+   * which starts once the current one has settled and reads the queue afresh.
+   */
+  function flush(): Promise<FlushOutcome> {
+    if (!flushing) {
       flushing = run().finally(() => { flushing = null; });
       return flushing;
-    },
+    }
+    if (!trailing) {
+      // Chained off `flushing` (already past its own `finally`), so by the time
+      // this runs the slot is free and the recursive call starts a fresh run.
+      trailing = flushing.catch(() => undefined).then(() => {
+        trailing = null;
+        return flush();
+      });
+    }
+    return trailing;
+  }
+
+  return {
+    flush,
 
     /** Everything the Sync Center shows: pending count and the failed list. */
     async status() {

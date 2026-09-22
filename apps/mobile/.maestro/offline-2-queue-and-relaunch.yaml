@@ -1,0 +1,40 @@
+# Offline, part 2 of 3 — the API is DOWN for the whole of this flow.
+#
+# No sign-in prelude: it continues from where part 1 left the app, because the
+# draft it is about to force-quit is the point.
+appId: host.exp.exponent
+name: Offline 2 - queue, force-quit, relaunch
+env:
+  HOST: 192.168.1.3:8081
+---
+# I10 — these commit instantly even though nothing can be sent.
+- tapOn: "Save set 2"
+- assertVisible: "Set 2, 80 kilograms for 8 reps"
+- tapOn: "Save set 3"
+- assertVisible: "Set 3, 80 kilograms for 8 reps"
+
+# And they say so honestly. This is the assertion airplane mode never made.
+- extendedWaitUntil:
+    visible:
+      text: "Waiting to sync"
+      index: 0
+    timeout: 20000
+
+# Force-quit. Not "background it" — the process goes.
+- stopApp
+- openLink: exp://${HOST}
+- waitForAnimationToEnd:
+    timeout: 40000
+
+# Relaunched with the server still unreachable. The session must survive on the
+# stored token (O10) rather than bounce to the login screen, and the draft must
+# come back from SQLite — which is the half web can never prove, because
+# expo-sqlite has no web build and its store is in memory.
+- extendedWaitUntil:
+    visible: "You left a workout open"
+    timeout: 60000
+- tapOn: "Resume"
+- assertVisible: "Set 3, 80 kilograms for 8 reps"
+- assertVisible:
+    text: "Waiting to sync"
+    index: 0

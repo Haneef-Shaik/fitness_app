@@ -62,14 +62,30 @@ describe('cold start', () => {
     await waitFor(() => expect(state()).toBe('ready|a@b.com'));
   });
 
-  it('signs out when the stored token no longer refreshes', async () => {
-    // Reuse detection revoked the family — the honest answer is the login screen.
+  it('signs out when the server REVOKED the family', async () => {
+    // Reuse detection revoked it — the honest answer is the login screen.
+    // performRefresh clears the stored token in exactly this case, so an
+    // absent token is what "the server said no" looks like from here.
     mockTokens.value = 'stale';
-    mockApi.tryRefresh.mockResolvedValue(false);
+    mockApi.tryRefresh.mockImplementation(async () => { mockTokens.value = null; return false; });
 
     show();
 
     await waitFor(() => expect(state()).toBe('signed-out|-'));
+  });
+
+  it('stays signed in when the refresh failed because the phone is offline', async () => {
+    // O10 — offline with a cache is full read access and full workout logging.
+    // A failed refresh with the token still on the device means "could not
+    // ask", not "was told no", and signing out there ejects someone from a
+    // workout in progress for walking into a basement gym.
+    mockTokens.value = 'stored';
+    mockApi.tryRefresh.mockResolvedValue(false);   // token deliberately left alone
+
+    show();
+
+    await waitFor(() => expect(state()).toBe('ready|-'));
+    expect(mockTokens.value).toBe('stored');
   });
 
   it('signs out rather than hanging when the profile call fails', async () => {

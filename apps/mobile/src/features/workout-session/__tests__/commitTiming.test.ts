@@ -53,8 +53,23 @@ describe('the measurement, not the measuring', () => {
     expect(commitTimings.report().count).toBeLessThanOrEqual(200);
   });
 
-  it('start() returns a finish function that is safe to call twice', () => {
-    const finish = commitTimings.start();
-    expect(() => { finish(); finish(); }).not.toThrow();
+  it('records ONE sample however many times the finish function is called', () => {
+    // "does not throw" passes with the guard deleted; the count does not. The
+    // guard is there because a second call measures a shorter span and would
+    // quietly halve the reported latency.
+    //
+    // Flushing the timers also matters: the sample lands inside
+    // runAfterInteractions -> requestAnimationFrame, and leaving those pending
+    // is what made this file warn about touching a torn-down Jest environment.
+    jest.useFakeTimers();
+    try {
+      const finish = commitTimings.start();
+      finish();
+      finish();
+      jest.runAllTimers();
+      expect(commitTimings.report().count).toBe(1);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });

@@ -1,12 +1,24 @@
 # AC-04 · "Starting the same workout again shows previous performance."
 # Passes when the strip shows the PRIOR session's sets BEFORE any input.
 # Depends on 02-record-sets having run.
-appId: host.exp.Exponent
+appId: host.exp.exponent
 name: AC-04 previous performance
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
 ---
-- openLink: volt://train/start
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+- tapOn: "Start workout"
 - tapOn:
-    text: "Start Chest.*"
+    # The plan day seed_demo.py creates, so the flow starts from a known
+    # prescription (4 x 6-8 @ 80 kg) and a known history.
+    text: "Start Push.*"
 
 # Before a single keystroke, last time is on screen — never behind a tap.
 - assertVisible:

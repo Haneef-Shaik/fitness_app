@@ -1,0 +1,75 @@
+# H4.3 · tap → set rendered, measured on hardware. Budget: p95 < 100 ms (D16).
+#
+# Not an acceptance criterion — a measurement. It logs 100 sets so the 95th
+# percentile is read off a real sample rather than a handful of taps, then
+# leaves the reading on screen for `scripts/measure-p95.sh` to read back.
+#
+# The span is recorded INSIDE the app (commitTiming.ts): performance.now() at
+# the top of the tap handler, and again in a post-commit frame callback. So the
+# scrolling this flow does between taps costs wall-clock but cannot touch the
+# numbers — it is outside both ends of the measured span.
+appId: host.exp.exponent
+name: Measure commit p95
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+- tapOn: "Start workout"
+- assertVisible: "Start a workout"
+- tapOn:
+    text: "Start Push.*"
+- assertVisible: "Save set 1"
+
+# One real entry, so every sample after it commits the same shape of row that a
+# user would: a load and a rep count, not an empty set.
+- tapOn: "Load (kg)"
+- eraseText
+- inputText: "80"
+- tapOn: "Reps"
+- eraseText
+- inputText: "8"
+- hideKeyboard
+
+# The entry form sits below the rows it is adding to, so it walks down the
+# screen as the list grows. Scroll it back into view before each tap rather
+# than letting the 20th tap miss.
+# A LITERAL count, not `${SAMPLES}`. Maestro does not interpolate an env var
+# into `repeat.times`: it logged "Repeat indefinitely" and then ran its own
+# number, so `SAMPLES=10` silently produced a 100-set run.
+# One hundred, which is the sample the goal asks for.
+- repeat:
+    times: 100
+    commands:
+      # Generous, and deliberately so: the list grows under this loop, so each
+      # iteration has further to scroll than the last. At the default 8 s the
+      # run died at set 33 having collected only 32 samples. The scrolling is
+      # outside the measured span either way — commitTiming.ts starts its clock
+      # inside the tap handler — so this costs wall-clock, not accuracy.
+      - scrollUntilVisible:
+          element:
+            text: "Save set \\d+"
+          direction: DOWN
+          speed: 80
+          visibilityPercentage: 40
+          timeout: 25000
+      - tapOn: "Save set \\d+"
+
+# The readout only renders under __DEV__, which is exactly where this runs.
+# A long way down by now — the readout sits below every row logged above.
+- scrollUntilVisible:
+    element:
+      id: "commit-latency"
+    direction: DOWN
+    speed: 90
+    visibilityPercentage: 20
+    timeout: 60000
+- assertVisible:
+    id: "commit-latency"

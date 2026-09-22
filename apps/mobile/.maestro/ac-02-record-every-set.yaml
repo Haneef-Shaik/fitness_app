@@ -1,0 +1,70 @@
+# AC-02 · "Record every performed set with load and reps."
+# Passes when workout_sets count == sets entered, load_kg and reps match, and
+# set_index is dense.
+appId: host.exp.exponent
+name: AC-02 record every set
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+# Navigate by tapping, not by a volt:// deep link: inside Expo Go the custom
+# scheme belongs to Expo Go, not to this app.
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+- tapOn: "Start workout"
+- assertVisible: "Start a workout"
+- tapOn:
+    # The plan day seed_demo.py creates, so the flow starts from a known
+    # prescription (4 x 6-8 @ 80 kg) and a known history.
+    text: "Start Push.*"
+
+# The logger opens on the first exercise with the plan's target prefilled — the
+# frozen target_snapshot (I1), not the live plan.
+- assertVisible: "Save set 1"
+
+- tapOn: "Load (kg)"
+- eraseText
+- inputText: "80"
+- tapOn: "Reps"
+- eraseText
+- inputText: "8"
+- hideKeyboard
+- tapOn: "Save set 1"
+
+# Committed instantly: the row is present before any network round trip (I10).
+- assertVisible: "Set 1, 80 kilograms for 8 reps"
+- assertVisible: "Save set 2"
+
+- tapOn: "Save set 2"
+- assertVisible: "Set 2, 80 kilograms for 8 reps"
+
+- tapOn: "Save set 3"
+- assertVisible: "Set 3, 80 kilograms for 8 reps"
+
+# All three uploaded. extendedWaitUntil, not assertVisible, because this waits
+# on a round trip rather than on a render — and index 2 only exists once the
+# THIRD row has synced, which is precisely the one the outbox used to strand.
+- extendedWaitUntil:
+    visible:
+      text: "Synced"
+      index: 2
+    timeout: 20000
+- assertNotVisible: "Waiting to sync"
+
+# Scroll to it: the entry form and the buttons sit BELOW the rows they add to,
+# so Finish walks off the bottom as sets accumulate. Three sets is already
+# enough on a phone, and the flow was tapping at a coordinate the button had
+# long since left.
+- scrollUntilVisible:
+    element:
+      text: "Finish workout"
+    direction: DOWN
+    timeout: 10000
+- tapOn: "Finish workout"
+- assertVisible: "Workout finished"
+- assertVisible: "SETS"

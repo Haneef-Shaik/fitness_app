@@ -1,0 +1,109 @@
+# AC-01 · "Create a Chest workout with multiple exercises and target sets/reps."
+# Passes when the program persists with >= 2 plan_exercises, each with
+# target_sets and a rep range.
+appId: host.exp.exponent
+name: AC-01 build a program
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+- tapOn: "Programs"
+- assertVisible: "Programs"
+
+- tapOn: "\\+ New"
+- assertVisible: "\\+ Add a day"
+- tapOn: "\\+ Add a day"
+- tapOn:
+    text: "Edit day"
+    index: 0
+
+- tapOn: "Day name"
+# inputText APPENDS — without eraseText the field reads "Day 1Chest".
+- eraseText
+- inputText: "Chest"
+# back closes the IME here. Do NOT use it inside the picker sheet: there it
+# dismisses the SHEET, and every following tap lands on the wrong screen.
+- pressKey: back
+- assertVisible: "\\+ Add exercises"
+
+- tapOn: "\\+ Add exercises"
+- assertVisible: "Add exercises"
+
+# NO SEARCH, deliberately. Typing raises the IME, and on Android every way of
+# dismissing it — hideKeyboard, pressKey back, even scrollUntilVisible's gesture
+# — sends a back key that hits the RN Modal's onRequestClose and closes the
+# SHEET. The unfiltered list already shows both chest exercises, so the flow
+# never opens the keyboard at all.
+# By index, not by name: the sheet shows only the first handful of rows on a
+# phone, so naming a specific exercise couples the flow to catalog ordering.
+- assertVisible: "Barbell Bench Press, barbell"
+- tapOn:
+    text: ".*, (barbell|dumbbell|cable|machine|bodyweight|band|kettlebell|other)"
+    index: 0
+- tapOn:
+    text: ".*, (barbell|dumbbell|cable|machine|bodyweight|band|kettlebell|other)"
+    index: 1
+
+- tapOn: "Add 2"
+
+# A prescription on the first: target sets AND a rep range.
+- assertVisible: "Position 1, .*"
+- tapOn: "Position 1, .*"
+- assertVisible: "Target sets"
+- repeat:
+    times: 4
+    commands:
+      - tapOn: "Increase Target sets"
+- tapOn: "Minimum reps"
+- eraseText
+- inputText: "6"
+- tapOn: "Maximum reps"
+- eraseText
+- inputText: "8"
+
+# Spend a tap on an inert label before reaching for Save. With the IME up, the
+# first tap anywhere outside the focused field is consumed by blurring it, and
+# the sheet then reflows — Save moved 870px between the two layouts, so Maestro
+# tapped where Save HAD been and the button never got the touch. The tap is not
+# the usual "dismiss the keyboard": hideKeyboard and pressKey back both send a
+# back key, which closes the SHEET (see README).
+- tapOn: "Rep range"
+- tapOn: "Save"
+
+# No pressKey back here: the IME is already down, so it would pop the screen.
+- assertVisible: "\\+ Add exercises"
+
+# And one on the second. AC-01 reads "each with target_sets and a rep range",
+# so prescribing only the first row would leave the flow green on half the
+# criterion — which is how it passed while the day held no targets at all.
+- tapOn: "Position 2, .*"
+- assertVisible: "Target sets"
+- repeat:
+    times: 3
+    commands:
+      - tapOn: "Increase Target sets"
+- tapOn: "Minimum reps"
+- eraseText
+- inputText: "8"
+- tapOn: "Maximum reps"
+- eraseText
+- inputText: "10"
+- tapOn: "Rep range"
+- tapOn: "Save"
+- assertVisible: "\\+ Add exercises"
+
+- tapOn: "Save"
+
+# Persisted: the day reads back with both exercises and the prescription.
+- extendedWaitUntil:
+    visible: "Chest, 2 exercises, edit"
+    timeout: 20000
+- assertVisible: "4 × 6–8"
+- assertVisible: "3 × 8–10"

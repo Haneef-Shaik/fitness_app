@@ -151,3 +151,54 @@ describe('measured, not asserted', () => {
     expect(elapsed).toBeLessThan(100);
   });
 });
+
+describe('the enqueue is announced only once it has actually landed', () => {
+  it('calls onPersisted AFTER the store write resolves, never before', async () => {
+    // The bug this exists for: the logger called flush() straight after
+    // commitSet(), but the outbox entry is written by a fire-and-forget
+    // `store.commit`. The flush read the queue BEFORE the entry was in it,
+    // found nothing, and — with nothing re-arming it — the set stayed
+    // "Waiting to sync" for ever. On a phone the third of three sets reached
+    // the screen and never reached the server.
+    //
+    // So the signal has to come from the write completing, not from the
+    // optimism of the caller.
+    let releaseWrite!: () => void;
+    const written = new Promise<void>((r) => { releaseWrite = r; });
+
+    const order: string[] = [];
+    const store = {
+      ...hangingStore(),
+      commit: async () => { await written; order.push('written'); },
+    } as unknown as SessionStore;
+
+    const onPersisted = jest.fn(() => { order.push('announced'); });
+    configurePersistence({ store, onPersisted });
+    startSession();
+
+    const result = useSessionStore.getState().commitSet('x1', {
+      clientId: 'c1', setType: 'working', reps: 8, loadKg: 80,
+      durationSeconds: null, distanceM: null,
+    });
+
+    // I10 still holds: the commit returned without waiting for any of this.
+    expect(result.ok).toBe(true);
+    expect(onPersisted).not.toHaveBeenCalled();
+
+    releaseWrite();
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(onPersisted).toHaveBeenCalled();
+    // Starting the session wrote a draft too, so there are two of each. The
+    // claim is not the exact sequence but that no announcement ever runs ahead
+    // of a write: at every point, announcements <= writes.
+    let writes = 0;
+    let announcements = 0;
+    for (const step of order) {
+      if (step === 'written') writes += 1;
+      else announcements += 1;
+      expect(announcements).toBeLessThanOrEqual(writes);
+    }
+    expect(announcements).toBe(writes);
+  });
+});

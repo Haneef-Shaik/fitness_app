@@ -116,6 +116,45 @@ describe('C-07 behaviour', () => {
     );
   });
 
+  it('lands on the minimum on the FIRST press up from unset', () => {
+    // Found on a real phone: four taps on + read 5, not 4. The old `base =
+    // value ?? min` then added a step on top of the floor, so the sequence
+    // started at min+1 and every count a user tallied by press was one high.
+    show(exercise({}), EMPTY);
+    expect(screen.getByTestId('target-sets-value')).toHaveTextContent('\u2014');
+
+    fireEvent.press(screen.getByLabelText('Increase Target sets'));
+
+    expect(screen.getByTestId('target-sets-value')).toHaveTextContent('1');
+  });
+
+  it('counts presses: N taps up from unset reads N', () => {
+    show(exercise({}), EMPTY);
+    for (let i = 0; i < 4; i += 1) {
+      fireEvent.press(screen.getByLabelText('Increase Target sets'));
+    }
+    expect(screen.getByTestId('target-sets-value')).toHaveTextContent('4');
+  });
+
+  it('lands on the minimum on the first press DOWN from unset too', () => {
+    // There is nothing below the floor, so both directions open at it.
+    show(exercise({}), EMPTY);
+    fireEvent.press(screen.getByLabelText('Decrease Target sets'));
+    expect(screen.getByTestId('target-sets-value')).toHaveTextContent('1');
+  });
+
+  it('opens rest at its own floor, so "none" is reachable by pressing up', () => {
+    // Rest's floor is 0. The first press must still reveal the floor rather
+    // than skipping to 0:15, or an explicit "no rest" can only be reached by
+    // pressing DOWN — which nobody does from an empty field.
+    show(exercise({}), EMPTY);
+    fireEvent.press(screen.getByLabelText('Increase Rest between sets'));
+    expect(screen.getByTestId('rest-seconds-value')).toHaveTextContent('none');
+
+    fireEvent.press(screen.getByLabelText('Increase Rest between sets'));
+    expect(screen.getByTestId('rest-seconds-value')).toHaveTextContent('0:15');
+  });
+
   it('steps the set count within 1–20', () => {
     show(exercise({}), { ...EMPTY, target_sets: 20 });
     fireEvent.press(screen.getByLabelText('Increase Target sets'));

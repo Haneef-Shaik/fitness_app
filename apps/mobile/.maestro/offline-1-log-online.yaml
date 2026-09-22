@@ -1,0 +1,50 @@
+# Offline, part 1 of 3 — driven by scripts/e2e.sh, which takes the API down
+# between this flow and the next.
+#
+# WHY THE API AND NOT AIRPLANE MODE. Two reasons, both found on hardware:
+#
+#  1. `setAirplaneMode: enabled` does not take this phone offline. Wi-Fi stays
+#     up (`wifi_on` reads 2 and the interface keeps its address), so all three
+#     "offline" sets reached the server in ~20 ms and the flow asserted nothing.
+#  2. Even if it did, the app runs in EXPO GO and reloads its bundle from Metro
+#     over the same LAN. A relaunch with the network down cannot load the app at
+#     all — so "log offline, kill, relaunch" is not expressible in this setup.
+#     That is a limit of DR4's mitigation, recorded rather than worked around.
+#
+# Stopping the API isolates exactly the thing under test: the server is
+# unreachable, Metro is not.
+appId: host.exp.exponent
+name: Offline 1 - log with the server reachable
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+- tapOn: "Start workout"
+- tapOn:
+    text: "Start Push.*"
+- assertVisible: "Save set 1"
+
+- tapOn: "Load (kg)"
+- eraseText
+- inputText: "80"
+- tapOn: "Reps"
+- eraseText
+- inputText: "8"
+- hideKeyboard
+
+# One set while the server IS reachable, so the contrast with part 2 is real.
+- tapOn: "Save set 1"
+- assertVisible: "Set 1, 80 kilograms for 8 reps"
+- extendedWaitUntil:
+    visible:
+      text: "Synced"
+      index: 0
+    timeout: 20000

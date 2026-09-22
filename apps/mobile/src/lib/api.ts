@@ -106,10 +106,20 @@ async function performRefresh(): Promise<boolean> {
     setAccessToken(data.access_token);
     await setRefreshToken(data.refresh_token);
     return true;
-  } catch {
-    // Reuse detection may have revoked the whole family — this session is finished.
-    await clearRefreshToken();
-    setAccessToken(null);
+  } catch (e) {
+    // ONLY an auth rejection means the family is gone. Everything else — a 5xx,
+    // or a `fetch` that rejected outright because the phone has no signal —
+    // says nothing about whether this session is still valid.
+    //
+    // Catching all of it and clearing the token deleted the account from the
+    // device for being offline: the user was signed out of a workout in
+    // progress and could not log back in until they had reception. Found on a
+    // phone, trying to relaunch the app with the server unreachable.
+    const revoked = e instanceof ApiError && (e.status === 401 || e.status === 403);
+    if (revoked) {
+      await clearRefreshToken();
+      setAccessToken(null);
+    }
     return false;
   }
 }

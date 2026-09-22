@@ -30,6 +30,17 @@ interface Persistence {
   store: SessionStore;
   /** Called after every committed change; failures are surfaced, never thrown at the UI. */
   onPersistError?: (e: unknown) => void;
+  /**
+   * Called once a write has actually landed — which is the only moment an
+   * outbox entry is really in the queue.
+   *
+   * The logger used to flush straight after `commitSet` returned. But the entry
+   * is written by the fire-and-forget `persist()` below, so that flush could read
+   * the queue before the entry reached it, find nothing, and leave the set
+   * queued with nothing to re-arm it. On a phone the third of three sets showed
+   * on screen and never reached the server.
+   */
+  onPersisted?: () => void;
 }
 
 let persistence: Persistence | null = null;
@@ -48,6 +59,10 @@ function persist(draft: SessionDraft, entry?: NewOutboxEntry): void {
       { revision: draft.revision, updatedAt: new Date().toISOString(), json: JSON.stringify(draft) },
       entry,
     )
+    // Still fire-and-forget — nothing here is awaited by the commit path, so
+    // I10 holds. The difference is only WHO says "there is something to send",
+    // and now it is the write itself rather than the caller's optimism.
+    .then(() => { p.onPersisted?.(); })
     .catch((e) => p.onPersistError?.(e));
 }
 

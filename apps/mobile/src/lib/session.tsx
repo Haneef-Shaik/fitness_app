@@ -36,7 +36,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const token = await getRefreshToken();
       if (!token) { setStatus('signed-out'); return; }
       const ok = await api.tryRefresh();
-      if (!ok) { setStatus('signed-out'); return; }
+      if (!ok) {
+        // O9 vs O10. `performRefresh` clears the stored token ONLY when the
+        // server actively rejected it, so the token's survival is the signal:
+        //   gone  -> the family was revoked, this session is finished (O9)
+        //   still there -> we could not ask. The phone is offline, and offline
+        //   with a cache is full logging, not a login screen (O10).
+        // Signing out here ejected someone from a workout in progress for
+        // having no reception.
+        if (await getRefreshToken()) { setStatus('ready'); return; }
+        setStatus('signed-out');
+        return;
+      }
       try {
         await load();
       } catch {

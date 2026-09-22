@@ -25,10 +25,18 @@ cd "$(dirname "$0")/.."
 # unlinked. Maestro and the Android tools both need it.
 JDK=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 [ -d "$JDK" ] && export JAVA_HOME="$JDK" && export PATH="$JDK/bin:$PATH"
-export PATH="$PATH:$HOME/.maestro/bin"
+export PATH="$PATH:$HOME/.maestro/bin:$HOME/Library/Android/sdk/platform-tools"
 
+# An emulator reaches the host through its OWN localhost, via the `adb reverse`
+# that scripts/emulator.sh sets up; a physical phone reaches it over the LAN.
+# Detected rather than configured, because getting it wrong produces a blank app
+# and no useful error.
 LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo 127.0.0.1)
-HOST="${HOST:-$LAN:8081}"
+if [ -z "${HOST:-}" ] && adb devices 2>/dev/null | grep -q '^emulator-'; then
+  HOST="localhost:8081"
+else
+  HOST="${HOST:-$LAN:8081}"
+fi
 EMAIL="${EMAIL:-demo@volt.app}"
 PASSWORD="${PASSWORD:-voltdemo1234}"
 FLOWS=apps/mobile/.maestro
@@ -69,7 +77,18 @@ api_start() {
   return 1
 }
 
+# Re-applied before every flow, not once at setup. Expo CLI manages the 8081
+# rule itself and drops it when Metro restarts — and the symptom is Expo Go's
+# generic "Something went wrong", which says nothing about a missing route to
+# the bundler. Re-adding an existing rule is a no-op, so this is free.
+rewire() {
+  adb devices 2>/dev/null | grep -q '^emulator-' || return 0
+  adb reverse tcp:8081 tcp:8081 >/dev/null 2>&1
+  adb reverse tcp:8000 tcp:8000 >/dev/null 2>&1
+}
+
 flow() {
+  rewire
   maestro test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$1"
 }
 
@@ -83,6 +102,7 @@ run_one() {
   # finds no plan day and fails on a selector. The seed cancels whatever is
   # open and leaves completed history alone, which is exactly the guarantee.
   seed
+  rewire
   if ! maestro test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$flow"; then
     fail "$id — the flow did not complete"
     failures=$((failures + 1))

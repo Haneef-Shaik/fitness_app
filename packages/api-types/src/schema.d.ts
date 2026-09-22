@@ -442,7 +442,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Patch Session */
+        patch: operations["patch_session_v1_workout_sessions__session_id__patch"];
         trace?: never;
     };
     "/v1/workout-sessions/{session_id}/exercises": {
@@ -637,6 +638,45 @@ export interface paths {
          */
         get: operations["previous_performance_v1_exercises__exercise_id__previous_performance_get"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/session-exercises/{se_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Session Exercise */
+        delete: operations["delete_session_exercise_v1_session_exercises__se_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Session Exercise */
+        patch: operations["patch_session_exercise_v1_session_exercises__se_id__patch"];
+        trace?: never;
+    };
+    "/v1/workout-sessions/{session_id}/exercises/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder Session Exercises
+         * @description Bulk reorder in ONE transaction. The body is the complete new order:
+         *     a partial list would silently drop an exercise from the workout.
+         */
+        put: operations["reorder_session_exercises_v1_workout_sessions__session_id__exercises_order_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1607,6 +1647,17 @@ export interface components {
             sets: components["schemas"]["SetOut"][];
         };
         /**
+         * SessionExercisePatch
+         * @description Mid-session annotation. Skipping is a statement of intent, not a delete —
+         *     anything already logged against the exercise stays logged.
+         */
+        SessionExercisePatch: {
+            /** Notes */
+            notes?: string | null;
+            /** Skipped */
+            skipped?: boolean | null;
+        };
+        /**
          * SessionFinishOut
          * @description Finish returns the session plus whatever records it improved (E-11).
          */
@@ -1693,6 +1744,11 @@ export interface components {
              * @default []
              */
             exercises: components["schemas"]["SessionExerciseOut"][];
+        };
+        /** SessionPatch */
+        SessionPatch: {
+            /** Notes */
+            notes?: string | null;
         };
         /**
          * SessionStart
@@ -2883,6 +2939,41 @@ export interface operations {
             };
         };
     };
+    patch_session_v1_workout_sessions__session_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SessionOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     add_exercise_v1_workout_sessions__session_id__exercises_post: {
         parameters: {
             query?: never;
@@ -3204,6 +3295,107 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_PreviousPerformanceOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_session_exercise_v1_session_exercises__se_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                se_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SessionOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_session_exercise_v1_session_exercises__se_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                se_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionExercisePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SessionOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorder_session_exercises_v1_workout_sessions__session_id__exercises_order_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": string[];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SessionOut_"];
                 };
             };
             /** @description Validation Error */

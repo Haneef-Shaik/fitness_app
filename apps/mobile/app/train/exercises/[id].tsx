@@ -7,6 +7,7 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useExercise, useExerciseHistory, useExerciseStats } from '@/lib/query/hooks';
 import { muscleSummary, trackedFields } from '@/features/exercises/format';
+import { formatServerDate } from '@/lib/datetime';
 import { font, space, useTheme } from '@/theme';
 
 function fmtKg(n: number | null | undefined): string {
@@ -91,7 +92,7 @@ export default function ExerciseDetail() {
                           key={`${p.local_date}-${p.e1rm_kg}`}
                           style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 }}
                         >
-                          <Text variant="caption" tone="ink3">{p.local_date}</Text>
+                          <Text variant="caption" tone="ink3">{formatServerDate(p.local_date)}</Text>
                           <Text variant="caption" style={{ fontFamily: font.dataSemi }}>
                             {fmtKg(p.e1rm_kg)}
                           </Text>
@@ -117,7 +118,7 @@ export default function ExerciseDetail() {
                     {rows.slice(0, 8).map((r) => (
                       <Card key={r.session_id} style={{ marginBottom: 8 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                          <Text variant="body">{r.local_date}</Text>
+                          <Text variant="body">{formatServerDate(r.local_date)}</Text>
                           <Text variant="body" style={{ fontFamily: font.dataSemi, color: c.ink2 }}>
                             {fmtKg(r.volume_kg)}
                           </Text>

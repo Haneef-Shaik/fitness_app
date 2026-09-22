@@ -46,8 +46,10 @@ from app.schemas.sessions import (
     RecordEntryOut,
     SessionExerciseIn,
     SessionExerciseOut,
+    SessionExercisePatch,
     SessionFinishOut,
     SessionOut,
+    SessionPatch,
     SessionStart,
     SetBatchOut,
     SetIn,
@@ -591,6 +593,103 @@ async def previous_performance(
         "best_e1rm_kg": _num(best),
         "sets": [_set_out(s) for s in sets],
     })
+
+
+# ------------------------------------------------- mid-session mutations
+#
+# E-02's annotate, remove and reorder. All three run while a workout is in
+# progress, so all three must leave it coherent: `order_index` dense, every set
+# still attached to its exercise, and I1 intact — the plan is never touched. The
+# prescription was frozen into `target_snapshot` at start and is read from there.
+
+
+def _require_in_progress(session: WorkoutSession) -> None:
+    if session.status is SessionStatus.completed:
+        raise Conflict("That workout is finished. Reopen it to make changes.")
+    if session.status is SessionStatus.cancelled:
+        raise Conflict("That workout was discarded.")
+
+
+async def _densify_exercise_order(db: DbSession, session_id: uuid.UUID) -> None:
+    """order_index stays dense and 0-based, so a later reorder cannot walk rows
+    through values their neighbours still hold (the D13 lesson, client-side)."""
+    rows = (await db.scalars(
+        select(SessionExercise)
+        .where(SessionExercise.session_id == session_id)
+        .order_by(SessionExercise.order_index)
+    )).all()
+    for i, se in enumerate(rows):
+        if se.order_index != i:
+            se.order_index = i
+    await db.flush()
+
+
+@router.patch("/session-exercises/{se_id}", response_model=Envelope[SessionOut])
+async def patch_session_exercise(
+    se_id: uuid.UUID, body: SessionExercisePatch, user: CurrentUser, db: DbSession
+):
+    se = await _owned_session_exercise(db, se_id, user, "update")
+    _require_in_progress(se.session)
+
+    for key, value in body.model_dump(exclude_unset=True).items():
+        setattr(se, key, value)
+    await db.flush()
+
+    return ok(await _serialise(db, await load_session(db, se.session_id)))
+
+
+@router.delete("/session-exercises/{se_id}", response_model=Envelope[SessionOut])
+async def delete_session_exercise(se_id: uuid.UUID, user: CurrentUser, db: DbSession):
+    se = await _owned_session_exercise(db, se_id, user, "update")
+    _require_in_progress(se.session)
+
+    session_id = se.session_id
+    await db.delete(se)
+    await db.flush()
+    await _densify_exercise_order(db, session_id)
+
+    return ok(await _serialise(db, await load_session(db, session_id)))
+
+
+@router.put(
+    "/workout-sessions/{session_id}/exercises/order", response_model=Envelope[SessionOut]
+)
+async def reorder_session_exercises(
+    session_id: uuid.UUID, body: list[uuid.UUID], user: CurrentUser, db: DbSession
+):
+    """Bulk reorder in ONE transaction. The body is the complete new order:
+    a partial list would silently drop an exercise from the workout."""
+    s = await _owned_session(db, session_id, user, "update")
+    _require_in_progress(s)
+
+    current = {se.id for se in s.exercises}
+    given = set(body)
+    if given != current or len(body) != len(current):
+        raise ValidationFailed(
+            "That ordering does not list this workout's exercises exactly once.",
+            fields={"order": "Send every exercise in the session, once each."},
+        )
+
+    position = {se_id: i for i, se_id in enumerate(body)}
+    for se in s.exercises:
+        se.order_index = position[se.id]
+    await db.flush()
+
+    return ok(await _serialise(db, await load_session(db, session_id)))
+
+
+@router.patch("/workout-sessions/{session_id}", response_model=Envelope[SessionOut])
+async def patch_session(
+    session_id: uuid.UUID, body: SessionPatch, user: CurrentUser, db: DbSession
+):
+    s = await _owned_session(db, session_id, user, "update")
+    _require_in_progress(s)
+
+    for key, value in body.model_dump(exclude_unset=True).items():
+        setattr(s, key, value)
+    await db.flush()
+
+    return ok(await _serialise(db, await load_session(db, session_id)))
 
 
 # --------------------------------------------------- exercise history & stats

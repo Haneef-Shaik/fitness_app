@@ -85,7 +85,20 @@ async function request<T>(
   }
 }
 
-async function tryRefresh(): Promise<boolean> {
+/**
+ * A refresh in flight, shared by every caller.
+ *
+ * Without this, a screen that fires several queries at once produces several
+ * simultaneous 401s, each of which refreshes independently with the SAME refresh
+ * token. The first rotates it; the rest present a token that has just been
+ * replaced, and reuse detection — correctly — revokes the entire family and
+ * signs the user out. Observed in the logger, where three queries 401 together.
+ *
+ * Single-flighting makes the concurrent case behave like the sequential one.
+ */
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function performRefresh(): Promise<boolean> {
   const token = await getRefreshToken();
   if (!token) return false;
   try {
@@ -99,6 +112,12 @@ async function tryRefresh(): Promise<boolean> {
     setAccessToken(null);
     return false;
   }
+}
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = performRefresh().finally(() => { refreshInFlight = null; });
+  return refreshInFlight;
 }
 
 export const api = {

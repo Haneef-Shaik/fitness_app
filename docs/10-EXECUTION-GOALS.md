@@ -1,7 +1,7 @@
 # Execution Goals
 ## Volt — the handoff chain from here to release
 
-**Last updated:** 2026-09-22 (G2 closed) · **Head:** `155fb99` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
+**Last updated:** 2026-09-22 (G3 closed) · **Head:** `b1ec1da` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
 
 > **What this document is.** Eleven **goals**, in order, each one a **contract**: what it inherits,
 > what it must produce, how to produce it in *this* codebase, how you know it is finished, and
@@ -96,10 +96,10 @@ did not happen, whatever the tracker says.
 | **H2.1** | Screen kit | `VirtualList`, `FilterChips`, `ScreenScaffold`, `Sheet` | G2 | ✅ 22 Sep |
 | **H2.2** | `ExercisePicker` | **Controlled** multi-select the logger reuses for add/swap; `max={1}` is swap | G2 | ✅ 22 Sep |
 | **H2.3** | `/exercises/{id}/history`, `/stats` | The two endpoints D-02 needs now exist, with 15 tests | G2 | ✅ 22 Sep |
-| **H3.1** | Session draft store | Pure reducers; add/edit/delete/reorder/densify unit-tested | G3 | ⬜ |
-| **H3.2** | Outbox | FIFO per aggregate, idempotent replay, terminal 4xx surfaced — **reused by G7/G9** | G3 | ⬜ |
-| **H3.3** | Recovery protocol | Local draft vs `GET /workout-sessions/active` reconciled deterministically | G3 | ⬜ |
-| **H3.4** | Session mutation endpoints | `PATCH|DELETE /session-exercises/{id}`, reorder, `PATCH /workout-sessions/{id}` | G3 | ⬜ |
+| **H3.1** | Session draft store | Pure reducers; add/edit/delete/reorder/densify unit-tested, and densify **paired** with the server's | G3 | ✅ 22 Sep |
+| **H3.2** | Outbox | FIFO per aggregate, idempotent replay, terminal 4xx surfaced — **reused by G7/G9** | G3 | ✅ 22 Sep |
+| **H3.3** | Recovery protocol | Local draft vs `GET /workout-sessions/active` reconciled deterministically | G3 | ⚠️ 22 Sep — logic proven, **kill-and-relaunch unverified** (no SQLite on web) |
+| **H3.4** | Session mutation endpoints | `PATCH|DELETE /session-exercises/{id}`, reorder, `PATCH /workout-sessions/{id}` | G3 | ✅ 22 Sep |
 | **H4.1** | E2E suite | AC-01, AC-02, AC-04 and the offline flow run in CI | G4 | ⬜ |
 | **H4.2** | Device-verified build | Runs on a physical phone over LAN; DR4 closed | G4 | ⬜ |
 | **H4.3** | Measured p95 | tap → set rendered, on hardware, with the number written down | G4 | ⬜ |

@@ -1,6 +1,7 @@
 import { createMemoryStore } from '../../db/memory';
 import type { NewOutboxEntry, SessionStore } from '../../db/types';
 import { createOutbox, type SendResult } from '../outbox';
+import { isUuid, uuid } from '../../uuid';
 
 const AT = new Date('2026-09-22T10:00:00Z');
 const now = () => AT;
@@ -95,6 +96,15 @@ describe('flush', () => {
     await Promise.all([outbox.flush(), outbox.flush(), outbox.flush()]);
 
     expect(send).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('the idempotency key must be a real UUID', () => {
+  it('is the format the server types the header as', () => {
+    // A non-UUID key 422s, which looks like "the set logged but never uploaded".
+    // The unit tests here use readable keys, so this is where the real contract
+    // with the server is asserted.
+    expect(isUuid(uuid())).toBe(true);
   });
 });
 

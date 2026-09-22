@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Exercise, PersonalRecord } from '@volt/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { useExercises } from '@/lib/query/hooks';
+import { uuid } from '@/lib/uuid';
 import { font, radius, space, useTheme } from '@/theme';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
 import { countSets, type DraftSet } from '@/features/workout-session/store/types';
@@ -22,17 +23,16 @@ import { DiscardDialog } from '@/features/workout-session/components/DiscardDial
 import { FinishSummary } from '@/features/workout-session/components/FinishSummary';
 import { ExercisePicker } from '@/features/exercises/ExercisePicker';
 import { flushAndReconcile } from '@/features/workout-session/sessionController';
-import { summarise } from '@/features/workout-session/summary';
+import { summarise, type SessionSummary } from '@/features/workout-session/summary';
 import { targetFor } from '@/features/workout-session/restTimer';
-import { useCancelSession, useFinishSession } from '@/features/workout-session/useSession';
+import {
+  draftWithSetsFromServer, useCancelSession, useFinishSession, useSession,
+} from '@/features/workout-session/useSession';
 import { contribution } from '@/features/workout-session/summary';
 
 const EMPTY: SetEntryValue = {
   reps: null, loadKg: null, durationSeconds: null, distanceM: null, setType: 'working',
 };
-
-const uuid = () =>
-  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 function SyncDot({ state }: { state: DraftSet['syncState'] }) {
   const { c } = useTheme();
@@ -56,6 +56,7 @@ export default function ActiveSession() {
   const deleteSet = useSessionStore((s) => s.deleteSet);
   const prefill = useSessionStore((s) => s.prefill);
   const addExercise = useSessionStore((s) => s.addExercise);
+  const adopt = useSessionStore((s) => s.adopt);
 
   const catalog = useExercises({ limit: 200 });
   const finish = useFinishSession();
@@ -68,7 +69,9 @@ export default function ActiveSession() {
   const [discarding, setDiscarding] = useState(false);
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
-  const [finished, setFinished] = useState<{ records: PersonalRecord[] } | null>(null);
+  const [finished, setFinished] = useState<
+    { records: PersonalRecord[]; summary: SessionSummary } | null
+  >(null);
 
   const byId = useMemo(() => {
     const m = new Map<string, Exercise>();
@@ -78,6 +81,16 @@ export default function ActiveSession() {
 
   const exercise = draft?.exercises[activeIdx];
   const catalogEntry = exercise ? byId.get(exercise.exerciseId) : undefined;
+
+  // Adopt the server's session when there is no local draft for it — resume from
+  // E-01, a deep link, or a reload. Without this a resumed workout shows nothing
+  // logged, which reads as lost work.
+  const server = useSession(draft?.sessionId === id ? '' : id);
+  useEffect(() => {
+    if (!server.data) return;
+    if (draft?.sessionId === server.data.id) return;
+    adopt(draftWithSetsFromServer(server.data));
+  }, [server.data, draft?.sessionId, adopt]);
 
   // Flush on foreground and on mount. Never on the commit path.
   useEffect(() => {
@@ -103,10 +116,6 @@ export default function ActiveSession() {
   }, [exercise?.clientId, exercise?.sets.length, prefill]);
 
   if (finished) {
-    const summary = summarise(draft ?? {
-      sessionId: id, planDayId: null, startedAt: new Date().toISOString(),
-      status: 'in_progress', exercises: [], notes: null, revision: 0,
-    }, new Date());
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
         <ScrollView contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge }}>
@@ -114,7 +123,7 @@ export default function ActiveSession() {
             Workout finished
           </Text>
           <FinishSummary
-            summary={summary}
+            summary={finished.summary}
             records={finished.records}
             onDone={() => router.replace('/home')}
           />
@@ -154,8 +163,13 @@ export default function ActiveSession() {
   };
 
   const doFinish = async () => {
+    if (!draft) return;
+    // Snapshot the numbers BEFORE finishing: `finish` clears the draft, and
+    // summarising afterwards reads whatever is left, which showed 3 sets for a
+    // 6-set workout. E-08 is meant to be instant, not merely fast.
+    const snapshot = summarise(draft, new Date());
     const result = await finish(id);
-    setFinished({ records: (result.records ?? []) as PersonalRecord[] });
+    setFinished({ records: (result.records ?? []) as PersonalRecord[], summary: snapshot });
   };
 
   return (

@@ -130,6 +130,29 @@ describe('401 → refresh → retry', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it('refreshes ONCE when several requests 401 together', async () => {
+    // Observed for real: a screen fires several queries, they all 401, each
+    // refreshes with the same token, the first rotates it and reuse detection
+    // revokes the family. The user is signed out mid-workout.
+    await storage.setRefreshToken('shared');
+
+    const unauthorised = () =>
+      failEnvelope(401, { code: 'unauthorized', message: 'nope', request_id: 'r' });
+
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.includes('/auth/refresh')) {
+        return okEnvelope({ access_token: 'a2', refresh_token: 'r2', expires_in: 900 });
+      }
+      // 401 until a refresh has happened, then fine.
+      return (await storage.getRefreshToken()) === 'r2' ? okEnvelope({ ok: true }) : unauthorised();
+    });
+
+    await Promise.all([api.get('/profile'), api.get('/goals'), api.get('/programs')]);
+
+    const refreshCalls = fetchMock.mock.calls.filter(([u]) => String(u).includes('/auth/refresh'));
+    expect(refreshCalls).toHaveLength(1);
+  });
+
   it('gives up after one refresh rather than looping', async () => {
     await storage.setRefreshToken('r1');
     fetchMock

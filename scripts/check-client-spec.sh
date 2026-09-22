@@ -22,6 +22,11 @@ BANNED_DB='IndexedDB|Dexie'
 #   scripts/                 — this file
 EXEMPT=(--exclude-dir=prompts --exclude=10-EXECUTION-GOALS.md --exclude=09-PROJECT-TRACKER.md)
 
+# The same three files are exempt for the text-scanning checks below. They quote the
+# rejected platform deliberately: the finding that created G0, the prompts that carry
+# it, and the handoff record that has to cite its own evidence.
+drop_exempt() { grep -v 08-PROJECT-CHARTER | grep -v 10-EXECUTION-GOALS | grep -v 09-PROJECT-TRACKER; }
+
 fail=0
 check() { # <label> <expected> <actual>
   if [ "$3" = "$2" ]; then printf '  \033[32mPASS\033[0m  %-58s %s\n' "$1" "$3"
@@ -43,6 +48,27 @@ c=$(grep -cE 'D14|D15|D16' docs/08-PROJECT-CHARTER.md | tr -d ' ')
 d=$(grep -c 'expo-sqlite' docs/03-FRONTEND-ARCHITECTURE.md | tr -d ' ')
 [ "$d" -ge 1 ] && printf '  \033[32mPASS\033[0m  %-58s %s\n' "docs/03 names the persistence mechanism" "$d" \
                || { printf '  \033[31mFAIL\033[0m  %-58s %s (want >=1)\n' "docs/03 names the persistence mechanism" "$d"; fail=1; }
+
+# DOM-only accessibility and styling identifiers. React Native has its own
+# (accessibilityLabel / accessibilityRole / accessibilityState / accessibilityValue /
+# AccessibilityInfo.announceForAccessibility / isReduceMotionEnabled), so an ARIA
+# attribute or a CSS media feature in a spec doc is a screen nobody can build.
+# `accessibilityRole="..."` contains `Role="`, hence the [^y] guard.
+DOM='(^|[^y])role="|aria-[a-z]+|outline: ?none|tabindex|prefers-reduced-motion'
+f=$(grep -rnE "$DOM" docs/*.md docs/wireframes/*.md 2>/dev/null \
+      | grep -v accessibilityRole | drop_exempt | wc -l | tr -d ' ')
+check "DOM-only a11y identifiers in spec docs" 0 "$f"
+
+# D10: the refresh token lives in the device keychain. A native client cannot use a
+# cookie, and docs/02 plus the auth wireframe both specified one until 22 Sep.
+g=$(grep -rniE 'httponly|samesite' docs/*.md docs/wireframes/*.md 2>/dev/null \
+      | drop_exempt | wc -l | tr -d ' ')
+check "cookie-based auth in spec docs (contradicts D10)" 0 "$g"
+
+# D1: iOS + Android, web deferred. docs/07 answered Q2 with "Responsive PWA (D1)".
+h=$(grep -rnoE '[^a-zA-Z]PWA' docs/*.md docs/wireframes/*.md 2>/dev/null \
+      | drop_exempt | wc -l | tr -d ' ')
+check "PWA named as the client strategy (contradicts D1)" 0 "$h"
 
 e=$(grep -c 'Maestro' docs/03-FRONTEND-ARCHITECTURE.md | tr -d ' ')
 [ "$e" -ge 1 ] && printf '  \033[32mPASS\033[0m  %-58s %s\n' "docs/03 §11 names the E2E runner" "$e" \

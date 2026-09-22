@@ -447,7 +447,7 @@ Base `/{version}` = `/v1`. All responses use the envelope from the house pattern
 | At rest | DB encryption at rest; bucket SSE; secrets in a manager, never in source |
 | Images | Private bucket. **No public URL pattern exists.** Reads use short-TTL signed GETs issued per request after an authz check. Object keys are random UUIDs — never `user_id/date` |
 | Authorization | Per-resource policy check on every fitness/nutrition resource; deny by default; no IDOR-able sequential IDs (UUIDs) |
-| Auth tokens | Short-lived access JWT + rotating refresh token in an httpOnly, SameSite=Strict cookie; refresh-token reuse detection revokes the family |
+| Auth tokens | Short-lived access JWT held in memory + a rotating refresh token in the **device keychain** (`expo-secure-store`) — returned in the response body and sent in the request body, **never a cookie**: a native client cannot use one ([D10](08-PROJECT-CHARTER.md#6-decision-log)). Refresh-token reuse detection revokes the whole family, which is what replaces the cookie's protection |
 | AI auditability | `food_analyses` / `food_analysis_items` retained with confidence and model name; `user_corrected` preserved (§18) |
 | Deletion | `POST /account/delete` → soft-delete + grace period → hard purge of rows **and** all object-storage assets. Individual image deletion is immediate. |
 | Export | `GET /account/export` produces a complete JSON/CSV archive |

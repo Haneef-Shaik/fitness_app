@@ -164,12 +164,12 @@ UTC+13 (extreme positive), UTC−11 (extreme negative), and a timezone with DST 
 | P3 | No camera (desktop) | Direct file picker with drag-and-drop |
 | P4 | HEIC / unsupported image | Converted client-side where possible, else a clear message naming accepted formats |
 | P5 | Wake lock unsupported or denied | Logging unaffected |
-| P6 | `prefers-reduced-motion` | PR celebration skipped; all transitions become opacity-only |
+| P6 | Reduce Motion enabled (`AccessibilityInfo.isReduceMotionEnabled`) | PR celebration skipped; all transitions become opacity-only |
 | P7 | 200% zoom | Usable with no horizontal scroll |
 | P8 | Forced-colors / high contrast | Charts fall back to texture fills; status never relies on color |
 | P9 | Screen reader | Set commits, sync failures, AI completion and rest-timer completion are announced |
 | P10 | Hardware keyboard only | The entire logger is operable; Enter commits a set |
-| P11 | Very small viewport (320 px) | Single column, 16 px gutters, no clipped controls |
+| P11 | Narrowest supported screen (320 px — iPhone SE class) | Single column, 16 px gutters, no clipped controls |
 | P12 | Landscape phone | Supported; nothing locks orientation |
 
 ---

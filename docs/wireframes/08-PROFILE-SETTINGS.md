@@ -314,4 +314,4 @@ upsell placeholders.
 | **Destructive** | Account deletion, photo deletion and "sign out everywhere" all name exactly what they affect before confirming |
 | **Consequence disclosure** | Any setting that changes displayed numbers (units, weighting, formula, week start, timezone) states that it changes the *display*, not the data |
 | **Search** | Settings search over all K-* rows `[P1]` |
-| **a11y** | Every toggle is a labelled switch with its state in the accessible name; grouped sections use `role="group"` with headings |
+| **a11y** | Every toggle uses `accessibilityRole="switch"` with its state in `accessibilityState`; each grouped section is one accessibility container whose title carries `accessibilityRole="header"` |

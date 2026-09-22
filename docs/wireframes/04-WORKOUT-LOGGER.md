@@ -141,9 +141,9 @@ route to finishing.
 - **Finish with zero completed sets** → E-08 warns: "No sets logged. Discard instead?" with both
   options. An empty completed session is allowed but is almost always a mistake.
 
-**a11y.** The list is a `role="list"` with each row's accessible name reading "Exercise 2 of 6,
-Incline Dumbbell Press, 2 of 3 sets done". The timer is an `aria-live="off"` region (it must not
-announce every second) with an on-demand label.
+**a11y.** The list uses `accessibilityRole="list"`, each row's accessible name reading "Exercise 2 of
+6, Incline Dumbbell Press, 2 of 3 sets done". The timer is **never** announced automatically — it must
+not speak every second — and exposes an on-demand label instead.
 
 ---
 
@@ -282,7 +282,7 @@ the answer for that exercise — the app must not nag a user who genuinely deadl
 ### Keyboard / a11y
 - Tab order: load → reps → RPE → ✓. **Enter commits the set** from any field.
 - ↑/↓ in a numeric field increments by the stepper's step.
-- Committing announces "Set 3 saved: 30 kilograms for 9 reps" via `aria-live="polite"`.
+- Committing announces "Set 3 saved: 30 kilograms for 9 reps" via `AccessibilityInfo.announceForAccessibility`.
 - Every stepper button has an explicit label ("Increase load by 2.5 kilograms").
 - The set table is a real `<table>` with headers, so a screen reader can read it row by row.
 - All targets ≥ 56 px. The commit button is full width so it cannot be missed one-handed.
@@ -321,9 +321,10 @@ the answer for that exercise — the app must not nag a user who genuinely deadl
 **Controls.** ±15 s adjust the current countdown only. Skip dismisses it. ✕ dismisses and disables
 auto-start for the rest of this exercise.
 
-**Edge cases.** Committing another set while the timer runs restarts it. Browser tab throttling → the
-timestamp basis keeps it correct. Notification permission denied → falls back to in-app haptic and
-visual only, with no repeated prompting. `prefers-reduced-motion` → the progress bar updates in
+**Edge cases.** Committing another set while the timer runs restarts it. The app being backgrounded or
+suspended → the timestamp basis keeps it correct, because the timer counts to a target instant rather
+than ticking. Notification permission denied → falls back to in-app haptic and
+visual only, with no repeated prompting. Reduce Motion → the progress bar updates in
 discrete steps rather than animating.
 
 ---
@@ -561,7 +562,7 @@ stored name.
 ```
 
 Shown **only after E-08**, never mid-set. Multiple PRs paginate with dots rather than stacking
-modals. Skipped entirely under `prefers-reduced-motion` (the PR still appears in the summary and on
+modals. Skipped entirely when Reduce Motion is on (the PR still appears in the summary and on
 F-03). Dismissible by tap-anywhere, Esc, or swipe. "See progression" → G-03.
 
 ---

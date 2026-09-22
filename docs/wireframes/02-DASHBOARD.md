@@ -176,11 +176,11 @@ a 400 ms and a 1.4 s dashboard.
 - Very long program or plan-day names → truncate with a tooltip/title, never wrap to three lines.
 
 ### Keyboard / a11y
-- Landmark structure: `header` → `main` with one `section` per card, each with an `aria-labelledby`.
+- Each card is one accessibility container (`accessible`), its title carrying `accessibilityRole="header"`, so a screen reader moves card by card rather than element by element.
 - The hero figure is announced as "1,180 kilocalories remaining of 2,340".
-- Meters use `role="meter"` with `aria-valuenow/min/max` and a text alternative.
+- Meters use `accessibilityRole="progressbar"` with `accessibilityValue={{ now, min, max }}` and a text alternative.
 - The week dot strip is a list with per-day labels ("Monday, workout completed"), never color-alone.
-- Card order in the DOM matches visual order, including after B-02 reordering.
+- Accessibility focus order matches visual order, including after B-02 reordering.
 
 ### Events
 `dashboard.viewed{has_plan, has_active_session, cards_visible}` ·
@@ -228,10 +228,10 @@ a 400 ms and a 1.4 s dashboard.
 
 **Edge cases.** A card whose data source is absent (e.g. Goal progress with no goals) still appears
 in the list but is annotated "Nothing to show yet" so the user understands why enabling it changes
-nothing. Layout is per-user, not per-device, and syncs. Drag on a list longer than the viewport
+nothing. Layout is per-user, not per-device, and syncs. Drag on a list longer than the screen
 auto-scrolls at the edges.
 
-**a11y.** The list is `role="list"` with `aria-describedby` explaining keyboard reordering; every
+**a11y.** The list uses `accessibilityRole="list"` with an `accessibilityHint` explaining reordering; every
 move announces "Moved Weight to position 2 of 9".
 
 ---
@@ -358,5 +358,6 @@ and a "See all" per group. Recent searches are device-local and clearable.
 custom food (H-10) with the query prefilled — search is the best moment to catch a missing record.
 Offline → searches the local exercise cache only and says so.
 
-**a11y.** `role="combobox"` with `aria-expanded` and an `aria-live` result count; ↑/↓ traverse
-results, Enter opens, Esc clears then closes.
+**a11y.** `accessibilityRole="combobox"` with `accessibilityState={{ expanded }}`; the result count is
+announced with `announceForAccessibility`. With a hardware keyboard attached, ↑/↓ traverse results,
+Enter opens, Esc clears then closes.

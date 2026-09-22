@@ -112,7 +112,8 @@ Totals = Σ over `meal_items WHERE meal.local_date = date AND confirmed = true`.
   stale estimates don't accumulate invisibly.
 
 ### a11y
-The meter is `role="meter"` with a text alternative ("1,160 of 2,340 kilocalories, 1,180 remaining").
+The meter uses `accessibilityRole="progressbar"` with `accessibilityValue={{ now, min, max }}` and a
+text alternative ("1,160 of 2,340 kilocalories, 1,180 remaining").
 Macro bars are directly labelled and have a table view (contrast relief for the aqua fat series).
 Each item row's accessible name includes "estimated, not yet confirmed" when applicable — the dashed
 border is never the only signal.
@@ -521,8 +522,9 @@ for keeping the AI honest (BRD §13, Risk R1).
 Each item is a `group` with an accessible name including its confidence
 ("Chicken biryani, 350 grams, 620 kilocalories, 82 percent confidence, selected"). The dashed border
 is never the only cue — "estimated, not yet confirmed" is in the accessible name. Editing a macro
-announces the recomputed total via a live region. Full keyboard operation: Tab through items, Space
-toggles selection, Enter opens the field.
+announces the recomputed total with `announceForAccessibility`. Fully operable by screen reader:
+swipe through items, double-tap to toggle selection, open the field by its own action. With a
+hardware keyboard attached, Tab / Space / Enter follow the same order.
 
 ### Events
 `ai.analysis_completed{duration_ms, item_count, mean_confidence, unresolved_count}` ·

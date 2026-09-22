@@ -1,4 +1,4 @@
-import { qk } from '../queryKeys';
+import { qk, qkPrefix } from '../queryKeys';
 
 describe('query key registry', () => {
   it('gives every read one key', () => {
@@ -50,5 +50,23 @@ describe('every key in the registry is reachable', () => {
 
   it('separates goal statuses so a filtered list is its own cache', () => {
     expect(qk.goals('active')).not.toEqual(qk.goals());
+  });
+});
+
+describe('invalidation prefixes', () => {
+  it('every prefix is a strict prefix of the keys it must reach', () => {
+    const pairs: Array<[readonly unknown[], readonly unknown[]]> = [
+      [qkPrefix.goals(), qk.goal('g')],
+      [qkPrefix.exercises(), qk.exercise('e')],
+      [qkPrefix.programs(), qk.program('p')],
+      [qkPrefix.sessions(), qk.session('s')],
+      [qkPrefix.records(), qk.records('e')],
+      [qkPrefix.exerciseHistory(), qk.exerciseHistory('e')],
+      [qkPrefix.exerciseStats(), qk.exerciseStats('e')],
+    ];
+    for (const [prefix, key] of pairs) {
+      expect(key.slice(0, prefix.length)).toEqual(prefix);
+      expect(key.length).toBeGreaterThan(prefix.length);
+    }
   });
 });

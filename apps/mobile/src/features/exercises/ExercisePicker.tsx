@@ -159,15 +159,11 @@ export function ExercisePicker({
           empty={{
             title: 'No exercises yet',
             body: 'Your catalog is empty.',
-            ...(allowCreate && onCreate
-              ? { action: { label: createLabel, onPress: () => onCreate(query.trim()) } }
-              : {}),
           }}
           filtered={{
             isActive: filtered,
             onClear: () => { setQuery(''); setMuscles([]); },
             describe: describeFilters(query, muscles, labelOf),
-            ...(allowCreate && onCreate ? {} : {}),
           }}
         >
           {(rows) => (
@@ -177,25 +173,29 @@ export function ExercisePicker({
               renderItem={row}
               estimatedItemSize={64}
               testID="picker-list"
-              footer={
-                allowCreate && onCreate ? (
-                  <View style={{ padding: space.lg }}>
-                    <Text variant="caption" tone="ink3" style={{ marginBottom: space.sm }}>
-                      Can't find it?
-                    </Text>
-                    <Button
-                      title={createLabel}
-                      kind="ghost"
-                      size="sm"
-                      onPress={() => onCreate(query.trim())}
-                    />
-                  </View>
-                ) : undefined
-              }
             />
           )}
         </DataBoundary>
       </View>
+
+      {allowCreate && onCreate ? (
+        <View
+          style={{
+            paddingHorizontal: space.lg, paddingVertical: space.md,
+            borderTopWidth: 1, borderColor: c.line,
+          }}
+        >
+          <Text variant="caption" tone="ink3" style={{ marginBottom: space.sm }}>
+            Can't find it?
+          </Text>
+          <Button
+            title={createLabel}
+            kind="ghost"
+            size="sm"
+            onPress={() => onCreate(query.trim())}
+          />
+        </View>
+      ) : null}
     </Sheet>
   );
 }

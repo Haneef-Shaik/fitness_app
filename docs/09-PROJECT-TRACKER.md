@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-22 (G1 closed — client spine) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-22 (G2 closed — catalog & planning) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -16,12 +16,12 @@
 | | |
 |---|---|
 | **Milestones complete** | M0, M1 — **2 of 9** |
-| **Tests passing** | **250** — 48 TS domain, 133 Python *(3 skipped)*, **69 client** |
-| **API endpoints live** | 43 operations across 32 paths, all with **declared response shapes** (D17) |
-| **App screens built** | 6 of 103 designed |
+| **Tests passing** | **323** — 48 TS domain, 150 Python *(3 skipped)*, **125 client** |
+| **API endpoints live** | **45** operations across **34** paths, all with declared response shapes (D17) |
+| **App screens built** | **14** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 10 commits · `38df099` client spine (G1) |
+| **Version control** | git, 17 commits · `2f86b0d` catalog & planning (G2) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -199,13 +199,13 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G2 — catalog & planning screens** | 8 screens; needs `/exercises/{id}/history` and `/stats`, which are declared but missing | AC-01 |
-| 2 | **G3 — the logger** | The product | AC-02, AC-04 |
-| 3 | **G4 — device verification via Maestro on Expo Go** | LAN connectivity and native behaviour are untested; the runner is chosen (D15) but not installed | DR4 |
+| 1 | **G3 — the logger** | The product | AC-02, AC-04 |
+| 2 | **G4 — device verification via Maestro on Expo Go** | LAN connectivity and native behaviour are untested; the runner is chosen (D15) but not installed | DR4 |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
 *Cleared 22 Sep: **G1** — generated types (D3b closed), query layer, `DataBoundary`, test harness; D17–D18 recorded.*
+*Cleared 22 Sep: **G2** — 8 catalog and planning screens, the two missing endpoints, m4 migration. **AC-01 reachable**.*
 
 ## Blocked
 
@@ -219,14 +219,14 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 250 | grows with each milestone |
+| Tests passing | 323 | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | 83 | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
-| Migrations | 3 — M1 foundations, M2 training core, M3 deferrable ordering | kept reversible |
+| Migrations | **4** — M1 foundations, M2 training core, M3 deferrable ordering, **M4 plan time/distance targets** | kept reversible |
 | Mutation checks | 11 verified catches | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | **enforced** — client at 63.7% statements / 68.9% lines; `src/lib/query` and `DataBoundary` held at 90%+ | 80% global by G4 (D18) |
+| Coverage gate | **enforced** — client at **67.5%** statements / **71.2%** lines; `src/lib/query` and `DataBoundary` held at 90%+ | 80% global by G4 (D18) |
 | Acceptance criteria passing | 1 of 12 — **AC-12** | 12 of 12 |
 
 ## Changelog
@@ -249,6 +249,9 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G0 closed** — `docs/03` re-platformed for React Native; persistence (**D14** `expo-sqlite`), E2E runner (**D15** Maestro) and the device performance budget (**D16**) recorded |
 | 22 Sep | **G1 closed** — `packages/api-types` generated and drift-gated (**D3b closed**), query layer with the §6.2 invalidation map as code, `DataBoundary`, and a client test harness: **0 → 69 tests** |
 | 22 Sep | API responses were absent from OpenAPI entirely — every route returned a bare `JSONResponse`. All 42 routes now declare `Envelope[T]` (**D17**); schemas 19 → 67 |
+| 22 Sep | **G2 closed** — 8 screens (D-01…D-03, C-02/C-03, C-05, C-06, C-07), `/exercises/{id}/history` and `/stats` built, **AC-01 reachable**. Client tests 69 → 125 |
+| 22 Sep | **m4**: plan exercises can prescribe duration and distance — a plank and a run had nothing to prescribe, which would have surfaced as a logger bug in G3 |
+| 22 Sep | `@shopify/flash-list` tried and removed: it crashed the web build. `VirtualList` is the seam; FlashList can return in G4 when a device exists to verify it on |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 
 
@@ -438,4 +441,87 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G2 · Catalog and planning            closed 22 Sep · `<this commit>`
+
+**Outcome claimed.** A user can search the catalog, open an exercise, create a custom one, and build
+a multi-day program with prescriptions, entirely on a phone screen. **AC-01 is reachable.**
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H1.1 | ✅ | Types regenerated twice (new endpoints, then m4); `git diff --exit-code` clean both times. Nothing in G2 is hand-typed |
+| H1.2 | ✅ | Two new reads added to the registry **and** to docs/03 §6.2 in the same change — the agreement test would have failed otherwise |
+| H1.3 | ✅ | Every async surface renders through `DataBoundary`. No screen hand-rolls a spinner |
+| H1.4 | ✅ | The ratchet caught the new hooks at 63.8% and refused the build until they were tested. That is the gate working, not the gate being annoying |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H2.1 | `src/ui/VirtualList`, `FilterChips`, `ScreenScaffold`, `Sheet` | The list, filter row, scaffold and sheet are solved once | Used by all 8 screens; `VirtualList` is a seam, so the list implementation is a one-file change |
+| H2.2 | `src/features/exercises/ExercisePicker` | The logger's add/swap is a prop change | `selected` / `onChange` / `onCommit` are **controlled**; `max={1}` is swap. 11 tests drive it through props, as the logger will |
+| H2.3 | `/exercises/{id}/history`, `/stats` | D-02's data exists server-side | 15 tests asserting status **and** payload; both defer every derived number to `app.domain.training` |
+
+**Verified.**
+
+```
+pnpm --filter @volt/domain test      ->  48 passed
+uv run pytest -q   (services/api)    -> 150 passed, 3 skipped   (was 136)
+uv run ruff check . / alembic check  -> clean / no new operations
+pnpm --filter @volt/mobile test:ci   -> 125 passed (was 69), gate exit 0
+pnpm --filter @volt/mobile typecheck -> clean
+generate + git diff --exit-code      -> types in sync
+```
+
+Coverage **63.7% → 67.5%** statements, **68.9% → 71.2%** lines. Repo total **250 → 323** tests.
+
+**Ran for real.** Built a 3-day program end to end in a browser against the live API, by hand:
+**Push — Chest & Triceps** (Barbell Bench Press 4 × 6–8 @ 80 kg, Incline Dumbbell Press 3 × 8–10,
+Cable Fly), **Pull — Back & Biceps** (Barbell Row, Lat Pulldown), **Legs** (Bulgarian Split Squat,
+Barbell Squat — reordered before saving, and the new order persisted). Three things were confirmed
+against live data rather than asserted:
+
+- C-05's live summary read **CHEST 4 · FRONT DELTS 2 · TRICEPS 2** off a single 4-set bench
+  prescription — primary ×1, secondary ×0.5, which is **I4/D7** visible on screen.
+- D-02's **never-performed** state rendered for every seeded exercise before anything was logged.
+- After logging warm-up 10×40, then 8×80 and 6×90, `/stats` returned volume **1180 kg** — the
+  400 kg warm-up excluded (**I3**) — and e1RM **108 kg**, which is Epley on 90 × 6 exactly (**I5**).
+
+**Left undone, and why — this is what G3 inherits as debt.**
+- **C-05 reorder is ↑/↓ buttons, not a drag handle.** Accessible and testable, and it re-densifies on
+  save, but the wireframe's `⠿` drag is not built. Drag needs `react-native-gesture-handler`, which
+  is another unverifiable-on-web dependency; **G4** is the right place, once a device exists.
+- **No long-press row menu on D-01**, no ⋮ menus on C-02/C-03, no archive/duplicate/delete UI. The
+  endpoints exist; the affordances do not. C-04, C-08, C-09 and D-04 were not in scope.
+- **D-03 does not warn on near-duplicates from the server's fuzzy match** — it compares against the
+  current search result only. Good enough to catch an exact retype, not a typo.
+- **`src/lib/session.tsx` is still 0% covered**, unchanged from G1.
+- **The screens have no component tests of their own.** The kit, the picker, the prescription editor
+  and the set-count maths are tested; the six route files are not. They were verified by hand
+  instead, which is weaker and is why it is written down here.
+
+**Traps hit.**
+- **The prescription schema could not express the product.** C-07 renders from `tracks_*`, but
+  `plan_exercises` had only sets/reps/load — so a plank and a run had **nothing to prescribe**. Fixed
+  with m4 rather than by special-casing the UI, because the frozen `target_snapshot` is what the
+  logger reads: a target missing from the snapshot does not exist as far as G3 is concerned.
+- **`_ex_out` enumerated its fields by hand**, so m4's columns reached the database and never reached
+  the client. Nothing failed until a test asked for them. It validates from the ORM object now.
+- **Two endpoints, two timestamp formats.** `/records` hand-rolled `isoformat()` ("+00:00") while the
+  new `/stats` went through Pydantic ("Z"), for the same field. Caught by a test that compared the
+  two endpoints directly rather than checking each in isolation.
+- **A duplicated query made a mutation test vacuous.** `previous-performance` and the new history
+  query had the same joins and filters; breaking one left every test passing. They are one
+  `_occurrences_query` now — dropping the user filter from it fails 8 tests, where before it failed
+  none.
+- **`@shopify/flash-list` crashed the web build** with *"Invalid hook call … more than one copy of
+  React"*. Isolated by swapping `VirtualList` alone. It may be fine on a device, but there is none
+  until G4, so it was removed rather than shipped unverified — and `docs/03` §2 now says so.
+- **jest-expo's `setupFiles` replaces rather than extends.** Naming that key dropped React Native's
+  own setup and produced `__fbBatchedBridgeConfig is not set`, which reads like a broken test rather
+  than a broken config.
 

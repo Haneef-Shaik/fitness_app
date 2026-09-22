@@ -44,12 +44,15 @@ export const getAccessToken = () => accessToken;
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
-async function raw<T>(method: Method, path: string, body?: unknown): Promise<T> {
+async function raw<T>(
+  method: Method, path: string, body?: unknown, extraHeaders?: Record<string, string>,
+): Promise<T> {
   const res = await fetch(`${API_BASE}/v1${path}`, {
     method,
     headers: {
       'content-type': 'application/json',
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+      ...(extraHeaders ?? {}),
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
@@ -69,14 +72,16 @@ async function raw<T>(method: Method, path: string, body?: unknown): Promise<T> 
 }
 
 /** Runs the request; on a 401 it tries one silent refresh before surfacing the error. */
-async function request<T>(method: Method, path: string, body?: unknown): Promise<T> {
+async function request<T>(
+  method: Method, path: string, body?: unknown, extraHeaders?: Record<string, string>,
+): Promise<T> {
   try {
-    return await raw<T>(method, path, body);
+    return await raw<T>(method, path, body, extraHeaders);
   } catch (err) {
     if (!(err instanceof ApiError) || err.status !== 401 || path.startsWith('/auth/')) throw err;
     const refreshed = await tryRefresh();
     if (!refreshed) throw err;
-    return raw<T>(method, path, body);
+    return raw<T>(method, path, body, extraHeaders);
   }
 }
 
@@ -102,6 +107,9 @@ export const api = {
   patch: <T>(p: string, b?: unknown) => request<T>('PATCH', p, b),
   put:   <T>(p: string, b?: unknown) => request<T>('PUT', p, b),
   del:   <T>(p: string) => request<T>('DELETE', p),
+  /** For the outbox: an arbitrary verb with the Idempotency-Key header (I8). */
+  send:  <T>(m: Method, p: string, b?: unknown, h?: Record<string, string>) =>
+           request<T>(m, p, b, h),
   tryRefresh,
 };
 

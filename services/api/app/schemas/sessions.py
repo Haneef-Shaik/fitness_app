@@ -155,3 +155,37 @@ class PreviousPerformanceOut(BaseModel):
     target_snapshot: dict | None = None
     best_e1rm_kg: float | None = None
     sets: list[SetOut] = []
+
+
+class ExerciseHistoryEntryOut(BaseModel):
+    """One completed session, seen from a single exercise's point of view (D-02)."""
+
+    session_id: uuid.UUID
+    session_exercise_id: uuid.UUID
+    local_date: date
+    completed_at: datetime | None = None
+    notes: str | None = None
+    target_snapshot: dict | None = None
+    sets: list[SetOut] = []
+    # Warm-ups are excluded from this number but still present in `sets` — the user
+    # wants to see them, they just must not inflate the comparison (D6 / I3).
+    volume_kg: float = 0.0
+    best_e1rm_kg: float | None = None
+    formula_version: str | None = None
+
+
+class E1rmPointOut(BaseModel):
+    """A value without its formula is not reproducible, so they travel together (D8)."""
+
+    local_date: date
+    e1rm_kg: float
+    formula_version: str
+
+
+class ExerciseStatsOut(BaseModel):
+    exercise_id: uuid.UUID
+    session_count: int = 0
+    last_performed_at: datetime | None = None
+    total_volume_kg: float = 0.0
+    records: dict[str, RecordEntryOut] = {}
+    e1rm_series: list[E1rmPointOut] = []

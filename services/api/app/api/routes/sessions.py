@@ -22,6 +22,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import CurrentUser, DbSession, authorize
 from app.api.envelope import ok
 from app.core.errors import Conflict, NotFound, ValidationFailed
+from app.domain import training as domain_training
 from app.domain.dates import to_local_date
 from app.models import (
     Exercise,
@@ -38,6 +39,9 @@ from app.models import (
 )
 from app.schemas.envelope import DeletedOut, Envelope, PagedEnvelope
 from app.schemas.sessions import (
+    E1rmPointOut,
+    ExerciseHistoryEntryOut,
+    ExerciseStatsOut,
     PreviousPerformanceOut,
     RecordEntryOut,
     SessionExerciseIn,
@@ -529,11 +533,14 @@ async def exercise_records(exercise_id: uuid.UUID, user: CurrentUser, db: DbSess
             PersonalRecord.user_id == user.id, PersonalRecord.exercise_id == exercise_id
         )
     )).all()
+    # Built through RecordEntryOut rather than by hand so that this and
+    # /exercises/{id}/stats serialise the same timestamp the same way. They did
+    # not: isoformat() emits "+00:00" and Pydantic emits "Z", which left the
+    # client parsing two formats for one field.
     return ok({
-        _enum(r.record_type): {
-            "value": _num(r.value), "unit": r.unit,
-            "achieved_at": r.achieved_at.isoformat(),
-        }
+        _enum(r.record_type): RecordEntryOut(
+            value=_num(r.value), unit=r.unit, achieved_at=r.achieved_at,
+        ).model_dump(mode="json")
         for r in rows
     })
 
@@ -551,20 +558,10 @@ async def previous_performance(
     showing nothing.
     """
     stmt = (
-        select(WorkoutSession, SessionExercise)
-        .join(SessionExercise, SessionExercise.session_id == WorkoutSession.id)
-        .where(
-            WorkoutSession.user_id == user.id,
-            WorkoutSession.status == SessionStatus.completed,
-            SessionExercise.exercise_id == exercise_id,
-        )
+        _occurrences_query(user, exercise_id, before)
         .order_by(WorkoutSession.completed_at.desc())
         .limit(1)
     )
-    if before is not None:
-        cutoff = before if before.tzinfo else before.replace(tzinfo=UTC)
-        stmt = stmt.where(WorkoutSession.completed_at < cutoff)
-
     found = (await db.execute(stmt)).first()
     if found is None:
         # Not a 404 — "you have never done this exercise" is the first-time state the
@@ -592,3 +589,186 @@ async def previous_performance(
         "best_e1rm_kg": _num(best),
         "sets": [_set_out(s) for s in sets],
     })
+
+
+# --------------------------------------------------- exercise history & stats
+#
+# Declared in docs/02 §7 and missing until G2. Both are read-only aggregations
+# over rows that already exist, and both defer every derived number to
+# app.domain.training — the same implementation the phone mirrors and the shared
+# vectors pin. Re-deriving Epley or the warm-up rule in a SQL expression here is
+# how the two halves drift apart (I3, I5).
+
+
+def _domain_set(s: WorkoutSet) -> domain_training.WorkoutSet:
+    """The ORM row as the domain sees it. Canonical units only."""
+    return domain_training.WorkoutSet(
+        set_type=_enum(s.set_type),
+        load_kg=_num(s.load_kg),
+        reps=s.reps,
+        completed=s.completed,
+        duration_seconds=s.duration_seconds,
+        distance_m=_num(s.distance_m),
+    )
+
+
+async def _exercise_or_404(db: DbSession, exercise_id: uuid.UUID) -> Exercise:
+    ex = await db.scalar(select(Exercise).where(Exercise.id == exercise_id))
+    if ex is None:
+        raise NotFound("That exercise no longer exists.")
+    return ex
+
+
+def _occurrences_query(user: User, exercise_id: uuid.UUID, before: datetime | None = None):
+    """The one definition of "an occurrence of this exercise".
+
+    Used by history, stats and previous-performance. Cancelled and in-progress
+    sessions are invisible to all three: comparing against a workout that was
+    discarded is worse than showing nothing (PRD §7.2).
+    """
+    stmt = (
+        select(WorkoutSession, SessionExercise)
+        .join(SessionExercise, SessionExercise.session_id == WorkoutSession.id)
+        .where(
+            WorkoutSession.user_id == user.id,
+            WorkoutSession.status == SessionStatus.completed,
+            SessionExercise.exercise_id == exercise_id,
+        )
+    )
+    if before is not None:
+        cutoff = before if before.tzinfo else before.replace(tzinfo=UTC)
+        stmt = stmt.where(WorkoutSession.completed_at < cutoff)
+    return stmt
+
+
+async def _completed_occurrences(db: DbSession, user: User, exercise_id: uuid.UUID):
+    """Every completed session that contains this exercise, newest first."""
+    stmt = _occurrences_query(user, exercise_id).order_by(
+        WorkoutSession.local_date.desc(), WorkoutSession.completed_at.desc()
+    )
+    return (await db.execute(stmt)).all()
+
+
+async def _sets_by_session_exercise(db: DbSession, se_ids: list[uuid.UUID]):
+    if not se_ids:
+        return {}
+    rows = (await db.scalars(
+        select(WorkoutSet)
+        .where(WorkoutSet.session_exercise_id.in_(se_ids))
+        .order_by(WorkoutSet.session_exercise_id, WorkoutSet.set_index)
+    )).all()
+    out: dict[uuid.UUID, list[WorkoutSet]] = {}
+    for row in rows:
+        out.setdefault(row.session_exercise_id, []).append(row)
+    return out
+
+
+@router.get(
+    "/exercises/{exercise_id}/history",
+    response_model=PagedEnvelope[list[ExerciseHistoryEntryOut]],
+)
+async def exercise_history(
+    exercise_id: uuid.UUID, user: CurrentUser, db: DbSession,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    offset: Annotated[int, Query(ge=0)] = 0,
+):
+    """D-02 — what this exercise looks like over time.
+
+    Only completed sessions: an in-progress one belongs to the logger, and a
+    cancelled one never happened as far as history is concerned.
+    """
+    await _exercise_or_404(db, exercise_id)
+
+    found = await _completed_occurrences(db, user, exercise_id)
+    page = found[offset: offset + limit]
+    sets_by_se = await _sets_by_session_exercise(db, [se.id for _, se in page])
+
+    entries = []
+    for session, se in page:
+        rows = sets_by_se.get(se.id, [])
+        domain_sets = [_domain_set(r) for r in rows]
+        e1rms = [
+            v for v in (
+                domain_training.estimated_1rm_kg(d.load_kg, d.reps)
+                for d in domain_sets
+                if domain_training.is_pr_eligible(d)
+            ) if v is not None
+        ]
+        entries.append(
+            ExerciseHistoryEntryOut(
+                session_id=session.id,
+                session_exercise_id=se.id,
+                local_date=session.local_date,
+                completed_at=session.completed_at,
+                notes=se.notes,
+                target_snapshot=se.target_snapshot,
+                sets=[SetOut.model_validate(_set_out(r)) for r in rows],
+                volume_kg=domain_training.total_volume_kg(domain_sets),
+                best_e1rm_kg=max(e1rms) if e1rms else None,
+                formula_version=domain_training.E1RM_FORMULA_VERSION if e1rms else None,
+            ).model_dump(mode="json")
+        )
+
+    return ok(entries, meta={"limit": limit, "offset": offset, "count": len(entries)})
+
+
+@router.get("/exercises/{exercise_id}/stats", response_model=Envelope[ExerciseStatsOut])
+async def exercise_stats(exercise_id: uuid.UUID, user: CurrentUser, db: DbSession):
+    """D-02's header: the four records, an e1RM trend, and how often it is trained.
+
+    `records` is read from the same `personal_records` rows `/records` serves, so
+    the detail screen and the PR board can never disagree.
+    """
+    await _exercise_or_404(db, exercise_id)
+
+    found = await _completed_occurrences(db, user, exercise_id)
+    sets_by_se = await _sets_by_session_exercise(db, [se.id for _, se in found])
+
+    total_volume = 0.0
+    series: list[dict] = []
+    last_performed: datetime | None = None
+
+    # Oldest first: a trend line reads left to right.
+    for session, se in reversed(found):
+        domain_sets = [_domain_set(r) for r in sets_by_se.get(se.id, [])]
+        total_volume += domain_training.total_volume_kg(domain_sets)
+
+        eligible = [d for d in domain_sets if domain_training.is_pr_eligible(d)]
+        e1rms = [
+            v for v in (domain_training.estimated_1rm_kg(d.load_kg, d.reps) for d in eligible)
+            if v is not None
+        ]
+        if e1rms:
+            series.append(
+                E1rmPointOut(
+                    local_date=session.local_date,
+                    e1rm_kg=max(e1rms),
+                    formula_version=domain_training.E1RM_FORMULA_VERSION,
+                ).model_dump(mode="json")
+            )
+        if session.completed_at is not None and (
+            last_performed is None or session.completed_at > last_performed
+        ):
+            last_performed = session.completed_at
+
+    records = (await db.scalars(
+        select(PersonalRecord).where(
+            PersonalRecord.user_id == user.id, PersonalRecord.exercise_id == exercise_id
+        )
+    )).all()
+
+    return ok(
+        ExerciseStatsOut(
+            exercise_id=exercise_id,
+            session_count=len(found),
+            last_performed_at=last_performed,
+            total_volume_kg=total_volume,
+            records={
+                _enum(r.record_type): RecordEntryOut(
+                    value=_num(r.value), unit=r.unit, achieved_at=r.achieved_at,
+                )
+                for r in records
+            },
+            e1rm_series=series,
+        ).model_dump(mode="json")
+    )

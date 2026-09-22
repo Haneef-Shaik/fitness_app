@@ -11,18 +11,35 @@
  * longer works.
  */
 import { useEffect } from 'react';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { useSession } from './session';
+
+/**
+ * Screens that are *meant* to be seen without a session.
+ *
+ * Without this list the gate fights the user. Restoring a session is async, so
+ * a cold start goes `loading` → `signed-out` — and if someone taps "I already
+ * have one" before that settles, the transition fires while they are already on
+ * `/login` and throws them back to `/welcome`. On a fast device the restore
+ * wins the race and nothing looks wrong; on a slower one the button appears
+ * dead. Found on an emulator, which lost the race every time.
+ */
+const PUBLIC_ROUTES = ['/welcome', '/login', '/register'];
 
 export function AuthGate() {
   const { status } = useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
     // `loading` is the cold-start state and must not redirect — the stored
     // token has not been tried yet, and bouncing to /welcome here would sign
     // out every returning user on launch.
-    if (status === 'signed-out') router.replace('/welcome');
-  }, [status]);
+    if (status !== 'signed-out') return;
+    if (PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
+      return;
+    }
+    router.replace('/welcome');
+  }, [status, pathname]);
 
   return null;
 }

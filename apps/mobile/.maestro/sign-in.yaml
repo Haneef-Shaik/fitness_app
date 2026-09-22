@@ -31,11 +31,14 @@ env:
       visible: "You left a workout open"
     commands:
       - tapOn: "Discard"
-      # Discard re-routes to the dashboard. Reaching for "Sign out" before it
-      # lands taps a screen that is on its way out, and the sign-out never
-      # happens — the same async-state race as below, one screen earlier.
+      # Wait for the CARD to go, not for the dashboard to arrive. Discarding is
+      # async, so reaching for the next control immediately taps a screen on its
+      # way out. But where it lands is not ours to assert: if the discard call
+      # fails the app may legitimately end up signed out, and demanding the
+      # dashboard turns a recoverable state into a failed run. The branches
+      # below handle whatever this actually leaves behind.
       - extendedWaitUntil:
-          visible: "Today's workout"
+          notVisible: "You left a workout open"
           timeout: 20000
 
 # Sign out if anyone is signed in, so the credentials above decide the account

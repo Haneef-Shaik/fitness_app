@@ -19,6 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
+from app.api.adapters import domain_set
 from app.api.deps import CurrentUser, DbSession, authorize
 from app.api.envelope import ok
 from app.core.errors import Conflict, NotFound, ValidationFailed
@@ -701,16 +702,9 @@ async def patch_session(
 # how the two halves drift apart (I3, I5).
 
 
-def _domain_set(s: WorkoutSet) -> domain_training.WorkoutSet:
-    """The ORM row as the domain sees it. Canonical units only."""
-    return domain_training.WorkoutSet(
-        set_type=_enum(s.set_type),
-        load_kg=_num(s.load_kg),
-        reps=s.reps,
-        completed=s.completed,
-        duration_seconds=s.duration_seconds,
-        distance_m=_num(s.distance_m),
-    )
+# Moved to app/api/adapters.py when G5's comparison needed the same coercion.
+# Kept as a name here so the rest of this module reads unchanged.
+_domain_set = domain_set
 
 
 async def _exercise_or_404(db: DbSession, exercise_id: uuid.UUID) -> Exercise:

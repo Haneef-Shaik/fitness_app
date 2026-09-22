@@ -193,10 +193,59 @@ def ac_04(token: str, args: argparse.Namespace) -> None:
     # session as "current" and failed on a criterion it was not testing.
 
 
+# --------------------------------------------------------------------------- AC-05
+
+def ac_05(token: str, args: argparse.Namespace) -> None:
+    """"Returns the most recent completed session with a chest-primary exercise;
+    states if it widened to secondary." Both clauses, because a widened answer
+    presented as a direct hit is the failure this criterion is about."""
+    found = get(f"/v1/history/previous-occurrence?muscle={args.muscle}", token)
+    check("an occurrence was resolved", found is not None, args.muscle)
+
+    sessions = get("/v1/workout-sessions", token)
+    completed = [s for s in sessions if s["status"] == "completed"]
+    check("there is completed history to resolve against", bool(completed),
+          f"{len(completed)} completed")
+
+    detail = get(f"/v1/workout-sessions/{found['session_id']}", token)
+    check("it points at a COMPLETED session", detail["status"] == "completed",
+          detail["status"])
+
+    # The rule is about primary unless nothing is primary. Whichever happened,
+    # the payload has to say which — the screen is required to repeat it.
+    check(
+        "it states which role matched",
+        found["role_matched"] in ("primary", "secondary"),
+        f"role_matched={found['role_matched']}, widened={found['widened']}",
+    )
+    check(
+        "widened and role_matched agree",
+        found["widened"] == (found["role_matched"] == "secondary"),
+        f"widened={found['widened']} role={found['role_matched']}",
+    )
+    check(
+        "it is the most recent session that qualifies",
+        all(
+            s["started_at"] <= detail["started_at"]
+            for s in completed
+            if s["id"] in _sessions_touching(token, args.muscle, found["role_matched"])
+        ),
+        f"chose {detail['local_date']}",
+    )
+
+
+def _sessions_touching(token: str, muscle: str, role: str) -> set:
+    """Session ids the history list reports for that muscle — the same subtree
+    rule, asked a different way, so agreement between the two is the assertion."""
+    rows = get(f"/v1/history/workouts?muscle={muscle}&limit=100", token)
+    return {r["id"] for r in rows}
+
+
 CRITERIA = {
     "ac-01": (ac_01, "Create a Chest workout with multiple exercises and target sets/reps"),
     "ac-02": (ac_02, "Record every performed set with load and reps"),
     "ac-04": (ac_04, "Starting the same workout again shows previous performance"),
+    "ac-05": (ac_05, "Retrieve the previous chest-focused session without knowing its date"),
 }
 
 
@@ -208,6 +257,7 @@ def main() -> int:
     parser.add_argument("--load", type=float, default=80.0)
     parser.add_argument("--reps", type=int, default=8)
     parser.add_argument("--exercise", default="Barbell Bench Press")
+    parser.add_argument("--muscle", default="chest", help="AC-05: the group to resolve")
     args = parser.parse_args()
 
     fn, wording = CRITERIA[args.criterion]

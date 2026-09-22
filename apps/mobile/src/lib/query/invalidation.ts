@@ -112,6 +112,11 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       // instant a workout ends.
       qkPrefix.exerciseHistory(),
       qkPrefix.exerciseStats(),
+      // G5: F-01's list, AC-05's lookup and F-06's comparison all read completed
+      // sessions, so all three are stale the moment one more exists.
+      qkPrefix.history(),
+      qkPrefix.previousOccurrence(),
+      qkPrefix.sessionComparison(),
     ],
   },
   'session.lifecycleChanged': {
@@ -120,6 +125,11 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       qk.activeSession(),
       qk.sessions(),
       ...(sessionId ? [qk.session(sessionId)] : []),
+      // A reopened session LEAVES history — it is no longer completed. Without
+      // this it stays on F-01, and AC-05 would still resolve to it.
+      qkPrefix.history(),
+      qkPrefix.previousOccurrence(),
+      qkPrefix.sessionComparison(),
     ],
   },
   'outbox.flushed': {

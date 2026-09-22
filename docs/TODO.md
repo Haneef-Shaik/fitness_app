@@ -1,14 +1,14 @@
 # TODO — active work
 
-**Goal:** G5 · Retrieval — find the past without knowing its date →
-[contract](10-EXECUTION-GOALS.md#g5--retrieval--find-the-past-without-knowing-its-date) ·
-[tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
-**Exit:** **AC-03** timezone matrix green · **AC-05** returns the right session **and says when it
-widened** · F-01…F-07 render · **6 of 12** acceptance criteria proven
+**Goal:** G6 · Analytics — turn the archive into a trend →
+[contract](10-EXECUTION-GOALS.md) · [tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
+**Exit:** **AC-06** asserted across E-08, F-03 and G-02 for the same session · charts pass the
+design-system checks in both themes · every analytics endpoint has an integration test ·
+**7 of 12** acceptance criteria proven
 
 > This file holds **only the work in flight**. Milestone status lives in the tracker — it is not
-> repeated here, because a status maintained in two places drifts. When G5 closes, this file is
-> replaced with G6's tasks.
+> repeated here, because a status maintained in two places drifts. When G6 closes, this file is
+> replaced with G7's tasks.
 >
 > A task is done when it meets the [Definition of Done](08-PROJECT-CHARTER.md#4-definition-of-done):
 > tests first, tests fail before the code exists, a deliberate mutation makes them fail again,
@@ -17,82 +17,82 @@ widened** · F-01…F-07 render · **6 of 12** acceptance criteria proven
 **Entry gate — run before starting:**
 
 ```bash
-pnpm --filter @volt/mobile test:ci          # 312 tests, coverage gate, must exit 0
+grep -n "6 of 12" docs/09-PROJECT-TRACKER.md        # 6 of 12 recorded?
+pnpm --filter @volt/mobile test:ci                  # 370 tests + the 54/50/50/55 ratchet
 pnpm --filter @volt/mobile typecheck
-cd services/api && uv run pytest -q         # must exit 0
-bash scripts/check-client-spec.sh           # the docs gate
+cd services/api && uv run pytest -q && uv run ruff check . && uv run alembic check
+bash scripts/check-client-spec.sh
 ```
-
-And confirm the four acceptance criteria G4 recorded are still true, on the device:
-
-```bash
-bash scripts/e2e.sh all                     # needs the phone plugged in; see .maestro/README.md
-```
-
-If `e2e.sh` cannot run because no phone is attached, **say so and proceed** — do not mark H4.1–H4.3
-unproven again on that basis. They were proven on hardware on 22 Sep and the run is recorded.
 
 ---
 
-## 1 · The resolution rule (AC-05)
+## 1 · The rule that decides whether AC-06 holds
 
-The rule is **normative and already written** — [PRD §7.2](01-PRD.md). Do not reinvent it.
+**Do not re-derive any number in a SQL aggregate.** Every figure already has a definition in
+`app/domain/training.py` and a vector in `contracts/`. A second definition is exactly how
+"matching across all three screens" fails.
 
-- [ ] **1.1** Recursive CTE over the self-referencing muscle tree: most recent `completed` session
-      containing an exercise whose `exercise_muscles` row is that group **or a descendant** with
-      `role = 'primary'`, ordered by `completed_at DESC`. Write it once and share it — G6's muscle
-      volume recurses the same tree, and two copies will drift
-- [ ] **1.2** Test it against a **grandchild** group, not a child. A one-level join passes the
-      child case and is wrong
-- [ ] **1.3** Widening: when nothing matches `primary`, widen to `('primary','secondary')` **and
-      return that fact in the payload**. The UI has to be able to say it widened
-- [ ] **1.4** `GET /history/previous-occurrence`
+- [ ] **1.1** Where an aggregate must run in SQL for performance, add a test asserting the SQL
+      result **equals the domain function over the same rows**. Not "looks right" — equal
+- [ ] **1.2** Muscle volume is **primary ×1.0, secondary ×0.5** (D7) and must recurse the muscle
+      tree **exactly as G5's rule does** — import `muscle_subtree_ids`, do not write a second CTE.
+      G5 mutation-proved that a one-level join passes every fixture and is still wrong
 
-## 2 · History and comparison
+## 2 · Endpoints
 
-- [ ] **2.1** `GET /history/workouts` — filters + cursor pagination
-- [ ] **2.2** `GET /history/compare` — the primitive G6's charts reuse (**H5.2**)
-- [ ] **2.3** Cursor is opaque over `(started_at, id)`. **Settle the shape here**: every list
-      endpoint after this copies it (**H5.1**). Not offset — history grows and offsets drift
-      under inserts
+- [ ] **2.1** `/analytics/workouts`, `/muscle-volume`, `/exercises/{id}`, `/personal-records`,
+      `/frequency`, `/adherence`
+- [ ] **2.2** Every list among them uses **H5.1's cursor** (`CursorEnvelope` + `app/api/cursor.py`).
+      The shape was settled in G5 precisely so this goal copies it rather than inventing one
+- [ ] **2.3** Reads that do **not** scan every set on every request (**H6.2**)
 
-## 3 · Screens F-01…F-07
+## 3 · Charts (H6.1)
 
-- [ ] **3.1** F-01…F-07 through `DataBoundary`, with **filtered-empty ≠ empty** (**I13**) — a
-      filter that matches nothing must not read as "you have no history"
-- [ ] **3.2** Every new read gets a key in `queryKeys.ts` **and** a line in
-      [03 §6.2](03-FRONTEND-ARCHITECTURE.md); the agreement test fails otherwise
-- [ ] **3.3** AC-05's "it widened" is on screen, not only in the payload
+Per [05-DESIGN-SYSTEM §3](05-DESIGN-SYSTEM.md):
 
-## 4 · AC-03 — a unit matrix, not an E2E
+- [ ] **3.1** Fixed series order, **never cycled**; **slot 7 is a spacer and not assignable**
+      (assignable ceiling is 6)
+- [ ] **3.2** One axis, never two. Legend always present for ≥2 series
+- [ ] **3.3** **A regression is never red** — a lighter week is information, not a failure
+- [ ] **3.4** Empty state, and **filtered-empty ≠ empty** (I13), as F-01 does
 
-- [ ] **4.1** Sessions started at 23:40 across **≥5 timezones including both DST directions**,
-      asserted against `contracts/vectors/domain.json`'s existing `local_date` vectors. The vectors
-      are already there — consume them rather than inventing new ones (**I7**)
+## 4 · Screens G-01 … G-07
 
-## 5 · Close-out
+- [ ] **4.1** Every new read gets a key in `queryKeys.ts` **and** a line in
+      [03 §6.2](03-FRONTEND-ARCHITECTURE.md); the agreement test fails otherwise.
+      **G5's lesson:** ask what makes each read *stale*, not just what creates it — the reopen case
+      was missed because only "finish" looked like a write
+- [ ] **4.2** Charts render in both themes
 
-- [ ] **5.1** Tracker: **6 of 12** ACs proven; append the G5 handoff record
-- [ ] **5.2** Tick **H5.1**, **H5.2** in the [handoff ledger](10-EXECUTION-GOALS.md#3--the-handoff-ledger)
-- [ ] **5.3** Replace this file with G6's tasks
-- [ ] **5.4** Commit
+## 5 · AC-06
+
+- [ ] **5.1** The **same session's** volume asserted equal on E-08, F-03 and G-02
+
+## 6 · Close-out
+
+- [ ] **6.1** Tracker: **7 of 12**; append the G6 handoff record
+- [ ] **6.2** Tick **H6.1**, **H6.2** in the [handoff ledger](10-EXECUTION-GOALS.md#3--the-handoff-ledger)
+- [ ] **6.3** Re-measure the coverage remainder and **raise the ratchet** (D18)
+- [ ] **6.4** Replace this file with G7's tasks
+- [ ] **6.5** Commit
 
 ---
 
 ## Carried over
 
-- [ ] **The E2E workflow has never executed.** `.github/workflows/e2e.yml` was written in G4 and
-      runs nightly / on demand. Its first run is its first test, and it builds a debug APK rather
-      than using Expo Go, so the flows' `appId` and the `openLink` launch **will need
-      parametrising**. The criteria themselves were proven on a physical phone, not in CI
-- [ ] **Jest still force-exits a worker.** The torn-down-environment error is gone, but one handle
-      outlives the run. `forceExit` is deliberately not coming back
-- [ ] **E-05 / E-06 / E-07 / E-12** — advanced set editor, session notes UI, plate calculator. Swap
-      reuses `ExercisePicker` (`max={1}`) but has no entry point on E-03 yet
+- [ ] **F-04 is an entry point, not an editor.** Editing a past session belongs with the
+      session-mutation work; the screen says so rather than presenting a form that does not save
+- [ ] **The E2E CI workflow has never executed.** `.github/workflows/e2e.yml` builds a debug APK,
+      so the flows' `appId` and the Expo Go `openLink` still need parametrising. The criteria are
+      proven on a physical phone, not in CI
+- [ ] **D16 is missed**: tap → set rendered p95 **396.4 ms** over 99 commits, **118.7 ms** over 9,
+      against 100 ms. A baseline near 110 ms **plus** growth with list length, because every commit
+      re-renders the whole set list. Memoising the row or virtualising the list is the fix;
+      the budget stays at 100 ms until then
+- [ ] **Jest still force-exits a worker.** One handle outlives the run. `forceExit` is deliberately
+      not coming back
+- [ ] **E-05 / E-06 / E-07 / E-12** — advanced set editor, session notes UI, plate calculator
 - [ ] No row menus on D-01/C-02/C-03 (archive, duplicate, delete); C-04, C-08, C-09, D-04 unbuilt
-- [ ] `apps/mobile` still ships `react-native-web`; web is deferred
-      ([D1](08-PROJECT-CHARTER.md#6-decision-log)) and is no longer the only runnable target — the
-      Android path is proven, so a web-only failure is no longer a reason to drop a dependency
 
 ## Blocked — needs a decision from the user
 

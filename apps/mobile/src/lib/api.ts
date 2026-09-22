@@ -71,6 +71,54 @@ async function raw<T>(
   return json?.data as T;
 }
 
+export interface Page<T> {
+  data: T;
+  /**
+   * The envelope's `meta`. `next_cursor` is **opaque** — feed it back, never
+   * parse it (H5.1). Absent when the endpoint does not paginate.
+   */
+  meta?: {
+    limit?: number;
+    count?: number;
+    next_cursor?: string | null;
+    has_more?: boolean;
+    filtered?: boolean;
+    total_unfiltered?: number | null;
+  };
+}
+
+/**
+ * Like `raw`, but keeps the envelope instead of unwrapping to `data`.
+ *
+ * `raw` returns `json.data` and drops everything else, which is right until a
+ * response carries the cursor in `meta` — at that point unwrapping throws away
+ * the only route to page two.
+ */
+async function rawPaged<T>(path: string): Promise<Page<T>> {
+  const res = await fetch(`${API_BASE}/v1${path}`, {
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json',
+      ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+    },
+  });
+
+  let json: any = null;
+  try { json = await res.json(); } catch { /* non-JSON error page */ }
+
+  if (!res.ok || json?.success === false) {
+    const e = json?.error ?? {};
+    throw new ApiError(
+      e.code ?? 'NETWORK',
+      e.message ?? 'Could not reach the server. Check your connection.',
+      res.status, e.fields ?? {}, e.request_id,
+    );
+  }
+  // `?? []` so a filtered-empty page (I13) is iterable without a guard at every
+  // call site; the distinction it needs lives in `meta.filtered`, not in null.
+  return { data: (json?.data ?? []) as T, meta: json?.meta };
+}
+
 /** Runs the request; on a 401 it tries one silent refresh before surfacing the error. */
 async function request<T>(
   method: Method, path: string, body?: unknown, extraHeaders?: Record<string, string>,
@@ -132,6 +180,16 @@ async function tryRefresh(): Promise<boolean> {
 
 export const api = {
   get:   <T>(p: string) => request<T>('GET', p),
+  /** A cursor-paged read: rows plus the envelope's meta (H5.1). */
+  getPaged: async <T>(p: string): Promise<Page<T>> => {
+    try {
+      return await rawPaged<T>(p);
+    } catch (err) {
+      if (!(err instanceof ApiError) || err.status !== 401) throw err;
+      if (!(await tryRefresh())) throw err;
+      return rawPaged<T>(p);
+    }
+  },
   post:  <T>(p: string, b?: unknown) => request<T>('POST', p, b),
   patch: <T>(p: string, b?: unknown) => request<T>('PATCH', p, b),
   put:   <T>(p: string, b?: unknown) => request<T>('PUT', p, b),

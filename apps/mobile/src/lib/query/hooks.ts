@@ -3,7 +3,9 @@
  * ./invalidation. Screens call these; no screen builds a query key, sets a
  * staleTime, or decides what to invalidate on its own.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery, useMutation, useQuery, useQueryClient,
+} from '@tanstack/react-query';
 import type {
   Exercise,
   ExerciseHistoryEntry,
@@ -20,9 +22,13 @@ import type {
   PreviousPerformance,
   Program,
   ProgramIn,
+  HistoryItem,
+  PreviousOccurrence,
+  SessionComparison,
 } from '@volt/api-types';
 import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
+import { historyApi, type HistoryQuery } from '../api-history';
 import { staleTimes } from './client';
 import { applyInvalidation } from './invalidation';
 import { qk } from './queryKeys';
@@ -182,5 +188,65 @@ export function useSetDayExercises(programId: string) {
     mutationFn: ({ dayId, body }: { dayId: string; body: PlanExerciseIn[] }) =>
       programsApi.setDayExercises(dayId, body),
     onSuccess: () => applyInvalidation(client, 'planDay.changed', { programId }),
+  });
+}
+
+
+/* ------------------------------------------------------------- retrieval (G5) */
+
+/**
+ * F-01's list. An infinite query, because the cursor convention (**H5.1**) is
+ * "ask for the next page with the blob the last one gave you" and that is
+ * exactly `getNextPageParam`.
+ *
+ * The cursor is opaque: it is read from `meta.next_cursor` and passed back
+ * untouched. Nothing here parses it, which is what lets the server change the
+ * key later without breaking this screen.
+ */
+export function useWorkoutHistory(filters: HistoryQuery = {}) {
+  return useInfiniteQuery({
+    queryKey: qk.history(filters),
+    queryFn: ({ pageParam }) =>
+      historyApi.workouts({ ...filters, cursor: pageParam as string | undefined }),
+    initialPageParam: undefined as string | undefined,
+    // `has_more` comes from the server counting one row past the page, so it is
+    // a fact rather than an inference from "did we fill it?" — which is wrong
+    // on an exactly-full last page.
+    getNextPageParam: (last) =>
+      last.meta?.has_more ? (last.meta?.next_cursor ?? undefined) : undefined,
+    staleTime: staleTimes.history,
+  });
+}
+
+/** Every loaded page, flattened — what F-01 actually renders. */
+export function flattenHistory(
+  pages: { data: HistoryItem[] }[] | undefined,
+): HistoryItem[] {
+  return (pages ?? []).flatMap((p) => p.data);
+}
+
+/**
+ * **AC-05** — "what did I do last chest day?", without knowing the date.
+ *
+ * `null` means the muscle has never been trained, which F-05 renders as a
+ * prompt rather than an error. When `widened` is true the screen MUST say so:
+ * PRD §7.2 makes that part of the rule.
+ */
+export function usePreviousOccurrence(muscle: string) {
+  return useQuery<PreviousOccurrence | null>({
+    queryKey: qk.previousOccurrence(muscle),
+    queryFn: () => historyApi.previousOccurrence(muscle),
+    staleTime: staleTimes.previousOccurrence,
+    enabled: Boolean(muscle),
+  });
+}
+
+/** F-06. Two or three finished sessions, aligned by exercise (**H5.2**). */
+export function useSessionComparison(sessionIds: readonly string[]) {
+  return useQuery<SessionComparison>({
+    queryKey: qk.sessionComparison(sessionIds),
+    queryFn: () => historyApi.compare(sessionIds),
+    staleTime: staleTimes.sessionComparison,
+    enabled: sessionIds.length > 0,
   });
 }

@@ -730,6 +730,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/history/previous-occurrence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Previous Occurrence
+         * @description AC-05 — "what did I do last chest day?", without knowing the date.
+         *
+         *     The rule, from PRD §7.2, in order:
+         *       1. most recent completed session of MINE
+         *       2. containing an exercise whose `exercise_muscles` row is that group **or a
+         *          descendant** with `role = 'primary'`
+         *       3. if nothing matches, widen to primary+secondary **and say so**
+         */
+        get: operations["previous_occurrence_v1_history_previous_occurrence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/history/workouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Workouts
+         * @description F-01's list, paginated by keyset (**H5.1**).
+         *
+         *     Ordered `(started_at, id) DESC`, which is also the cursor key — the order and
+         *     the key must be the same pair or paging skips rows.
+         */
+        get: operations["list_workouts_v1_history_workouts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/history/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare Sessions
+         * @description F-06, and the primitive G6's charts reuse (**H5.2**).
+         *
+         *     Every number defers to `app.domain.training`. A `SUM(load_kg * reps)` here
+         *     would be a second definition of volume, and AC-06 requires E-08, F-03 and
+         *     G-02 to agree — which they can only do while there is one definition.
+         */
+        get: operations["compare_sessions_v1_history_compare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -751,6 +824,137 @@ export interface components {
             /** Expires In */
             expires_in: number;
             user: components["schemas"]["UserRefOut"];
+        };
+        /** BestSetOut */
+        BestSetOut: {
+            /** Load Kg */
+            load_kg?: number | null;
+            /** Reps */
+            reps?: number | null;
+            /** E1Rm Kg */
+            e1rm_kg?: number | null;
+        };
+        /**
+         * ComparisonCellOut
+         * @description One exercise in one session.
+         *
+         *     Every field is `None` when that session did not include the exercise —
+         *     deliberately not zero. "You did not do it" and "you did it for nothing" are
+         *     different, and a chart that reads absence as 0 draws a cliff that never
+         *     happened.
+         */
+        ComparisonCellOut: {
+            /**
+             * Session Id
+             * Format: uuid
+             */
+            session_id: string;
+            /** Volume Kg */
+            volume_kg?: number | null;
+            /** Set Count */
+            set_count?: number | null;
+            /** Max Load Kg */
+            max_load_kg?: number | null;
+            best_set?: components["schemas"]["BestSetOut"] | null;
+        };
+        /**
+         * ComparisonOut
+         * @description H5.2. Sessions newest-first; one row per exercise across all of them.
+         */
+        ComparisonOut: {
+            /**
+             * Sessions
+             * @default []
+             */
+            sessions: components["schemas"]["ComparisonSessionOut"][];
+            /**
+             * Exercises
+             * @default []
+             */
+            exercises: components["schemas"]["ComparisonRowOut"][];
+        };
+        /** ComparisonRowOut */
+        ComparisonRowOut: {
+            /**
+             * Exercise Id
+             * Format: uuid
+             */
+            exercise_id: string;
+            /** Exercise Name */
+            exercise_name?: string | null;
+            /**
+             * Per Session
+             * @default []
+             */
+            per_session: components["schemas"]["ComparisonCellOut"][];
+        };
+        /** ComparisonSessionOut */
+        ComparisonSessionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Total Volume Kg */
+            total_volume_kg: number;
+            /** Set Count */
+            set_count: number;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+        };
+        /** CursorEnvelope[list[HistoryItemOut]] */
+        CursorEnvelope_list_HistoryItemOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["HistoryItemOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+            meta?: components["schemas"]["CursorMeta"] | null;
+        };
+        /**
+         * CursorMeta
+         * @description The keyset-pagination convention (**H5.1**, settled in G5).
+         *
+         *     Every list endpoint after `/history/workouts` returns this, so a client
+         *     writes one paging loop rather than one per resource.
+         *
+         *     `next_cursor` is **opaque** — base64 over the key the last page stopped at.
+         *     Clients feed it back and never parse it, which is what lets the key change
+         *     without breaking them.
+         *
+         *     `filtered` and `total_unfiltered` are here for **I13**: an empty list alone
+         *     cannot distinguish "you have no history" from "nothing matches this filter",
+         *     and those are different screens.
+         */
+        CursorMeta: {
+            /** Limit */
+            limit: number;
+            /** Count */
+            count: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Has More
+             * @default false
+             */
+            has_more: boolean;
+            /**
+             * Filtered
+             * @default false
+             */
+            filtered: boolean;
+            /** Total Unfiltered */
+            total_unfiltered?: number | null;
         };
         /**
          * DeletedOut
@@ -780,6 +984,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["AuthOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[ComparisonOut] */
+        Envelope_ComparisonOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["ComparisonOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[DeletedOut] */
@@ -871,6 +1082,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["TokenPair"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[Union[PreviousOccurrenceOut, NoneType]] */
+        Envelope_Union_PreviousOccurrenceOut__NoneType__: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["PreviousOccurrenceOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[dict[str, RecordEntryOut]] */
@@ -1172,6 +1390,42 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * HistoryItemOut
+         * @description One row of F-01. Deliberately thin: the list is scrolled, not read.
+         */
+        HistoryItemOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at: string | null;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Logged Timezone */
+            logged_timezone: string;
+            /** Total Volume Kg */
+            total_volume_kg: number | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Set Count */
+            set_count: number;
+            /**
+             * Exercise Names
+             * @default []
+             */
+            exercise_names: string[];
+        };
         /** LoginIn */
         LoginIn: {
             /**
@@ -1440,6 +1694,48 @@ export interface components {
             order_index: number;
             /** Exercise Name */
             exercise_name?: string | null;
+        };
+        /**
+         * PreviousOccurrenceOut
+         * @description AC-05's answer.
+         *
+         *     Deliberately NOT the whole session: F-03 already serves session detail, and
+         *     embedding it here would give `id` two homes (I15). This carries what F-05's
+         *     header renders, plus the two facts the rule itself produces.
+         */
+        PreviousOccurrenceOut: {
+            /**
+             * Session Id
+             * Format: uuid
+             */
+            session_id: string;
+            /** Completed At */
+            completed_at: string | null;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Total Volume Kg */
+            total_volume_kg: number | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /**
+             * Exercise Names
+             * @default []
+             */
+            exercise_names: string[];
+            /** Muscle Slug */
+            muscle_slug: string;
+            /** Muscle Name */
+            muscle_name: string;
+            /** Widened */
+            widened: boolean;
+            /**
+             * Role Matched
+             * @enum {string}
+             */
+            role_matched: "primary" | "secondary";
         };
         /**
          * PreviousPerformanceOut
@@ -3461,6 +3757,104 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_ExerciseStatsOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    previous_occurrence_v1_history_previous_occurrence_get: {
+        parameters: {
+            query: {
+                muscle: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_Union_PreviousOccurrenceOut__NoneType__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_workouts_v1_history_workouts_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                muscle?: string | null;
+                exercise_id?: string | null;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursorEnvelope_list_HistoryItemOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_sessions_v1_history_compare_get: {
+        parameters: {
+            query: {
+                sessions: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ComparisonOut_"];
                 };
             };
             /** @description Validation Error */

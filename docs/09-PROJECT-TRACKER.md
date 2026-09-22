@@ -228,7 +228,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | Mutation checks | **12** verified catches — G4 added the commit-timing double-call guard (deleting it makes a named test fail). Every other G4 fix was written test-first and seen red before it went green | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | **enforced**, and **ratcheted in G4** from 45/38/42/46 to **51/47/48/52**. Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed 55.66% includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **51.90%** statements / **52.31%** lines | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **4 of 12** — AC-01, AC-02, AC-04 (all three proven on a physical device **and** against the API, 22 Sep) and AC-12 | 12 of 12 |
+| Acceptance criteria passing | **6 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), **AC-03** and **AC-05** (23 Sep) and AC-12 | 12 of 12 |
 | tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
 
 ## Changelog
@@ -261,6 +261,12 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 23 Sep | **G5 — retrieval.** `GET /history/workouts` (keyset pagination), `/history/previous-occurrence` (**AC-05**) and `/history/compare`, plus screens **F-01…F-07**. **AC-03** and **AC-05** proven — **6 of 12**. API tests 164 → 209, client 326 → 370 |
+| 23 Sep | **"Or a descendant" is recursive, and the seeded tree is two levels deep** — so a one-level join passes every fixture and is still wrong. `muscle_subtree_ids` is a recursive CTE written **once** and shared by AC-05's resolution and F-02's filter, because two tree walks drift into "history and analytics disagree about what a chest day is" (which is how AC-06 fails later). Tested against a **grandchild** built for the purpose |
+| 23 Sep | **Widening is a second query, not a looser first one.** `role IN ('primary','secondary')` in one pass returns a NEWER secondary match over an older primary one, which is the opposite of the rule. Caught by a mutation — and the mutation first exposed that the test guarding it was **vacuous**: it compared a session id against an *exercise* id, which is never equal, so it passed against a deliberately broken rule |
+| 23 Sep | **AC-03's vectors include instants in the future**, and the API correctly refuses a future-dated session. The session-level matrix runs the loggable ones (still five zones) and covers DST fall-back with its own past-dated case, rather than relaxing the API or inventing a second set of timezone cases |
+| 23 Sep | Two gaps the client had: `api.get` unwraps to `data` and **discards `meta`**, so a cursor could not reach the app at all — `getPaged` keeps the envelope; and `PagedEnvelope`'s generic `Meta` has no cursor fields, so the paged response was **documented as un-pageable**. `CursorEnvelope`/`CursorMeta` are declared, which is the same gap D17 closed for bodies |
+| 23 Sep | Coverage ratchet **54/50/50/55**, up from G4's 51/47/48/52 — seven screens and their tests, so the floor rose with the ceiling |
 | 23 Sep | **D16's budget is missed, and now known.** tap → set rendered measured on the device: **p95 396.4 ms** over 99 commits on one exercise, and **118.7 ms** over 9 — against a 100 ms budget. Two costs, separated by running both lengths: a **baseline near 110 ms** present from the first sets, and **growth with list length** on top (p95 118.7 → 184.8 → 396.4 ms at 10, 33 and 100 rows) because every commit re-renders the whole list. Had only the 100-sample run been taken, list growth would have looked like the whole story. It is a `__DEV__` build and a release one can only be faster — by an unmeasured amount, so the number stands as taken. **D16 is unchanged; this is an open item, not a rewritten target** |
 | 22 Sep | **G4 — the critical path driven on a physical phone** (Samsung SM-E546B, Android 16) through Expo Go over the LAN. **AC-01, AC-02 and AC-04 proven**, each by a Maestro flow **and** a query against the API. **DR4 resolved**; `defaultBase()`'s `hostUri` derivation confirmed executing after Metro was found running with `EXPO_PUBLIC_API_URL` set, which returns early — the branch DR4 is about had still never run |
 | 22 Sep | **The outbox stranded sets, silently.** AC-02 was green on the phone showing three sets while the server held **two**. Two causes: `flush()` handed a concurrent caller the already-running promise, whose work list was read before the new entry existed; and the logger flushed straight after `commitSet`, before the fire-and-forget write had put the entry in SQLite. Sync lag went 3 s / 24 s / **25 min** → 21 ms / 12 ms / 13 ms. The existing concurrency test seeded all its work *before* flushing, so it could never have caught it |
@@ -459,6 +465,59 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G5 · Retrieval                                    closed 23 Sep
+
+**Outcome claimed.** A user answers *"what did I do last chest day?"* without remembering when it
+was, and is told plainly if the search had to widen. **AC-03** and **AC-05** proven — **6 of 12**.
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H4.1 | ✅ | Added to rather than restarted: `ac-05-previous-occurrence.yaml` joins the suite and **passes on the device**, paired with an `assert_ac.py` check like every criterion since G4. It reaches F-05 by navigating from the dashboard — "without knowing its date" also means without knowing the URL |
+| H1.2 | ⚠️ | The registry held, but the invalidation map had a **gap it could not see**: a reopened session stops being completed and so leaves history, and nothing invalidated the retrieval keys. F-01 would have kept showing it and AC-05 would have resolved to it |
+| H2.1 | ✅ | F-01…F-07 reuse `VirtualList`, `FilterChips`, `ScreenScaffold`, `Sheet` and `DataBoundary` unchanged. No screen re-solved any of them |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H5.1 | `app/api/cursor.py` + `CursorEnvelope` | One pagination shape for every list endpoint after this | Keyset over `(started_at, id)`, opaque base64, `has_more` counted not inferred. Two mutations each fail a named test |
+| H5.2 | `GET /history/compare` | The comparison primitive G6's charts reuse | 2–3 sessions aligned by exercise; every number from `app.domain.training`; an absent cell is **null, never 0** |
+| — | `app/domain/muscles.py` | One recursion for "or a descendant", shared by AC-05 and F-02 | Mutation: a one-level join fails 5 tests |
+
+**Verified.** AC-01, AC-02, AC-03, AC-04, AC-05, AC-12 — **6 of 12**.
+API tests 164 → 209. Client tests 326 → 370. Coverage ratchet 51/47/48/52 → **54/50/50/55**.
+
+**Left undone, and why.**
+- **F-04 is an entry point, not an editor.** G5 is retrieval; editing a past session belongs with the
+  session-mutation work. It says so on screen rather than presenting a form that does not save.
+- **AC-03's E2E half is the API, not Maestro.** The timezone matrix runs against the API across five
+  zones and both DST directions; it is not driven through the UI, because the criterion is about
+  which day a session is *filed* under and the UI cannot make that wrong on its own.
+- Two of the nine `local_date` vectors are dated in the future, and the API rightly refuses a
+  future-dated session. The session-level matrix uses the loggable ones and covers DST fall-back
+  with its own past-dated case.
+
+**Traps hit.**
+- **A vacuous test, found by a mutation.** `test_does_not_widen_when_a_primary_match_exists`
+  compared a session id against an **exercise** id — never equal, so it passed against a rule that
+  had been deliberately broken. The mutation check earned its keep: it failed one test where two
+  should have failed, and that gap was the tell.
+- **"Or a descendant" reads like a join and is a recursion.** The seeded tree is two levels deep, so
+  a one-level join matches every fixture that exists. The tests build a grandchild specifically so
+  the shortcut fails.
+- **Widening in one query is not widening.** `role IN ('primary','secondary')` returns a newer
+  secondary match over an older primary one — the opposite of the rule.
+- **The cursor could not have reached the client.** `api.get` unwraps to `data` and drops `meta`;
+  and `PagedEnvelope`'s generic `Meta` has no cursor fields, so the response was *documented* as
+  un-pageable. Both fixed — the second is the same gap D17 closed for bodies.
+- **The fixtures polluted another file's guards.** Writing test exercises straight to `exercises`
+  with a NULL owner made them catalog entries, and `test_seed_catalog.py` counts those. The
+  failures appeared in a file G5 never touched.
 
 ---
 

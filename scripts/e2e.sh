@@ -113,6 +113,9 @@ fi
 if [ "$WANT" = all ] || [ "$WANT" = ac-04 ]; then
   run_one ac-04 ac-04-previous-performance.yaml --exercise "Barbell Bench Press"
 fi
+if [ "$WANT" = all ] || [ "$WANT" = ac-05 ]; then
+  run_one ac-05 ac-05-previous-occurrence.yaml --muscle chest
+fi
 if [ "$WANT" = all ] || [ "$WANT" = offline ]; then
   # No assert_ac.py criterion of its own: what it proves — every set present
   # exactly once after a kill and a reconnect — is AC-02's check re-run against

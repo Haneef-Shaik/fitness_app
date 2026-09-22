@@ -37,7 +37,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (!token) { setStatus('signed-out'); return; }
       const ok = await api.tryRefresh();
       if (!ok) { setStatus('signed-out'); return; }
-      try { await load(); } catch { setStatus('signed-out'); }
+      try {
+        await load();
+      } catch {
+        // `load` sets the email before it fetches the profile, so a failure part
+        // way through would otherwise leave the app signed out while still
+        // showing whose account it was. Clear the identity with the status.
+        setEmail(null);
+        setProfile(null);
+        setStatus('signed-out');
+      }
     })();
   }, [load]);
 

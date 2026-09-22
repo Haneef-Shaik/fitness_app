@@ -80,6 +80,18 @@ class SessionExerciseIn(BaseModel):
     position: int | None = None      # None = append
 
 
+class SessionExercisePatch(BaseModel):
+    """Mid-session annotation. Skipping is a statement of intent, not a delete —
+    anything already logged against the exercise stays logged."""
+
+    notes: str | None = Field(default=None, max_length=2000)
+    skipped: bool | None = None
+
+
+class SessionPatch(BaseModel):
+    notes: str | None = Field(default=None, max_length=2000)
+
+
 class SessionExerciseOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID

@@ -6,14 +6,9 @@ import { Button, Card, Meter, Pill, Stat, StatRow, Text, Well } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { useTheme, space, font } from '@/theme';
 import { useSession } from '@/lib/session';
+import { formatDayLabel } from '@/lib/datetime';
 import { useCreateGoal, useGoals } from '@/lib/query/hooks';
 import { dayTotals, remainingKcal } from '@volt/domain';
-
-function todayLabel(tz: string): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    timeZone: tz, weekday: 'long', day: 'numeric', month: 'short',
-  }).format(new Date());
-}
 
 export default function Home() {
   const { c } = useTheme();
@@ -39,7 +34,7 @@ export default function Home() {
         }
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text variant="title">{todayLabel(tz)}</Text>
+          <Text variant="title">{formatDayLabel(new Date(), tz)}</Text>
           <Pressable onPress={signOut} accessibilityRole="button" accessibilityLabel="Sign out"
             style={{ width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: c.line2,
               alignItems: 'center', justifyContent: 'center' }}>

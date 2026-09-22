@@ -10,7 +10,7 @@
  * appears in front of the state update — see `commitPath.test.ts`. Once the
  * commit path *can* await, it will.
  */
-import { create } from 'zustand';
+import { createStore } from '../../../lib/store/createStore';
 import { validateSet } from '@volt/domain';
 import type { NewOutboxEntry, SessionStore } from '../../../lib/db/types';
 import {
@@ -103,7 +103,7 @@ export interface SessionState {
   recover(local: SessionDraft | null, server: SessionDraft | null): void;
 }
 
-export const useSessionStore = create<SessionState>((set, get) => ({
+export const useSessionStore = createStore<SessionState>((set, get) => ({
   draft: null,
   recoveryCandidate: null,
 

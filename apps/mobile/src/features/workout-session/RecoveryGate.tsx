@@ -10,9 +10,8 @@ import { router } from 'expo-router';
 import { api } from '../../lib/api';
 import { store } from '../../lib/db';
 import { useSessionStore } from './store/sessionStore';
-import { startDraft } from './store/reducers';
 import type { SessionDraft } from './store/types';
-import { draftFromServer } from './useSession';
+import { draftWithSetsFromServer } from './useSession';
 import { RecoveryPrompt } from './components/RecoveryPrompt';
 import type { WorkoutSession } from '@volt/api-types';
 
@@ -39,7 +38,9 @@ export function RecoveryGate({ enabled }: { enabled: boolean }) {
       let server: SessionDraft | null = null;
       try {
         const active = await api.get<WorkoutSession | null>('/workout-sessions/active');
-        if (active) server = startDraft(draftFromServer(active));
+        // With its sets: a recovered session that shows nothing logged reads
+        // as lost work, and the sets are what make the merge safe (I8).
+        if (active) server = draftWithSetsFromServer(active);
       } catch { /* offline: the local draft is all we have, which is the point */ }
 
       if (cancelled) return;

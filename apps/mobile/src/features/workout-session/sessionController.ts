@@ -36,20 +36,31 @@ export const outbox = createOutbox({
   },
 });
 
-/** Marks every set in the draft according to what the flush achieved. */
+/**
+ * Marks every set in the draft according to what the outbox actually holds.
+ *
+ * The state comes from the entry, not from the absence of a failure. An earlier
+ * version treated "not in the failed list" as sent, which showed a **Synced** dot
+ * on a set that was still queued with the server unreachable — the one lie this
+ * dot must never tell.
+ */
 export async function flushAndReconcile(): Promise<void> {
   await outbox.flush();
-  const { failed } = await outbox.status();
 
-  const byKey = new Map(failed.map((f) => [f.idempotencyKey, f.lastError ?? 'Rejected.']));
   const draft = useSessionStore.getState().draft;
   if (!draft) return;
+
+  const entries = await store.allEntries();
+  const byKey = new Map(entries.map((e) => [e.idempotencyKey, e]));
 
   const mark = useSessionStore.getState().markSync;
   for (const exercise of draft.exercises) {
     for (const s of exercise.sets) {
-      if (byKey.has(s.clientId)) mark(s.clientId, 'failed', byKey.get(s.clientId));
-      else if (s.syncState === 'pending') mark(s.clientId, 'synced');
+      const entry = byKey.get(s.clientId);
+      if (!entry) continue;                        // never enqueued (still local)
+      if (entry.state === 'sent') mark(s.clientId, 'synced');
+      else if (entry.state === 'failed') mark(s.clientId, 'failed', entry.lastError);
+      else mark(s.clientId, 'pending');            // queued, waiting on a network
     }
   }
 }

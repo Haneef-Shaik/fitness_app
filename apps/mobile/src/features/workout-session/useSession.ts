@@ -12,9 +12,10 @@ import { applyInvalidation } from '../../lib/query/invalidation';
 import { qk } from '../../lib/query/queryKeys';
 import { staleTimes } from '../../lib/query/client';
 import { useSessionStore } from './store/sessionStore';
-import type { StartDraftInput } from './store/reducers';
+import { startDraft, type StartDraftInput } from './store/reducers';
+import type { SessionDraft } from './store/types';
 
-/** Turns a server session into the local draft shape. */
+/** Turns a server session into the local draft shape, sets included. */
 export function draftFromServer(s: WorkoutSession): StartDraftInput {
   return {
     sessionId: s.id,
@@ -31,6 +32,47 @@ export function draftFromServer(s: WorkoutSession): StartDraftInput {
       // catalog and are filled in by the screen.
       tracks: { load: true, reps: true, duration: false, distance: false },
     })),
+  };
+}
+
+/**
+ * A full draft for a session that already exists server-side — resume, and E-10's
+ * "adopt the server session" row.
+ *
+ * The sets have to come across. A resumed workout that shows nothing logged reads
+ * as lost work, which is the single most alarming thing this screen can do.
+ */
+export function draftWithSetsFromServer(s: WorkoutSession): SessionDraft {
+  const base = startDraft(draftFromServer(s));
+  return {
+    ...base,
+    exercises: base.exercises.map((e) => {
+      const server = (s.exercises ?? []).find((x) => x.id === e.clientId);
+      return {
+        ...e,
+        notes: server?.notes ?? null,
+        skipped: server?.skipped ?? false,
+        sets: (server?.sets ?? []).map((set, i) => ({
+          // client_id is what the outbox keys on, so a resumed set keeps its
+          // identity and a replay stays a no-op (I8).
+          clientId: set.client_id ?? set.id,
+          setIndex: i,
+          setType: set.set_type,
+          reps: set.reps ?? null,
+          loadKg: set.load_kg ?? null,
+          loadUnitEntered: (set.load_unit_entered as 'kg' | 'lb') ?? 'kg',
+          durationSeconds: set.duration_seconds ?? null,
+          distanceM: set.distance_m ?? null,
+          rpe: set.rpe ?? null,
+          rir: set.rir ?? null,
+          completed: set.completed,
+          performedAt: set.performed_at,
+          // It came FROM the server, so it is synced by definition.
+          syncState: 'synced' as const,
+          syncError: null,
+        })),
+      };
+    }),
   };
 }
 

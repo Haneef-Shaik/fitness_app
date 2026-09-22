@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-22 (G2 closed — catalog & planning) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-22 (G3 closed — the logger) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -16,12 +16,12 @@
 | | |
 |---|---|
 | **Milestones complete** | M0, M1 — **2 of 9** |
-| **Tests passing** | **323** — 48 TS domain, 150 Python *(3 skipped)*, **125 client** |
-| **API endpoints live** | **45** operations across **34** paths, all with declared response shapes (D17) |
-| **App screens built** | **14** of 103 designed |
+| **Tests passing** | **463** — 48 TS domain, 164 Python *(3 skipped)*, **251 client** |
+| **API endpoints live** | **49** operations across **37** paths, all with declared response shapes (D17) |
+| **App screens built** | **22** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 18 commits · `155fb99` catalog & planning (G2) |
+| **Version control** | git, 24 commits · `b1ec1da` the logger (G3) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -199,13 +199,14 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G3 — the logger** | The product | AC-02, AC-04 |
-| 2 | **G4 — device verification via Maestro on Expo Go** | LAN connectivity and native behaviour are untested; the runner is chosen (D15) but not installed | DR4 |
+| 1 | **G4 — device verification via Maestro on Expo Go** | **Three things now depend on it**: SQLite has never been opened, the kill-and-relaunch recovery is unproven, and tap→set has never been measured | DR4 · AC-02 · AC-04 |
+| 2 | **G5 — history and comparison** | Retrieval | AC-03, AC-05 |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
 *Cleared 22 Sep: **G1** — generated types (D3b closed), query layer, `DataBoundary`, test harness; D17–D18 recorded.*
 *Cleared 22 Sep: **G2** — 8 catalog and planning screens, the two missing endpoints, m4 migration. **AC-01 reachable**.*
+*Cleared 22 Sep: **G3** — draft store, outbox, 8 logger screens, 4 mutation endpoints. **AC-02 and AC-04 reachable**, pending device proof.*
 
 ## Blocked
 
@@ -219,14 +220,14 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 323 | grows with each milestone |
+| Tests passing | 463 | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | 83 | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
 | Migrations | **4** — M1 foundations, M2 training core, M3 deferrable ordering, **M4 plan time/distance targets** | kept reversible |
 | Mutation checks | 11 verified catches | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | **enforced** — client at **67.5%** statements / **71.2%** lines; `src/lib/query` and `DataBoundary` held at 90%+ | 80% global by G4 (D18) |
+| Coverage gate | **enforced** — client at **63.9%** statements / **65.9%** lines across a codebase that doubled; `src/lib/query` and `DataBoundary` held at 90%+ | 80% global by G4 (D18) |
 | Acceptance criteria passing | 1 of 12 — **AC-12** | 12 of 12 |
 
 ## Changelog
@@ -252,6 +253,10 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G2 closed** — 8 screens (D-01…D-03, C-02/C-03, C-05, C-06, C-07), `/exercises/{id}/history` and `/stats` built, **AC-01 reachable**. Client tests 69 → 125 |
 | 22 Sep | **m4**: plan exercises can prescribe duration and distance — a plank and a run had nothing to prescribe, which would have surfaced as a logger bug in G3 |
 | 22 Sep | `@shopify/flash-list` tried and removed: it crashed the web build. `VirtualList` is the seam; FlashList can return in G4 when a device exists to verify it on |
+| 22 Sep | **G3 closed** — the logger. Draft store with pure reducers, write outbox, 8 E-screens, 4 mutation endpoints. Client tests 125 → 251 |
+| 22 Sep | **`expo-sqlite` has no web build** (`platforms: [apple, android]`). D14 stands for the shipping platforms but is **unproven on hardware**; `src/lib/db` is now an interface with a SQLite and an in-memory implementation |
+| 22 Sep | Fixed before it shipped: a **refresh stampede** — concurrent 401s each refreshed with the same token, and reuse detection revoked the family, signing the user out mid-workout. Refresh is now single-flight (**D20** covers the related UUID bug) |
+| 22 Sep | Zustand replaced by ~50 lines over `useSyncExternalStore` (**D19**): v5 and v4 both crashed with React `null` inside the library, as FlashList did in G2 |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 
 
@@ -524,4 +529,95 @@ against live data rather than asserted:
 - **jest-expo's `setupFiles` replaces rather than extends.** Naming that key dropped React Native's
   own setup and produced `__fbBatchedBridgeConfig is not set`, which reads like a broken test rather
   than a broken config.
+
+---
+
+### Handoff — G3 · The logger            closed 22 Sep · `<this commit>`
+
+**Outcome claimed.** A user can start a workout, log sets one-handed with the UI never waiting on the
+network, keep logging with the server unreachable, and finish with numbers the server agrees with.
+**AC-02 and AC-04 are reachable — and not yet proven, because proving them needs a device.**
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H0.2 | ⚠️ | D14 named `expo-sqlite` as available. It is — on iOS and Android only. See below |
+| H1.1–H1.4 | ✅ | Types regenerated twice; new reads keyed through the registry; `DataBoundary` used; the ratchet caught the untested UI and was answered with tests rather than a lower gate |
+| H2.2 | ✅ | `ExercisePicker` reused for add-exercise **as a prop change**, exactly as G2 promised. No second picker was written |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H3.1 | `store/reducers.ts` | Pure, immutable, densifying | 30 tests, no React. Densify **paired** with `test_densify_matches_the_client_reducer`, each naming the other |
+| H3.2 | `lib/offline/outbox.ts` | FIFO per aggregate, idempotent replay, terminal 4xx surfaced | 17 tests. Dropping a terminal failure, continuing a queue after one, and retrying for ever each fail their own named test |
+| H3.3 | `RecoveryGate` + `mergeRecovered` | Local and server reconciled deterministically | Every row of the §5.3 table has a test. **The kill-and-relaunch half is unverified** — see below |
+| H3.4 | 4 mutation endpoints | E-02's annotate, remove, reorder, notes | 14 tests asserting status **and** payload; I1 has its own test |
+
+**Verified.**
+
+```
+uv run pytest -q        -> 164 passed, 3 skipped   (was 150)
+ruff / alembic check    -> clean / no new operations
+pnpm --filter @volt/mobile test:ci -> 251 passed   (was 125), gate exit 0
+typecheck, drift gate, G0 spec gate -> all clean
+```
+
+**Ran for real, in a browser against the live API.**
+
+- **I10 held with the server switched off.** Sets 4 and 5 committed instantly with the API process
+  killed, and read **"Waiting to sync"** while 1–3 read "Synced". The only visible difference between
+  online and offline was the dot, which is what docs/03 §7 asks for.
+- **Zero duplicates.** After the API came back, SQL against `workout_sets` for that session returned
+  **6 sets, 6 distinct `client_id`s, `set_index` dense 0–5** — the two queued offline flushed exactly
+  once each.
+- **Client and server agree by construction.** The instant summary said best e1RM **93 kg**; the
+  server's record said **93.3 kg**. Epley on 70 × 10 is 93.33, from the same definition on both sides.
+- E-01's in-progress card, prefill from the frozen `target_snapshot` (I1), resume, finish, and E-11's
+  four records all rendered against real data.
+
+**Left undone, and why — this is what G4 inherits as debt.**
+- **SQLite has never been opened.** `expo-sqlite` declares `"platforms": ["apple", "android"]` and has
+  **no web build**; importing it on web crashes the app outright. Web is the only target this project
+  can run (DR4). So `src/lib/db` is an interface with two implementations, the contract suite runs
+  against the in-memory one, and **every line of `sqlite.ts` is unexecuted code**. D14 is amended to
+  say so. **G4 is where it stops being a reading of a manifest.**
+- **The airplane-mode test is half-done.** Offline logging, flush and no-duplicates are verified for
+  real. **Kill the app and relaunch is not** — the web store is in-memory by design, so there is
+  nothing to survive. That half is G4's, on hardware.
+- **tap → set rendered has not been measured.** The commit path is proven *synchronous* by a test
+  that fails when an `await` is introduced, which is a different claim from "< 100 ms on a phone".
+  H4.3 is still owed.
+- **WAL is unverified**, for the same reason as SQLite itself.
+- **The route files have no component tests.** The store, outbox, reducers, timer, summary and the
+  logger's components are tested; `app/session/[id].tsx` and `app/train/start.tsx` were verified by
+  hand. Both of the bugs found late (below) were in exactly that untested layer, which is the
+  argument for closing it.
+- **E-05, E-06, E-07 and E-12** (advanced set editor, session notes UI, plate calculator) are not
+  built. Swap-exercise reuses the picker but has no entry point on E-03 yet.
+
+**Traps hit.**
+- **The gate's own premise was wrong, and that was the most valuable hour.** G3 says "open a database
+  in the running app before building on it". Doing that revealed there is no web build at all —
+  something no amount of reading the SDK manifest in G0 would have shown.
+- **A non-UUID idempotency key.** The client generated `${timestamp}-${random}`; the server types the
+  header as a UUID and 422s anything else. Every unit test passed, because they used readable keys.
+  It surfaced only against the live API, as *"the set logged fine and never uploaded"* — the worst
+  shape this bug could take. **D20**, and the format is now asserted.
+- **A refresh stampede.** Three queries 401 together, each refreshed with the same token, the first
+  rotated it, and reuse detection — correctly — revoked the whole family and signed the user out
+  mid-workout. G1 tested one refresh, sequentially. Refresh is now single-flight, with a test that
+  fails when the guard is removed.
+- **A sync dot that lied.** `flushAndReconcile` treated "not in the failed list" as sent, so a set
+  queued with the server unreachable showed **Synced**. It now reads the entry's actual state. This
+  dot is the only thing distinguishing online from offline, so it is the one thing it must not
+  get wrong.
+- **A summary computed after the draft was cleared.** E-08 showed 3 sets and 1,440 kg for a 6-set,
+  2,880 kg workout, because `finish()` clears the draft and the summary was read afterwards. It is
+  snapshotted before finishing now.
+- **Zustand, twice.** v5 then v4, both crashing with React `null` inside the library — the same shape
+  `@shopify/flash-list` produced in G2. Replaced with ~50 lines over React's own
+  `useSyncExternalStore` (**D19**). The reducers did not change, which is what keeping them pure was
+  for.
 

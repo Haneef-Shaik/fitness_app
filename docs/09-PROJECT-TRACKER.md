@@ -21,7 +21,7 @@
 | **App screens built** | 6 of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 6 commits · `6d83b6a` plan tree |
+| **Version control** | git, 8 commits · `2aadfa0` client spec re-platformed (G0) |
 | **CI** | GitHub Actions — both suites + contract check |
 
 ```
@@ -251,7 +251,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 ---
 
-### Handoff — G0 · Client spec re-platformed            closed 22 Sep · `docs: re-platform the client spec for React Native (G0)`
+### Handoff — G0 · Client spec re-platformed            closed 22 Sep · `2aadfa0`
 
 **Outcome claimed.** Anyone opening `docs/03` reads the platform that is actually in `apps/mobile`,
 and the logger's durability layer has a named implementation that is verified to exist in the SDK

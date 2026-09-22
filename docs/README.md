@@ -50,6 +50,7 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |
 | 09 | [Project Tracker](09-PROJECT-TRACKER.md) | **Live status** — milestones, blockers. |
 | 10 | [Execution Goals](10-EXECUTION-GOALS.md) | **How the work is sequenced** — eleven goals, each with an entry gate and an explicit handoff to the next. |
+| — | [prompts/](prompts/) | **Goal prompts** — one paste-ready prompt per goal, G0…G10. |
 | — | [TODO.md](TODO.md) | **Active work** — the current milestone's tasks in execution order. |
 | — | [wireframes/](wireframes/) | Page-by-page: layout, every control, every state. |
 | — | [design/](design/) | The UI as running code — 103 screens, 12 domains. |

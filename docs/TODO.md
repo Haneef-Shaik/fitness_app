@@ -1,117 +1,112 @@
 # TODO — active work
 
-**Milestone:** M2 · Training core → [tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
-**Exit:** [AC-01](07-TRACEABILITY.md#2-acceptance-criteria--verification) build a Chest workout ·
-[AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) record every performed set
+**Goal:** G1 · Client spine → [contract](10-EXECUTION-GOALS.md#g1--give-the-client-a-spine-generated-types-cached-reads-a-test-harness) ·
+[prompt](prompts/G1.md) · [tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
+**Exit:** H1.1 generated types · H1.2 query keys + invalidation map · H1.3 `DataBoundary` ·
+H1.4 a mobile test harness gating coverage in CI
 
 > This file holds **only the work in flight**. Milestone status lives in the tracker — it is not
-> repeated here, because a status maintained in two places drifts. When M2 closes, this file is
-> replaced with M3's tasks.
+> repeated here, because a status maintained in two places drifts. When G1 closes, this file is
+> replaced with G2's tasks.
 >
 > A task is done when it meets the [Definition of Done](08-PROJECT-CHARTER.md#4-definition-of-done):
 > tests first, tests fail before the code exists, a deliberate mutation makes them fail again,
 > and the spec doc is updated in the same change if behaviour changed.
 
+**Entry gate — run before starting:** `bash scripts/check-client-spec.sh` must exit 0.
+
 ---
 
-## 1 · Data model  ✅ *complete*
+## 0 · What G1 inherits from G0 — verify, do not assume
 
-- [x] **1.1** Models: `muscle_groups` (self-referencing `parent_id`), `exercises`, `exercise_muscles`
-      — `role` enum primary/secondary
-      · `exercises` needs `tracks_load/reps/duration/distance`, `default_unit`, `aliases[]`, `status`
-- [x] **1.2** Models: `workout_programs`, `workout_plan_days`, `plan_exercises`
-      — dense 0-based `order_index`, `scheduled_weekday` nullable
-- [x] **1.3** Models: `workout_sessions`, `session_exercises`, `workout_sets`, `personal_records`
-      — `session_exercises.target_snapshot jsonb` freezes the prescription at start ([AC-12](07-TRACEABILITY.md))
-      · `workout_sets` needs `load_unit_entered`, `e1rm_kg`, `formula_version`, `is_pr`
-- [x] **1.4** ~~`local_date` **generated** column~~ → plain column written by the application.
-      Postgres refuses a generated column here: `started_at AT TIME ZONE <tz>` is STABLE, not
-      IMMUTABLE. Written via `domain.dates.to_local_date`, with `logged_timezone` stored beside
-      it so a timezone change (edge case T4) can recompute the affected rows auditably.
-- [x] **1.5** Partial unique index — **one `in_progress` session per user**
-      `UNIQUE (user_id) WHERE status = 'in_progress'`
-- [x] **1.6** Indexes from [02 §6.1](02-SYSTEM-ARCHITECTURE.md) — history, previous-occurrence, PR board
-- [x] **1.7** Alembic revision + `alembic check` green + downgrade drops any new ENUMs
-- [x] **1.8** Seed: global exercise catalog + muscle-group tree, versioned and idempotent
+- [ ] **0.1** `docs/03` §2 lists the packages to install. They were checked as **available**, not as
+      **installing cleanly into this tree**. If one fails, that is a G0 defect — fix it here and say
+      so in the handoff (H0.1).
+- [ ] **0.2** Use the **SDK-52-pinned** versions, not `latest`. G0 verified these specifically:
+      `jest-expo@52.0.6` and `@testing-library/react-native@13.3.3`. The current majors
+      (`jest-expo@57`, RTL `@14`) target later SDKs and will not match Expo 52.0.49.
+- [ ] **0.3** Read [D15](08-PROJECT-CHARTER.md#6-decision-log) before choosing any test tooling — the
+      E2E runner is already decided (Maestro, installed in G4), so do not introduce a second one.
 
-## 2 · Catalog API  ✅ *complete*
+## 1 · `packages/api-types` — generated, never hand-written  *(closes D3b)*
 
-- [x] **2.1** `GET /exercises` — q, muscle, equipment, pattern, include_archived; cursor paginated
-- [x] **2.2** `POST /exercises` — custom; **reject without ≥1 primary muscle** (W02.4)
-- [x] **2.3** `GET|PATCH /exercises/{id}`, `POST /exercises/{id}/archive`
-      — archiving must not break history
-- [x] **2.4** `GET /muscle-groups` — hierarchical
-- [x] **2.5** Test: a global catalog exercise is read-only; "copy to custom" is the offered path
+- [ ] **1.1** `openapi-typescript` against the running server
+      (`http://localhost:8000/v1/openapi.json`), output **checked in**
+- [ ] **1.2** CI drift gate beside the existing three jobs in `.github/workflows/ci.yml` —
+      regenerate, then `git diff --exit-code`. A stale type is a failed build
+- [ ] **1.3** **See the gate fail.** Delete a field from a Pydantic schema in
+      `services/api/app/schemas/`, run the job, watch it fail, put the field back.
+      Record *which field* in the handoff — a gate nobody has seen fail is not a gate
+- [ ] **1.4** One source only. A hand-written type shadowing a generated one is drift with extra
+      steps — if the generated shape is awkward, fix the Pydantic schema
 
-## 3 · Programs API  ✅ *complete*
+## 2 · Query layer
 
-- [x] **3.1** `GET|POST /workout-programs`, `GET|PATCH /workout-programs/{id}`
-- [x] **3.2** `POST /workout-programs/{id}/duplicate` — **deep copy**, new IDs throughout
-- [x] **3.3** `POST /workout-programs/{id}/archive` — and **block delete when referenced**
-- [x] **3.4** `GET|POST /workout-programs/{id}/days`, `PATCH|DELETE /plan-days/{id}`
-- [x] **3.5** `PUT /plan-days/{id}/exercises` — bulk reorder in **one transaction**, re-densify indices
-- [x] **3.6** Test **AC-12**: edit a program, assert a completed session is byte-identical after
+- [ ] **2.1** Write the **invalidation map** as a table in [`docs/03` §6.2](03-FRONTEND-ARCHITECTURE.md)
+      **first**, then implement against it. Written afterwards it documents what you did, not what is
+      correct (**I15**)
+- [ ] **2.2** `@tanstack/react-query` v5 provider mounted in `apps/mobile/app/_layout.tsx`
+- [ ] **2.3** `lib/query/queryKeys.ts` — the registry from `docs/03` §6.1, so invalidation is
+      greppable rather than guessed
+- [ ] **2.4** Caching policy from `docs/03` §6.3 applied as `staleTime` per key family
+- [ ] **2.5** Envelope unwrapped in **exactly one place** (**I9**) — every response, errors included,
+      carries a `request_id`
 
-## 4 · Session & set API  *(the critical path)*
+## 3 · `DataBoundary` — four states, one component
 
-- [x] **4.1** `POST /workout-sessions` — from plan day / template / repeat / empty / past date
-      · snapshots the prescription · **rejects a future date**
-- [x] **4.2** `GET /workout-sessions/active`, `GET /workout-sessions/{id}`
-- [x] **4.3** `POST /session-exercises/{id}/sets` — **`Idempotency-Key` mandatory**
-      a retried offline write must never duplicate a set
-- [x] **4.4** `PATCH|DELETE /workout-sets/{id}` — re-densify `set_index` in one transaction
-- [x] **4.5** `POST /workout-sessions/{id}/sets/batch` — outbox flush, idempotent per set
-- [x] **4.6** `POST /workout-sessions/{id}/finish` — volume, e1RM, PR evaluation **inside the
-      finish transaction** so the summary is correct immediately
-- [x] **4.7** `POST /workout-sessions/{id}/cancel` — `status = cancelled`, rows retained,
-      never appears in history or analytics
-- [x] **4.8** `GET /exercises/{id}/previous-performance?before=` — the resolution rule in
-      [PRD §7.2](01-PRD.md#72-review-the-previous-chest-day)
-- [x] **4.9** Test: starting a second session while one is `in_progress` is refused
-- [x] **4.10** Test: server-computed volume/e1RM/PR match `contracts/vectors/domain.json`
+- [ ] **3.1** Loading · empty · **filtered-empty** · error, per `docs/03` §6.4
+- [ ] **3.2** **Filtered-empty is not empty** (**I13**). "No exercises match *chest + barbell*. Clear
+      filters." is a different message with a different action from "You haven't added any exercises
+      yet." Three states is the bug this task exists to prevent
+- [ ] **3.3** State precedence fixed and tested: `offline-with-no-cache → error → loading → empty →
+      content`
+- [ ] **3.4** One test per state, named for the state
 
-## 5 · Mobile — catalog & planning
+## 4 · Test harness — start where silence is most dangerous
 
-- [ ] **5.1** D-01 exercise library — search, muscle/equipment filters, virtualised list
-- [ ] **5.2** D-02 exercise detail — PRs, e1RM chart, recent sessions, never-performed state
-- [ ] **5.3** D-03 create custom exercise — primary-muscle requirement enforced in the UI
-- [ ] **5.4** C-02/C-03 programs list + detail
-- [ ] **5.5** C-05 plan day editor — reorder, live set-count-per-muscle summary
-- [ ] **5.6** C-06 exercise picker sheet — multi-select, "create from query" when empty
-- [ ] **5.7** C-07 prescription editor — fields driven by the exercise's tracked fields
+- [ ] **4.1** `jest-expo@52.0.6` + `@testing-library/react-native@13.3.3`; replace
+      `"test": "echo \"no mobile tests yet\""` in `apps/mobile/package.json` with `jest --coverage`
+- [ ] **4.2** Test `apps/mobile/src/lib/api.ts`, which exists and is **entirely untested**:
+      envelope unwrapping → `ApiError` with `code`, `status`, `fields`, `request_id`
+- [ ] **4.3** Test the 401 → refresh → retry path, **including refresh failure clearing the token**
+- [ ] **4.4** Test LAN host derivation from `Constants.expoConfig.hostUri` — web vs device vs
+      `EXPO_PUBLIC_API_URL`. This is what will break first on a real phone (DR4)
+- [ ] **4.5** CI job with a coverage gate. Record the **starting number** and the intent to raise it
+      toward the 80% house floor — a gate pinned to today's number and never raised is theatre
+- [ ] **4.6** `pnpm --filter @volt/mobile typecheck` passes
 
-## 6 · Mobile — the logger  *(the product)*
+## 5 · Prove the spine on real code
 
-- [ ] **6.1** Session draft store (Zustand) + durable persistence — written on **every** committed
-      change, not on an interval
-- [ ] **6.2** Write outbox — FIFO per aggregate, exponential backoff, terminal 4xx surfaced not dropped
-- [ ] **6.3** E-01 start workout — today's plan / repeat / empty / past date
-- [ ] **6.4** E-02 session exercise list — set dots, progress, add/swap, finish
-- [ ] **6.5** **E-03 set logger** — steppers, repeat-set, previous performance always on screen,
-      per-set delta, sync dot. **Commit never awaits the network**
-- [ ] **6.6** E-04 rest timer — counts from a target timestamp, survives backgrounding
-- [ ] **6.7** E-08 finish summary — computed client-side from the draft so it renders instantly
-- [ ] **6.8** E-09 discard — names the exact count of what will be lost
-- [ ] **6.9** E-10 session recovery — resume / finish / discard on relaunch
-- [ ] **6.10** E-11 PR celebration — **after** the summary, never mid-set
+- [ ] **5.1** Migrate **B-01 only** (`apps/mobile/app/home.tsx`) onto the query layer, and confirm it
+      still renders against the **live** API
+- [ ] **5.2** Do **not** migrate the other five screens. A wide migration hides whether the substrate
+      is actually good
 
-## 7 · Close-out
+## 6 · Close-out
 
-- [ ] **7.1** E2E: **AC-01** — build a Chest workout with ≥2 exercises and target sets/reps
-- [ ] **7.2** E2E: **AC-02** — record every set; `set_index` dense; loads and reps match
-- [ ] **7.3** E2E: log a full session **in airplane mode**, kill the app, relaunch, restore
-      connectivity, assert the server state matches
-- [ ] **7.4** Measure p95 tap→set-rendered *(budget < 100 ms)* on a real device
-- [ ] **7.5** Update [tracker](09-PROJECT-TRACKER.md): M2 status, test count, changelog
-- [ ] **7.6** Replace this file with M3's tasks
+- [ ] **6.1** Tracker: client test count 0 → n, coverage starting number, quality snapshot
+- [ ] **6.2** Charter §6: record the coverage floor and its ramp; **close D3b**
+- [ ] **6.3** Tick **H1.1–H1.4** in the [handoff ledger](10-EXECUTION-GOALS.md#3--the-handoff-ledger)
+      with the date. An unticked row means the handoff did not happen
+- [ ] **6.4** Append the G1 handoff record to the tracker changelog
+- [ ] **6.5** Replace this file with **G2**'s tasks
+- [ ] **6.6** Commit: `feat(client): generated types, query layer, DataBoundary and a test harness (G1)`
 
 ---
 
 ## Carried over
 
-- [ ] **DR4** — verify on a physical device via Expo Go; LAN connectivity is untested
-- [ ] **D3b** — OpenAPI → TypeScript codegen, worth wiring now the API surface widens
-- [x] **Q3** — "max reps" PR is the most reps in a single working set, any load. Recorded as **D11** in the [charter](08-PROJECT-CHARTER.md#6-decision-log) and implemented
+- [ ] **DR4** — verify on a physical device via Expo Go; LAN connectivity is untested.
+      The runner is now decided (**Maestro**, [D15](08-PROJECT-CHARTER.md#6-decision-log)) but not
+      installed — **G4** installs it
+- [ ] **D3b** — OpenAPI → TypeScript codegen. **§1 above closes this**
+- [ ] `docs/05-DESIGN-SYSTEM.md` still references the web stack — raised by G0, out of its scope
+- [ ] The Android SDK is installed but unconfigured (`ANDROID_HOME` unset, no device attached).
+      Decide in **G4** whether to wire it up or stay on Expo Go only
+- [ ] `apps/mobile` still ships `react-native-web`. Harmless, but web is deferred
+      ([D1](08-PROJECT-CHARTER.md#6-decision-log)) — make it a deliberate keep, not an accident
+- [x] **Q3** — "max reps" PR is the most reps in a single working set, any load. Recorded as **D11**
+      in the [charter](08-PROJECT-CHARTER.md#6-decision-log) and implemented
 
 ## Blocked — needs a decision from the user
 

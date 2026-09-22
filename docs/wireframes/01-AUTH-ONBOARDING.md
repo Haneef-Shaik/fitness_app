@@ -37,7 +37,7 @@ in-progress workout.
 | Account status `disabled` | L-08 with a support contact |
 | Account soft-deleted, within the grace window | A-04 with a "Restore account?" prompt |
 
-**Data.** `POST /auth/refresh` · `GET /profile` · local Dexie draft check.
+**Data.** `POST /auth/refresh` · `GET /profile` · local SQLite draft check.
 
 **Edge cases**
 - Bootstrap exceeds 3 s → render A-02 with a quiet retry rather than holding the splash.

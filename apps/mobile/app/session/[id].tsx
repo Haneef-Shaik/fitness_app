@@ -12,19 +12,21 @@ import { AppState, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Exercise, PersonalRecord } from '@volt/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
-import { useExercises } from '@/lib/query/hooks';
+import { useExercises, usePreviousPerformance } from '@/lib/query/hooks';
 import { uuid } from '@/lib/uuid';
 import { font, radius, space, useTheme } from '@/theme';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
 import { countSets, type DraftSet } from '@/features/workout-session/store/types';
 import { SetEntry, type SetEntryValue } from '@/features/workout-session/components/SetEntry';
 import { RestTimer } from '@/features/workout-session/components/RestTimer';
+import { PreviousPerformanceStrip } from '@/features/workout-session/components/PreviousPerformance';
 import { DiscardDialog } from '@/features/workout-session/components/DiscardDialog';
 import { FinishSummary } from '@/features/workout-session/components/FinishSummary';
 import { ExercisePicker } from '@/features/exercises/ExercisePicker';
 import { flushAndReconcile } from '@/features/workout-session/sessionController';
 import { summarise, type SessionSummary } from '@/features/workout-session/summary';
 import { targetFor } from '@/features/workout-session/restTimer';
+import { commitTimings } from '@/features/workout-session/commitTiming';
 import {
   draftWithSetsFromServer, useCancelSession, useFinishSession, useSession,
 } from '@/features/workout-session/useSession';
@@ -69,6 +71,7 @@ export default function ActiveSession() {
   const [discarding, setDiscarding] = useState(false);
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
+  const [timing, setTiming] = useState<ReturnType<typeof commitTimings.report> | null>(null);
   const [finished, setFinished] = useState<
     { records: PersonalRecord[]; summary: SessionSummary } | null
   >(null);
@@ -81,6 +84,10 @@ export default function ActiveSession() {
 
   const exercise = draft?.exercises[activeIdx];
   const catalogEntry = exercise ? byId.get(exercise.exerciseId) : undefined;
+
+  // AC-04 — fetched as the exercise opens, non-blocking. Entry stays usable
+  // whatever this does.
+  const previous = usePreviousPerformance(exercise?.exerciseId ?? '');
 
   // Adopt the server's session when there is no local draft for it — resume from
   // E-01, a deep link, or a reload. Without this a resumed workout shows nothing
@@ -143,6 +150,10 @@ export default function ActiveSession() {
 
   const commit = () => {
     if (!exercise) return;
+    // H4.3 — the span from tap to painted row, which is what the < 100 ms budget
+    // is actually about. Starting the clock is the first thing the handler does.
+    const painted = commitTimings.start();
+
     // THE commit path. Synchronous: this returns before anything touches disk.
     const result = commitSet(exercise.clientId, {
       clientId: uuid(),
@@ -155,6 +166,8 @@ export default function ActiveSession() {
 
     if (!result.ok) { setError(result.error ?? 'That set could not be saved.'); return; }
     setError(null);
+    painted();
+    if (__DEV__) setTimeout(() => setTiming(commitTimings.report()), 0);
 
     const restSeconds = Number(exercise.targetSnapshot?.['rest_seconds'] ?? 0);
     if (restSeconds > 0) setRest({ target: targetFor(new Date(), restSeconds), total: restSeconds });
@@ -234,6 +247,14 @@ export default function ActiveSession() {
               </View>
             </ScrollView>
 
+            {/* ① Previous performance — always on screen, never behind a tap. */}
+            <PreviousPerformanceStrip
+              data={previous.data}
+              isPending={previous.isPending}
+              isError={previous.isError}
+              onRetry={() => { previous.refetch(); }}
+            />
+
             {rest ? (
               <RestTimer
                 targetIso={rest.target}
@@ -312,6 +333,23 @@ export default function ActiveSession() {
         />
 
         <Button title="Finish workout" onPress={doFinish} testID="finish-workout" />
+
+        {__DEV__ && timing ? (
+          // H4.3 is a number someone has to write down, so it has to be readable
+          // from the device that produced it.
+          <Pressable
+            onPress={() => setTiming(commitTimings.report())}
+            accessibilityRole="button"
+            accessibilityLabel="Commit latency"
+            testID="commit-latency"
+          >
+            <Text variant="caption" tone="ink3">
+              tap → rendered · p50 {timing.p50} ms · p95 {timing.p95} ms ·
+              worst {timing.worst} ms · n={timing.count}
+              {timing.count > 0 ? (timing.withinBudget ? ' · within budget' : ' · OVER BUDGET') : ''}
+            </Text>
+          </Pressable>
+        ) : null}
       </ScrollView>
 
       <ExercisePicker

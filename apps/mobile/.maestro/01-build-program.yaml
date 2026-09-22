@@ -1,0 +1,52 @@
+# AC-01 · "Create a Chest workout with multiple exercises and target sets/reps."
+# Passes when the program persists with >= 2 plan_exercises, each with
+# target_sets and a rep range.
+appId: host.exp.Exponent
+name: AC-01 build a program
+---
+- openLink: volt://train/programs
+
+- assertVisible: "Programs"
+- tapOn: "+ New"
+
+# A new program lands on its own detail screen.
+- assertVisible: "+ Add a day"
+- tapOn: "+ Add a day"
+- tapOn:
+    text: "Edit day"
+    index: 0
+
+- tapOn: "Day name"
+- inputText: "Chest"
+- hideKeyboard
+
+- tapOn: "+ Add exercises"
+- tapOn: "Search exercises"
+- inputText: "bench"
+- hideKeyboard
+
+# Two exercises, which is what "multiple" in AC-01 means.
+- tapOn: "Barbell Bench Press, barbell"
+- tapOn: "Incline Barbell Bench Press, barbell"
+- tapOn: "Add 2"
+
+# A prescription on the first: target sets AND a rep range.
+- tapOn:
+    text: "Position 1, .*"
+    index: 0
+- tapOn: "Increase Target sets"
+- tapOn: "Increase Target sets"
+- tapOn: "Increase Target sets"
+- tapOn: "Increase Target sets"
+- tapOn: "Minimum reps"
+- inputText: "6"
+- tapOn: "Maximum reps"
+- inputText: "8"
+- hideKeyboard
+- tapOn: "Save"
+
+- tapOn: "Save"
+
+# Persisted: the day reads back with both exercises and the prescription.
+- assertVisible: "Chest, 2 exercises, edit"
+- assertVisible: "4 × 6–8"

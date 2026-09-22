@@ -1,0 +1,17 @@
+# AC-04 · "Starting the same workout again shows previous performance."
+# Passes when the strip shows the PRIOR session's sets BEFORE any input.
+# Depends on 02-record-sets having run.
+appId: host.exp.Exponent
+name: AC-04 previous performance
+---
+- openLink: volt://train/start
+- tapOn:
+    text: "Start Chest.*"
+
+# Before a single keystroke, last time is on screen — never behind a tap.
+- assertVisible:
+    id: "previous-performance"
+- assertVisible: "80 × 8"
+
+# And it did not block entry from being usable.
+- assertVisible: "Save set 1"

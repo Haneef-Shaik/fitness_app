@@ -36,11 +36,16 @@ from app.models import (
     WorkoutSession,
     WorkoutSet,
 )
+from app.schemas.envelope import DeletedOut, Envelope, PagedEnvelope
 from app.schemas.sessions import (
+    PreviousPerformanceOut,
+    RecordEntryOut,
     SessionExerciseIn,
     SessionExerciseOut,
+    SessionFinishOut,
     SessionOut,
     SessionStart,
+    SetBatchOut,
     SetIn,
     SetOut,
 )
@@ -143,7 +148,7 @@ def _snapshot(pe: PlanExercise) -> dict:
 
 # ----------------------------------------------------------------- sessions
 
-@router.post("/workout-sessions", status_code=201)
+@router.post("/workout-sessions", status_code=201, response_model=Envelope[SessionOut])
 async def start_session(body: SessionStart, user: CurrentUser, db: DbSession):
     """4.1 — start from a plan day, a repeat of an earlier session, an ad-hoc list,
     or nothing at all. Backdating is allowed (T9); the future is not."""
@@ -229,7 +234,7 @@ async def start_session(body: SessionStart, user: CurrentUser, db: DbSession):
     return ok(await _serialise(db, await load_session(db, session.id)), status_code=201)
 
 
-@router.get("/workout-sessions/active")
+@router.get("/workout-sessions/active", response_model=Envelope[SessionOut])
 async def get_active(user: CurrentUser, db: DbSession):
     """4.2 — the logger asks this on every cold start. `null` is a valid answer, not
     a 404: "no workout in progress" is a normal state, not an error."""
@@ -244,7 +249,7 @@ async def get_active(user: CurrentUser, db: DbSession):
     return ok(await _serialise(db, await load_session(db, sid)))
 
 
-@router.get("/workout-sessions")
+@router.get("/workout-sessions", response_model=PagedEnvelope[list[SessionOut]])
 async def list_sessions(
     user: CurrentUser, db: DbSession,
     limit: Annotated[int, Query(ge=1, le=100)] = 30,
@@ -263,12 +268,12 @@ async def list_sessions(
     return ok([await _serialise(db, s) for s in rows], meta={"count": len(rows)})
 
 
-@router.get("/workout-sessions/{session_id}")
+@router.get("/workout-sessions/{session_id}", response_model=Envelope[SessionOut])
 async def get_session(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
     return ok(await _serialise(db, await _owned_session(db, session_id, user, "read")))
 
 
-@router.post("/workout-sessions/{session_id}/exercises", status_code=201)
+@router.post("/workout-sessions/{session_id}/exercises", status_code=201, response_model=Envelope[SessionOut])
 async def add_exercise(
     session_id: uuid.UUID, body: SessionExerciseIn, user: CurrentUser, db: DbSession
 ):
@@ -333,7 +338,7 @@ async def _upsert_set(
     return row, True
 
 
-@router.post("/session-exercises/{se_id}/sets", status_code=201)
+@router.post("/session-exercises/{se_id}/sets", status_code=201, response_model=Envelope[SetOut])
 async def add_set(
     se_id: uuid.UUID, body: SetIn, user: CurrentUser, db: DbSession,
     idempotency_key: Annotated[uuid.UUID | None, Header(alias="Idempotency-Key")] = None,
@@ -354,7 +359,7 @@ async def add_set(
     return ok(_set_out(row), status_code=201 if created else 200)
 
 
-@router.post("/workout-sessions/{session_id}/sets/batch")
+@router.post("/workout-sessions/{session_id}/sets/batch", response_model=PagedEnvelope[SetBatchOut])
 async def flush_sets(
     session_id: uuid.UUID, body: list[dict], user: CurrentUser, db: DbSession
 ):
@@ -394,7 +399,7 @@ async def flush_sets(
     return ok({"results": results}, meta={"accepted": sum(1 for r in results if r["accepted"])})
 
 
-@router.patch("/workout-sets/{set_id}")
+@router.patch("/workout-sets/{set_id}", response_model=Envelope[SetOut])
 async def patch_set(set_id: uuid.UUID, body: dict, user: CurrentUser, db: DbSession):
     """4.4 — editing re-derives e1RM from the new numbers in the same transaction, so
     the row is never briefly inconsistent with its own values."""
@@ -424,7 +429,7 @@ async def patch_set(set_id: uuid.UUID, body: dict, user: CurrentUser, db: DbSess
     return ok(_set_out(row))
 
 
-@router.delete("/workout-sets/{set_id}")
+@router.delete("/workout-sets/{set_id}", response_model=Envelope[DeletedOut])
 async def delete_set(set_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """4.4 — delete and re-densify in ONE transaction. A gap in set_index would show
     as "Set 1, Set 3" in the logger."""
@@ -445,7 +450,7 @@ async def delete_set(set_id: uuid.UUID, user: CurrentUser, db: DbSession):
 
 # --------------------------------------------------------------- lifecycle
 
-@router.post("/workout-sessions/{session_id}/finish")
+@router.post("/workout-sessions/{session_id}/finish", response_model=Envelope[SessionFinishOut])
 async def finish(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """4.6 — volume, e1RM and PR evaluation run INSIDE this transaction, so the
     summary screen the user lands on is already correct."""
@@ -473,7 +478,7 @@ async def finish(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
     return ok(payload)
 
 
-@router.post("/workout-sessions/{session_id}/cancel")
+@router.post("/workout-sessions/{session_id}/cancel", response_model=Envelope[SessionOut])
 async def cancel(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """4.7 — the rows are RETAINED. Discarding is about the session leaving history
     and analytics, not about destroying what the user typed."""
@@ -486,7 +491,7 @@ async def cancel(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
     return ok(await _serialise(db, await load_session(db, s.id)))
 
 
-@router.post("/workout-sessions/{session_id}/reopen")
+@router.post("/workout-sessions/{session_id}/reopen", response_model=Envelope[SessionOut])
 async def reopen(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """W06.6 — "I forgot the last set". Refused while another session is open, so the
     partial unique index can never be violated."""
@@ -512,7 +517,7 @@ async def reopen(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
 
 # ------------------------------------------------------- previous performance
 
-@router.get("/exercises/{exercise_id}/records")
+@router.get("/exercises/{exercise_id}/records", response_model=Envelope[dict[str, RecordEntryOut]])
 async def exercise_records(exercise_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """The four records the app shows on E-11 and G-04.
 
@@ -533,7 +538,7 @@ async def exercise_records(exercise_id: uuid.UUID, user: CurrentUser, db: DbSess
     })
 
 
-@router.get("/exercises/{exercise_id}/previous-performance")
+@router.get("/exercises/{exercise_id}/previous-performance", response_model=Envelope[PreviousPerformanceOut])
 async def previous_performance(
     exercise_id: uuid.UUID, user: CurrentUser, db: DbSession,
     before: Annotated[datetime | None, Query()] = None,

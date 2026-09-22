@@ -115,3 +115,43 @@ class PersonalRecordOut(BaseModel):
     value: float
     unit: str
     previous_value: float | None = None
+
+
+class RecordEntryOut(BaseModel):
+    """One entry of `GET /exercises/{id}/records`, keyed by record type."""
+
+    value: float
+    unit: str
+    achieved_at: datetime
+
+
+class SessionFinishOut(SessionOut):
+    """Finish returns the session plus whatever records it improved (E-11)."""
+
+    records: list[PersonalRecordOut] = []
+
+
+class SetBatchItemOut(BaseModel):
+    """One outcome from the outbox flush. A malformed item fails alone."""
+
+    client_id: str | None = None
+    accepted: bool
+    created: bool | None = None
+    set: SetOut | None = None
+    error: str | None = None
+
+
+class SetBatchOut(BaseModel):
+    results: list[SetBatchItemOut] = []
+
+
+class PreviousPerformanceOut(BaseModel):
+    """`data` is null when the exercise has never been performed — a first-time
+    state the logger renders as a prompt, not an error."""
+
+    session_id: uuid.UUID
+    local_date: date
+    completed_at: datetime | None = None
+    target_snapshot: dict | None = None
+    best_e1rm_kg: float | None = None
+    sets: list[SetOut] = []

@@ -19,7 +19,16 @@ from app.core.security import (
     verify_password,
 )
 from app.models import RefreshToken, User, UserProfile, UserStatus
-from app.schemas.auth import LoginIn, RefreshIn, RegisterIn
+from app.schemas.auth import (
+    AuthOut,
+    LoginIn,
+    MeOut,
+    RefreshIn,
+    RegisterIn,
+    SignedOutOut,
+    TokenPair,
+)
+from app.schemas.envelope import Envelope
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
@@ -44,7 +53,7 @@ async def _issue_tokens(db: DbSession, user: User, family_id: uuid.UUID | None =
     }
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=201, response_model=Envelope[AuthOut])
 async def register(body: RegisterIn, db: DbSession):
     if (problem := password_problem(body.password)) is not None:
         raise ValidationFailed(problem, fields={"password": problem})
@@ -67,7 +76,7 @@ async def register(body: RegisterIn, db: DbSession):
     return ok({"user": {"id": str(user.id), "email": user.email}, **tokens}, status_code=201)
 
 
-@router.post("/login")
+@router.post("/login", response_model=Envelope[AuthOut])
 async def login(body: LoginIn, db: DbSession):
     email = body.email.lower().strip()
     user = await db.scalar(select(User).where(User.email == email))
@@ -83,7 +92,7 @@ async def login(body: LoginIn, db: DbSession):
     return ok({"user": {"id": str(user.id), "email": user.email}, **tokens})
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=Envelope[TokenPair])
 async def refresh(body: RefreshIn, db: DbSession):
     token_hash = hash_refresh_token(body.refresh_token)
     row = await db.scalar(select(RefreshToken).where(RefreshToken.token_hash == token_hash))
@@ -117,7 +126,7 @@ async def refresh(body: RefreshIn, db: DbSession):
     return ok(tokens)
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=Envelope[SignedOutOut])
 async def logout(body: RefreshIn, db: DbSession):
     await db.execute(
         update(RefreshToken)
@@ -127,6 +136,6 @@ async def logout(body: RefreshIn, db: DbSession):
     return ok({"signed_out": True})
 
 
-@router.get("/me")
+@router.get("/me", response_model=Envelope[MeOut])
 async def me(user: CurrentUser):
     return ok({"id": str(user.id), "email": user.email, "status": user.status.value})

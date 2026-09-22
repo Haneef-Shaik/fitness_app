@@ -23,3 +23,24 @@ class TokenPair(BaseModel):
     refresh_token: str
     token_type: str = "Bearer"
     expires_in: int
+
+
+class UserRefOut(BaseModel):
+    id: str
+    email: str
+
+
+class AuthOut(TokenPair):
+    """Register and login return the new user alongside a fresh token pair."""
+
+    user: UserRefOut
+
+
+class MeOut(BaseModel):
+    id: str
+    email: str
+    status: str
+
+
+class SignedOutOut(BaseModel):
+    signed_out: bool

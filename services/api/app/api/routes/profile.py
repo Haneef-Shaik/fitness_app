@@ -9,12 +9,13 @@ from app.api.deps import CurrentUser, DbSession
 from app.api.envelope import ok
 from app.core.errors import NotFound, ValidationFailed
 from app.models import UserProfile
+from app.schemas.envelope import Envelope
 from app.schemas.profile import ProfileOut, ProfilePatch
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
 
-@router.get("")
+@router.get("", response_model=Envelope[ProfileOut])
 async def get_profile(user: CurrentUser, db: DbSession):
     profile = await db.scalar(select(UserProfile).where(UserProfile.user_id == user.id))
     if profile is None:
@@ -22,7 +23,7 @@ async def get_profile(user: CurrentUser, db: DbSession):
     return ok(ProfileOut.model_validate(profile).model_dump(mode="json"))
 
 
-@router.patch("")
+@router.patch("", response_model=Envelope[ProfileOut])
 async def patch_profile(body: ProfilePatch, user: CurrentUser, db: DbSession):
     profile = await db.scalar(select(UserProfile).where(UserProfile.user_id == user.id))
     if profile is None:

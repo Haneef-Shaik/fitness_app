@@ -10,6 +10,7 @@ from app.api.deps import CurrentUser, DbSession, authorize
 from app.api.envelope import ok
 from app.core.errors import NotFound, ValidationFailed
 from app.models import FitnessGoal
+from app.schemas.envelope import Envelope, PagedEnvelope
 from app.schemas.goals import GoalIn, GoalOut, GoalPatch
 
 router = APIRouter(prefix="/goals", tags=["goals"])
@@ -19,7 +20,7 @@ def _out(g: FitnessGoal) -> dict:
     return GoalOut.model_validate(g).model_dump(mode="json")
 
 
-@router.get("")
+@router.get("", response_model=PagedEnvelope[list[GoalOut]])
 async def list_goals(user: CurrentUser, db: DbSession, status: str | None = None):
     stmt = select(FitnessGoal).where(FitnessGoal.user_id == user.id)
     if status:
@@ -28,7 +29,7 @@ async def list_goals(user: CurrentUser, db: DbSession, status: str | None = None
     return ok([_out(g) for g in rows], meta={"total": len(rows)})
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, response_model=Envelope[GoalOut])
 async def create_goal(body: GoalIn, user: CurrentUser, db: DbSession):
     if body.target_date is not None and body.target_date <= body.start_date:
         raise ValidationFailed(
@@ -41,7 +42,7 @@ async def create_goal(body: GoalIn, user: CurrentUser, db: DbSession):
     return ok(_out(goal), status_code=201)
 
 
-@router.get("/{goal_id}")
+@router.get("/{goal_id}", response_model=Envelope[GoalOut])
 async def get_goal(goal_id: uuid.UUID, user: CurrentUser, db: DbSession):
     goal = await db.scalar(select(FitnessGoal).where(FitnessGoal.id == goal_id))
     if goal is None:
@@ -50,7 +51,7 @@ async def get_goal(goal_id: uuid.UUID, user: CurrentUser, db: DbSession):
     return ok(_out(goal))
 
 
-@router.patch("/{goal_id}")
+@router.patch("/{goal_id}", response_model=Envelope[GoalOut])
 async def patch_goal(goal_id: uuid.UUID, body: GoalPatch, user: CurrentUser, db: DbSession):
     goal = await db.scalar(select(FitnessGoal).where(FitnessGoal.id == goal_id))
     if goal is None:

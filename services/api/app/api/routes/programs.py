@@ -19,6 +19,7 @@ from app.models import (
     WorkoutProgram,
     WorkoutSession,
 )
+from app.schemas.envelope import DeletedOut, Envelope, PagedEnvelope
 from app.schemas.programs import (
     PlanDayIn,
     PlanDayOut,
@@ -95,7 +96,7 @@ async def _load_day(db: DbSession, day_id: uuid.UUID) -> WorkoutPlanDay:
 
 # ---------------- programs ----------------
 
-@router.get("/workout-programs")
+@router.get("/workout-programs", response_model=PagedEnvelope[list[ProgramOut]])
 async def list_programs(user: CurrentUser, db: DbSession, status: str | None = None):
     stmt = (
         select(WorkoutProgram)
@@ -108,7 +109,7 @@ async def list_programs(user: CurrentUser, db: DbSession, status: str | None = N
     return ok([await _serialise(db, p) for p in rows], meta={"total": len(rows)})
 
 
-@router.post("/workout-programs", status_code=201)
+@router.post("/workout-programs", status_code=201, response_model=Envelope[ProgramOut])
 async def create_program(body: ProgramIn, user: CurrentUser, db: DbSession):
     p = WorkoutProgram(user_id=user.id, **body.model_dump())
     db.add(p)
@@ -116,14 +117,14 @@ async def create_program(body: ProgramIn, user: CurrentUser, db: DbSession):
     return ok(await _serialise(db, await _load_program(db, p.id)), status_code=201)
 
 
-@router.get("/workout-programs/{program_id}")
+@router.get("/workout-programs/{program_id}", response_model=Envelope[ProgramOut])
 async def get_program(program_id: uuid.UUID, user: CurrentUser, db: DbSession):
     p = await _load_program(db, program_id)
     authorize(user, "read", p.user_id)
     return ok(await _serialise(db, p))
 
 
-@router.patch("/workout-programs/{program_id}")
+@router.patch("/workout-programs/{program_id}", response_model=Envelope[ProgramOut])
 async def patch_program(
     program_id: uuid.UUID, body: ProgramPatch, user: CurrentUser, db: DbSession
 ):
@@ -135,7 +136,7 @@ async def patch_program(
     return ok(await _serialise(db, await _load_program(db, p.id)))
 
 
-@router.post("/workout-programs/{program_id}/duplicate", status_code=201)
+@router.post("/workout-programs/{program_id}/duplicate", status_code=201, response_model=Envelope[ProgramOut])
 async def duplicate_program(program_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """Deep copy. Every day and prescription gets a NEW id, so later edits to the
     copy cannot reach back into the original."""
@@ -167,7 +168,7 @@ async def duplicate_program(program_id: uuid.UUID, user: CurrentUser, db: DbSess
     return ok(await _serialise(db, await _load_program(db, copy.id)), status_code=201)
 
 
-@router.post("/workout-programs/{program_id}/archive")
+@router.post("/workout-programs/{program_id}/archive", response_model=Envelope[ProgramOut])
 async def archive_program(program_id: uuid.UUID, user: CurrentUser, db: DbSession):
     p = await _load_program(db, program_id)
     authorize(user, "update", p.user_id)
@@ -180,7 +181,7 @@ async def archive_program(program_id: uuid.UUID, user: CurrentUser, db: DbSessio
     return ok(await _serialise(db, await _load_program(db, p.id)))
 
 
-@router.delete("/workout-programs/{program_id}")
+@router.delete("/workout-programs/{program_id}", response_model=Envelope[DeletedOut])
 async def delete_program(program_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """Hard delete, and ONLY when nothing references it. A program used by any
     session must be archived instead — BRD §7 soft-delete principle."""
@@ -205,7 +206,7 @@ async def delete_program(program_id: uuid.UUID, user: CurrentUser, db: DbSession
 
 # ---------------- plan days ----------------
 
-@router.post("/workout-programs/{program_id}/days", status_code=201)
+@router.post("/workout-programs/{program_id}/days", status_code=201, response_model=Envelope[ProgramOut])
 async def create_day(
     program_id: uuid.UUID, body: PlanDayIn, user: CurrentUser, db: DbSession
 ):
@@ -218,7 +219,7 @@ async def create_day(
     return ok(await _serialise(db, await _load_program(db, p.id)), status_code=201)
 
 
-@router.patch("/plan-days/{day_id}")
+@router.patch("/plan-days/{day_id}", response_model=Envelope[ProgramOut])
 async def patch_day(day_id: uuid.UUID, body: PlanDayPatch, user: CurrentUser, db: DbSession):
     day = await _load_day(db, day_id)
     authorize(user, "update", day.program.user_id)
@@ -232,7 +233,7 @@ async def patch_day(day_id: uuid.UUID, body: PlanDayPatch, user: CurrentUser, db
     return ok(await _serialise(db, await _load_program(db, day.program_id)))
 
 
-@router.delete("/plan-days/{day_id}")
+@router.delete("/plan-days/{day_id}", response_model=Envelope[ProgramOut])
 async def delete_day(day_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """Allowed even when sessions used it — those sessions are self-describing and
     keep their records; plan_day_id simply becomes NULL."""
@@ -253,7 +254,7 @@ async def delete_day(day_id: uuid.UUID, user: CurrentUser, db: DbSession):
     return ok(await _serialise(db, await _load_program(db, program_id)))
 
 
-@router.put("/plan-days/{day_id}/exercises")
+@router.put("/plan-days/{day_id}/exercises", response_model=Envelope[ProgramOut])
 async def set_day_exercises(
     day_id: uuid.UUID, body: list[PlanExerciseIn], user: CurrentUser, db: DbSession
 ):

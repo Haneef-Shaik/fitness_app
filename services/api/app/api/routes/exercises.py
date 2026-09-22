@@ -18,6 +18,7 @@ from app.models import (
     MuscleGroup,
     MuscleRole,
 )
+from app.schemas.envelope import Envelope, PagedEnvelope
 from app.schemas.exercises import (
     ExerciseIn,
     ExerciseOut,
@@ -71,7 +72,7 @@ async def _load(db: DbSession, exercise_id: uuid.UUID) -> Exercise:
     return ex
 
 
-@router.get("/muscle-groups")
+@router.get("/muscle-groups", response_model=Envelope[list[MuscleGroupOut]])
 async def list_muscle_groups(user: CurrentUser, db: DbSession):
     rows = (await db.scalars(
         select(MuscleGroup).order_by(MuscleGroup.sort_order, MuscleGroup.name)
@@ -79,7 +80,7 @@ async def list_muscle_groups(user: CurrentUser, db: DbSession):
     return ok([MuscleGroupOut.model_validate(m).model_dump(mode="json") for m in rows])
 
 
-@router.get("/exercises")
+@router.get("/exercises", response_model=PagedEnvelope[list[ExerciseOut]])
 async def list_exercises(
     user: CurrentUser,
     db: DbSession,
@@ -120,7 +121,7 @@ async def list_exercises(
     return ok([_serialise(e) for e in rows], meta={"limit": limit, "offset": offset, "count": len(rows)})
 
 
-@router.post("/exercises", status_code=201)
+@router.post("/exercises", status_code=201, response_model=Envelope[ExerciseOut])
 async def create_exercise(body: ExerciseIn, user: CurrentUser, db: DbSession):
     slugs = {m.muscle_group_id for m in body.muscles}
     found = set((await db.scalars(
@@ -145,7 +146,7 @@ async def create_exercise(body: ExerciseIn, user: CurrentUser, db: DbSession):
     return ok(_serialise(await _load(db, ex.id)), status_code=201)
 
 
-@router.get("/exercises/{exercise_id}")
+@router.get("/exercises/{exercise_id}", response_model=Envelope[ExerciseOut])
 async def get_exercise(exercise_id: uuid.UUID, user: CurrentUser, db: DbSession):
     ex = await _load(db, exercise_id)
     if ex.owner_user_id is not None and ex.owner_user_id != user.id:
@@ -153,7 +154,7 @@ async def get_exercise(exercise_id: uuid.UUID, user: CurrentUser, db: DbSession)
     return ok(_serialise(ex))
 
 
-@router.patch("/exercises/{exercise_id}")
+@router.patch("/exercises/{exercise_id}", response_model=Envelope[ExerciseOut])
 async def patch_exercise(
     exercise_id: uuid.UUID, body: ExercisePatch, user: CurrentUser, db: DbSession
 ):
@@ -183,7 +184,7 @@ async def patch_exercise(
     return ok(_serialise(await _load(db, ex.id)))
 
 
-@router.post("/exercises/{exercise_id}/archive")
+@router.post("/exercises/{exercise_id}/archive", response_model=Envelope[ExerciseOut])
 async def archive_exercise(exercise_id: uuid.UUID, user: CurrentUser, db: DbSession):
     """Soft delete. History and analytics keep resolving; the exercise leaves pickers."""
     ex = await _load(db, exercise_id)

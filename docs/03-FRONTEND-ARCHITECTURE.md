@@ -332,36 +332,71 @@ screen, never a blocked input.
 ## 6. Data layer
 
 ### 6.1 Query keys
-A single registry (`lib/query/queryKeys.ts`) so invalidation is explicit and greppable:
+
+One registry (`src/lib/query/queryKeys.ts`) so invalidation is **greppable rather than
+guessed**. Keys are hierarchical and share prefixes on purpose: invalidating `['sessions']`
+reaches the list, every detail and the active session in one call, while `['sessions','detail',id]`
+reaches exactly one.
+
 ```ts
 export const qk = {
-  dashboard:        (date: string)            => ['dashboard', date] as const,
-  session:          (id: string)              => ['session', id] as const,
-  activeSession:    ()                        => ['session', 'active'] as const,
-  previousPerf:     (exerciseId: string)      => ['previous-performance', exerciseId] as const,
-  history:          (f: HistoryFilters)       => ['history', f] as const,
-  exercise:         (id: string)              => ['exercise', id] as const,
-  exerciseStats:    (id: string, r: Range)    => ['exercise', id, 'stats', r] as const,
-  diary:            (date: string)            => ['diary', date] as const,
-  meal:             (id: string)              => ['meal', id] as const,
-  analysis:         (id: string)              => ['food-analysis', id] as const,
-  nutritionRange:   (r: Range, g: Grain)      => ['analytics', 'nutrition', r, g] as const,
-  workoutAnalytics: (r: Range, g: Grain)      => ['analytics', 'workouts', r, g] as const,
-  bodyMetrics:      (r: Range)                => ['body-metrics', r] as const,
+  // identity
+  me:                  ()                  => ['me'] as const,
+  profile:             ()                  => ['profile'] as const,
+  goals:               (status?: string)   => ['goals', 'list', status ?? 'all'] as const,
+  goal:                (id: string)        => ['goals', 'detail', id] as const,
+
+  // catalog
+  muscleGroups:        ()                  => ['muscle-groups'] as const,
+  exercises:           (f: ExerciseFilters = {}) => ['exercises', 'list', f] as const,
+  exercise:            (id: string)        => ['exercises', 'detail', id] as const,
+
+  // planning
+  programs:            ()                  => ['programs', 'list'] as const,
+  program:             (id: string)        => ['programs', 'detail', id] as const,
+
+  // training
+  sessions:            (f: SessionFilters = {}) => ['sessions', 'list', f] as const,
+  session:             (id: string)        => ['sessions', 'detail', id] as const,
+  activeSession:       ()                  => ['sessions', 'active'] as const,
+  records:             (exerciseId: string) => ['records', exerciseId] as const,
+  previousPerformance: (exerciseId: string, before?: string) =>
+                         ['previous-performance', exerciseId, before ?? 'latest'] as const,
 } as const
 ```
 
+**Every key above maps to an endpoint that exists today.** The reads the later goals add —
+`dashboard(date)` (**G9**), `diary(date)` and `meal(id)` (**G7**), `analysis(id)` (**G8**),
+`nutritionRange` / `workoutAnalytics` (**G6**) and `bodyMetrics` (**G6**) — join this registry in the
+goal that builds them, with a row added to §6.2 in the same change. A key without an invalidator is
+a stale screen waiting to happen.
+
 ### 6.2 Invalidation map
-| Mutation | Invalidates |
-|----------|-------------|
-| Commit / edit / delete a set | `session(id)` (optimistic, no refetch) |
-| Finish a session | `activeSession`, `dashboard`, `history(*)`, `workoutAnalytics(*)`, `exerciseStats(*)`, PR queries |
-| Edit a past session | `history(*)`, `workoutAnalytics(*)`, `exerciseStats(affected)`, PR queries |
-| Add / edit / delete a meal item | `meal(id)`, `diary(date)`, `dashboard(date)`, `nutritionRange(overlapping)` |
-| Confirm an AI analysis | `analysis(id)`, `meal(id)`, `diary(date)`, `dashboard(date)` |
-| Log a body metric | `bodyMetrics(*)`, `dashboard(date)`, goal progress |
-| Edit a program | `programs`, `program(id)` — **never** history or analytics (AC-12) |
-| Change targets | `dashboard`, `nutritionRange(*)` display only — never stored history |
+
+**Normative.** Every cached read has one key (§6.1) and one documented invalidator here. The code in
+`src/lib/query/invalidation.ts` implements this table and a test asserts the two agree, so a row
+added here without code — or code without a row — fails the build rather than drifting quietly.
+
+| Mutation | Invalidates | Why exactly this |
+|----------|-------------|------------------|
+| Sign in / sign out | **everything** (`queryClient.clear()`) | Cached data belongs to the previous identity. A stale read across an account switch is a data-leak bug, not a refresh bug |
+| `PATCH /profile` | `profile` | Targets and timezone are read from the profile everywhere; the day-bucketing rule (**I7**) depends on it |
+| Create / edit a goal | `goals`, `goal(id)` | The list shows progress, the detail shows the same numbers |
+| Create / edit / archive an **exercise** | `exercises`, `exercise(id)` | Catalog filters and the picker read the list; the detail reads one |
+| Create / edit / duplicate / archive / delete a **program** | `programs`, `program(id)` — **never** `sessions`, `records` or any analytics | **AC-12.** A performed session snapshots its prescription; editing the plan must not appear to rewrite history |
+| Edit a **plan day** or reorder its exercises | `program(id)` | A day is only ever read through its program |
+| Start a session | `activeSession`, `sessions` | The dashboard's "resume" affordance and the history list both change |
+| Commit / edit / delete a **set** | `session(id)` — **optimistically, with no refetch** | **I10.** The set-commit path never awaits the network; the local draft is authoritative while the session is in progress (§5) |
+| Add / remove / reorder a session exercise | `session(id)` | Same reason; the session is one aggregate |
+| **Finish** a session | `activeSession`, `sessions`, `session(id)`, `records(*)` | Volume, e1RM and PRs are computed inside the finish transaction, so the server's numbers are authoritative from this moment |
+| Cancel / reopen a session | `activeSession`, `sessions`, `session(id)` | A cancelled session leaves history; a reopened one re-enters it |
+| Outbox flush (`/sets/batch`) | `session(id)` per affected session | The flush is the network catching up to state the UI already shows |
+
+Two rules the table encodes, both of which have cost this project before:
+
+1. **Editing a plan never invalidates performed data.** That is AC-12 expressed as a cache rule.
+2. **A set commit invalidates nothing eagerly.** Refetching a session after every set would put the
+   network back on the critical path the whole design exists to keep it off.
 
 ### 6.3 Caching policy
 | Data | staleTime | Notes |

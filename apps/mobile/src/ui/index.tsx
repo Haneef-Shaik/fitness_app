@@ -98,6 +98,9 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
+      // The child text already names this for a screen reader; stating it
+      // explicitly means the name survives a loading spinner replacing the label.
+      accessibilityLabel={title}
       accessibilityState={{ disabled: !!disabled || !!loading, busy: !!loading }}
       disabled={disabled || loading}
       {...rest}

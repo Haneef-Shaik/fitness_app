@@ -1,4 +1,5 @@
 /** B-01 Home Dashboard — BRD §14. First-run shows a checklist, never zeroed charts. */
+import { router } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Meter, Pill, Stat, StatRow, Text, Well } from '@/ui';
@@ -57,8 +58,19 @@ export default function Home() {
             Build a program, or start an empty session.
           </Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: space.base }}>
-            <Button title="Start workout" size="sm" style={{ flex: 1 }} />
-            <Button title="Browse" kind="ghost" size="sm" style={{ width: 92 }} />
+            <Button
+              title="Programs"
+              size="sm"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/train/programs')}
+            />
+            <Button
+              title="Exercises"
+              kind="ghost"
+              size="sm"
+              style={{ width: 110 }}
+              onPress={() => router.push('/train/exercises')}
+            />
           </View>
         </Card>
 

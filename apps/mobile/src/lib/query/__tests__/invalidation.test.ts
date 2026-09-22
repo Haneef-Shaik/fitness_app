@@ -130,3 +130,40 @@ describe('applyInvalidation', () => {
     expect(qc.getQueryState(qk.session('s1'))?.isInvalidated).toBe(true);
   });
 });
+
+describe('fallbacks when no id is supplied', () => {
+  // A mutation that cannot name its aggregate must invalidate the whole family
+  // rather than nothing — a missed invalidation is a stale screen.
+  const kinds: Array<[MutationKind, string]> = [
+    ['goal.changed', 'goals'],
+    ['exercise.changed', 'exercises'],
+    ['program.changed', 'programs'],
+    ['planDay.changed', 'programs'],
+    ['set.changed', 'sessions'],
+    ['sessionExercise.changed', 'sessions'],
+    ['session.finished', 'sessions'],
+    ['session.lifecycleChanged', 'sessions'],
+    ['outbox.flushed', 'sessions'],
+  ];
+
+  it.each(kinds)('%s falls back to the %s family', (kind, family) => {
+    const inv = invalidationFor(kind);
+    expect(inv.keys.length).toBeGreaterThan(0);
+    expect(JSON.stringify(inv.keys)).toContain(family);
+  });
+
+  it('a goal edit with an id reaches both the list and that goal', () => {
+    const inv = invalidationFor('goal.changed', { goalId: 'g1' });
+    expect(JSON.stringify(inv.keys)).toContain('g1');
+  });
+
+  it('an exercise edit with an id reaches both the list and that exercise', () => {
+    const inv = invalidationFor('exercise.changed', { exerciseId: 'e1' });
+    expect(JSON.stringify(inv.keys)).toContain('e1');
+  });
+
+  it('a session lifecycle change with an id reaches that session', () => {
+    const inv = invalidationFor('session.lifecycleChanged', { sessionId: 's1' });
+    expect(JSON.stringify(inv.keys)).toContain('s1');
+  });
+});

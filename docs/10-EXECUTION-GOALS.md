@@ -1,7 +1,7 @@
 # Execution Goals
 ## Volt — the handoff chain from here to release
 
-**Last updated:** 2026-09-22 (G1 closed) · **Head:** `f34b8b5` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
+**Last updated:** 2026-09-22 (G2 closed) · **Head:** `2f86b0d` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
 
 > **What this document is.** Eleven **goals**, in order, each one a **contract**: what it inherits,
 > what it must produce, how to produce it in *this* codebase, how you know it is finished, and
@@ -93,9 +93,9 @@ did not happen, whatever the tracker says.
 | **H1.2** | `queryKeys.ts` + `invalidation.ts` | Every cached read has one key and one documented invalidator, and a test asserts code and docs/03 §6.2 agree both ways | G1 | ✅ 22 Sep |
 | **H1.3** | `DataBoundary` | Loading / empty / **filtered-empty** / error / offline are one component, not per-screen improvisation | G1 | ✅ 22 Sep |
 | **H1.4** | Mobile test harness | `pnpm --filter @volt/mobile test:ci` runs 69 tests and gates coverage | G1 | ✅ 22 Sep |
-| **H2.1** | Screen kit | Virtualised list, filter row, detail scaffold, bottom sheet | G2 | ⬜ |
-| **H2.2** | Exercise picker | Multi-select picker the **logger reuses** for add/swap | G2 | ⬜ |
-| **H2.3** | `/exercises/{id}/history`, `/stats` | The two endpoints D-02 needs now exist | G2 | ⬜ |
+| **H2.1** | Screen kit | `VirtualList`, `FilterChips`, `ScreenScaffold`, `Sheet` | G2 | ✅ 22 Sep |
+| **H2.2** | `ExercisePicker` | **Controlled** multi-select the logger reuses for add/swap; `max={1}` is swap | G2 | ✅ 22 Sep |
+| **H2.3** | `/exercises/{id}/history`, `/stats` | The two endpoints D-02 needs now exist, with 15 tests | G2 | ✅ 22 Sep |
 | **H3.1** | Session draft store | Pure reducers; add/edit/delete/reorder/densify unit-tested | G3 | ⬜ |
 | **H3.2** | Outbox | FIFO per aggregate, idempotent replay, terminal 4xx surfaced — **reused by G7/G9** | G3 | ⬜ |
 | **H3.3** | Recovery protocol | Local draft vs `GET /workout-sessions/active` reconciled deterministically | G3 | ⬜ |

@@ -16,6 +16,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider, useTheme } from '@/theme';
 import { SessionProvider } from '@/lib/session';
 import { createQueryClient } from '@/lib/query/client';
+import { STORE_KIND, store } from '@/lib/db';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -43,6 +44,14 @@ export default function Layout() {
     Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold, Barlow_700Bold,
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
   });
+
+  // The durability layer opens at launch: recovery (E-10) reads it before any
+  // screen renders, so a failure here must be loud rather than deferred.
+  useEffect(() => {
+    store.open()
+      .then(() => { if (__DEV__) console.log(`[db] open (${STORE_KIND})`); })
+      .catch((e: unknown) => console.error('[db] failed to open', e));
+  }, []);
 
   useEffect(() => { if (loaded) SplashScreen.hideAsync().catch(() => {}); }, [loaded]);
   if (!loaded) return null;

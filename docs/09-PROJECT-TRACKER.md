@@ -247,6 +247,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 21 Sep | Fixed: migration downgrade left Postgres ENUM types behind, breaking re-upgrade |
 | 21 Sep | Test suite now runs migrations instead of `create_all` — drift cannot hide |
 | 22 Sep | **G0 closed** — `docs/03` re-platformed for React Native; persistence (**D14** `expo-sqlite`), E2E runner (**D15** Maestro) and the device performance budget (**D16**) recorded |
+| 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 
 
 ---
@@ -309,8 +310,26 @@ xcodebuild -version                    -> "requires Xcode" (Command Line Tools o
   device**, so §2 says so in the same row rather than asserting it. **I7** — the day is the
   profile's day — depends on it, so **G1** must assert one DST case in the harness before the
   logger is written against it.
-- **`docs/05-DESIGN-SYSTEM.md` still contains web-stack references.** Out of G0's scope; logged in
-  the backlog below.
+
+**Scope extended after the first pass.** A sweep for the *class* of defect, rather than the six
+sites the goal named, found four more — two of them contradictions of decisions already recorded,
+which is worse than a stale stack name because the next implementer has no way to know which
+document is lying:
+
+| Where | Said | Reality |
+|-------|------|---------|
+| `docs/02` §8 security · `wireframes/01` cross-cutting | Refresh token in an **httpOnly, SameSite=Strict cookie** | **Contradicts D10 and the code.** `services/api` sets no cookie anywhere: `POST /auth/refresh` takes `RefreshIn` from the request **body**, and `apps/mobile/src/lib/storage.ts` stores it in the keychain via `expo-secure-store` |
+| `docs/07` §Q2 | Client strategy = "**Responsive PWA (D1)**" | **Contradicts D1**, which chose React Native and deferred web. The answer cited the very decision that overturned it |
+| `docs/05` §a11y · 6 wireframe files | `aria-label`, `aria-live`, `role="meter"`, `outline: none`, `prefers-reduced-motion`, Tab/Enter/Esc as the logger's operation model | None exist in React Native. The accessibility floor is **non-negotiable per charter §8**, so a spec written in DOM attributes makes the one undroppable requirement unbuildable |
+| `wireframes/04` E-04 | Rest timer survives "**browser tab throttling**" | The real case is the **app being backgrounded or suspended**; the timestamp basis is what makes it correct either way |
+
+All are fixed, translated to the React Native APIs **verified present in RN 0.76.9**:
+`accessibilityLabel` · `accessibilityHint` · `accessibilityRole` (incl. `list`, `progressbar`,
+`combobox`, `radiogroup`, `header`) · `accessibilityState` · `accessibilityValue` ·
+`accessibilityLiveRegion` · `AccessibilityInfo.announceForAccessibility` / `isReduceMotionEnabled`.
+
+The gate grew three checks to match — DOM-only a11y identifiers, cookie-based auth, and `PWA` as a
+client strategy. **Each was seen to fail on its own probe and only its own**, then pass again.
 
 **Traps hit.**
 - **The gate failed on the rewrite's own prose.** The first pass explained *why* Tailwind, shadcn and
@@ -326,11 +345,12 @@ xcodebuild -version                    -> "requires Xcode" (Command Line Tools o
 - **DR4's premise was half-stale.** It says "no Xcode/Android SDK locally". No Xcode is right; an
   Android SDK *is* installed (build-tools 35/36, platform android-36, NDK 27) but unconfigured with
   no device attached. Recorded in D15 and corrected in DR4 rather than left to mislead G4.
-- **`docs/03` §3 was not the only tree that leaked.** The browser assumption had also reached
-  `docs/wireframes/01` and `docs/wireframes/04` — three sites the goal's scope list did not name.
+- **The goal's scope list was not the extent of the defect.** It named `01-PRD` and three
+  `06-EDGE-CASES` rows. The browser assumption had actually reached **nine** files, including
+  `docs/02`, `docs/05`, `docs/07` and six wireframes. Fixing the named sites and stopping would have
+  left G3 and G4 building against specs that contradict D1 and D10.
 
 **Backlog raised, not fixed.**
-- `docs/05-DESIGN-SYSTEM.md` still references the web stack.
 - The Android SDK is installed but unconfigured — decide in G4 whether to wire it up or stay on
   Expo Go only.
 - `apps/mobile` still ships `react-native-web`; harmless, but web is deferred (D1) and it should be

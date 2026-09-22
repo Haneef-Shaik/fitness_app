@@ -100,7 +100,6 @@ H1.4 a mobile test harness gating coverage in CI
       The runner is now decided (**Maestro**, [D15](08-PROJECT-CHARTER.md#6-decision-log)) but not
       installed — **G4** installs it
 - [ ] **D3b** — OpenAPI → TypeScript codegen. **§1 above closes this**
-- [ ] `docs/05-DESIGN-SYSTEM.md` still references the web stack — raised by G0, out of its scope
 - [ ] The Android SDK is installed but unconfigured (`ANDROID_HOME` unset, no device attached).
       Decide in **G4** whether to wire it up or stay on Expo Go only
 - [ ] `apps/mobile` still ships `react-native-web`. Harmless, but web is deferred

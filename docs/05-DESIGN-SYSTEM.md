@@ -222,7 +222,7 @@ the axis shows the rounded value.
 - Dark mode uses its **own selected steps** from the same ramps — never a filter or an automatic flip.
 - A texture fill (45° / 135° lines, tone-on-tone) is available for full-CVD users, print and
   `forced-colors`. Off by default, never decorative.
-- Charts respect `prefers-reduced-motion`: no entry animation, no animated transitions between ranges.
+- Charts respect Reduce Motion (`AccessibilityInfo.isReduceMotionEnabled`): no entry animation, no animated transitions between ranges.
 
 ---
 
@@ -287,9 +287,9 @@ shadows are nearly invisible on a dark page.
 | Sheet / dialog entry | 220 ms, `cubic-bezier(.2,.8,.2,1)` |
 | Route transition | 180 ms |
 | Rest-timer tick | No animation — a discrete numeric update |
-| PR celebration | 600 ms, **once**, dismissible, skipped entirely under `prefers-reduced-motion` |
+| PR celebration | 600 ms, **once**, dismissible, skipped entirely when Reduce Motion is on |
 
-Under `prefers-reduced-motion: reduce`, all of the above collapse to opacity changes at 0 ms except
+With Reduce Motion enabled, all of the above collapse to opacity changes at 0 ms except
 the sheet, which becomes a 100 ms fade.
 
 ---
@@ -298,7 +298,7 @@ the sheet, which becomes a 100 ms fade.
 
 ### 7.1 Primitives
 `Button` (primary / secondary / ghost / destructive; sm / md / lg; loading; icon-only with a required
-`aria-label`) · `IconButton` · `Input` · `NumericStepper` (unit-aware ± steps) · `Select` · `Combobox`
+`accessibilityLabel`) · `IconButton` · `Input` · `NumericStepper` (unit-aware ± steps) · `Select` · `Combobox`
 · `Switch` · `Checkbox` · `RadioGroup` · `SegmentedControl` · `Slider` (RPE/RIR) · `Chip` / `FilterChip`
 · `Badge` · `Avatar` · `Tooltip` · `Popover` · `Sheet` · `Dialog` · `Toast` · `Tabs` · `Accordion`
 · `ProgressRing` · `Meter` · `Skeleton` · `Divider`.
@@ -359,12 +359,12 @@ always mean "a machine estimated this".
 |-------------|------|
 | Contrast | Body text ≥ 4.5:1; large text and UI components ≥ 3:1. Verified per token pair in both themes |
 | Color alone | Never the sole carrier of meaning — status, confidence, sync state, PRs and deltas all pair color with an icon, a label, or both |
-| Focus | Visible 2 px ring + 2 px offset on every interactive element. Never `outline: none` |
-| Keyboard | The **entire workout logger is keyboard-operable**: Tab between fields, Enter commits a set, Esc closes a sheet. Desktop users log with a keyboard, no mouse needed |
+| Focus | A visible 2 px ring with 2 px offset whenever focus is driven by an **external keyboard or Switch Control**. Touch has no focus ring, which is not a licence to leave the focused state undefined |
+| Screen reader & keyboard | The **entire workout logger is operable with VoiceOver and TalkBack**: every control carries a role, a label and a state; swipe order matches visual order; committing a set never requires sighted targeting. Where a hardware keyboard is attached, Tab moves between fields, Enter commits a set and Esc closes a sheet |
 | Targets | 44 px minimum (2.5.8), 56 px in the logger |
-| Motion | `prefers-reduced-motion` respected everywhere, including the PR celebration |
-| Screen readers | Live regions announce: set committed, rest-timer completion, sync failures, AI completion. Charts expose a table alternative |
-| Labels | Every icon-only button has an `aria-label`. Every input has a persistent visible label — placeholders are never labels |
+| Motion | Reduce Motion (`AccessibilityInfo.isReduceMotionEnabled`) respected everywhere, including the PR celebration |
+| Announcements | `AccessibilityInfo.announceForAccessibility` announces: set committed, rest-timer completion, sync failures, AI completion. Ambient status on Android may use `accessibilityLiveRegion`. Charts expose a data-table alternative |
+| Labels | Every icon-only button has an `accessibilityLabel`. Every input has a persistent visible label — placeholders are never labels |
 | Errors | Programmatically associated with their field, announced, and phrased as a fix |
 | Zoom | Usable at 200% without horizontal scroll; no fixed-height text containers |
 | Orientation | Both orientations supported; nothing locks to portrait |

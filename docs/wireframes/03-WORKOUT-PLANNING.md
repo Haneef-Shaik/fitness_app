@@ -274,7 +274,7 @@ unbalanced day at design time, and it uses the same weighting as G-02 so plannin
 - Save conflict (edited on another device) → L-07 with both versions.
 - A very long exercise list (> 15) → the estimated-duration line warns "That's a long session".
 
-**a11y.** The exercise list is a `role="list"`; each row's accessible name reads
+**a11y.** The exercise list uses `accessibilityRole="list"`; each row's accessible name reads
 "Position 1, Barbell Bench Press, 4 sets of 6 to 8 reps at 80 kilograms". Keyboard reorder with the
 handle focused; every move is announced.
 

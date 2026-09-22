@@ -46,7 +46,7 @@ in-progress workout.
 - Offline at launch with a cached session → go straight to B-01 with cached data + the offline banner.
   **The user must be able to open the app and log a workout with no network at all.**
 
-**a11y.** The splash announces "Loading" via a live region; it is not a focus trap.
+**a11y.** The splash announces "Loading" with `AccessibilityInfo.announceForAccessibility`; it does not trap focus.
 
 ---
 
@@ -142,7 +142,7 @@ flow and honoured after onboarding completes.
 - The email exists but is soft-deleted within the grace window → offer restore, do not create a duplicate.
 
 **a11y.** Focus order email → password → reveal → checkbox → submit. Errors announced and tied to
-their field via `aria-describedby`. Nothing depends on the strength meter's color.
+their field via `accessibilityHint`. Nothing depends on the strength meter's color.
 
 ---
 
@@ -314,7 +314,7 @@ Six steps. Progress is saved per step, so abandoning and returning resumes in pl
 - Age under 13 → stop, explain the policy, offer account deletion. `[ASSUMPTION — confirm legal position]`
 
 **a11y.** Each step is an `h1` change announced on navigation. The progress indicator has
-`aria-label="Step 3 of 6"`. Segmented controls are radio groups.
+`accessibilityLabel="Step 3 of 6"`. Segmented controls use `accessibilityRole="radiogroup"`.
 
 ---
 
@@ -441,7 +441,7 @@ dashboard shows a "Finish setting up" card instead of fabricating values.
 
 | Concern | Rule |
 |---------|------|
-| Token storage | Access token in memory; refresh token in an httpOnly, SameSite=Strict cookie. Never `localStorage` |
+| Token storage | Access token in memory; refresh token in the **device keychain** via `expo-secure-store` — never a cookie, because a native client cannot use one ([D10](../08-PROJECT-CHARTER.md#6-decision-log)), and never in plain key-value storage. The web build falls back to browser storage, which is acceptable only because web is a development surface and not a shipping platform ([D1](../08-PROJECT-CHARTER.md#6-decision-log)) |
 | Session expiry mid-use | L-05 dialog re-authenticates **in place** — the user never loses the screen they were on, and never loses an active session draft |
 | Sign out | Clears server state and query cache. **If a session draft exists, it is retained on-device and quarantined to that user** — sign-out is not a reason to destroy a workout |
 | Multiple devices | Allowed. A workout started on one device shows on the other via the active-session bar after sync |

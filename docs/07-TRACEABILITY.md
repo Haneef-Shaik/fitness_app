@@ -131,7 +131,7 @@ blocked, but each should be confirmed before M5.
 | # | Question | Blocks | Working default |
 |---|----------|--------|-----------------|
 | Q1 | Nutrition database provider | H-04 coverage, resolution quality, K-10 attribution | Resolver interface + a seeded internal catalog |
-| Q2 | Web, mobile, or both at MVP | Client strategy | Responsive PWA (D1) |
+| Q2 | Web, mobile, or both at MVP | Client strategy | **Closed — D1.** React Native (Expo), iOS + Android; web deferred to Phase 2 |
 | Q3 | Definition of a "max reps" PR | G-04, E-11 | **Closed — D11.** Most reps in a single working set, any load |
 | Q4 | Warm-ups in volume | G-02 | Excluded, user-toggleable (D6) |
 | Q5 | Canonical weigh-in when there are several per day | I-01, I-03, H-14 | First of the day |

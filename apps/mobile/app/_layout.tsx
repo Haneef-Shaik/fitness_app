@@ -17,6 +17,8 @@ import { ThemeProvider, useTheme } from '@/theme';
 import { SessionProvider } from '@/lib/session';
 import { createQueryClient } from '@/lib/query/client';
 import { STORE_KIND, store } from '@/lib/db';
+import { configurePersistence } from '@/features/workout-session/store/sessionStore';
+import { RecoveryGate } from '@/features/workout-session/RecoveryGate';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -49,7 +51,15 @@ export default function Layout() {
   // screen renders, so a failure here must be loud rather than deferred.
   useEffect(() => {
     store.open()
-      .then(() => { if (__DEV__) console.log(`[db] open (${STORE_KIND})`); })
+      .then(() => {
+        // The draft store persists through this handle; wiring it here means the
+        // commit path never has to check whether the database is ready.
+        configurePersistence({
+          store,
+          onPersistError: (e) => console.error('[db] draft write failed', e),
+        });
+        if (__DEV__) console.log(`[db] open (${STORE_KIND})`);
+      })
       .catch((e: unknown) => console.error('[db] failed to open', e));
   }, []);
 
@@ -62,6 +72,7 @@ export default function Layout() {
         <ThemeProvider>
           <SessionProvider>
             <Root />
+            <RecoveryGate enabled />
           </SessionProvider>
         </ThemeProvider>
       </SafeAreaProvider>

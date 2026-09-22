@@ -117,6 +117,9 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       qkPrefix.history(),
       qkPrefix.previousOccurrence(),
       qkPrefix.sessionComparison(),
+      // Every analytics read is derived from completed sessions, so one
+      // prefix covers volume, muscle balance, PRs, frequency and adherence.
+      qkPrefix.analytics(),
     ],
   },
   'session.lifecycleChanged': {
@@ -130,6 +133,9 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       qkPrefix.history(),
       qkPrefix.previousOccurrence(),
       qkPrefix.sessionComparison(),
+      // Every analytics read is derived from completed sessions, so one
+      // prefix covers volume, muscle balance, PRs, frequency and adherence.
+      qkPrefix.analytics(),
     ],
   },
   'outbox.flushed': {

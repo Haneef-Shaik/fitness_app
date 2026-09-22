@@ -803,10 +803,181 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/analytics/workouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Workout Volume
+         * @description G-02's column chart: volume over time.
+         *
+         *     The sum is `domain_training.total_volume_kg`, not SQL. This is the endpoint
+         *     AC-06 compares against the logger.
+         */
+        get: operations["workout_volume_v1_analytics_workouts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/muscle-volume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Muscle Volume
+         * @description G-02's sorted horizontal bar: where the work actually went.
+         *
+         *     **D7 / I4** — primary x1.0, secondary x0.5, via
+         *     `domain_training.weighted_volume_kg`. Rolled up through `MuscleTree`, which
+         *     lives beside G5's `muscle_subtree_ids` in `app.domain.muscles` and walks the
+         *     same `parent_id` edges the other way: the CTE answers "everything below this
+         *     group" for a filter, this answers "which groups receive this volume". Same
+         *     module, so they cannot drift into disagreeing about what a chest day is.
+         */
+        get: operations["muscle_volume_v1_analytics_muscle_volume_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/exercises/{exercise_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exercise Progression
+         * @description G-03 / G-07's line: e1RM and load over time for one exercise.
+         *
+         *     **I5** — the series states its `formula_version`. Plotting values computed
+         *     with different versions as one line is wrong in a way nobody sees.
+         */
+        get: operations["exercise_progression_v1_analytics_exercises__exercise_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/personal-records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Personal Records
+         * @description G-04's KPI row. `evaluate_records` decides what a record is, not this.
+         */
+        get: operations["personal_records_v1_analytics_personal_records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/frequency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Frequency
+         * @description G-05's week x muscle heatmap.
+         *
+         *     Counts SESSIONS per muscle per week, not exercises. A three-movement chest
+         *     day is one chest day; counting exercises makes it read as three.
+         */
+        get: operations["frequency_v1_analytics_frequency_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/adherence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Adherence
+         * @description G-06's meter — **PRD W07.7**, via `app.domain.adherence`.
+         *
+         *     "Adherence counts the session, not the exercise" (PRD §7.1), so a planned
+         *     day that happened at all counts, however much of it was performed.
+         */
+        get: operations["adherence_v1_analytics_adherence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdherenceOut
+         * @description G-06's meter, from **PRD W07.7** via `app.domain.adherence`.
+         *
+         *     `adherence` is null when nothing was planned — undefined, not zero. Someone
+         *     without a program has not failed to adhere to anything.
+         */
+        AdherenceOut: {
+            /** Planned */
+            planned: number;
+            /** Completed Planned */
+            completed_planned: number;
+            /** Adherence */
+            adherence?: number | null;
+            /**
+             * Weeks
+             * @default []
+             */
+            weeks: components["schemas"]["AdherenceWeekOut"][];
+        };
+        /** AdherenceWeekOut */
+        AdherenceWeekOut: {
+            /**
+             * Week Start
+             * Format: date
+             */
+            week_start: string;
+            /** Planned */
+            planned: number;
+            /** Completed Planned */
+            completed_planned: number;
+        };
         /**
          * AuthOut
          * @description Register and login return the new user alongside a fresh token pair.
@@ -979,6 +1150,13 @@ export interface components {
             /** Formula Version */
             formula_version: string;
         };
+        /** Envelope[AdherenceOut] */
+        Envelope_AdherenceOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["AdherenceOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[AuthOut] */
         Envelope_AuthOut_: {
             /** Success */
@@ -1007,11 +1185,25 @@ export interface components {
             data?: components["schemas"]["ExerciseOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[ExerciseProgressionOut] */
+        Envelope_ExerciseProgressionOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["ExerciseProgressionOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[ExerciseStatsOut] */
         Envelope_ExerciseStatsOut_: {
             /** Success */
             success: boolean;
             data?: components["schemas"]["ExerciseStatsOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[FrequencyOut] */
+        Envelope_FrequencyOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["FrequencyOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[GoalOut] */
@@ -1091,6 +1283,13 @@ export interface components {
             data?: components["schemas"]["PreviousOccurrenceOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[WorkoutAnalyticsOut] */
+        Envelope_WorkoutAnalyticsOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["WorkoutAnalyticsOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[dict[str, RecordEntryOut]] */
         Envelope_dict_str__RecordEntryOut__: {
             /** Success */
@@ -1107,6 +1306,22 @@ export interface components {
             success: boolean;
             /** Data */
             data?: components["schemas"]["MuscleGroupOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[MuscleVolumeOut]] */
+        Envelope_list_MuscleVolumeOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["MuscleVolumeOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[PersonalRecordRowOut]] */
+        Envelope_list_PersonalRecordRowOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["PersonalRecordRowOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /**
@@ -1274,6 +1489,29 @@ export interface components {
             /** Default Unit */
             default_unit?: string | null;
         };
+        /**
+         * ExerciseProgressionOut
+         * @description G-03 / G-07's line.
+         *
+         *     `formula_version` travels with the series (**I5**). A chart mixing versions
+         *     is silently wrong, so the version is stated rather than assumed.
+         */
+        ExerciseProgressionOut: {
+            /**
+             * Exercise Id
+             * Format: uuid
+             */
+            exercise_id: string;
+            /** Exercise Name */
+            exercise_name?: string | null;
+            /** Formula Version */
+            formula_version: string;
+            /**
+             * Points
+             * @default []
+             */
+            points: components["schemas"]["ProgressionPointOut"][];
+        };
         /** ExerciseStatsOut */
         ExerciseStatsOut: {
             /**
@@ -1305,6 +1543,39 @@ export interface components {
              * @default []
              */
             e1rm_series: components["schemas"]["E1rmPointOut"][];
+        };
+        /**
+         * FrequencyCellOut
+         * @description One square of G-05's week x muscle heatmap.
+         *
+         *     `sessions` counts SESSIONS, not exercises: a three-movement chest day is one
+         *     chest day, and counting exercises makes it look like three.
+         */
+        FrequencyCellOut: {
+            /**
+             * Week Start
+             * Format: date
+             */
+            week_start: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Sessions */
+            sessions: number;
+        };
+        /** FrequencyOut */
+        FrequencyOut: {
+            /**
+             * Weeks
+             * @default []
+             */
+            weeks: string[];
+            /**
+             * Cells
+             * @default []
+             */
+            cells: components["schemas"]["FrequencyCellOut"][];
         };
         /** GoalIn */
         GoalIn: {
@@ -1512,6 +1783,23 @@ export interface components {
              */
             role: "primary" | "secondary";
         };
+        /**
+         * MuscleVolumeOut
+         * @description One bar of G-02's sorted horizontal chart.
+         *
+         *     Weighted primary x1.0, secondary x0.5 (**D7 / I4**), and rolled up through
+         *     the muscle tree — a grandchild of Chest is chest volume.
+         */
+        MuscleVolumeOut: {
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Volume Kg */
+            volume_kg: number;
+            /** Set Count */
+            set_count: number;
+        };
         /** PagedEnvelope[SetBatchOut] */
         PagedEnvelope_SetBatchOut_: {
             /** Success */
@@ -1585,6 +1873,34 @@ export interface components {
             unit: string;
             /** Previous Value */
             previous_value?: number | null;
+        };
+        /**
+         * PersonalRecordRowOut
+         * @description One tile of G-04's KPI row.
+         */
+        PersonalRecordRowOut: {
+            /**
+             * Exercise Id
+             * Format: uuid
+             */
+            exercise_id: string;
+            /** Exercise Name */
+            exercise_name?: string | null;
+            /** Max Load Kg */
+            max_load_kg?: number | null;
+            /** Max Reps */
+            max_reps?: number | null;
+            /** Estimated 1Rm Kg */
+            estimated_1rm_kg?: number | null;
+            /**
+             * Volume Kg
+             * @default 0
+             */
+            volume_kg: number;
+            /** Formula Version */
+            formula_version: string;
+            /** Achieved On */
+            achieved_on?: string | null;
         };
         /** PlanDayIn */
         PlanDayIn: {
@@ -1869,6 +2185,31 @@ export interface components {
             name?: string | null;
             /** Description */
             description?: string | null;
+        };
+        /**
+         * ProgressionPointOut
+         * @description One point of G-03's line.
+         *
+         *     NOT named `E1rmPointOut`: `app.schemas.sessions` already has one, and two
+         *     classes with the same name make the generated client fall back to
+         *     `app__schemas__analytics__E1rmPointOut`, which broke an existing alias.
+         *     It carries more than e1RM in any case.
+         */
+        ProgressionPointOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** E1Rm Kg */
+            e1rm_kg?: number | null;
+            /** Max Load Kg */
+            max_load_kg?: number | null;
+            /**
+             * Volume Kg
+             * @default 0
+             */
+            volume_kg: number;
         };
         /**
          * RecordEntryOut
@@ -2207,6 +2548,45 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /**
+         * VolumeBucketOut
+         * @description One column of G-02's volume chart.
+         *
+         *     `start` is a LOCAL date (I7). A bucket with no training reports 0 rather
+         *     than being omitted: a gap is information, and skipping it draws a lay-off as
+         *     continuous training.
+         */
+        VolumeBucketOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Volume Kg */
+            volume_kg: number;
+            /** Session Count */
+            session_count: number;
+            /** Set Count */
+            set_count: number;
+        };
+        /** WorkoutAnalyticsOut */
+        WorkoutAnalyticsOut: {
+            /**
+             * Group By
+             * @enum {string}
+             */
+            group_by: "day" | "week" | "month";
+            /**
+             * Buckets
+             * @default []
+             */
+            buckets: components["schemas"]["VolumeBucketOut"][];
+            /**
+             * Total Volume Kg
+             * @default 0
+             */
+            total_volume_kg: number;
         };
     };
     responses: never;
@@ -3855,6 +4235,201 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_ComparisonOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    workout_volume_v1_analytics_workouts_get: {
+        parameters: {
+            query?: {
+                group_by?: "day" | "week" | "month";
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_WorkoutAnalyticsOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    muscle_volume_v1_analytics_muscle_volume_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_MuscleVolumeOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exercise_progression_v1_analytics_exercises__exercise_id__get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path: {
+                exercise_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ExerciseProgressionOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    personal_records_v1_analytics_personal_records_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_PersonalRecordRowOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    frequency_v1_analytics_frequency_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_FrequencyOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adherence_v1_analytics_adherence_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_AdherenceOut_"];
                 };
             };
             /** @description Validation Error */

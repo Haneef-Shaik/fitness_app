@@ -28,6 +28,8 @@ export const staleTimes = {
   previousOccurrence: 5 * MINUTE,
   /** Comparing two finished sessions is a question with a fixed answer. */
   sessionComparison: 30 * MINUTE,
+  /** A trend over weeks does not move until another session is finished. */
+  analytics: 10 * MINUTE,
 } as const;
 
 /**

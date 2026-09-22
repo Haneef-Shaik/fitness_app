@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
   totalVolumeKg, estimated1rmKg, evaluateRecords, validateSet,
-  kgToLb, lbToKg, cmToIn, toLocalDate, dayTotals,
+  kgToLb, lbToKg, cmToIn, toLocalDate, dayTotals, adherence, plannedOccurrences,
   KG_PER_LB, CM_PER_IN, E1RM_FORMULA_VERSION,
   type WorkoutSet, type SetType,
 } from '../src/index';
@@ -117,6 +117,22 @@ describe('nutrition day totals', () => {
       expect(got.fatG).toBeCloseTo(c.expected.fat_g, 9);
       expect(got.pendingCount).toBe(c.expected.pending_count);
       expect(got.incomplete).toBe(c.expected.incomplete);
+    });
+  }
+});
+
+describe('adherence (PRD W07.7)', () => {
+  for (const c of V.adherence) {
+    it(c.note, () => {
+      expect(adherence(c.completed_planned, c.planned)).toBe(c.expected);
+    });
+  }
+});
+
+describe('planned occurrences', () => {
+  for (const c of V.planned_occurrences) {
+    it(c.note, () => {
+      expect(plannedOccurrences(c.weekdays, c.start, c.end)).toBe(c.expected);
     });
   }
 });

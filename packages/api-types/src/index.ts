@@ -76,6 +76,19 @@ export type ComparisonRow = Schemas['ComparisonRowOut'];
 export type ComparisonCell = Schemas['ComparisonCellOut'];
 export type ComparisonSession = Schemas['ComparisonSessionOut'];
 
+/* ----------------------------------------------------------- analytics (G6) */
+
+export type WorkoutAnalytics = Schemas['WorkoutAnalyticsOut'];
+export type VolumeBucket = Schemas['VolumeBucketOut'];
+export type MuscleVolume = Schemas['MuscleVolumeOut'];
+export type ExerciseProgression = Schemas['ExerciseProgressionOut'];
+export type PersonalRecordRow = Schemas['PersonalRecordRowOut'];
+export type Frequency = Schemas['FrequencyOut'];
+export type ProgressionPoint = Schemas['ProgressionPointOut'];
+export type FrequencyCell = Schemas['FrequencyCellOut'];
+export type Adherence = Schemas['AdherenceOut'];
+export type AdherenceWeek = Schemas['AdherenceWeekOut'];
+
 /* ---------------------------------------------------------- request payloads */
 
 export type ProfilePatch = Schemas['ProfilePatch'];

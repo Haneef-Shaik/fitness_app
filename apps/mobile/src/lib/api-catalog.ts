@@ -12,6 +12,7 @@ import type {
   ExercisePatch,
   ExerciseStats,
   MuscleGroup,
+  PreviousPerformance,
   PlanDayIn,
   PlanDayPatch,
   PlanExerciseIn,
@@ -60,6 +61,15 @@ export const catalogApi = {
 
   /** D-02's PR tiles and e1RM trend. */
   stats: (id: string) => api.get<ExerciseStats>(`/exercises/${id}/stats`),
+
+  /**
+   * E-03's previous-performance strip (**AC-04**). `data` is null when the
+   * exercise has never been performed — a first-time prompt, not an error.
+   */
+  previousPerformance: (id: string, before?: string) =>
+    api.get<PreviousPerformance | null>(
+      `/exercises/${id}/previous-performance${qs({ before })}`,
+    ),
 };
 
 export const programsApi = {

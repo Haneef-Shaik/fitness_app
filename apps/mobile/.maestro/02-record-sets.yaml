@@ -1,0 +1,46 @@
+# AC-02 · "Record every performed set with load and reps."
+# Passes when workout_sets count == sets entered, load_kg and reps match, and
+# set_index is dense.
+appId: host.exp.Exponent
+name: AC-02 record every set
+---
+- openLink: volt://train/start
+
+- assertVisible: "Start a workout"
+- tapOn:
+    text: "Start Chest.*"
+
+# The logger opens on the first exercise with the plan's target prefilled — the
+# frozen target_snapshot (I1), not the live plan.
+- assertVisible: "Save set 1"
+
+- tapOn: "Load (kg)"
+- eraseText
+- inputText: "80"
+- tapOn: "Reps"
+- eraseText
+- inputText: "8"
+- hideKeyboard
+- tapOn: "Save set 1"
+
+# Committed instantly: the row is present before any network round trip (I10).
+- assertVisible: "Set 1, 80 kilograms for 8 reps"
+- assertVisible: "Save set 2"
+
+- tapOn: "Save set 2"
+- assertVisible: "Set 2, 80 kilograms for 8 reps"
+
+- tapOn: "Save set 3"
+- assertVisible: "Set 3, 80 kilograms for 8 reps"
+
+# Dense indices, and all three uploaded.
+- assertVisible:
+    text: "Synced"
+    index: 0
+- assertVisible:
+    text: "Synced"
+    index: 2
+
+- tapOn: "Finish workout"
+- assertVisible: "Workout finished"
+- assertVisible: "SETS"

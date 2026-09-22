@@ -17,6 +17,7 @@ import type {
   PlanExerciseIn,
   Profile,
   ProfilePatch,
+  PreviousPerformance,
   Program,
   ProgramIn,
 } from '@volt/api-types';
@@ -104,6 +105,21 @@ export function useExerciseStats(id: string) {
     queryFn: () => catalogApi.stats(id),
     staleTime: staleTimes.sessions,
     enabled: Boolean(id),
+  });
+}
+
+/**
+ * **AC-04** — what the user did last time, on screen before they type anything.
+ *
+ * Immutable for the duration of a session, so it is cached hard: re-fetching it
+ * mid-workout would only spend battery.
+ */
+export function usePreviousPerformance(exerciseId: string) {
+  return useQuery<PreviousPerformance | null>({
+    queryKey: qk.previousPerformance(exerciseId),
+    queryFn: () => catalogApi.previousPerformance(exerciseId),
+    staleTime: staleTimes.previousPerformance,
+    enabled: Boolean(exerciseId),
   });
 }
 

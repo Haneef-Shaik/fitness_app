@@ -1,0 +1,103 @@
+name: Acceptance (E2E)
+
+# Not on every push: this job boots Postgres, the API, Metro and an Android
+# emulator, and builds a debug APK. It is slow by nature, so it runs nightly and
+# on demand, and the fast CI in ci.yml stays the gate for a pull request.
+#
+# ⚠️ STATUS: written in G4, NEVER EXECUTED. The acceptance criteria it drives were
+# proven on a physical phone (see docs/09-PROJECT-TRACKER.md, H4.2) — not here.
+# The first run of this workflow is its first test, and it should be expected to
+# need a round of fixing. Do not read a missing run as a passing one.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  acceptance:
+    name: AC-01, AC-02, AC-04 and the offline flow
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: volt
+          POSTGRES_PASSWORD: volt
+          POSTGRES_DB: volt
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U volt -d volt"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+asyncpg://volt:volt@localhost:5432/volt
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: astral-sh/setup-uv@v5
+        with: { enable-cache: true }
+
+      - run: pnpm install --frozen-lockfile
+      - working-directory: services/api
+        run: uv sync --frozen
+
+      - name: Migrate and start the API on 0.0.0.0
+        working-directory: services/api
+        run: |
+          uv run alembic upgrade head
+          uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          for _ in $(seq 1 60); do
+            curl -sf http://localhost:8000/v1/openapi.json >/dev/null && break
+            sleep 1
+          done
+
+      # The flows start from this state, and assert_ac.py signs in as this user.
+      - name: Seed the known state
+        working-directory: services/api
+        run: uv run python scripts/seed_demo.py
+
+      # A debug APK rather than Expo Go: Expo Go pins its own SDK version and
+      # would have to match this project's, which is exactly the coupling DR4
+      # was raised about. A local build keeps it out of CI.
+      - name: Build a debug APK
+        working-directory: apps/mobile
+        env:
+          EXPO_PUBLIC_API_URL: http://10.0.2.2:8000
+        run: |
+          npx expo prebuild --platform android --no-install
+          cd android && ./gradlew assembleDebug --no-daemon
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro
+        run: |
+          curl -Ls https://get.maestro.mobile.dev | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Run the acceptance flows
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          # 10.0.2.2 is the host as seen from inside the emulator.
+          script: |
+            adb install -r apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+            bash scripts/e2e.sh
+
+      - name: Keep the failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug
+          path: ~/.maestro/tests/
+          if-no-files-found: ignore

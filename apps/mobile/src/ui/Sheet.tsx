@@ -34,15 +34,21 @@ export function Sheet({ visible, onClose, title, footer, children, testID }: She
       testID={testID}
     >
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' }}>
+        {/* Absolute, not flex:1. As a flex child the backdrop took the height the
+            sheet needed, which on a phone left the sheet a sliver at the bottom
+            with its commit button off-screen. The browser never showed it because
+            there was far more vertical space to go round. */}
         <Pressable
-          style={{ flex: 1 }}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
           onPress={onClose}
           accessibilityRole="button"
           accessibilityLabel="Close"
         />
         <View
           style={{
-            maxHeight: '92%',
+            // A definite height, not just a cap: the content inside is a
+            // virtualised list, which cannot size a flex parent on its own.
+            height: '85%',
             backgroundColor: c.surface,
             borderTopLeftRadius: radius.lg,
             borderTopRightRadius: radius.lg,

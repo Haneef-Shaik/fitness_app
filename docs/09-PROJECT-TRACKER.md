@@ -220,15 +220,16 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 509 | grows with each milestone |
+| Tests passing | **538** — 326 client, 164 API (+3 skipped), 48 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | 83 | every endpoint, happy + failure |
+| API integration tests | **164** | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
 | Migrations | **4** — M1 foundations, M2 training core, M3 deferrable ordering, **M4 plan time/distance targets** | kept reversible |
-| Mutation checks | 11 verified catches | every guard and shared-vector change |
+| Mutation checks | **12** verified catches — G4 added the commit-timing double-call guard (deleting it makes a named test fail). Every other G4 fix was written test-first and seen red before it went green | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | **enforced** — client at **63.9%** statements / **65.9%** lines across a codebase that doubled; `src/lib/query` and `DataBoundary` held at 90%+ | 80% global by G4 (D18) |
-| Acceptance criteria passing | 1 of 12 — **AC-12** | 12 of 12 |
+| Coverage gate | **enforced**, and **ratcheted in G4** from 45/38/42/46 to **51/47/48/52**. Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed 55.66% includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **51.90%** statements / **52.31%** lines | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
+| Acceptance criteria passing | **4 of 12** — AC-01, AC-02, AC-04 (all three proven on a physical device **and** against the API, 22 Sep) and AC-12 | 12 of 12 |
+| tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
 
 ## Changelog
 
@@ -260,6 +261,15 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 23 Sep | **D16's budget is missed, and now known.** tap → set rendered measured on the device: **p95 396.4 ms** over 99 commits on one exercise, and **118.7 ms** over 9 — against a 100 ms budget. Two costs, separated by running both lengths: a **baseline near 110 ms** present from the first sets, and **growth with list length** on top (p95 118.7 → 184.8 → 396.4 ms at 10, 33 and 100 rows) because every commit re-renders the whole list. Had only the 100-sample run been taken, list growth would have looked like the whole story. It is a `__DEV__` build and a release one can only be faster — by an unmeasured amount, so the number stands as taken. **D16 is unchanged; this is an open item, not a rewritten target** |
+| 22 Sep | **G4 — the critical path driven on a physical phone** (Samsung SM-E546B, Android 16) through Expo Go over the LAN. **AC-01, AC-02 and AC-04 proven**, each by a Maestro flow **and** a query against the API. **DR4 resolved**; `defaultBase()`'s `hostUri` derivation confirmed executing after Metro was found running with `EXPO_PUBLIC_API_URL` set, which returns early — the branch DR4 is about had still never run |
+| 22 Sep | **The outbox stranded sets, silently.** AC-02 was green on the phone showing three sets while the server held **two**. Two causes: `flush()` handed a concurrent caller the already-running promise, whose work list was read before the new entry existed; and the logger flushed straight after `commitSet`, before the fire-and-forget write had put the entry in SQLite. Sync lag went 3 s / 24 s / **25 min** → 21 ms / 12 ms / 13 ms. The existing concurrency test seeded all its work *before* flushing, so it could never have caught it |
+| 22 Sep | **Nothing re-armed the outbox when the network returned.** Its three triggers — screen mount, app foreground, set committed — are all things the *user* does, and nobody taps anything while resting between sets. Measured: API restored, 90 s later still two grey dots and one set on the server. A root-level pump now ticks every 15 s; the outbox's own `readyEntries` still decides what is due |
+| 22 Sep | **Losing the network deleted the account.** `performRefresh` cleared the stored refresh token on *any* failure, and `fetch` rejects with a plain `TypeError` when there is no signal — so opening the app in a basement gym signed the user out of a workout in progress and locked them out until reception returned. Only a 401/403 clears it now. Session restore reads the token's survival to tell **O9** (revoked → login) from **O10** (offline → full logging) |
+| 22 Sep | **Signing out left you on the dashboard.** The redirect lived only in `app/index.tsx`, which renders at `/`, so from any other screen the status change was invisible — avatar went blank and the next query 401'd into a generic error. `AuthGate` watches status rather than route, which is also the honest answer to a refresh failing mid-workout |
+| 22 Sep | Two UI defects only a phone showed: the set-count stepper opened at `min + step`, so four taps read **5**; and the prescription sheet's body was a fixed-height view, so with the keyboard up the footer was drawn across the load field and "Rest between sets" could not be reached at all |
+| 22 Sep | **The fixture was the flake.** `seed_demo.py` cancelled a leftover open session only on a brand-new account — the cancel sat below an early return. E-01 shows only "You're mid-workout" while a session is open, so every flow reaching for a plan day failed on a selector, reading like a broken app. Its docstring also claimed "wipes and recreates", which it never did |
+| 22 Sep | **`setAirplaneMode` does not take this device offline** — Wi-Fi stays enabled, and three "offline" sets reached the server in ~20 ms. Worse, **offline plus relaunch is not expressible in Expo Go at all**, because the bundle reloads from Metro over the same LAN. The offline scenario now takes the **API** away while Metro stays up, which isolates exactly what is under test and leaves the radio alone |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 
 
@@ -452,6 +462,62 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
 
 ---
 
+### Handoff — G4 · Critical path proven on hardware            closed 23 Sep
+
+**Outcome claimed.** AC-01, AC-02 and AC-04 are proven by flows that ran on a **physical phone** and
+were then checked **against the API**. DR4 is closed. The p95 is measured, and **misses its budget**.
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H3.1 | ✅ | The pure reducers were right. Nothing the device found was in them |
+| H3.2 | ❌ | "Outbox is idempotent" held; "the outbox delivers" did not. It stranded a set for **25 minutes** while the screen showed it saved. Two causes, then a third: a concurrent `flush()` was handed a run whose work list predated the new entry; the logger flushed before the fire-and-forget write had reached SQLite; and **nothing re-armed the queue when the server came back** — all three triggers were things the user does |
+| H3.3 | ✅ | Now genuinely verified — see the ledger. G3's own note said it was unverified, and it was right to |
+| H3.4 | ✅ | The four endpoints were used hard and held |
+| H0.3 | ✅ | Maestro drove Expo Go with no native toolchain, exactly as D15 claimed. Two things it did not anticipate: a **system dialog masks the whole app** out of the accessibility tree, and **`setAirplaneMode` does not take this phone offline** |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H4.1 | `.maestro/` + `scripts/e2e.sh` + `scripts/assert_ac.py` | Each criterion is a flow **and** a query against the API | `ac-01-build-chest-workout`, `ac-02-record-every-set`, `ac-04-previous-performance`, `offline-1/2/3`. **The CI job has never run** — see H4.1 in the ledger |
+| H4.2 | Device-verified build | Runs on a phone over the LAN; DR4 closed | Samsung SM-E546B, Android 16. `hostUri` → `http://192.168.1.3:8000`; `[db] open (sqlite) journal_mode=wal` |
+| H4.3 | Measured p95 | tap → set rendered, on hardware | **396.4 ms** over 99 commits; **118.7 ms** over 9. Budget 100 ms — **missed** |
+
+**Verified.** Acceptance criteria now proven: AC-01, AC-02, AC-04, AC-12 — **4 of 12**.
+
+**Left undone, and why.**
+- **The CI workflow has never executed.** It builds a debug APK, so the flows' `appId` and Expo Go
+  `openLink` need parametrising. The criteria are proven on hardware, not in CI. Written down rather
+  than claimed.
+- **Offline plus relaunch cannot be expressed in Expo Go**, because the bundle reloads from Metro over
+  the same LAN. The scenario is proven by taking the **API** away while Metro stays up. Proving it
+  with the radio off needs a development build — DR4's remaining edge.
+- **D16 is missed and left at 100 ms.** Two costs are now separated: a baseline near 110 ms, and
+  growth with list length because every commit re-renders the whole list.
+
+**Traps hit.**
+- **A green flow that proved nothing.** AC-02 passed on the phone showing three sets while the server
+  held two. This is the goal's own warning — "the UI is the thing most likely to be right; the write
+  is the thing most likely to be missing" — and it was right.
+- **A flow asserting less than its criterion.** AC-01 prescribed only the first exercise while
+  AC-01 reads "**each** with `target_sets` and a rep range". It was green and half-testing.
+- **An assertion of my own that raced.** AC-04 checked "not the session just started" — redundant
+  (the new one is `in_progress`, so "most recently **completed**" already excludes it) and racy.
+  Removed rather than loosened.
+- **The fixture was the flake.** `seed_demo.py` cancelled a leftover open session only on a brand-new
+  account, and E-01 hides every plan day while one is open — so flows failed on selectors and looked
+  like a broken app. Its docstring claimed a wipe it never did.
+- **The ratchet caught me pinning it to the wrong number.** Naming a path in `coverageThreshold`
+  **removes it from `global`**, so the printed 55.66% is not the bucket being gated. The real
+  remainder is 51.90%; thresholds are now 51/47/48/52, up from 45/38/42/46.
+- **My own harness lied twice.** Maestro does not interpolate an env var into `repeat.times`, so
+  `SAMPLES=10` silently ran 100; and a backgrounded server inheriting the script's stdin kept a pipe
+  open, so a finished run looked like a hang.
+
+---
+
 ### Handoff — G2 · Catalog and planning            closed 22 Sep · `155fb99`
 
 **Outcome claimed.** A user can search the catalog, open an exercise, create a custom one, and build
@@ -589,10 +655,10 @@ typecheck, drift gate, G0 spec gate -> all clean
 - **The airplane-mode test is half-done.** Offline logging, flush and no-duplicates are verified for
   real. **Kill the app and relaunch is not** — the web store is in-memory by design, so there is
   nothing to survive. That half is G4's, on hardware.
-- **tap → set rendered has not been measured.** The commit path is proven *synchronous* by a test
-  that fails when an `await` is introduced, which is a different claim from "< 100 ms on a phone".
-  H4.3 is still owed.
-- **WAL is unverified**, for the same reason as SQLite itself.
+- ~~**tap → set rendered has not been measured.**~~ **Measured 23 Sep (G4)** and it **misses**:
+  p95 396.4 ms over 99 commits, 118.7 ms over 9, against 100 ms. The commit path being *synchronous*
+  was indeed a different claim from "< 100 ms on a phone" — it is synchronous and it is slow.
+- ~~**WAL is unverified**~~ — confirmed on the device: `[db] open (sqlite) journal_mode=wal`.
 - **The route files have no component tests.** The store, outbox, reducers, timer, summary and the
   logger's components are tested; `app/session/[id].tsx` and `app/train/start.tsx` were verified by
   hand. Both of the bugs found late (below) were in exactly that untested layer, which is the

@@ -1,0 +1,20 @@
+# Offline, part 3 of 3 — the API is back up. Continues from part 2's screen.
+appId: host.exp.exponent
+name: Offline 3 - the queue drains
+---
+# All three present exactly once, and index 2 only exists once the third has
+# gone. No tap triggers this: the outbox drains on its own.
+- extendedWaitUntil:
+    visible:
+      text: "Synced"
+      index: 2
+    timeout: 90000
+- assertNotVisible: "Waiting to sync"
+
+- scrollUntilVisible:
+    element:
+      text: "Finish workout"
+    direction: DOWN
+    timeout: 10000
+- tapOn: "Finish workout"
+- assertVisible: "Workout finished"

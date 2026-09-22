@@ -72,7 +72,15 @@ module.exports = {
   // The substrate G1 built is held at 90%+ so newly shared code can never be the
   // thing that drags the number down.
   coverageThreshold: {
-    global: { statements: 45, branches: 38, functions: 42, lines: 46 },
+    // D18's ratchet: pinned just under the measured remainder, so the gain is
+    // locked in and cannot quietly rot. Raise these when you raise the
+    // coverage, never to make a red build green.
+    //
+    // NOT the figure the coverage table prints. Naming a path below REMOVES it
+    // from `global`, so the printed 55.66% includes src/lib/query and
+    // DataBoundary while this bucket is everything else. Measured remainder
+    // 22 Sep (G4): 51.90 / 47.15 / 48.33 / 52.31.
+    global: { statements: 51, branches: 47, functions: 48, lines: 52 },
     './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
     './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },
   },

@@ -97,6 +97,40 @@ describe('flush', () => {
 
     expect(send).toHaveBeenCalledTimes(1);
   });
+
+  it('picks up an entry enqueued DURING an in-flight flush', async () => {
+    // Found on a phone, not here: tapping Save three times in a row left the
+    // third set reading "Waiting to sync" for ever, and the server had two.
+    // `run()` reads its work list up front, so handing a later caller the
+    // already-running promise coalesces it onto a run that CANNOT see an entry
+    // which did not exist when that run started. The test above seeds all its
+    // work before flushing, so it shares a flush that had nothing new to find.
+    const store = createMemoryStore();
+    await seed(store, [['k1']]);
+
+    let reachSend!: () => void;
+    let release!: () => void;
+    const reachedSend = new Promise<void>((r) => { reachSend = r; });
+    const gate = new Promise<void>((r) => { release = r; });
+
+    const sent: string[] = [];
+    const send = async (e: { idempotencyKey: string }) => {
+      sent.push(e.idempotencyKey);
+      if (e.idempotencyKey === 'k1') { reachSend(); await gate; }
+      return ok();
+    };
+    const outbox = createOutbox({ store, send, now, random: noJitter });
+
+    const first = outbox.flush();
+    await reachedSend;                            // k1 is in flight
+    await store.commit(draft(2), entry('k2'));    // the third tap commits
+    const second = outbox.flush();                // and asks for a flush
+    release();
+    await Promise.all([first, second]);
+
+    expect(sent).toEqual(['k1', 'k2']);
+    expect((await store.allEntries()).every((e) => e.state === 'sent')).toBe(true);
+  });
 });
 
 describe('the idempotency key must be a real UUID', () => {

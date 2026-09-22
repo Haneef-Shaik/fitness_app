@@ -1,0 +1,108 @@
+# Prelude: reach a signed-in state as a KNOWN user, from any starting point.
+#
+# Credentials default to the account `services/api/scripts/seed_demo.py` creates,
+# because that seed is the known state every flow here starts from. Override for
+# another environment:
+#
+#   maestro test -e EMAIL=... -e PASSWORD=... -e HOST=10.0.0.4:8081 .maestro/
+#
+# There is nothing secret here: the seed script publishes the same pair, and it
+# only ever exists in a local dev database.
+appId: host.exp.exponent
+name: Sign in
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+# launchApp opens Expo Go's OWN home screen, not the project. The deep link is
+# what loads Volt — the same URL a developer types into Expo Go by hand.
+# Stop first: a previous flow may have left the app deep in a stack, and
+# openLink alone resumes it there rather than at the root.
+- stopApp
+- openLink: exp://${HOST}
+- waitForAnimationToEnd:
+    timeout: 40000
+
+# A session an earlier flow left open gates the dashboard, so clear it. Without
+# this the next flow starts on the recovery card and every selector below misses.
+- runFlow:
+    when:
+      visible: "You left a workout open"
+    commands:
+      - tapOn: "Discard"
+      # Discard re-routes to the dashboard. Reaching for "Sign out" before it
+      # lands taps a screen that is on its way out, and the sign-out never
+      # happens — the same async-state race as below, one screen earlier.
+      - extendedWaitUntil:
+          visible: "Today's workout"
+          timeout: 20000
+
+# Sign out if anyone is signed in, so the credentials above decide the account
+# rather than whoever the last run left behind. This is not hygiene: the flows
+# spent a whole session running as a different user than the one the seed
+# prepares, against 14 programs of their own debris and none of the seeded
+# history that AC-04 reads.
+- runFlow:
+    when:
+      visible: "Sign out"
+    commands:
+      - tapOn: "Sign out"
+      # Sign-out is async — it clears a token and then re-routes. Without this
+      # wait the NEXT conditional is evaluated against the still-rendered
+      # dashboard, finds no welcome screen, skips the login, and the flow walks
+      # on signed out until the first query 401s into "Something went wrong".
+      - extendedWaitUntil:
+          visible: "I already have one"
+          timeout: 20000
+
+- runFlow:
+    when:
+      visible: "I already have one"
+    commands:
+      - tapOn: "I already have one"
+      - tapOn: "you@example.com"
+      - inputText: ${EMAIL}
+      - hideKeyboard
+      - tapOn: "••••••••••"
+      - inputText: ${PASSWORD}
+      - hideKeyboard
+      - tapOn: "Log in"
+
+# And AGAIN, now that a user is signed in. The recovery gate reads the session
+# belonging to whoever just logged in, so a sheet dismissed before the sign-out
+# says nothing about this account. It is a Modal: while it is up it masks the
+# dashboard out of the accessibility tree entirely, so the wait below sat out
+# its full sixty seconds staring at a screen that was there all along.
+# Polled, not checked once: the gate needs the session fetch to come back, so a
+# single check straight after "Log in" can run before the sheet has opened and
+# skip it — and then the wait below sits out its full timeout behind a Modal.
+- repeat:
+    times: 4
+    commands:
+      # The phone's password manager offers to save the credentials the moment
+      # the login is submitted. It is a SYSTEM dialog, so while it is up it
+      # masks the app out of the accessibility tree completely: every
+      # conditional below skips, and the wait at the end fails against a
+      # dashboard that was there the whole time. Not a product bug — a real
+      # device having opinions, and exactly the kind of thing only hardware
+      # tells you. Samsung Pass and Google both phrase it as "Save ...".
+      #
+      # "Cancel", not "Never for this app": dismissing is enough, and the other
+      # button writes a setting onto someone's phone.
+      - runFlow:
+          when:
+            visible: "Save (sign-in info|password).*"
+          commands:
+            - tapOn: "Cancel"
+      - runFlow:
+          when:
+            visible: "You left a workout open"
+          commands:
+            - tapOn: "Discard"
+      - waitForAnimationToEnd:
+          timeout: 4000
+
+- extendedWaitUntil:
+    visible: "Today's workout"
+    timeout: 60000

@@ -18,6 +18,9 @@ import { SessionProvider } from '@/lib/session';
 import { createQueryClient } from '@/lib/query/client';
 import { STORE_KIND, store } from '@/lib/db';
 import { configurePersistence } from '@/features/workout-session/store/sessionStore';
+import { flushAndReconcile } from '@/features/workout-session/sessionController';
+import { AuthGate } from '@/lib/AuthGate';
+import { startOutboxPump } from '@/lib/offline/pump';
 import { RecoveryGate } from '@/features/workout-session/RecoveryGate';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -57,11 +60,23 @@ export default function Layout() {
         configurePersistence({
           store,
           onPersistError: (e) => console.error('[db] draft write failed', e),
+          // The queue drains when a write LANDS, not when a screen hopes it has.
+          // The logger's own post-commit flush could run before the entry
+          // reached SQLite, and nothing re-armed it afterwards, so a set could
+          // sit queued for ever while the row was on screen.
+          onPersisted: () => { void flushAndReconcile(); },
         });
-        if (__DEV__) console.log(`[db] open (${STORE_KIND})`);
+        // journal_mode is recorded rather than assumed (G0 declined to claim WAL).
+        if (__DEV__) console.log(`[db] open (${STORE_KIND}) journal_mode=${store.journalMode() ?? 'unknown'}`);
       })
       .catch((e: unknown) => console.error('[db] failed to open', e));
   }, []);
+
+  // Retry queued writes on a timer, for the whole life of the app rather than
+  // of one screen. Every other trigger is something the user does, so a queue
+  // stranded by an unreachable server stayed stranded while the phone sat on a
+  // bench — measured at 90 s with the server back up and nothing moving.
+  useEffect(() => startOutboxPump({ flush: flushAndReconcile }), []);
 
   useEffect(() => { if (loaded) SplashScreen.hideAsync().catch(() => {}); }, [loaded]);
   if (!loaded) return null;
@@ -71,6 +86,10 @@ export default function Layout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <SessionProvider>
+            {/* Watches the session status rather than the route: app/index.tsx
+                redirects only while it is mounted, so losing the session
+                anywhere else left the screen you were on. */}
+            <AuthGate />
             <Root />
             <RecoveryGate enabled />
           </SessionProvider>

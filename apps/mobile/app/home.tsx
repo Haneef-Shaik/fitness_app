@@ -52,9 +52,17 @@ export default function Home() {
           <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
             Build a program, or start an empty session.
           </Text>
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: space.base }}>
+          {/* Starting a workout is the primary thing this screen is for. G3 left
+              it reachable only by URL, which G4 found by trying to drive it. */}
+          <Button
+            title="Start workout"
+            style={{ marginTop: space.base }}
+            onPress={() => router.push('/train/start')}
+          />
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
             <Button
               title="Programs"
+              kind="ghost"
               size="sm"
               style={{ flex: 1 }}
               onPress={() => router.push('/train/programs')}
@@ -63,7 +71,7 @@ export default function Home() {
               title="Exercises"
               kind="ghost"
               size="sm"
-              style={{ width: 110 }}
+              style={{ flex: 1 }}
               onPress={() => router.push('/train/exercises')}
             />
           </View>

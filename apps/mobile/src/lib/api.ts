@@ -5,6 +5,7 @@
  *   { success, data, error: { code, message, fields, request_id } }
  * The client unwraps it and throws ApiError, so callers never inspect `success`.
  */
+import type { Goal, GoalIn, Profile, ProfilePatch, TokenPair } from '@volt/api-types';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
@@ -79,8 +80,6 @@ async function request<T>(method: Method, path: string, body?: unknown): Promise
   }
 }
 
-export interface TokenPair { access_token: string; refresh_token: string; expires_in: number }
-
 async function tryRefresh(): Promise<boolean> {
   const token = await getRefreshToken();
   if (!token) return false;
@@ -105,42 +104,30 @@ export const api = {
   tryRefresh,
 };
 
-/* ---------------- typed endpoints ---------------- */
-export interface Profile {
-  display_name: string | null;
-  height_cm: number | null;
-  preferred_unit_system: 'metric' | 'imperial';
-  timezone: string;
-  week_starts_on: number;
-  activity_level: string;
-  daily_calorie_target: number | null;
-  protein_g_target: number | null;
-  carbs_g_target: number | null;
-  fat_g_target: number | null;
-  onboarding_completed: boolean;
-}
+/* ---------------- typed endpoints ----------------
+ * Every shape below comes from @volt/api-types, which is generated from the
+ * server's OpenAPI document and gated in CI. Nothing here is hand-typed: a
+ * hand-written response shape is drift with extra steps (D3b).
+ */
+export type { Goal, Profile, TokenPair };
 
-export interface Goal {
-  id: string; goal_type: string; metric_key: string; direction: string;
-  start_value: number | null; target_value: number; target_unit: string;
-  start_date: string; target_date: string | null; status: string;
-}
+interface AuthResult extends TokenPair { user: { id: string; email: string } }
 
 export const auth = {
   register: (email: string, password: string) =>
-    api.post<{ user: { id: string; email: string } } & TokenPair>('/auth/register', { email, password }),
+    api.post<AuthResult>('/auth/register', { email, password }),
   login: (email: string, password: string) =>
-    api.post<{ user: { id: string; email: string } } & TokenPair>('/auth/login', { email, password }),
+    api.post<AuthResult>('/auth/login', { email, password }),
   me: () => api.get<{ id: string; email: string; status: string }>('/auth/me'),
   logout: (refresh_token: string) => api.post('/auth/logout', { refresh_token }),
 };
 
 export const profileApi = {
   get: () => api.get<Profile>('/profile'),
-  patch: (patch: Partial<Profile>) => api.patch<Profile>('/profile', patch),
+  patch: (patch: ProfilePatch) => api.patch<Profile>('/profile', patch),
 };
 
 export const goalsApi = {
   list: () => api.get<Goal[]>('/goals'),
-  create: (g: Partial<Goal>) => api.post<Goal>('/goals', g),
+  create: (g: GoalIn) => api.post<Goal>('/goals', g),
 };

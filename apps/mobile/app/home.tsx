@@ -1,12 +1,11 @@
 /** B-01 Home Dashboard — BRD §14. First-run shows a checklist, never zeroed charts. */
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Meter, Pill, Stat, StatRow, Text, Well } from '@/ui';
-import { useTheme, space, radius, font } from '@/theme';
+import { DataBoundary } from '@/ui/DataBoundary';
+import { useTheme, space, font } from '@/theme';
 import { useSession } from '@/lib/session';
-import { goalsApi, type Goal } from '@/lib/api';
+import { useCreateGoal, useGoals } from '@/lib/query/hooks';
 import { dayTotals, remainingKcal } from '@volt/domain';
 
 function todayLabel(tz: string): string {
@@ -18,13 +17,10 @@ function todayLabel(tz: string): string {
 export default function Home() {
   const { c } = useTheme();
   const { profile, email, signOut, refreshProfile } = useSession();
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [busy, setBusy] = useState(false);
 
-  const load = async () => {
-    try { setGoals(await goalsApi.list()); } catch { /* surfaced by the empty state */ }
-  };
-  useEffect(() => { load(); }, []);
+  // The query layer owns fetching, caching, retry and the error surface (docs/03 §6).
+  const goals = useGoals();
+  const createGoal = useCreateGoal();
 
   // No meals logged yet — the totals come from the domain package, not a hardcoded 0.
   const totals = dayTotals([]);
@@ -37,8 +33,8 @@ export default function Home() {
       <ScrollView
         contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge }}
         refreshControl={
-          <RefreshControl refreshing={busy} tintColor={c.ink3}
-            onRefresh={async () => { setBusy(true); await Promise.all([load(), refreshProfile()]); setBusy(false); }} />
+          <RefreshControl refreshing={goals.isFetching} tintColor={c.ink3}
+            onRefresh={async () => { await Promise.all([goals.refetch(), refreshProfile()]); }} />
         }
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -108,36 +104,40 @@ export default function Home() {
 
         {/* Goals */}
         <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Goals</Text>
-        {goals.length === 0 ? (
-          <Card>
-            <Text variant="body" style={{ fontFamily: font.uiSemi }}>No goals yet</Text>
-            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-              Set a goal to track progress against.
-            </Text>
-            <Button title="Set a goal" kind="ghost" size="sm" style={{ marginTop: space.md }}
-              onPress={async () => {
-                await goalsApi.create({
-                  goal_type: 'fat_loss', metric_key: 'body_weight', direction: 'down',
-                  start_value: 78.4, target_value: 74, target_unit: 'kg',
-                  start_date: new Date().toISOString().slice(0, 10),
-                } as never);
-                load();
-              }} />
-          </Card>
-        ) : goals.map(g => (
-          <Card key={g.id} style={{ marginBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text variant="label">{g.goal_type.replace('_', ' ')}</Text>
-              <Pill kind="accent">{g.status}</Pill>
-            </View>
-            <Text variant="stat" style={{ marginTop: 8 }}>
-              {g.start_value ?? '—'} → {g.target_value} <Text variant="caption" tone="ink3">{g.target_unit}</Text>
-            </Text>
-            <View style={{ marginTop: space.md }}>
-              <Meter value={0.54} max={1} />
-            </View>
-          </Card>
-        ))}
+        <DataBoundary
+          query={goals}
+          empty={{
+            title: 'No goals yet',
+            body: 'Set a goal to track progress against.',
+            action: {
+              label: 'Set a goal',
+              onPress: () => createGoal.mutate({
+                goal_type: 'fat_loss', metric_key: 'body_weight', direction: 'down',
+                start_value: 78.4, target_value: 74, target_unit: 'kg',
+                start_date: new Date().toISOString().slice(0, 10),
+              } as never),
+            },
+          }}
+        >
+          {(rows) => (
+            <>
+              {rows.map(g => (
+                <Card key={g.id} style={{ marginBottom: 10 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text variant="label">{g.goal_type.replace('_', ' ')}</Text>
+                    <Pill kind="accent">{g.status}</Pill>
+                  </View>
+                  <Text variant="stat" style={{ marginTop: 8 }}>
+                    {g.start_value ?? '—'} → {g.target_value} <Text variant="caption" tone="ink3">{g.target_unit}</Text>
+                  </Text>
+                  <View style={{ marginTop: space.md }}>
+                    <Meter value={0.54} max={1} />
+                  </View>
+                </Card>
+              ))}
+            </>
+          )}
+        </DataBoundary>
 
         {/* Profile summary — proves the API round-trip */}
         <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Your setup</Text>

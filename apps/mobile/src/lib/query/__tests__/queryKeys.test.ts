@@ -33,3 +33,22 @@ describe('query key registry', () => {
     );
   });
 });
+
+describe('every key in the registry is reachable', () => {
+  it('produces a distinct, non-empty key for each read', () => {
+    const keys = [
+      qk.me(), qk.profile(), qk.goals(), qk.goals('active'), qk.goal('g'),
+      qk.muscleGroups(), qk.exercises({ q: 'press' }), qk.exercise('e'),
+      qk.programs(), qk.program('p'),
+      qk.sessions({ limit: 10 }), qk.session('s'), qk.activeSession(),
+      qk.records('e'), qk.previousPerformance('e'),
+    ].map((k) => JSON.stringify(k));
+
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const k of keys) expect(k.length).toBeGreaterThan(2);
+  });
+
+  it('separates goal statuses so a filtered list is its own cache', () => {
+    expect(qk.goals('active')).not.toEqual(qk.goals());
+  });
+});

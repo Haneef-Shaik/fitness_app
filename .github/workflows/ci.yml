@@ -73,6 +73,21 @@ jobs:
             || { echo "::error::packages/api-types/src/schema.d.ts is stale. Run: pnpm --filter @volt/api-types generate"; exit 1; }
       - run: pnpm --filter @volt/api-types typecheck
 
+  mobile:
+    name: Mobile client — types + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm --filter @volt/mobile typecheck
+      - name: Tests with the coverage gate
+        run: pnpm --filter @volt/mobile test:ci
+
   contract:
     name: Cross-language contract
     runs-on: ubuntu-latest

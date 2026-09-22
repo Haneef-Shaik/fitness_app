@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-22 (G0 closed — client spec re-platformed) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-22 (G1 closed — client spine) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -16,13 +16,13 @@
 | | |
 |---|---|
 | **Milestones complete** | M0, M1 — **2 of 9** |
-| **Tests passing** | **181** — 48 TypeScript, 133 Python *(3 skipped)* |
-| **API endpoints live** | 43 operations across 32 paths |
+| **Tests passing** | **250** — 48 TS domain, 133 Python *(3 skipped)*, **69 client** |
+| **API endpoints live** | 43 operations across 32 paths, all with **declared response shapes** (D17) |
 | **App screens built** | 6 of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 8 commits · `2aadfa0` client spec re-platformed (G0) |
-| **CI** | GitHub Actions — both suites + contract check |
+| **Version control** | git, 10 commits · `38df099` client spine (G1) |
+| **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
 M0 ████████████ done      specs, design system, 103 screens
@@ -199,13 +199,13 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G1 — generated API types, query layer, mobile test harness** | 43 operations are hand-typed on the client, and the client has **0 tests** | D3b, every screen goal |
-| 2 | **G2 — catalog & planning screens** | 8 screens; needs `/exercises/{id}/history` and `/stats`, which are declared but missing | AC-01 |
-| 3 | **G3 — the logger** | The product | AC-02, AC-04 |
-| 4 | **G4 — device verification via Maestro on Expo Go** | LAN connectivity and native behaviour are untested; the runner is chosen (D15) but not installed | DR4 |
+| 1 | **G2 — catalog & planning screens** | 8 screens; needs `/exercises/{id}/history` and `/stats`, which are declared but missing | AC-01 |
+| 2 | **G3 — the logger** | The product | AC-02, AC-04 |
+| 3 | **G4 — device verification via Maestro on Expo Go** | LAN connectivity and native behaviour are untested; the runner is chosen (D15) but not installed | DR4 |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
+*Cleared 22 Sep: **G1** — generated types (D3b closed), query layer, `DataBoundary`, test harness; D17–D18 recorded.*
 
 ## Blocked
 
@@ -219,14 +219,14 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 181 | grows with each milestone |
+| Tests passing | 250 | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | 83 | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
 | Migrations | 3 — M1 foundations, M2 training core, M3 deferrable ordering | kept reversible |
 | Mutation checks | 11 verified catches | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | not enforced | 80% (house rule) |
+| Coverage gate | **enforced** — client at 63.7% statements / 68.9% lines; `src/lib/query` and `DataBoundary` held at 90%+ | 80% global by G4 (D18) |
 | Acceptance criteria passing | 1 of 12 — **AC-12** | 12 of 12 |
 
 ## Changelog
@@ -247,6 +247,8 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 21 Sep | Fixed: migration downgrade left Postgres ENUM types behind, breaking re-upgrade |
 | 21 Sep | Test suite now runs migrations instead of `create_all` — drift cannot hide |
 | 22 Sep | **G0 closed** — `docs/03` re-platformed for React Native; persistence (**D14** `expo-sqlite`), E2E runner (**D15** Maestro) and the device performance budget (**D16**) recorded |
+| 22 Sep | **G1 closed** — `packages/api-types` generated and drift-gated (**D3b closed**), query layer with the §6.2 invalidation map as code, `DataBoundary`, and a client test harness: **0 → 69 tests** |
+| 22 Sep | API responses were absent from OpenAPI entirely — every route returned a bare `JSONResponse`. All 42 routes now declare `Envelope[T]` (**D17**); schemas 19 → 67 |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 
 
@@ -355,3 +357,85 @@ client strategy. **Each was seen to fail on its own probe and only its own**, th
   Expo Go only.
 - `apps/mobile` still ships `react-native-web`; harmless, but web is deferred (D1) and it should be
   a deliberate keep, not an accident.
+
+---
+
+### Handoff — G1 · Client spine            closed 22 Sep · `38df099`
+
+**Outcome claimed.** Every screen goal after this writes feature code only — no fetch wrapper, no
+hand-typed response shape, no per-screen loading state, no untested shared component.
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H0.1 | ✅ | Every package `docs/03` §2 named installed cleanly. The SDK-52 pins G0 recorded (`jest-expo@52.0.6`, RTL `13.3.3`) were correct and saved the version trap |
+| H0.3 | ✅ | D15 read before choosing tooling; no second E2E runner introduced |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H1.1 | `packages/api-types` | Client and server cannot silently disagree | Deleted `ProfileOut.week_starts_on`; `week_starts_on: number` vanished from the generated types and the gate exited 1. Restored, green. 67 schema types, 23 response payloads |
+| H1.2 | `queryKeys.ts` + `invalidation.ts` | One key and one documented invalidator per read | Tests assert code ↔ docs/03 §6.2 match **both ways**. Mutations caught: program→sessions fails the AC-12 test; `refetch: true` on a set fails the I10 test; a drifted doc citation fails both agreement tests |
+| H1.3 | `DataBoundary` | No screen re-implements the five states | 17 tests, 100% statements. Collapsing filtered-empty into empty fails 3 named tests; swapping error/loading precedence fails 1 |
+| H1.4 | `jest-expo` harness + ratchet | Untested shared code fails CI | `pnpm --filter @volt/mobile test:ci` → 69 tests, gate enforced. Two CI jobs added (types, mobile) |
+
+**Verified.**
+
+```
+pnpm --filter @volt/domain test      ->  48 passed
+uv run pytest -q (services/api)      -> 133 passed, 3 skipped   (unchanged by D17)
+pnpm --filter @volt/mobile test:ci   ->  69 passed, gate exit 0
+pnpm --filter @volt/mobile typecheck ->  clean
+generate + git diff --exit-code      ->  types in sync
+B-01 driven in a real browser against the live API: register -> onboarding ->
+  dashboard; DataBoundary rendered the empty state, "Set a goal" ran the mutation,
+  invalidation refetched, content state appeared. Zero console errors.
+```
+
+**Verified counts.** Client tests **0 → 69**. Repo total **181 → 250**.
+Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataBoundary` **100%**.
+
+**Decisions recorded.** D3b **closed** · D17 (declared response envelope) · D18 (coverage ratchet).
+
+**Left undone, and why — this is what G2 inherits as debt.**
+- **`src/lib/session.tsx` is still 0% covered** and `src/ui/index.tsx` is 31%. They are the whole gap
+  between today's number and the 80% house floor. Untouched deliberately: G1's brief was to build the
+  spine and migrate **one** screen, and rewriting the session provider under it would have widened the
+  blast radius of this goal considerably.
+- **Only B-01 was migrated.** The other five screens still call `api.ts` directly. That was the
+  instruction and it was the right one — a wide migration would have hidden whether the substrate is
+  any good.
+- **The Hermes `Intl` question G0 raised is still open.** No DST case is asserted yet, because
+  nothing in G1 buckets a date. **G3** must settle it before the logger depends on **I7**.
+- **`forceExit: true` in `jest.config.js`.** A mounted TanStack mutation observer never lets the Jest
+  worker go idle under jest-expo's RN environment. Narrowed to library+environment, not app code: it
+  hangs with a no-op `onSuccess`, the same `applyInvalidation` runs without React in
+  `invalidation.test.ts` and exits cleanly, and a synchronous `notifyManager` scheduler removed the
+  `act()` warnings but not the hang. Every test still runs and reports. **G3 should revisit it** — a
+  suite that cannot end on its own will eventually hide a real leak.
+
+**Traps hit.**
+- **The contract did not cover responses at all.** `packages/api-types` generated cleanly and looked
+  finished while containing only request bodies, because every route returns `ok(...)`, a
+  `JSONResponse`, and FastAPI documents nothing from that. A drift gate shipped in that state would
+  have been a gate over the half of the contract nobody reads. Caught by looking at what was
+  generated rather than that it generated — **D17**.
+- **Jest's coverage buckets.** Naming a path in `coverageThreshold` **removes it from `global`**, so
+  after holding `src/lib/query` at 90% the `global` numbers dropped to the untested remainder and the
+  build failed against figures that were correct a minute earlier. The thresholds now say which
+  denominator each bucket measures.
+- **jest-expo's `transformIgnorePatterns` is inert under pnpm.** Its allow-list is anchored at the
+  first `node_modules/`, which under pnpm is followed by `.pnpm/`, so every React Native source was
+  skipped and Jest choked on Flow syntax. Replaced with a pattern that tests the inner
+  `node_modules/`, which carries the real package name in both layouts.
+- **A broken install, not a broken config.** `strip-ansi@6.0.1` had an ESM `ansi-regex@6.3.0` nested
+  inside it while declaring `^5.0.1`, which crashed every Jest reporter with
+  `ansiRegex is not a function` and looked exactly like a misconfigured harness. Pinned by a pnpm
+  override.
+- **`EXPO_PUBLIC_API_URL` cannot be tested at runtime.** babel-preset-expo inlines it at transform
+  time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
+  reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
+  by a test that proves nothing.
+

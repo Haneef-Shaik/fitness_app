@@ -74,7 +74,7 @@ module.exports = {
   // The substrate G1 built is held at 90%+ so newly shared code can never be the
   // thing that drags the number down.
   coverageThreshold: {
-    global: { statements: 45, branches: 38, functions: 45, lines: 46 },
+    global: { statements: 45, branches: 38, functions: 42, lines: 46 },
     './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
     './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },
   },

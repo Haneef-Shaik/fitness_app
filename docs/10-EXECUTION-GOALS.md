@@ -100,9 +100,9 @@ did not happen, whatever the tracker says.
 | **H3.2** | Outbox | FIFO per aggregate, idempotent replay, terminal 4xx surfaced — **reused by G7/G9** | G3 | ✅ 22 Sep |
 | **H3.3** | Recovery protocol | Local draft vs `GET /workout-sessions/active` reconciled deterministically | G3 | ⚠️ 22 Sep — logic proven, **kill-and-relaunch unverified** (no SQLite on web) |
 | **H3.4** | Session mutation endpoints | `PATCH|DELETE /session-exercises/{id}`, reorder, `PATCH /workout-sessions/{id}` | G3 | ✅ 22 Sep |
-| **H4.1** | E2E suite | AC-01, AC-02, AC-04 and the offline flow run in CI | G4 | ⬜ |
-| **H4.2** | Device-verified build | Runs on a physical phone over LAN; DR4 closed | G4 | ⬜ |
-| **H4.3** | Measured p95 | tap → set rendered, on hardware, with the number written down | G4 | ⬜ |
+| **H4.1** | E2E suite | AC-01, AC-02, AC-04 and the offline flow run in CI | G4 | ⚠️ **written, never run** — 4 Maestro flows exist; no target to run them on |
+| **H4.2** | Device-verified build | Runs on a physical phone over LAN; DR4 closed | G4 | ⬜ **blocked on hardware** |
+| **H4.3** | Measured p95 | tap → set rendered, on hardware, with the number written down | G4 | ⬜ **blocked on hardware** — the harness exists, the number does not |
 | **H5.1** | Cursor pagination convention | One shape for every list endpoint after this | G5 | ⬜ |
 | **H5.2** | Session comparison primitive | Reused by G6's charts | G5 | ⬜ |
 | **H6.1** | Chart kit | Series palette, axis, tooltip, empty state — obeys [05 §3](05-DESIGN-SYSTEM.md) | G6 | ⬜ |

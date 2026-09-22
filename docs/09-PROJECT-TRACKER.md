@@ -16,7 +16,7 @@
 | | |
 |---|---|
 | **Milestones complete** | M0, M1 — **2 of 9** |
-| **Tests passing** | **463** — 48 TS domain, 164 Python *(3 skipped)*, **251 client** |
+| **Tests passing** | **509** — 48 TS domain, 164 Python *(3 skipped)*, **297 client** |
 | **API endpoints live** | **49** operations across **37** paths, all with declared response shapes (D17) |
 | **App screens built** | **22** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
@@ -220,7 +220,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | 463 | grows with each milestone |
+| Tests passing | 509 | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | 83 | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
@@ -257,6 +257,9 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **`expo-sqlite` has no web build** (`platforms: [apple, android]`). D14 stands for the shipping platforms but is **unproven on hardware**; `src/lib/db` is now an interface with a SQLite and an in-memory implementation |
 | 22 Sep | Fixed before it shipped: a **refresh stampede** — concurrent 401s each refreshed with the same token, and reuse detection revoked the family, signing the user out mid-workout. Refresh is now single-flight (**D20** covers the related UUID bug) |
 | 22 Sep | Zustand replaced by ~50 lines over `useSyncExternalStore` (**D19**): v5 and v4 both crashed with React `null` inside the library, as FlashList did in G2 |
+| 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
+| 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
+| 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 
 
@@ -620,4 +623,46 @@ typecheck, drift gate, G0 spec gate -> all clean
   `@shopify/flash-list` produced in G2. Replaced with ~50 lines over React's own
   `useSyncExternalStore` (**D19**). The reducers did not change, which is what keeping them pure was
   for.
+
+---
+
+### Handoff — G4 · **OPEN, blocked on hardware**            as of 22 Sep · `334c7f4`
+
+**This is not a close-out.** G4's three central claims can only be answered by a native target and
+there is none on this machine: no Xcode, no physical device, no emulator (no system image, and
+`java` is installed but unlinked). Everything recorded below is either proven or explicitly not.
+
+**What is proven.**
+
+| Claim | Evidence |
+|---|---|
+| AC-04's feature exists | The previous-performance strip — **G3 never built it**, so AC-04 was unprovable regardless of hardware. 8 tests: prior sets, warm-ups excluded, warm-ups-only, first-time prompt, loading, retry, a11y label |
+| The E2E flows exist | Maestro **2.10.0 installed** (D15 chose it in G0; nobody had run it). 4 flows, written against accessibility labels so they break when the app becomes *unusable*, not when a layout shifts |
+| The latency harness exists | `commitTiming.ts`, p95 by nearest rank, `worst` reported beside it because one stall in twenty does not move p95 but the user still saw it |
+| The Jest suite ends on its own | `forceExit` **removed** — carried G1→G3. Dropping Zustand (D19) took the cause with it. Three clean runs, 297 passed, exit 0 |
+
+**What is NOT proven, and cannot be from here.**
+
+| Claim | Status |
+|---|---|
+| **SQLite opens (D14)** | `sqlite.ts` is written, typed and contract-tested against its in-memory twin, and has **executed zero lines** |
+| **Kill-and-relaunch recovery** | The logic has a test per row of the §5.3 table; the *behaviour* needs a store that survives a process death, which web's in-memory one cannot |
+| **tap → set p95 (H4.3)** | The path is proven *synchronous* by a test that fails when an `await` is introduced. That is a different claim from *under 100 ms on a phone* |
+| **AC-01 / AC-02 / AC-04 by E2E** | Flows written, never executed |
+
+**Two bugs found by covering the layer that had none.**
+- `flushAndReconcile` read "not in the failed list" as sent — G3's sync dot bug, now guarded by a
+  test that fails when the bug is reintroduced.
+- `session.tsx` set the email before fetching the profile, so a failed profile left the app
+  signed-out while still showing whose account it was.
+
+**A method note worth keeping.** The E-08 mutation check **passed twice while the guard was
+useless**: first because the mocked `useFinishSession` did not clear the draft as the real hook
+does, then because the mutation kept a fallback that rescued it. Only the third, faithful
+reproduction failed the tests. *A mutation check that passes is not evidence until the mutation is
+known to be faithful.*
+
+**To finish G4.** `bash scripts/verify-on-device.sh` reports what it finds and what to do next.
+With an Android device over adb it runs all four flows; with an iPhone it prints the manual
+sequence, because Maestro cannot drive a physical iPhone without Xcode.
 

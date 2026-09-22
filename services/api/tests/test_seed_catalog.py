@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models import Exercise, ExerciseMuscle, MuscleGroup, MuscleRole
-from app.seed.catalog import seed_catalog
+from app.seed.catalog import MUSCLES, seed_catalog
 
 
 async def _session(engine) -> AsyncSession:
@@ -23,7 +23,16 @@ async def test_seed_is_idempotent(engine):
 
     async with await _session(engine) as db:
         counts = {
-            "muscle_groups": await db.scalar(select(func.count()).select_from(MuscleGroup)),
+            # Counted by SEEDED slug, not as a total row count. The suite shares
+            # one database, so a test that legitimately adds a muscle group of
+            # its own (G5 needs a three-level tree to prove "or a descendant")
+            # would otherwise fail this file from a different one. What this
+            # guards is that the seed produced every group exactly once, which
+            # is what the slug filter measures.
+            "muscle_groups": await db.scalar(
+                select(func.count()).select_from(MuscleGroup)
+                .where(MuscleGroup.slug.in_([slug for slug, _, _ in MUSCLES]))
+            ),
             "exercises": await db.scalar(
                 select(func.count()).select_from(Exercise).where(Exercise.owner_user_id.is_(None))
             ),

@@ -167,3 +167,26 @@ describe('fallbacks when no id is supplied', () => {
     expect(JSON.stringify(inv.keys)).toContain('s1');
   });
 });
+
+describe('history is session-derived, so it goes stale when sessions change', () => {
+  const prefixes = (kind: Parameters<typeof invalidationFor>[0]) =>
+    invalidationFor(kind, { sessionId: 's1' }).keys.map((k) => k[0]);
+
+  it('finishing a session invalidates the history list and its lookups', () => {
+    // F-01, F-05 and F-06 all read completed sessions. The moment one is
+    // finished every one of them is showing a list that is missing it.
+    const first = prefixes('session.finished');
+    expect(first).toContain('history');
+    expect(first).toContain('previous-occurrence');
+    expect(first).toContain('session-comparison');
+  });
+
+  it('cancelling or reopening a session invalidates them too', () => {
+    // A reopened session LEAVES history: it is no longer completed. Leaving it
+    // in the cache shows a session on F-01 that the server no longer considers
+    // finished — and AC-05 would happily resolve to it.
+    const after = prefixes('session.lifecycleChanged');
+    expect(after).toContain('history');
+    expect(after).toContain('previous-occurrence');
+  });
+});

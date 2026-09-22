@@ -66,6 +66,16 @@ export type SetBatchResult = Schemas['SetBatchOut'];
 export type SetBatchItem = Schemas['SetBatchItemOut'];
 export type Deleted = Schemas['DeletedOut'];
 
+/* ------------------------------------------------------------- history (G5) */
+
+export type HistoryItem = Schemas['HistoryItemOut'];
+export type CursorMeta = Schemas['CursorMeta'];
+export type PreviousOccurrence = Schemas['PreviousOccurrenceOut'];
+export type SessionComparison = Schemas['ComparisonOut'];
+export type ComparisonRow = Schemas['ComparisonRowOut'];
+export type ComparisonCell = Schemas['ComparisonCellOut'];
+export type ComparisonSession = Schemas['ComparisonSessionOut'];
+
 /* ---------------------------------------------------------- request payloads */
 
 export type ProfilePatch = Schemas['ProfilePatch'];

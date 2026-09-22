@@ -78,9 +78,13 @@ module.exports = {
     //
     // NOT the figure the coverage table prints. Naming a path below REMOVES it
     // from `global`, so the printed 55.66% includes src/lib/query and
-    // DataBoundary while this bucket is everything else. Measured remainder
-    // 22 Sep (G4): 51.90 / 47.15 / 48.33 / 52.31.
-    global: { statements: 51, branches: 47, functions: 48, lines: 52 },
+    // DataBoundary while this bucket is everything else.
+    //
+    // Measured remainder 23 Sep (G5): 54.58 / 50.28 / 50.72 / 55.14 — up from
+    // G4's 51.90 / 47.15 / 48.33 / 52.31. G5 added seven screens AND their
+    // tests, so the floor rose with the ceiling rather than being held down to
+    // accommodate new untested code.
+    global: { statements: 54, branches: 50, functions: 50, lines: 55 },
     './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
     './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },
   },

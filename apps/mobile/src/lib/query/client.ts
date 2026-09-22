@@ -23,6 +23,11 @@ export const staleTimes = {
   records: 5 * MINUTE,
   /** Immutable for the duration of a session. */
   previousPerformance: 5 * MINUTE,
+  /** Completed sessions do not change on their own; only finishing one adds to them. */
+  history: 5 * MINUTE,
+  previousOccurrence: 5 * MINUTE,
+  /** Comparing two finished sessions is a question with a fixed answer. */
+  sessionComparison: 30 * MINUTE,
 } as const;
 
 /**

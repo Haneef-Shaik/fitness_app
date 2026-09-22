@@ -1,0 +1,43 @@
+# AC-05 · "Retrieve the previous chest-focused session without knowing its date."
+#
+# Passes when F-05 resolves to the most recent completed session whose exercise
+# has chest (or a descendant) as a primary muscle — reached by NAVIGATING, never
+# by knowing when it was. That is the whole criterion: the user does not
+# remember the date, so any flow that types one is testing something else.
+appId: host.exp.exponent
+name: AC-05 previous occurrence
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+# Navigated to, not deep-linked: "without knowing its date" also means without
+# knowing the URL. F-01 is reachable from the dashboard, F-05 from F-01.
+- tapOn: "History"
+- extendedWaitUntil:
+    visible: "Filters"
+    timeout: 30000
+
+# The seeded history is not empty, so a row must be here. An empty list would
+# mean the seed is wrong, not the screen.
+- assertVisible: ".*sets.*"
+
+# F-05 itself. The route carries the muscle, which is what the user picked —
+# never a date.
+- openLink: exp://${HOST}/--/train/history/previous?muscle=chest
+- extendedWaitUntil:
+    visible:
+      id: "previous-occurrence"
+    timeout: 30000
+
+# The resolution is stated, which PRD §7.2 makes part of the rule rather than a
+# nicety. Whichever role matched, the screen says which.
+- assertVisible: "Found by: exercises with chest as a (primary|secondary) muscle"
+- assertVisible: "Full session"

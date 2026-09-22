@@ -74,6 +74,15 @@ export default function Home() {
               style={{ flex: 1 }}
               onPress={() => router.push('/train/exercises')}
             />
+            {/* G4's lesson: a screen reachable only by typing a URL is not
+                reachable. F-01 gets a button the moment it exists. */}
+            <Button
+              title="History"
+              kind="ghost"
+              size="sm"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/train/history')}
+            />
           </View>
         </Card>
 

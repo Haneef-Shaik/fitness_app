@@ -15,6 +15,14 @@ export interface ExerciseFilters {
   includeArchived?: boolean;
 }
 
+export interface HistoryFilters {
+  muscle?: string;
+  exerciseId?: string;
+  from?: string;
+  to?: string;
+  limit?: number;
+}
+
 export interface SessionFilters {
   from?: string;
   to?: string;
@@ -46,6 +54,14 @@ export const qk = {
   exerciseStats: (exerciseId: string) => ['exercise-stats', exerciseId] as const,
   previousPerformance: (exerciseId: string, before?: string) =>
     ['previous-performance', exerciseId, before ?? 'latest'] as const,
+
+  // retrieval (G5). `history` is a LIST key carrying its filters, so changing a
+  // filter is a different query rather than a refetch of the same one — which
+  // is what lets F-02 keep the unfiltered page cached behind the sheet.
+  history: (f: HistoryFilters = {}) => ['history', 'list', f] as const,
+  previousOccurrence: (muscle: string) => ['previous-occurrence', muscle] as const,
+  sessionComparison: (sessionIds: readonly string[]) =>
+    ['session-comparison', [...sessionIds].sort().join(',')] as const,
 } as const;
 
 /** The prefixes invalidation targets. Kept beside the registry so they cannot drift. */
@@ -58,4 +74,7 @@ export const qkPrefix = {
   exerciseHistory: () => ['exercise-history'] as const,
   exerciseStats: () => ['exercise-stats'] as const,
   previousPerformance: () => ['previous-performance'] as const,
+  history: () => ['history'] as const,
+  previousOccurrence: () => ['previous-occurrence'] as const,
+  sessionComparison: () => ['session-comparison'] as const,
 } as const;

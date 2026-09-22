@@ -21,7 +21,7 @@
 | **App screens built** | **14** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 17 commits · `2f86b0d` catalog & planning (G2) |
+| **Version control** | git, 18 commits · `155fb99` catalog & planning (G2) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -444,7 +444,7 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
 
 ---
 
-### Handoff — G2 · Catalog and planning            closed 22 Sep · `<this commit>`
+### Handoff — G2 · Catalog and planning            closed 22 Sep · `155fb99`
 
 **Outcome claimed.** A user can search the catalog, open an exercise, create a custom one, and build
 a multi-day program with prescriptions, entirely on a phone screen. **AC-01 is reachable.**

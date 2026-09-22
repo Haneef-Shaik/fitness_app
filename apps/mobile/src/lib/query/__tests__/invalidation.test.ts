@@ -71,6 +71,21 @@ describe('invalidation rules', () => {
     expect(flat).toContain('records');
   });
 
+  it("finishing a session also refreshes D-02's session-derived reads", () => {
+    // The recent-sessions list and the e1RM trend are computed from sessions, so
+    // they are stale the instant a workout ends.
+    const inv = invalidationFor('session.finished', { sessionId: 's1' });
+    const flat = JSON.stringify(inv.keys);
+    expect(flat).toContain('exercise-history');
+    expect(flat).toContain('exercise-stats');
+  });
+
+  it('AC-12 still holds for the new reads: a program edit leaves them alone', () => {
+    const flat = JSON.stringify(invalidationFor('program.changed', { programId: 'p1' }).keys);
+    expect(flat).not.toContain('exercise-history');
+    expect(flat).not.toContain('exercise-stats');
+  });
+
   it('a plan-day edit reaches only its program', () => {
     const inv = invalidationFor('planDay.changed', { programId: 'p9' });
     expect(inv.keys).toEqual([qk.program('p9')]);

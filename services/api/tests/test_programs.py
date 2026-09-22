@@ -214,3 +214,56 @@ async def test_ac12_editing_a_plan_leaves_a_logged_session_untouched(auth_client
     after = await snapshot()
     assert after == before, "a plan edit changed logged performance — AC-12 violated"
 
+
+
+# ------------------------------------------------- m4: time/distance targets
+
+async def test_a_plan_exercise_can_prescribe_duration_and_distance(auth_client):
+    """C-07 renders from the exercise's tracked fields, so a plank needs a time
+    target and a run needs a distance one. Before m4 there was nowhere to put them."""
+    r = await auth_client.post("/v1/workout-programs", json={"name": "Conditioning"})
+    assert r.status_code == 201, r.text
+    r = await auth_client.post(
+        f"/v1/workout-programs/{r.json()['data']['id']}/days", json={"name": "Core"}
+    )
+    assert r.status_code == 201, r.text
+    day_id = r.json()["data"]["days"][0]["id"]
+    ex = await _exercise_ids(auth_client, 2)
+
+    r = await auth_client.put(f"/v1/plan-days/{day_id}/exercises", json=[
+        {"exercise_id": ex[0], "target_sets": 3, "target_duration_seconds": 60},
+        {"exercise_id": ex[1], "target_sets": 1, "target_distance_m": 5000},
+    ])
+    assert r.status_code == 200, r.text
+    saved = r.json()["data"]
+
+    rows = saved["days"][0]["exercises"]
+    assert rows[0]["target_duration_seconds"] == 60
+    assert rows[0]["target_reps_min"] is None
+    assert rows[1]["target_distance_m"] == 5000
+    assert rows[1]["target_load"] is None
+
+
+async def test_the_session_snapshot_carries_the_time_target(auth_client):
+    """I1 — the logger reads the frozen snapshot, never the live plan. If the
+    target is not in the snapshot the logger cannot show it."""
+    r = await auth_client.post("/v1/workout-programs", json={"name": "Conditioning 2"})
+    assert r.status_code == 201, r.text
+    r = await auth_client.post(
+        f"/v1/workout-programs/{r.json()['data']['id']}/days", json={"name": "Core"}
+    )
+    assert r.status_code == 201, r.text
+    day_id = r.json()["data"]["days"][0]["id"]
+    ex = await _exercise_ids(auth_client, 1)
+    r = await auth_client.put(f"/v1/plan-days/{day_id}/exercises", json=[
+        {"exercise_id": ex[0], "target_sets": 3, "target_duration_seconds": 45},
+    ])
+    assert r.status_code == 200, r.text
+
+    r = await auth_client.post("/v1/workout-sessions", json={"plan_day_id": day_id})
+    assert r.status_code == 201, r.text
+    s = r.json()["data"]
+
+    snap = s["exercises"][0]["target_snapshot"]
+    assert snap["target_duration_seconds"] == 45
+    assert snap["target_distance_m"] is None

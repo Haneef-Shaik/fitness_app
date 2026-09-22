@@ -145,6 +145,8 @@ def _snapshot(pe: PlanExercise) -> dict:
         "target_reps_max": pe.target_reps_max,
         "target_load": _num(pe.target_load),
         "load_unit": pe.load_unit,
+        "target_duration_seconds": pe.target_duration_seconds,
+        "target_distance_m": _num(pe.target_distance_m),
         "rest_seconds": pe.rest_seconds,
         "plan_exercise_id": str(pe.id),
     }

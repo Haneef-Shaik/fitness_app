@@ -308,6 +308,16 @@ CREATE INDEX ix_outbox_ready ON outbox (aggregate_id, id) WHERE state = 'pending
   makes an enqueue that happens twice a no-op rather than a duplicate set. The partial index is the
   flush query — pending entries only, already ordered per aggregate.
 
+**One contract, two implementations.** `expo-sqlite` declares
+`"platforms": ["apple", "android"]` — there is **no web build**, and importing it on web throws
+`Cannot find native module 'ExpoSQLite'` and takes the app down. Web is currently the only runnable
+target ([DR4](08-PROJECT-CHARTER.md#7-delivery-risks)), so `src/lib/db` is an **interface** with two
+implementations behind it: SQLite on iOS and Android, and an in-memory store on web, selected by
+Metro's platform resolution (`index.ts` vs `index.web.ts`). The web store warns on start that drafts
+do not survive a reload, because a durability layer that is silently not durable is worse than one
+that is absent. Both are exercised by the same contract suite, so the reducers, the outbox ordering
+and the recovery rules are proven without a device; only the SQL itself waits for **G4**.
+
 **Recovery**
 - The draft is written on **every committed change**, not on an interval or a debounce. §5.2 places
   that write after the render, so it costs the user nothing.

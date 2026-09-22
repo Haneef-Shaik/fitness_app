@@ -84,6 +84,10 @@ class PlanExercise(Base, TimestampMixin):
     target_reps_max: Mapped[int | None] = mapped_column()
     target_load: Mapped[float | None] = mapped_column(Numeric(7, 2))
     load_unit: Mapped[str] = mapped_column(String(8), default="kg", nullable=False)
+    # A plank has no reps and a run has no load, so a prescription that can only
+    # express sets×reps@load cannot describe them. Canonical units: seconds, metres.
+    target_duration_seconds: Mapped[int | None] = mapped_column()
+    target_distance_m: Mapped[float | None] = mapped_column(Numeric(10, 2))
     rest_seconds: Mapped[int | None] = mapped_column()
 
     plan_day: Mapped[WorkoutPlanDay] = relationship(back_populates="exercises")

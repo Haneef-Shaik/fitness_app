@@ -34,14 +34,13 @@ from app.schemas.programs import (
 router = APIRouter(tags=["programs"])
 
 def _ex_out(pe: PlanExercise, names: dict[uuid.UUID, str]) -> dict:
-    return PlanExerciseOut(
-        id=pe.id, order_index=pe.order_index, exercise_id=pe.exercise_id,
-        exercise_name=names.get(pe.exercise_id),
-        target_sets=pe.target_sets, target_reps_min=pe.target_reps_min,
-        target_reps_max=pe.target_reps_max,
-        target_load=float(pe.target_load) if pe.target_load is not None else None,
-        load_unit=pe.load_unit, rest_seconds=pe.rest_seconds,
-    ).model_dump(mode="json")
+    # Validated from the ORM object rather than field-by-field. The hand-written
+    # version silently dropped every column added after it was written — m4's
+    # duration and distance targets reached the database and never reached the
+    # client, and nothing failed until a test asked for them.
+    out = PlanExerciseOut.model_validate(pe)
+    out.exercise_name = names.get(pe.exercise_id)
+    return out.model_dump(mode="json")
 
 
 async def _serialise(db: DbSession, p: WorkoutProgram) -> dict:

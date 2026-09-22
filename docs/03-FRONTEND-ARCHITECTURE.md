@@ -360,6 +360,8 @@ export const qk = {
   session:             (id: string)        => ['sessions', 'detail', id] as const,
   activeSession:       ()                  => ['sessions', 'active'] as const,
   records:             (exerciseId: string) => ['records', exerciseId] as const,
+  exerciseHistory:     (exerciseId: string) => ['exercise-history', exerciseId] as const,
+  exerciseStats:       (exerciseId: string) => ['exercise-stats', exerciseId] as const,
   previousPerformance: (exerciseId: string, before?: string) =>
                          ['previous-performance', exerciseId, before ?? 'latest'] as const,
 } as const
@@ -388,7 +390,7 @@ added here without code — or code without a row — fails the build rather tha
 | Start a session | `activeSession`, `sessions` | The dashboard's "resume" affordance and the history list both change |
 | Commit / edit / delete a **set** | `session(id)` — **optimistically, with no refetch** | **I10.** The set-commit path never awaits the network; the local draft is authoritative while the session is in progress (§5) |
 | Add / remove / reorder a session exercise | `session(id)` | Same reason; the session is one aggregate |
-| **Finish** a session | `activeSession`, `sessions`, `session(id)`, `records(*)` | Volume, e1RM and PRs are computed inside the finish transaction, so the server's numbers are authoritative from this moment |
+| **Finish** a session | `activeSession`, `sessions`, `session(id)`, `records(*)`, `exerciseHistory(*)`, `exerciseStats(*)` | Volume, e1RM and PRs are computed inside the finish transaction, so the server's numbers are authoritative from this moment. **D-02 is session-derived too** — its recent-sessions list and e1RM trend are stale the instant a workout ends |
 | Cancel / reopen a session | `activeSession`, `sessions`, `session(id)` | A cancelled session leaves history; a reopened one re-enters it |
 | Outbox flush (`/sets/batch`) | `session(id)` per affected session | The flush is the network catching up to state the UI already shows |
 

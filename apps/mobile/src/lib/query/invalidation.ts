@@ -108,6 +108,10 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       qk.sessions(),
       ...(sessionId ? [qk.session(sessionId)] : []),
       qkPrefix.records(),
+      // D-02 is session-derived: its recent sessions and e1RM trend are stale the
+      // instant a workout ends.
+      qkPrefix.exerciseHistory(),
+      qkPrefix.exerciseStats(),
     ],
   },
   'session.lifecycleChanged': {

@@ -1357,6 +1357,10 @@ export interface components {
              * @enum {string}
              */
             load_unit: "kg" | "lb";
+            /** Target Duration Seconds */
+            target_duration_seconds?: number | null;
+            /** Target Distance M */
+            target_distance_m?: number | null;
             /** Rest Seconds */
             rest_seconds?: number | null;
         };
@@ -1381,6 +1385,10 @@ export interface components {
              * @enum {string}
              */
             load_unit: "kg" | "lb";
+            /** Target Duration Seconds */
+            target_duration_seconds?: number | null;
+            /** Target Distance M */
+            target_distance_m?: number | null;
             /** Rest Seconds */
             rest_seconds?: number | null;
             /**

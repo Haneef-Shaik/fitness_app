@@ -13,6 +13,10 @@ class PlanExerciseIn(BaseModel):
     target_reps_max: int | None = Field(default=None, ge=1, le=100)
     target_load: float | None = Field(default=None, ge=0, le=1000)
     load_unit: Literal["kg", "lb"] = "kg"
+    # For exercises whose tracked fields are time or distance rather than reps/load
+    # (C-07 renders from `exercises.tracks_*`). Canonical units: seconds, metres.
+    target_duration_seconds: int | None = Field(default=None, ge=1, le=86400)
+    target_distance_m: float | None = Field(default=None, gt=0, le=1_000_000)
     rest_seconds: int | None = Field(default=None, ge=0, le=600)
 
     @model_validator(mode="after")

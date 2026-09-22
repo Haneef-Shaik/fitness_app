@@ -42,7 +42,7 @@ let accessToken: string | null = null;
 export const setAccessToken = (t: string | null) => { accessToken = t; };
 export const getAccessToken = () => accessToken;
 
-type Method = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 async function raw<T>(method: Method, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}/v1${path}`, {
@@ -100,6 +100,7 @@ export const api = {
   get:   <T>(p: string) => request<T>('GET', p),
   post:  <T>(p: string, b?: unknown) => request<T>('POST', p, b),
   patch: <T>(p: string, b?: unknown) => request<T>('PATCH', p, b),
+  put:   <T>(p: string, b?: unknown) => request<T>('PUT', p, b),
   del:   <T>(p: string) => request<T>('DELETE', p),
   tryRefresh,
 };

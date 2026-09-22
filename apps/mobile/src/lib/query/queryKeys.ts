@@ -42,6 +42,8 @@ export const qk = {
   session: (id: string) => ['sessions', 'detail', id] as const,
   activeSession: () => ['sessions', 'active'] as const,
   records: (exerciseId: string) => ['records', exerciseId] as const,
+  exerciseHistory: (exerciseId: string) => ['exercise-history', exerciseId] as const,
+  exerciseStats: (exerciseId: string) => ['exercise-stats', exerciseId] as const,
   previousPerformance: (exerciseId: string, before?: string) =>
     ['previous-performance', exerciseId, before ?? 'latest'] as const,
 } as const;
@@ -53,5 +55,7 @@ export const qkPrefix = {
   programs: () => ['programs'] as const,
   sessions: () => ['sessions'] as const,
   records: () => ['records'] as const,
+  exerciseHistory: () => ['exercise-history'] as const,
+  exerciseStats: () => ['exercise-stats'] as const,
   previousPerformance: () => ['previous-performance'] as const,
 } as const;

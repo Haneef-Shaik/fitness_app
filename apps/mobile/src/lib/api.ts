@@ -10,6 +10,10 @@ import { Platform } from 'react-native';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
 
 function defaultBase(): string {
+  // NOTE: babel-preset-expo INLINES EXPO_PUBLIC_* at build time — this compiles to
+  // a literal, not a lookup. Setting it in the shell after Metro has started does
+  // nothing; restart Metro (or rebuild) for a change to take effect. That is also
+  // why the branch is not unit-tested: under Jest it is already `undefined`.
   const fromEnv = process.env.EXPO_PUBLIC_API_URL;
   if (fromEnv) return fromEnv;
   if (Platform.OS === 'web') return 'http://localhost:8000';

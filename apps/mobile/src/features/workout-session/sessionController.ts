@@ -12,8 +12,17 @@ import type { OutboxEntry } from '../../lib/db/types';
 import { isRetryable } from '../../lib/query/client';
 import { useSessionStore } from './store/sessionStore';
 
-/** One outbox, wired to the real transport. */
-export const outbox = createOutbox({
+/**
+ * One outbox, wired to the real transport, built on first use.
+ *
+ * Lazily, not at module scope: binding the store when this module is imported
+ * makes it impossible to swap — which is exactly the shape that left
+ * `flushAndReconcile` untested while it shipped a sync dot that lied.
+ */
+let instance: ReturnType<typeof createOutbox> | null = null;
+
+function build() {
+  return createOutbox({
   store,
   send: async (entry: OutboxEntry): Promise<SendResult> => {
     try {
@@ -34,7 +43,15 @@ export const outbox = createOutbox({
       return { ok: false, retryable: true, message: 'Could not reach the server.' };
     }
   },
-});
+  });
+}
+
+export const outbox = {
+  flush: () => (instance ??= build()).flush(),
+  status: () => (instance ??= build()).status(),
+  /** Tests build a fresh one per case. */
+  __reset: () => { instance = null; },
+};
 
 /**
  * Marks every set in the draft according to what the outbox actually holds.

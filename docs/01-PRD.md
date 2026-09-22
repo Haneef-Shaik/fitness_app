@@ -345,7 +345,7 @@ Each BRD requirement is expanded into testable sub-requirements. `→` gives the
 |------|-------------|------------------------------|
 | Performance | < 300 ms API latency for common reads/writes | Set commits are optimistic and never await the network; skeletons only for first paint |
 | Availability | Core workout logging usable when AI is down | Training and AI share no runtime dependency; AI failures are contained in the nutrition review screens |
-| Offline | Mobile supports local logging + sync | In-session state in IndexedDB; a durable write outbox; an explicit Sync Center (L-02) |
+| Offline | Mobile supports local logging + sync | In-session state in on-device SQLite ([D14](08-PROJECT-CHARTER.md#6-decision-log)); a durable write outbox in the same database; an explicit Sync Center (L-02) |
 | Scalability | AI processing independently scalable and async | Clients never hold an open request for analysis; they poll or subscribe |
 | Observability | Monitor API latency, failed writes, AI latency, model and resolution failures | Client emits a defined event taxonomy (§07 traceability) with correlation IDs |
 | Data quality | Confidence + correction paths | Confidence is a first-class UI element; nothing AI-derived is silently confirmed |
@@ -394,7 +394,7 @@ Matches BRD §24's recommended build order.
 | R1 | AI food estimates are wrong often enough to destroy trust | High | Confidence is always visible; correction is one tap; the review step is mandatory; track edit-rate as a quality signal |
 | R2 | Nutrition database licensing cost or coverage gaps (esp. regional/home-cooked food) | High | Normalise any provider into the internal `Food` model behind a resolver interface; allow custom foods; allow AI-proposed macros with no resolved food |
 | R3 | Set logging is too slow → users abandon mid-workout | High | Optimistic local writes, prefill, repeat-set, large tap targets, no blocking spinners |
-| R4 | Losing an in-progress session | Critical | Draft persisted to IndexedDB on every keystroke-commit; explicit recovery screen (E-10) |
+| R4 | Losing an in-progress session | Critical | Draft persisted to on-device SQLite on every committed change — never on an interval — and the outbox entry is enqueued in the same transaction ([D14](08-PROJECT-CHARTER.md#6-decision-log)); explicit recovery screen (E-10) |
 | R5 | Timezone / DST bugs misfile days | Medium | One normative rule (store UTC, bucket by profile timezone); a dedicated test matrix in [06-EDGE-CASES](06-EDGE-CASES.md) |
 | R6 | Unit-conversion drift (kg↔lb round-tripping) | Medium | Convert at the display edge only; never write back converted values |
 | R7 | Analytics slow as history grows | Medium | Indexed queries + `daily_summaries` materialisation; range caps in the UI |

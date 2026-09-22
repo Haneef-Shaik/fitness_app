@@ -129,7 +129,7 @@ route to finishing.
 | Some sets failed to sync | A per-row sync dot; a single header chip "{n} not synced yet" → L-02 |
 
 **Edge cases**
-- **App killed / browser closed** → the draft is in IndexedDB; E-10 recovers it on next launch.
+- **App killed / swiped away / crashed** → the draft is in SQLite; E-10 recovers it on next launch.
 - **Session open past local midnight** → the session's date remains `started_at`'s local date; the
   banner states which date it will be filed under.
 - **Session open > 6 h** → on next foreground, a prompt: *Finish now / Keep going / Discard*.
@@ -200,7 +200,7 @@ announce every second) with an on-demand label.
 
 | Control | Action | Result | Failure |
 |---------|--------|--------|---------|
-| **✓ Save set** | Commit | Validates locally → new draft state → renders immediately → persists to IndexedDB → enqueues the write → starts the rest timer → prefills the next set from this one | Network failure is invisible here; the row shows a pending dot and retries |
+| **✓ Save set** | Commit | Validates locally → new draft state → renders immediately → persists to SQLite → enqueues the write → starts the rest timer → prefills the next set from this one | Network failure is invisible here; the row shows a pending dot and retries |
 | 🔁 Same as last set | Commit a copy | One tap to repeat the previous set's load and reps. **The fastest path, and the most-used control in the product** | — |
 | ( − ) / ( + ) load | Stepper | Default ±2.5 kg / ±5 lb, configurable in K-04. Long-press accelerates | — |
 | ( − ) / ( + ) reps | Stepper | ±1 | — |
@@ -606,7 +606,7 @@ schema.
 | Concern | Requirement |
 |---------|-------------|
 | **Latency** | p95 tap → set rendered < 100 ms. This is a hard budget, not a target |
-| **Durability** | Every committed set is in IndexedDB before the UI settles. No debounce on persistence |
+| **Durability** | Every committed set is in SQLite before the UI settles. No debounce on persistence |
 | **Network independence** | The entire flow — start, log, swap, finish — works offline |
 | **Screen wake** | The screen-wake lock is held during an active session (with a user-visible toggle) so the phone doesn't sleep between sets |
 | **Interruption** | A phone call, a notification, or an app switch never loses uncommitted field values |

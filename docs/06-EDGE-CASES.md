@@ -56,7 +56,7 @@ UTC+13 (extreme positive), UTC−11 (extreme negative), and a timezone with DST 
 | # | Case | Required behaviour |
 |---|------|--------------------|
 | O1 | Entire session logged offline | Indistinguishable from online except for per-set pending dots |
-| O2 | App killed mid-session | Draft recovered from IndexedDB → E-10 |
+| O2 | App killed, swiped away or crashed mid-session | Draft recovered from the on-device SQLite draft row → E-10 |
 | O3 | Set write retried after a timeout | Idempotent on the set's `clientId`. **Never a duplicate set** |
 | O4 | Outbox entry gets a terminal 4xx | Moves to "Couldn't upload" in L-02 with a plain-language reason. Never dropped |
 | O5 | Outbox entry's target was deleted server-side | Offered a re-target ("Add to another meal") rather than a bare failure |
@@ -66,8 +66,8 @@ UTC+13 (extreme positive), UTC−11 (extreme negative), and a timezone with DST 
 | O9 | Offline at first launch, no cache | A-02 with a clear message; no infinite splash |
 | O10 | Offline with cache | Full read access + full workout logging. Only AI entry is disabled |
 | O11 | Connection returns mid-flush | Flush is serialised per aggregate; no interleaved partial state |
-| O12 | Storage quota exceeded (IndexedDB) | Oldest synced data is evicted first; the **active draft is never evicted**. The user is warned |
-| O13 | Private/incognito browsing with no IndexedDB | The app works, with an explicit banner that in-progress workouts won't survive a refresh |
+| O12 | Device storage full — a SQLite write fails | Cached reads and downloaded images are dropped first; the **active draft and the outbox are never dropped**. The user is warned before the logger degrades |
+| O13 | App storage wiped by the OS — iOS purging under memory pressure, or Android "Clear data" | Identical from inside the app: there is no draft row. This is an **empty** state, not an error — start clean, say plainly that an in-progress workout could not be recovered, and never block the user behind it |
 | O14 | Clock changes while offline | `performed_at` values stay monotonic within a session by clamping to the previous set's time |
 
 ---

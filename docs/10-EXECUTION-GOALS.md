@@ -1,7 +1,7 @@
 # Execution Goals
 ## Volt — the handoff chain from here to release
 
-**Last updated:** 2026-09-22 · **Head:** `5e42626` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
+**Last updated:** 2026-09-22 (G0 closed) · **Head:** `e514838` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
 
 > **What this document is.** Eleven **goals**, in order, each one a **contract**: what it inherits,
 > what it must produce, how to produce it in *this* codebase, how you know it is finished, and
@@ -11,6 +11,10 @@
 > [TODO.md](TODO.md) owns the current milestone's granular steps. This document owns the **shape of
 > the work and the joins between its parts**, which is the thing that normally goes missing and the
 > thing that costs the most when it does.
+>
+> **How to run one.** Each goal has a ready-to-paste prompt in [prompts/](prompts/) — `G0.md` …
+> `G10.md`. A prompt carries this document's contract for that goal — entry gate, scope, mechanics,
+> verification, handoff — into a form a fresh session can act on.
 
 ---
 
@@ -81,9 +85,10 @@ did not happen, whatever the tracker says.
 |----|----------|---------------------|------|----------|
 | H·0 | `contracts/vectors/domain.json` | Both languages compute the same numbers; 11 mutations proved the guards | *done* | ✅ 21 Sep |
 | H·0 | `services/api` + 3 migrations | 43 operations, 83 integration tests, plan tree ≠ performed tree | *done* | ✅ 21 Sep |
-| **H0.1** | `docs/03` §2–§4, §9, §11 | The client spec names the packages the app actually uses | G0 | ⬜ |
-| **H0.2** | Durability contract | Where a draft and an outbox entry live on a phone, and their schema | G0 | ⬜ |
-| **H0.3** | E2E tool decision | A runner that works **without** a local Xcode/Android SDK | G0 | ⬜ |
+| **H0.1** | `docs/03` §2–§4, §9, §11 | The client spec names the packages the app actually uses | G0 | ✅ 22 Sep |
+| **H0.2** | `docs/03` §5.3 + **D14** | Where a draft and an outbox entry live on a phone, and their schema | G0 | ✅ 22 Sep |
+| **H0.3** | **D15** — Maestro on Expo Go | A runner that works **without** a local Xcode/Android SDK | G0 | ✅ 22 Sep |
+| **H0.4** | **D16** — device budget | The performance budget is measurable on a phone | G0 | ✅ 22 Sep |
 | **H1.1** | `packages/api-types` | Client types are **generated** from the server's OpenAPI and drift-gated in CI | G1 | ⬜ |
 | **H1.2** | `queryKeys.ts` + invalidation map | Every cached read has one key and one documented invalidator | G1 | ⬜ |
 | **H1.3** | `DataBoundary` | Loading / empty / filtered-empty / error are one component, not per-screen improvisation | G1 | ⬜ |
@@ -256,12 +261,12 @@ storage under pressure**, and **Android "Clear data"**. Both mean the same produ
 draft is gone, say so plainly and start clean.
 
 **Done when.**
-- [ ] `docs/03` contains **no** occurrence of `Next.js`, `Tailwind`, `shadcn`, `Dexie`, `IndexedDB`,
-      `Playwright`, `Server Component`, `LCP`, `gzip` — verify with one `grep`
-- [ ] `grep -rn "IndexedDB\|Dexie" docs/` returns **nothing**
-- [ ] `docs/03` §5.3 contains the SQLite schema above and says why draft-as-blob / outbox-as-rows
-- [ ] `D14` persistence · `D15` E2E runner · `D16` revised performance budget are in the charter
-- [ ] `expo-sqlite`'s availability in this SDK was **checked**, and the check is noted
+- [x] `bash scripts/check-client-spec.sh` exits **0** — it asserts that `docs/03` contains no
+      occurrence of the rejected web stack, and that no specification document still names the
+      browser database. **Seen to fail** on a deliberate reintroduction, then pass again
+- [x] `docs/03` §5.3 contains the SQLite schema above and says why draft-as-blob / outbox-as-rows
+- [x] `D14` persistence · `D15` E2E runner · `D16` revised performance budget are in the charter
+- [x] `expo-sqlite`'s availability in this SDK was **checked**, and the check is noted in D14
 
 **Hands off.**
 
@@ -288,7 +293,11 @@ a hand-typed response shape, never its own loading state, and never an untested 
 
 **Inherits.** `H0.1` (what to install), `H0.3` (which test tools).
 
-**Entry gate.** `grep -rn "IndexedDB\|Dexie" docs/` is empty.
+**Entry gate.** `bash scripts/check-client-spec.sh` exits 0.
+
+That script is G0's gate, kept in one place because it names the packages it forbids — any document
+that inlines it fails its own check. It exempts this file, `docs/prompts/` and the tracker, which
+quote the rejected platform **on purpose**: §4.2 below is the record of why G0 existed.
 
 **Do.**
 1. **`packages/api-types`** — generated from `http://localhost:8000/v1/openapi.json`, with a **CI

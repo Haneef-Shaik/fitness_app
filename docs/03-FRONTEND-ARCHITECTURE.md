@@ -25,89 +25,128 @@ Screens outside the logger (planning, analytics, settings) may be conventional r
 
 ## 2. Stack
 
+Every row below is a package that **installs in this app**. Expo-family rows are pinned by the
+installed SDK — `node_modules/expo/bundledNativeModules.json` (SDK **52.0.49**, 114 modules) — which
+also means they are present in the **Expo Go** runtime, the constraint
+[DR4](08-PROJECT-CHARTER.md#7-delivery-risks) puts on this project. Checked 22 Sep; the check itself
+is recorded in [D14](08-PROJECT-CHARTER.md#6-decision-log).
+
 | Concern | Choice | Why |
 |---------|--------|-----|
-| Framework | **Next.js (App Router) + TypeScript**, installed as a PWA | BRD §17; one codebase covers the mobile-first client and the desktop analytics surface |
-| Styling | Tailwind CSS + CSS custom properties for tokens | Tokens live in CSS vars so theming and the RN port share one source |
-| Components | shadcn/ui (Radix primitives) as the base layer | Accessible primitives out of the box — dialogs, sheets, popovers, focus management |
-| Server state | **TanStack Query** | Caching, invalidation, optimistic mutations, retry semantics |
+| Framework | **Expo SDK 52 + `expo-router` 4** · React Native 0.76.9 · React 18.3.1 · TypeScript | [D1](08-PROJECT-CHARTER.md#6-decision-log) — iOS + Android. File-based routing; Expo Go keeps the native toolchain out of the dev loop. New Architecture is on (`app.json: newArchEnabled`) |
+| Styling | RN `StyleSheet` + design tokens in `src/theme/tokens.ts`, applied through `src/theme` | RN has no CSS, so no utility-class framework applies. Tokens stay plain TypeScript so [05-DESIGN-SYSTEM](05-DESIGN-SYSTEM.md) keeps one source |
+| Components | Hand-rolled `src/ui`, grown as screens need it | The component kit the web spec named is Radix over the DOM and does not render here. RN's own `accessibilityRole` / `accessibilityState` / `accessibilityLabel` props carry what Radix carried |
+| Server state | **TanStack Query v5** (`@tanstack/react-query`) | Caching, invalidation, optimistic mutations, retry. Platform-agnostic. Lands in **G1** (H1.2) |
 | Client state | **Zustand** slices | Active workout draft, filters, UI prefs — small and non-server |
-| Forms | react-hook-form + Zod resolvers, schemas shared with the API | One validation definition per boundary |
-| Charts | Recharts | Volume, e1RM, weight, calorie and macro charts (see design system for the viz rules) |
-| Local persistence | IndexedDB via Dexie | Session draft + write outbox |
-| Dates | date-fns + date-fns-tz | Profile-timezone-aware day bucketing |
-| Tests | Vitest + React Testing Library (unit/integration), Playwright (E2E) | 80% coverage floor per house rules |
-| i18n | next-intl, English-only content at MVP | Strings externalised from day one; no hardcoded copy |
+| Forms | `react-hook-form` + Zod resolvers | One validation definition per boundary |
+| Long lists | `@shopify/flash-list` (SDK-pinned **1.7.3**) | History, food search and the exercise catalog are long enough that `FlatList` recycling matters |
+| Charts | `react-native-svg` (SDK-pinned **15.8.0**) as the substrate; `victory-native@41.x` is the candidate kit | Recharts is DOM-only. **`victory-native@42` is not usable here** — it peers `@shopify/react-native-skia >=2.6.0` and Expo Go SDK 52 ships Skia **1.5.0**; `41.26.0` peers `>=1.2.3 <3.0.0` and fits. The final call belongs to **G6** (H6.1) |
+| **Local persistence** | **`expo-sqlite` ~15.1.4** — session draft + write outbox | **[D14](08-PROJECT-CHARTER.md#6-decision-log).** Real transactions (`withTransactionAsync`, `withExclusiveTransactionAsync`), and it is in Expo Go. Schema in **§5.3** |
+| Connectivity | `@react-native-community/netinfo` (SDK-pinned **11.4.1**) + RN `AppState` | There is no `window` `online` event on a phone. These are the outbox flush triggers in **§7** |
+| Screen wake | `expo-keep-awake` (SDK-pinned **~14.0.3**) | E-03 holds a wake lock for the duration of an active session |
+| Secrets | `expo-secure-store` ~14.0.1 *(already installed)* | [D10](08-PROJECT-CHARTER.md#6-decision-log) — refresh token in the device keychain |
+| Dates | `date-fns` + `date-fns-tz` | Profile-timezone day bucketing (**I7**). `date-fns-tz` needs `Intl.DateTimeFormat` with a `timeZone`, which is a **Hermes build option — not verified on a device here**. **G1** must assert one DST case in the harness before the logger depends on it; if Hermes lacks it, the fallback is to send the offset with the write and let the server bucket |
+| Unit / component tests | `jest-expo@52.0.6` + `@testing-library/react-native@13.3.3` | The pair pinned to **this** SDK — the current majors (`jest-expo@57`, RTL `@14`) target later SDKs. Lands in **G1** (H1.4) |
+| **E2E** | **Maestro**, driving Expo Go over the LAN | **[D15](08-PROJECT-CHARTER.md#6-decision-log).** No native build, therefore no local Xcode or Android SDK required. See **§11** |
+| i18n | `i18next` + `react-i18next` + `expo-localization` | `next-intl` is bound to the web framework this project left behind ([D1](08-PROJECT-CHARTER.md#6-decision-log)). English-only content at MVP; strings externalised from day one |
 
 ---
 
 ## 3. Project structure
 
-Organised **by feature/domain, not by file type** (house rule), with the shared kernel at the root.
+Organised **by feature/domain, not by file type** (house rule), with the shared kernel outside the
+app as a workspace package.
+
+### 3.1 What is in `apps/mobile` today
+
+This is `find apps/mobile -type f` on 22 Sep, not a plan — **6 of 103 screens**:
 
 ```
-src/
-├── app/                              # Next.js App Router — routing only, thin
+apps/mobile/
+├── app.json                          # expo config: scheme "volt", typedRoutes, newArchEnabled
+├── app/                              # expo-router — file-based routes, thin
+│   ├── _layout.tsx                   #   root: fonts, ThemeProvider, SessionProvider
+│   ├── index.tsx                     #   boot → redirect by auth state
+│   ├── welcome.tsx                   #   A-01
+│   ├── login.tsx                     #   A-02
+│   ├── register.tsx                  #   A-03
+│   ├── onboarding.tsx                #   A-07
+│   └── home.tsx                      #   B-01 dashboard
+└── src/
+    ├── lib/     api.ts · session.tsx · storage.ts
+    ├── theme/   index.tsx · tokens.ts
+    └── ui/      index.tsx
+```
+
+### 3.2 The shape it grows into
+
+Route groups `(…)` do not appear in the URL — they exist to give each area its own `_layout.tsx`,
+which is where the tab bar, the auth guard and the outbox mount live.
+
+```
+apps/mobile/
+├── app/                              # routing and layout composition ONLY
+│   ├── _layout.tsx                   #   root: fonts, theme, session, QueryClientProvider (G1)
 │   ├── (auth)/                       #   unauthenticated group
-│   │   ├── login/page.tsx
-│   │   ├── register/page.tsx
-│   │   └── reset-password/page.tsx
-│   ├── (onboarding)/onboarding/[step]/page.tsx
-│   ├── (app)/                        #   authenticated shell: tab bar / rail
-│   │   ├── layout.tsx                #   AppShell + auth guard + outbox mount
-│   │   ├── page.tsx                  #   B-01 Dashboard
-│   │   ├── train/…                   #   C-*, D-*, E-*, F-*, G-*
+│   │   ├── login.tsx  register.tsx  reset-password.tsx
+│   ├── (onboarding)/[step].tsx
+│   ├── (tabs)/                       #   authenticated shell
+│   │   ├── _layout.tsx               #   the 5-tab bar (D2) + auth guard + outbox mount
+│   │   ├── index.tsx                 #   B-01 Dashboard
+│   │   ├── train/…                   #   C-*, D-*, F-*, G-*
 │   │   ├── nutrition/…               #   H-*
 │   │   ├── progress/…                #   I-*, J-*
 │   │   └── settings/…                #   K-*
-│   └── session/[id]/…                #   E-02/E-03 — full-screen, outside the tab shell
+│   └── session/[id]/…                #   E-02/E-03 — full-screen, outside the tab bar (§4.1)
 │
-├── features/                         # one folder per domain; the app's real surface area
-│   ├── auth/            { api/ components/ hooks/ schemas/ }
-│   ├── onboarding/
-│   ├── dashboard/       { cards/ registry.ts }        ← dashboard cards are a registry (C01.6)
-│   ├── exercises/
-│   ├── programs/
-│   ├── workout-session/ { store/ components/ engine/ }← the logger; see §5
-│   ├── history/
-│   ├── workout-analytics/
-│   ├── nutrition/       { diary/ food-search/ ai-review/ recipes/ }
-│   ├── food-ai/         { upload/ polling/ }
-│   ├── body-metrics/
-│   ├── goals/
-│   └── settings/
-│
-├── components/                       # cross-feature, domain-free
-│   ├── ui/                           #   shadcn primitives (Button, Sheet, Dialog…)
-│   ├── layout/                       #   AppShell, TabBar, DesktopRail, PageHeader
-│   ├── feedback/                     #   EmptyState, ErrorState, Skeleton, Toast, OfflineBanner
-│   ├── data/                         #   DataBoundary, InfiniteList, FilterChips
-│   └── charts/                       #   themed Recharts wrappers
-│
-├── lib/
-│   ├── api/                          #   typed client, envelope unwrap, error mapping, idempotency
-│   ├── query/                        #   QueryClient config, queryKeys registry, invalidation map
-│   ├── offline/                      #   Dexie schema, outbox, sync engine, conflict detection
-│   ├── units/                        #   kg↔lb, cm↔in, g↔oz — conversion ONLY at the display edge
-│   ├── datetime/                     #   profile-tz day bucketing, local_date helpers
-│   ├── nutrition/                    #   macro math, target/remaining, confirmed-only aggregation
-│   ├── training/                     #   volume, e1RM (epley_v1), PR evaluation — mirrors the server
-│   ├── analytics-events/             #   the client event taxonomy
-│   └── auth/                         #   token handling, route guards
-│
-├── domain/                           # pure types + invariants, zero React, portable to RN
-│   ├── types/                        #   entity types generated from the shared Zod schemas
-│   └── rules/                        #   set validity, previous-performance selection, PR rules
-│
-└── styles/tokens.css                 # the design-token source of truth
+└── src/
+    ├── features/                     # one folder per domain; the app's real surface area
+    │   ├── auth/            { api/ components/ hooks/ schemas/ }
+    │   ├── onboarding/
+    │   ├── dashboard/       { cards/ registry.ts }        ← dashboard cards are a registry (C01.6)
+    │   ├── exercises/
+    │   ├── programs/
+    │   ├── workout-session/ { store/ components/ engine/ }← the logger; see §5
+    │   ├── history/
+    │   ├── workout-analytics/
+    │   ├── nutrition/       { diary/ food-search/ ai-review/ recipes/ }
+    │   ├── food-ai/         { upload/ polling/ }
+    │   ├── body-metrics/
+    │   ├── goals/
+    │   └── settings/
+    │
+    ├── ui/                           # cross-feature, domain-free primitives
+    │   ├── (Button, Sheet, Field, Chip…)   ← hand-rolled; see §2
+    │   ├── layout/                   #   AppScaffold, TabBar, ScreenHeader
+    │   ├── feedback/                 #   EmptyState, ErrorState, Skeleton, Toast, OfflineBanner
+    │   ├── data/                     #   DataBoundary, VirtualList, FilterChips
+    │   └── charts/                   #   themed react-native-svg wrappers (G6)
+    │
+    ├── lib/
+    │   ├── api/                      #   typed client, envelope unwrap, error mapping, idempotency
+    │   ├── query/                    #   QueryClient config, queryKeys registry, invalidation map
+    │   ├── db/                       #   expo-sqlite open + migrations (§5.3)
+    │   ├── offline/                  #   draft repository, outbox, sync engine, conflict detection
+    │   ├── units/                    #   kg↔lb, cm↔in, g↔oz — conversion ONLY at the display edge
+    │   ├── datetime/                 #   profile-tz day bucketing, local_date helpers
+    │   ├── nutrition/                #   macro math, target/remaining, confirmed-only aggregation
+    │   ├── analytics-events/         #   the client event taxonomy
+    │   └── auth/                     #   token handling (expo-secure-store), route guards
+    │
+    └── theme/                        # tokens.ts — the design-token source of truth
 ```
 
+**The shared kernel lives outside the app.** `packages/domain` (`@volt/domain`, already a dependency
+of `apps/mobile`) holds the pure types and formula implementations, pinned against the Python side by
+`contracts/vectors/domain.json`. Nothing framework-specific goes in it.
+
 **Rules of the structure**
-1. `app/` contains routing and layout composition only. No business logic, no data fetching beyond
-   a prefetch call.
-2. A `features/*` folder may not import from another `features/*` folder. Shared needs move down
-   into `lib/`, `domain/` or `components/`.
-3. `domain/` is pure TypeScript with no framework imports — it is the part React Native reuses.
+1. `app/` contains routing and layout composition only. No business logic, no data fetching beyond a
+   prefetch call.
+2. A `features/*` folder may not import from another `features/*` folder. Shared needs move down into
+   `lib/`, `ui/` or `@volt/domain`.
+3. `@volt/domain` is pure TypeScript with no React and no React Native imports — it is the half of the
+   client the server's Python domain is pinned against.
 4. Files stay under ~400 lines; a component over 200 lines is a refactor signal.
 5. **Immutability everywhere.** Store updates return new objects; no in-place mutation of server
    cache, draft state or props (house rule).
@@ -117,27 +156,53 @@ src/
 ## 4. App shell & routing
 
 ### 4.1 Shell
+
+The MVP client is a **phone app** ([D1](08-PROJECT-CHARTER.md#6-decision-log)). There is no viewport
+to respond to — there is a device class and an orientation.
+
+| Surface | Chrome |
+|---------|--------|
+| **Phone, portrait (primary — the only MVP target)** | Contextual top bar + **bottom tab bar, 5 items** ([D2](08-PROJECT-CHARTER.md#6-decision-log)) + centre FAB. Insets from `react-native-safe-area-context`, so the tab bar clears the home indicator and the top bar clears the notch |
+| Phone, landscape | Same tabs. The logger (E-03) keeps its one-handed column and does not reflow into two |
+| Tablet (`app.json` sets `ios.supportsTablet`) | Same tabs, content column capped for line length, two-column cards where a card has a natural pair |
+
+**Full-screen routes that escape the tab bar** (no tab bar, no swipe-back-to-tab): the active workout
+session, camera capture, AI review, and any modal wizard. These are *tasks*, and leaving one must be a
+deliberate, confirmed act — see §4.3.
+
+#### Deferred to Phase 2 — the desktop/web surface
+
+Not wrong, just not now. [D1](08-PROJECT-CHARTER.md#6-decision-log) deferred web; `react-native-web`
+is still in `apps/mobile/package.json` and the app runs in a browser, which is how M1 was verified
+end to end. When the web surface is picked up, the previously specified rules apply unchanged:
+
 | Breakpoint | Chrome |
 |------------|--------|
-| < 768 px (primary) | Top app bar (contextual) + **bottom tab bar, 5 items** + centre FAB |
 | 768–1023 px | Same tabs, wider content column, two-column cards where useful |
 | ≥ 1024 px | **Left navigation rail** (labelled), no bottom bar, multi-column dashboards, side-by-side compare views |
-
-**Full-screen routes that escape the shell** (no tab bar, no back-swipe-to-tab): the active workout
-session, camera capture, AI review, and any modal wizard. These are *tasks*, and leaving them must be
-a deliberate, confirmed act.
 
 ### 4.2 Route table
 See [04-SCREEN-ARCHITECTURE §4](04-SCREEN-ARCHITECTURE.md#4-route-table) for the complete list of
 routes mapped to screen IDs.
 
 ### 4.3 Navigation rules
-- Tab switches **preserve each tab's scroll position and stack**.
-- Modals and sheets are URL-addressable where the content is shareable/deep-linkable
-  (`?sheet=filters`), and local state where it is not (a rest timer).
-- The browser/system back button always does the least surprising thing: closes a sheet before
-  popping a route; asks for confirmation before abandoning an active session or unsaved AI review.
-- Deep links resolve to the correct authenticated destination after login (`?next=`).
+
+`expo-router` 4 sits on React Navigation 7 (`@react-navigation/native@7.4.1`), which is what makes
+the first and third rules below mechanisms rather than aspirations.
+
+- Tab switches **preserve each tab's navigation stack and scroll position**. Each tab is its own
+  stack inside `(tabs)/_layout.tsx`; switching tabs never resets one.
+- Sheets and modals are **route-addressable** where the content is shareable or deep-linkable (a
+  route presented with `presentation: 'modal'`), and local component state where it is not (the rest
+  timer).
+- **System back always does the least surprising thing.** On Android that is the hardware/gesture
+  back; on iOS the edge swipe. It closes a sheet before popping a route, and it asks for
+  confirmation before abandoning an active session or an unsaved AI review — the session route
+  intercepts removal (`usePreventRemove`) rather than letting a gesture silently destroy work.
+- Deep links arrive through `expo-linking` on the `volt://` scheme (`app.json`) and resolve to the
+  correct **authenticated** destination after login (`?next=`).
+- Routes are typed — `app.json` enables `experiments.typedRoutes`, so a route that does not exist is
+  a type error rather than a blank screen.
 
 ---
 
@@ -147,7 +212,7 @@ The one place where a standard "form → mutation → refetch" pattern is unacce
 
 ### 5.1 State shape
 ```ts
-// features/workout-session/store — Zustand + Dexie persistence
+// features/workout-session/store — Zustand in memory, expo-sqlite for durability
 type SessionDraft = Readonly<{
   sessionId: string            // server-issued, or a client UUID until the server confirms
   planDayId: string | null
@@ -191,8 +256,10 @@ user taps ✓ on a set
    │
    ├─▶ validate locally (domain/rules/set-validity)      ~0 ms
    ├─▶ reducer returns a NEW draft with the set appended  ~0 ms   ← UI updates here
-   ├─▶ persist draft to IndexedDB                        ~2 ms
-   ├─▶ enqueue { POST /session-exercises/:id/sets, Idempotency-Key: set.clientId }
+   ├─▶ ONE SQLite transaction (§5.3)                     ~2 ms
+   │     • rewrite session_draft, revision + 1
+   │     • insert the outbox row, idempotency_key = set.clientId
+   │     └ both or neither — a torn pair is a lost set or a duplicated one
    ├─▶ start the rest timer if configured
    └─▶ prefill the next set from this one
                      │
@@ -204,14 +271,55 @@ user taps ✓ on a set
 The UI is **never** blocked on the network. A per-set sync dot communicates state without
 demanding attention.
 
+Two properties of this order are normative for **G3**, not stylistic. The render happens **before**
+any persistence, so the commit never awaits I/O (**I10**). And the draft write and the outbox
+enqueue are **one transaction** — that single requirement is why §5.3 uses a database rather than a
+key-value store ([D14](08-PROJECT-CHARTER.md#6-decision-log)).
+
 ### 5.3 Durability & recovery
-- The draft is written to IndexedDB on every committed change, not on an interval.
-- On app start, `lib/offline/recover` checks for a draft whose `status = in_progress`.
-  If found → **E-10 Recovery** offers *Resume*, *Finish now*, or *Discard*.
+
+The draft and the outbox live in **`expo-sqlite`** ([D14](08-PROJECT-CHARTER.md#6-decision-log)),
+opened once in `lib/db`. SQLite is here for exactly one property the alternatives do not have: an
+**atomic multi-row transaction**. Dequeuing an outbox entry means "mark this row sent *and* update the
+draft's sync state" — as two key-value writes that pair can tear, and a torn pair is a duplicate set
+or a lost one.
+
+```sql
+-- session_draft: exactly one row; the whole draft as JSON, rewritten per committed change
+CREATE TABLE session_draft (id INTEGER PRIMARY KEY CHECK (id = 1),
+                            revision INTEGER NOT NULL, updated_at TEXT NOT NULL, json TEXT NOT NULL);
+-- outbox: one row per pending write, ordered, idempotent on client_id
+CREATE TABLE outbox (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     aggregate_id TEXT NOT NULL, method TEXT NOT NULL, path TEXT NOT NULL,
+                     body TEXT NOT NULL, idempotency_key TEXT NOT NULL UNIQUE,
+                     attempts INTEGER NOT NULL DEFAULT 0, next_attempt_at TEXT NOT NULL,
+                     state TEXT NOT NULL DEFAULT 'pending', last_error TEXT);
+CREATE INDEX ix_outbox_ready ON outbox (aggregate_id, id) WHERE state = 'pending';
+```
+
+**The asymmetry between the two tables is the design.**
+
+- The **draft is one JSON blob** because it is read and written **whole**. A session is opened once
+  and re-rendered from memory; the row exists so that a process death does not lose it. Normalising
+  it into `exercises` and `sets` tables would buy queries nobody runs and cost a multi-statement write
+  on the one path that must never be slow (§5.2). `revision` makes a stale write detectable.
+- The **outbox is rows** because it is dequeued **in order and partially**. A flush takes the ready
+  entries for one aggregate, not the whole queue; entries fail individually; `idempotency_key UNIQUE`
+  makes an enqueue that happens twice a no-op rather than a duplicate set. The partial index is the
+  flush query — pending entries only, already ordered per aggregate.
+
+**Recovery**
+- The draft is written on **every committed change**, not on an interval or a debounce. §5.2 places
+  that write after the render, so it costs the user nothing.
+- On app start, `lib/offline/recover` reads `session_draft`. If a draft with `status = in_progress`
+  exists → **E-10 Recovery** offers *Resume*, *Finish now*, or *Discard*.
 - The server is also asked for `GET /workout-sessions/active`. If both exist and disagree, the one
-  with more sets wins and the difference is reconciled by replaying the outbox (sets are
-  idempotent on `clientId`, so replay is safe).
+  with more sets wins and the difference is reconciled by replaying the outbox — sets are idempotent
+  on `clientId`, so replay is safe.
 - A draft older than 24 h prompts before resuming rather than silently continuing.
+- **If the database is gone, say so and start clean.** iOS may purge an app's storage under pressure
+  and Android "Clear data" wipes it outright; both look identical from inside the app — no row. That
+  is not an error state, it is an empty one (see [06-EDGE-CASES](06-EDGE-CASES.md) O13).
 
 ### 5.4 Previous performance
 Fetched per exercise as the session opens, **in parallel and non-blocking**. Cached by
@@ -306,7 +414,8 @@ State precedence is fixed: `offline-with-no-cache → error → loading → empt
 - Retries: exponential backoff 1 s → 2 s → 4 s … capped at 60 s, with jitter.
 - `4xx` (except 408/409/429) is terminal → the entry moves to a **failed** list surfaced in the
   Sync Center (L-02), never silently dropped.
-- Flush triggers: `online` event, app foreground, successful auth refresh, manual retry.
+- Flush triggers: a `netinfo` reachability change, `AppState` returning to `active`, a successful
+  auth refresh, and manual retry. There is no `online` window event on a phone.
 - The user sees outbox state only when it matters: a pending count in the Sync Center, and an
   inline badge on a failed item.
 
@@ -325,28 +434,34 @@ State precedence is fixed: `offline-with-no-cache → error → loading → empt
 3. **The day is the profile's day.** `lib/datetime/toLocalDate(instant, profile.timezone)` is the
    only way to derive a calendar date. `new Date().toDateString()` is banned by lint rule.
 
-Number inputs in the logger use `inputMode="decimal"`, accept both `.` and `,`, and never use a
-native spinner. Increment/decrement steppers sit beside the field with unit-aware steps
-(±2.5 kg / ±5 lb by default, configurable).
+Number inputs in the logger set `keyboardType="decimal-pad"`, accept both `.` and `,`, and never
+use a stepper control supplied by the OS. Increment/decrement steppers sit beside the field with
+unit-aware steps (±2.5 kg / ±5 lb by default, configurable).
 
 ---
 
 ## 9. Performance budget
 
-| Metric | Budget |
-|--------|--------|
-| LCP (dashboard, 4G, mid-tier Android) | < 2.5 s |
-| INP overall | < 200 ms |
-| **INP for a set commit** | **< 100 ms** |
-| Initial JS on the auth'd shell | < 180 KB gzip |
-| Route chunk | < 90 KB gzip |
-| Chart libraries | lazily loaded, never in the main bundle |
+A phone cannot answer the web's questions, so these are the ones it can
+([D16](08-PROJECT-CHARTER.md#6-decision-log)):
 
-**Techniques.** Server Components for static/analytics shells; client components only where there is
-interaction. Route-level code splitting, with the logger route preloaded from the dashboard the
-moment a "Start workout" affordance is visible. Virtualised lists for history, food search and the
-exercise catalog. Images served as AVIF/WebP with explicit dimensions to prevent CLS. The active
-session bundle contains no chart code.
+| Metric | Budget | Measured by |
+|--------|--------|-------------|
+| **tap → set rendered (p95)** | **< 100 ms** | `performance.now()` around the reducer plus a post-commit frame callback, logged in dev builds |
+| cold start → dashboard interactive | < 2.5 s on a mid-tier Android | manual stopwatch against the `expo-router` mount log |
+| JS bundle | tracked, not capped yet | `npx expo export` output size, recorded per release |
+
+**The one that matters is the first.** It is the same number the old web budget carried, because it
+is the only one that was ever about the product rather than the platform — it is the constraint in
+§1 expressed as a measurement, and [wireframes/04](wireframes/04-WORKOUT-LOGGER.md) states it as a
+hard budget. **G4** (H4.3) measures it on real hardware and writes the number down; until then it is
+a budget, not a result.
+
+**Techniques.** Route-level lazy loading, with the logger route warmed from the dashboard the moment
+a "Start workout" affordance is visible. `@shopify/flash-list` for history, food search and the
+exercise catalog. The active session screen contains no chart code. The set-commit path does no
+`JSON.parse`, no network call and no `await` before the render (§5.2) — the SQLite write happens
+after it.
 
 ---
 
@@ -371,14 +486,25 @@ Full taxonomy in [06-EDGE-CASES](06-EDGE-CASES.md).
 
 | Layer | Tool | What must be covered |
 |-------|------|----------------------|
-| Domain rules | Vitest | Volume, e1RM, PR evaluation, set validity, previous-performance selection, unit conversion round-trips, timezone bucketing incl. DST |
-| Stores/reducers | Vitest | Session draft reducers — add/edit/delete set, reorder, densify indices, recovery merge |
-| Components | RTL | Every state of `DataBoundary`; logger keyboard/tap flows; AI review edit paths |
-| Offline | Vitest + fake IndexedDB | Outbox ordering, idempotent replay, terminal-failure handling |
-| Integration | RTL + MSW | Full flows against a mocked API |
-| E2E | Playwright | AC-01…AC-12, plus: log a session offline and watch it sync; recover a killed session; correct an AI item and verify totals move only on confirm |
-| A11y | axe + manual | Keyboard-only session logging; screen-reader pass on the diary and logger |
-| Visual | Playwright snapshots | Both themes, at 375 / 768 / 1440 px |
+| Domain rules | Vitest, in `packages/domain` | Volume, e1RM, PR evaluation, set validity, previous-performance selection, unit conversion round-trips, timezone bucketing incl. DST |
+| Stores/reducers | `jest-expo` | Session draft reducers — add/edit/delete set, reorder, densify indices, recovery merge |
+| Components | `@testing-library/react-native` | Every state of `DataBoundary`; logger tap flows; AI review edit paths |
+| Offline | `jest-expo` + an in-memory SQLite double | Outbox ordering, idempotent replay, terminal-failure handling, torn-transaction recovery |
+| Integration | RTL-RN + MSW | Full flows against a mocked API |
+| **E2E** | **Maestro** ([D15](08-PROJECT-CHARTER.md#6-decision-log)) | AC-01…AC-12, plus: log a session offline and watch it sync; recover a killed session; correct an AI item and verify totals move only on confirm |
+| A11y | RN accessibility props + a manual device pass | TalkBack/VoiceOver on the diary and the logger; every logger control has a label and a ≥ 56 px target |
+| Visual | Maestro screenshots | Both themes, phone portrait and landscape |
+
+**Why Maestro.** The browser-driven runner the old spec named cannot see a native app at all, and
+Detox needs a custom native build; there is **no Xcode on this machine** (only Command Line
+Tools), so an iOS build cannot be produced here regardless of what the Android side has. Maestro
+drives **Expo Go** over the LAN, which is the runtime [DR4](08-PROJECT-CHARTER.md#7-delivery-risks)
+says the app must be verified on. It is not installed yet — **G4** installs it and is the goal that
+turns this row into evidence (H4.1, H4.2).
+
+The unit and component rows do not exist yet either: `apps/mobile` has **no test harness** and 0%
+coverage, against 181 tests elsewhere in this repo (48 in `packages/domain`, 133 in `services/api`). **G1** (H1.4) builds the harness and puts the coverage gate
+in CI, before the logger is written rather than after.
 
 ---
 

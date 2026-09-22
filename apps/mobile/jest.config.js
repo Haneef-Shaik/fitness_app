@@ -47,6 +47,10 @@ module.exports = {
   forceExit: true,
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
+    // The route files were invisible to coverage until G4, and BOTH of G3's
+    // late bugs lived in them — a summary read after the draft was cleared, and
+    // a sync dot that said Synced while offline.
+    'app/**/*.tsx',
     '!src/**/*.d.ts',
   ],
   coverageReporters: ['text-summary', 'lcov'],
@@ -54,7 +58,11 @@ module.exports = {
   // The house floor is 80% (charter §5). The client started this goal at 0%, so
   // these are a RATCHET, not the target.
   //
-  // Whole project today: 63.7% statements, 68.9% lines, across 69 tests.
+  // Whole project today: 51.7% statements, 52.8% lines, across 290 tests.
+  //
+  // The figures DROPPED at G4 and that is the gate working, not failing: `app/`
+  // was added to the measurement, so the route files stopped being invisible.
+  // They were invisible while both of G3's late bugs lived in them.
   //
   // Note how Jest buckets this: a path listed here is REMOVED from `global`, so
   // `global` below measures only what is left over — the pre-existing untested
@@ -66,7 +74,7 @@ module.exports = {
   // The substrate G1 built is held at 90%+ so newly shared code can never be the
   // thing that drags the number down.
   coverageThreshold: {
-    global: { statements: 45, branches: 40, functions: 35, lines: 50 },
+    global: { statements: 45, branches: 38, functions: 45, lines: 46 },
     './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
     './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },
   },

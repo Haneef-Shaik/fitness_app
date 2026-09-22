@@ -1,7 +1,7 @@
 # Execution Goals
 ## Volt — the handoff chain from here to release
 
-**Last updated:** 2026-09-22 (G2 closed) · **Head:** `2f86b0d` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
+**Last updated:** 2026-09-22 (G2 closed) · **Head:** `155fb99` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
 
 > **What this document is.** Eleven **goals**, in order, each one a **contract**: what it inherits,
 > what it must produce, how to produce it in *this* codebase, how you know it is finished, and

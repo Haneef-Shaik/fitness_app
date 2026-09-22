@@ -360,7 +360,7 @@ client strategy. **Each was seen to fail on its own probe and only its own**, th
 
 ---
 
-### Handoff — G1 · Client spine            closed 22 Sep · `38df099`
+### Handoff — G1 · Client spine            closed 22 Sep · `f34b8b5`
 
 **Outcome claimed.** Every screen goal after this writes feature code only — no fetch wrapper, no
 hand-typed response shape, no per-screen loading state, no untested shared component.

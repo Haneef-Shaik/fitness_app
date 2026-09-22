@@ -33,18 +33,16 @@ module.exports = {
     '^@volt/domain$': '<rootDir>/../../packages/domain/src/index.ts',
     '^@volt/api-types$': '<rootDir>/../../packages/api-types/src/index.ts',
   },
-  // KNOWN ISSUE, not masked lightly. A mounted TanStack mutation observer never
-  // lets the Jest worker go idle under jest-expo's React Native environment, so
-  // the run hangs *after* the last assertion rather than failing. Narrowed to the
-  // library and environment, not app code:
-  //   - it hangs with a no-op `onSuccess`, so applyInvalidation is not the cause;
-  //   - the same applyInvalidation runs without React in invalidation.test.ts and
-  //     exits cleanly;
-  //   - making notifyManager synchronous (jest.setup.ts) removes the act()
-  //     warnings but not the hang.
-  // Every test still runs and reports; only process teardown is forced. Worth
-  // revisiting in G3, which leans on this harness far harder.
-  forceExit: true,
+  // `forceExit` was carried here from G1 to G3 and is GONE as of G4.
+  //
+  // G1 attributed the hang to a mounted TanStack mutation observer. That was only
+  // half of it: removing Zustand in G3 (D19) took the other half with it, and the
+  // suite now goes idle on its own. Verified by deleting the flag and running the
+  // full suite three times — 297 passed, exit 0, every time.
+  //
+  // If it comes back, the diagnosis that worked was bisecting the subscription:
+  // a store or query client that keeps a live listener after the last assertion
+  // is what stops the worker idling, not anything in the app's own code.
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     // The route files were invisible to coverage until G4, and BOTH of G3's

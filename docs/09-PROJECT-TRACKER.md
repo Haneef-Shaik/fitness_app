@@ -195,12 +195,15 @@ client is what remains.
 ## Immediate queue
 
 Granular, ordered breakdown of the current milestone: **[TODO.md](TODO.md)**
+Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECUTION-GOALS.md)**
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **M2 training core** | The product's critical path — exercises, programs, sessions, sets | AC-01, AC-02 |
-| 2 | Device verification via Expo Go | LAN connectivity and native behaviour are untested | DR4 |
-| 3 | OpenAPI → TS codegen | Worth wiring once M2 widens the API surface | D3b |
+| 1 | **G0 — realign `docs/03` with D1** | The frontend spec still names Next.js, Tailwind and **Dexie/IndexedDB**, which do not exist on React Native. It specifies the logger's durability layer | G3 |
+| 2 | **G1 — generated API types, query layer, mobile test harness** | 43 operations are hand-typed on the client, and the client has **0 tests** | D3b, every screen goal |
+| 3 | **G2 — catalog & planning screens** | 8 screens; needs `/exercises/{id}/history` and `/stats`, which are declared but missing | AC-01 |
+| 4 | **G3 — the logger** | The product | AC-02, AC-04 |
+| 5 | Device verification via Expo Go | LAN connectivity and native behaviour are untested | DR4 |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 

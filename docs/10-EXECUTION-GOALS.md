@@ -1,7 +1,7 @@
 # Execution Goals
 ## Volt — the handoff chain from here to release
 
-**Last updated:** 2026-09-22 (G0 closed) · **Head:** `2aadfa0` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
+**Last updated:** 2026-09-22 (G1 closed) · **Head:** `38df099` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
 
 > **What this document is.** Eleven **goals**, in order, each one a **contract**: what it inherits,
 > what it must produce, how to produce it in *this* codebase, how you know it is finished, and
@@ -89,10 +89,10 @@ did not happen, whatever the tracker says.
 | **H0.2** | `docs/03` §5.3 + **D14** | Where a draft and an outbox entry live on a phone, and their schema | G0 | ✅ 22 Sep |
 | **H0.3** | **D15** — Maestro on Expo Go | A runner that works **without** a local Xcode/Android SDK | G0 | ✅ 22 Sep |
 | **H0.4** | **D16** — device budget | The performance budget is measurable on a phone | G0 | ✅ 22 Sep |
-| **H1.1** | `packages/api-types` | Client types are **generated** from the server's OpenAPI and drift-gated in CI | G1 | ⬜ |
-| **H1.2** | `queryKeys.ts` + invalidation map | Every cached read has one key and one documented invalidator | G1 | ⬜ |
-| **H1.3** | `DataBoundary` | Loading / empty / filtered-empty / error are one component, not per-screen improvisation | G1 | ⬜ |
-| **H1.4** | Mobile test harness | `pnpm --filter @volt/mobile test` runs and gates coverage | G1 | ⬜ |
+| **H1.1** | `packages/api-types` | Client types are **generated** from the server's OpenAPI and drift-gated in CI | G1 | ✅ 22 Sep |
+| **H1.2** | `queryKeys.ts` + `invalidation.ts` | Every cached read has one key and one documented invalidator, and a test asserts code and docs/03 §6.2 agree both ways | G1 | ✅ 22 Sep |
+| **H1.3** | `DataBoundary` | Loading / empty / **filtered-empty** / error / offline are one component, not per-screen improvisation | G1 | ✅ 22 Sep |
+| **H1.4** | Mobile test harness | `pnpm --filter @volt/mobile test:ci` runs 69 tests and gates coverage | G1 | ✅ 22 Sep |
 | **H2.1** | Screen kit | Virtualised list, filter row, detail scaffold, bottom sheet | G2 | ⬜ |
 | **H2.2** | Exercise picker | Multi-select picker the **logger reuses** for add/swap | G2 | ⬜ |
 | **H2.3** | `/exercises/{id}/history`, `/stats` | The two endpoints D-02 needs now exist | G2 | ⬜ |

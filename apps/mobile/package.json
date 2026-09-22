@@ -10,13 +10,15 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --coverage --ci"
   },
   "dependencies": {
     "@expo-google-fonts/barlow": "^0.4.1",
     "@expo-google-fonts/barlow-condensed": "^0.4.1",
     "@expo/metro-runtime": "~4.0.1",
     "@tanstack/react-query": "^5.103.2",
+    "@volt/api-types": "workspace:*",
     "@volt/domain": "workspace:*",
     "expo": "~52.0.49",
     "expo-constants": "~17.0.8",

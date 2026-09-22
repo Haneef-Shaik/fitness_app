@@ -11,10 +11,16 @@ import {
   BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
 } from '@expo-google-fonts/barlow-condensed';
 
+import { QueryClientProvider } from '@tanstack/react-query';
+
 import { ThemeProvider, useTheme } from '@/theme';
 import { SessionProvider } from '@/lib/session';
+import { createQueryClient } from '@/lib/query/client';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// One client for the app's lifetime; recreating it would throw away every cache.
+const queryClient = createQueryClient();
 
 function Root() {
   const { c, scheme } = useTheme();
@@ -42,12 +48,14 @@ export default function Layout() {
   if (!loaded) return null;
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <SessionProvider>
-          <Root />
-        </SessionProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <SessionProvider>
+            <Root />
+          </SessionProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

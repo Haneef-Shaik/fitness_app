@@ -33,9 +33,41 @@ module.exports = {
     '^@volt/domain$': '<rootDir>/../../packages/domain/src/index.ts',
     '^@volt/api-types$': '<rootDir>/../../packages/api-types/src/index.ts',
   },
+  // KNOWN ISSUE, not masked lightly. A mounted TanStack mutation observer never
+  // lets the Jest worker go idle under jest-expo's React Native environment, so
+  // the run hangs *after* the last assertion rather than failing. Narrowed to the
+  // library and environment, not app code:
+  //   - it hangs with a no-op `onSuccess`, so applyInvalidation is not the cause;
+  //   - the same applyInvalidation runs without React in invalidation.test.ts and
+  //     exits cleanly;
+  //   - making notifyManager synchronous (jest.setup.ts) removes the act()
+  //     warnings but not the hang.
+  // Every test still runs and reports; only process teardown is forced. Worth
+  // revisiting in G3, which leans on this harness far harder.
+  forceExit: true,
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
   ],
   coverageReporters: ['text-summary', 'lcov'],
+
+  // The house floor is 80% (charter §5). The client started this goal at 0%, so
+  // these are a RATCHET, not the target.
+  //
+  // Whole project today: 63.7% statements, 68.9% lines, across 69 tests.
+  //
+  // Note how Jest buckets this: a path listed here is REMOVED from `global`, so
+  // `global` below measures only what is left over — the pre-existing untested
+  // code, src/lib/session.tsx (0%) and src/ui/index.tsx (31%). Its numbers are
+  // therefore lower than the project's, and that is not a weaker standard, it is
+  // a different denominator. Raising it means testing those two files, which is
+  // G2's work.
+  //
+  // The substrate G1 built is held at 90%+ so newly shared code can never be the
+  // thing that drags the number down.
+  coverageThreshold: {
+    global: { statements: 45, branches: 40, functions: 35, lines: 50 },
+    './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
+    './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },
+  },
 };

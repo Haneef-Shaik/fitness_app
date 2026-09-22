@@ -537,8 +537,10 @@ drives **Expo Go** over the LAN, which is the runtime [DR4](08-PROJECT-CHARTER.m
 says the app must be verified on. It is not installed yet — **G4** installs it and is the goal that
 turns this row into evidence (H4.1, H4.2).
 
-The unit and component rows do not exist yet either: `apps/mobile` has **no test harness** and 0%
-coverage, against 181 tests elsewhere in this repo (48 in `packages/domain`, 133 in `services/api`). **G1** (H1.4) builds the harness and puts the coverage gate
+The unit and component rows are real as of **G1**: `jest-expo` + `@testing-library/react-native` run
+**69 client tests** with a coverage gate in CI, where there were none. The gate is a ratchet
+([D18](08-PROJECT-CHARTER.md#6-decision-log)) — `src/lib/query` and `DataBoundary` are held at 90%+,
+and the remainder rises as the pre-existing screens get covered. **G1** (H1.4) builds the harness and puts the coverage gate
 in CI, before the logger is written rather than after.
 
 ---

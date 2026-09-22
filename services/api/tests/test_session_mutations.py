@@ -212,3 +212,36 @@ async def test_mutating_a_finished_session_is_refused(auth_client):
 
     r = await auth_client.delete(f"/v1/session-exercises/{s['exercises'][0]['id']}")
     assert r.status_code == 409, r.text
+
+
+# ------------------------------------------------ densify: both sides agree
+
+async def test_densify_matches_the_client_reducer(auth_client):
+    """PAIRED with `delete and re-densify (W04.6)` in
+    apps/mobile/src/features/workout-session/store/__tests__/reducers.test.ts.
+
+    The phone re-densifies locally so the UI is instant, and the server
+    re-densifies on the write. If the two disagree, a set silently changes
+    position after a sync. Same scenarios, same expected output, both sides.
+    """
+    s = await _session(auth_client, 1)
+    se_id = s["exercises"][0]["id"]
+
+    ids = []
+    for reps in (8, 6, 5):
+        row = await _post_set(auth_client, se_id, {"reps": reps, "load_kg": 60})
+        ids.append(row["id"])
+
+    # delete the MIDDLE set -> [0, 1], the client's first densify case
+    assert _data(await auth_client.delete(f"/v1/workout-sets/{ids[1]}"))["deleted"] is True
+    out = _data(await auth_client.get(f"/v1/workout-sessions/{s['id']}"))
+    se = next(e for e in out["exercises"] if e["id"] == se_id)
+    assert [x["set_index"] for x in se["sets"]] == [0, 1]
+    assert [x["reps"] for x in se["sets"]] == [8, 5]
+
+    # delete the FIRST set -> [0], the client's second densify case
+    assert _data(await auth_client.delete(f"/v1/workout-sets/{ids[0]}"))["deleted"] is True
+    out = _data(await auth_client.get(f"/v1/workout-sessions/{s['id']}"))
+    se = next(e for e in out["exercises"] if e["id"] == se_id)
+    assert [x["set_index"] for x in se["sets"]] == [0]
+    assert [x["reps"] for x in se["sets"]] == [5]

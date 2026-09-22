@@ -14,6 +14,7 @@ The tracker is the only place that claims current status; everything else descri
 |-----------------|------|
 | See the current status | [Project Tracker](09-PROJECT-TRACKER.md) |
 | Pick up the next task | [TODO.md](TODO.md) |
+| Know what to build next, and what to hand the next person | [Execution Goals](10-EXECUTION-GOALS.md) |
 | Understand why this exists and what "done" means | [Project Charter](08-PROJECT-CHARTER.md) |
 | See the actual UI | [design/index.html](design/index.html) — open in a browser |
 | Know what the product does | [PRD](01-PRD.md) |
@@ -48,6 +49,7 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 07 | [Traceability Matrix](07-TRACEABILITY.md) | BRD requirement → screen → API → acceptance criterion. |
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |
 | 09 | [Project Tracker](09-PROJECT-TRACKER.md) | **Live status** — milestones, blockers. |
+| 10 | [Execution Goals](10-EXECUTION-GOALS.md) | **How the work is sequenced** — eleven goals, each with an entry gate and an explicit handoff to the next. |
 | — | [TODO.md](TODO.md) | **Active work** — the current milestone's tasks in execution order. |
 | — | [wireframes/](wireframes/) | Page-by-page: layout, every control, every state. |
 | — | [design/](design/) | The UI as running code — 103 screens, 12 domains. |

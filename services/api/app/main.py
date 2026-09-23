@@ -13,8 +13,12 @@ from app.api.routes import (
     exercises,
     goals,
     history,
+    meal_categories,
+    nutrition,
+    nutrition_copy,
     profile,
     programs,
+    recipes,
     sessions,
 )
 from app.core.errors import AppError
@@ -92,6 +96,7 @@ async def health():
 for r in (
     auth.router, profile.router, goals.router,
     exercises.router, programs.router, sessions.router, history.router,
-    analytics.router,
+    analytics.router, nutrition.router, nutrition_copy.router,
+    meal_categories.router, recipes.router,
 ):
     app.include_router(r, prefix="/v1")

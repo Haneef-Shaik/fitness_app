@@ -942,6 +942,330 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/foods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Foods
+         * @description H-03's picker, through the resolver.
+         *
+         *     Counted before filtering so **I13** holds: "you have no foods" and "nothing
+         *     matches this search" are different screens, and the second one offers to
+         *     create what was typed.
+         */
+        get: operations["list_foods_v1_foods_get"];
+        put?: never;
+        /**
+         * Create Food
+         * @description A user's own food. `source=user`, so it is never mistaken for catalog.
+         */
+        post: operations["create_food_v1_foods_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/foods/{food_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Food
+         * @description Archives it. Items that referenced it keep their macros and their name —
+         *     deleting a food must never delete what somebody ate.
+         */
+        delete: operations["delete_food_v1_foods__food_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Food
+         * @description Corrects a food going FORWARD.
+         *
+         *     Meals already logged from it do not move: their macros were snapshotted at
+         *     write (02 §4.2 inv. 4). That is the behaviour, not a limitation.
+         */
+        patch: operations["patch_food_v1_foods__food_id__patch"];
+        trace?: never;
+    };
+    "/v1/meals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Meal
+         * @description Logs a meal. **AC-07** — today's totals move immediately after this.
+         *
+         *     Idempotent on `client_id` (**I8**), the same contract sets use, because
+         *     meals ride the same outbox and a replayed flush must not double a day.
+         */
+        post: operations["create_meal_v1_meals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/{meal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Meal */
+        get: operations["get_meal_v1_meals__meal_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Meal */
+        delete: operations["delete_meal_v1_meals__meal_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meal-items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Meal Item */
+        delete: operations["delete_meal_item_v1_meal_items__item_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Meal Item
+         * @description Edits one item.
+         *
+         *     Changing the quantity **rescales from the food it came from**, rather than
+         *     scaling the stored snapshot — scaling a snapshot compounds, so 200 g → 100 g
+         *     → 200 g would not return to where it started.
+         *
+         *     Any edit marks `user_corrected` (BRD §13 / **I12**): an estimate somebody
+         *     touched is not the same as one they did not, and G8 leans on that.
+         */
+        patch: operations["patch_meal_item_v1_meal_items__item_id__patch"];
+        trace?: never;
+    };
+    "/v1/nutrition/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Nutrition Day
+         * @description H-01's diary. **AC-07**'s read side.
+         *
+         *     Totals go through `domain_nutrition.day_totals`, which counts only confirmed
+         *     items — the single place that rule is applied, so no screen can forget it
+         *     and no "preview" can quietly include a pending row.
+         */
+        get: operations["nutrition_day_v1_nutrition_day_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meals/{meal_id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy Meal */
+        post: operations["copy_meal_v1_meals__meal_id__copy_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nutrition/day/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Copy Day
+         * @description Duplicates every meal on `from_date` onto `to_date`.
+         *
+         *     Meals are ADDED, never replaced: the target day may already have something
+         *     on it, and silently deleting a day someone logged is not a copy.
+         */
+        post: operations["copy_day_v1_nutrition_day_copy_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meal-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Categories
+         * @description Every category, hidden ones included — the manager has to show what it
+         *     would be un-hiding. The logger filters; this does not.
+         */
+        get: operations["list_categories_v1_meal_categories_get"];
+        put?: never;
+        /** Create Category */
+        post: operations["create_category_v1_meal_categories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/meal-categories/{category_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Category
+         * @description Deletes an unused category. A used one is a 409 telling you to hide it.
+         *
+         *     Deleting a category with meals behind it would leave those meals pointing at
+         *     a slug nothing can name — the diary would render them, but the manager could
+         *     never bring the label back.
+         */
+        delete: operations["delete_category_v1_meal_categories__category_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Category
+         * @description Renames, retimes and hides. **Never re-slugs** — see the module docstring.
+         */
+        patch: operations["patch_category_v1_meal_categories__category_id__patch"];
+        trace?: never;
+    };
+    "/v1/meal-categories/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder Categories */
+        post: operations["reorder_categories_v1_meal_categories_reorder_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/recipes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Recipes */
+        get: operations["list_recipes_v1_recipes_get"];
+        put?: never;
+        /** Create Recipe */
+        post: operations["create_recipe_v1_recipes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/recipes/{recipe_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Recipe */
+        get: operations["get_recipe_v1_recipes__recipe_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Recipe
+         * @description Archives rather than deletes — a meal logged from it keeps its own
+         *     macros either way, but the recipe list is a place people go looking.
+         */
+        delete: operations["delete_recipe_v1_recipes__recipe_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Recipe
+         * @description Edits the plan. Meals already logged from it do not move — they hold
+         *     their own snapshot and nothing here touches `meal_items`.
+         */
+        patch: operations["patch_recipe_v1_recipes__recipe_id__patch"];
+        trace?: never;
+    };
+    "/v1/recipes/{recipe_id}/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Log Recipe
+         * @description Adds every ingredient to a meal, scaled by servings, **snapshotted**.
+         *
+         *     Idempotent on `client_id` (**I8**) like every other meal write, because this
+         *     rides the same outbox.
+         */
+        post: operations["log_recipe_v1_recipes__recipe_id__log_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1004,6 +1328,18 @@ export interface components {
             reps?: number | null;
             /** E1Rm Kg */
             e1rm_kg?: number | null;
+        };
+        /**
+         * CategoryOrderIn
+         * @description Every id, in the new order.
+         *
+         *     A partial list is refused rather than applied: sending three of four ids
+         *     leaves the fourth at whatever position it happened to hold, which reads as a
+         *     bug the next time the screen is opened.
+         */
+        CategoryOrderIn: {
+            /** Ids */
+            ids: string[];
         };
         /**
          * ComparisonCellOut
@@ -1083,6 +1419,15 @@ export interface components {
             /** Duration Seconds */
             duration_seconds?: number | null;
         };
+        /** CursorEnvelope[list[FoodOut]] */
+        CursorEnvelope_list_FoodOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["FoodOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+            meta?: components["schemas"]["CursorMeta"] | null;
+        };
         /** CursorEnvelope[list[HistoryItemOut]] */
         CursorEnvelope_list_HistoryItemOut__: {
             /** Success */
@@ -1126,6 +1471,54 @@ export interface components {
             filtered: boolean;
             /** Total Unfiltered */
             total_unfiltered?: number | null;
+        };
+        /** DayCopyIn */
+        DayCopyIn: {
+            /**
+             * From Date
+             * Format: date
+             */
+            from_date: string;
+            /**
+             * To Date
+             * Format: date
+             */
+            to_date: string;
+        };
+        /**
+         * DayOut
+         * @description H-01's diary for one local day.
+         *
+         *     Totals come from `app.domain.nutrition.day_totals`, which counts only
+         *     confirmed items (**I2 / D5**). `pending_count` is how the screen shows that
+         *     something is there without letting it into the number.
+         *
+         *     `incomplete` means a counted item was missing a macro — "we do not know" is
+         *     reported rather than silently treated as zero.
+         */
+        DayOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Calories */
+            calories: number;
+            /** Protein G */
+            protein_g: number;
+            /** Carbs G */
+            carbs_g: number;
+            /** Fat G */
+            fat_g: number;
+            /** Pending Count */
+            pending_count: number;
+            /** Incomplete */
+            incomplete: boolean;
+            /**
+             * Meals
+             * @default []
+             */
+            meals: components["schemas"]["MealOut"][];
         };
         /**
          * DeletedOut
@@ -1171,6 +1564,13 @@ export interface components {
             data?: components["schemas"]["ComparisonOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[DayOut] */
+        Envelope_DayOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["DayOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[DeletedOut] */
         Envelope_DeletedOut_: {
             /** Success */
@@ -1199,6 +1599,13 @@ export interface components {
             data?: components["schemas"]["ExerciseStatsOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[FoodOut] */
+        Envelope_FoodOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["FoodOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[FrequencyOut] */
         Envelope_FrequencyOut_: {
             /** Success */
@@ -1220,6 +1627,27 @@ export interface components {
             data?: components["schemas"]["MeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[MealCategoryOut] */
+        Envelope_MealCategoryOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["MealCategoryOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[MealItemOut] */
+        Envelope_MealItemOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["MealItemOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[MealOut] */
+        Envelope_MealOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["MealOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[PreviousPerformanceOut] */
         Envelope_PreviousPerformanceOut_: {
             /** Success */
@@ -1239,6 +1667,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["ProgramOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[RecipeOut] */
+        Envelope_RecipeOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["RecipeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[SessionFinishOut] */
@@ -1300,6 +1735,22 @@ export interface components {
             } | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[list[MealCategoryOut]] */
+        Envelope_list_MealCategoryOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["MealCategoryOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[MealOut]] */
+        Envelope_list_MealOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["MealOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[list[MuscleGroupOut]] */
         Envelope_list_MuscleGroupOut__: {
             /** Success */
@@ -1322,6 +1773,14 @@ export interface components {
             success: boolean;
             /** Data */
             data?: components["schemas"]["PersonalRecordRowOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[RecipeOut]] */
+        Envelope_list_RecipeOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["RecipeOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /**
@@ -1544,6 +2003,85 @@ export interface components {
              */
             e1rm_series: components["schemas"]["E1rmPointOut"][];
         };
+        /** FoodIn */
+        FoodIn: {
+            /** Name */
+            name: string;
+            /** Brand */
+            brand?: string | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+            /** Fiber G */
+            fiber_g?: number | null;
+            /** Serving Grams */
+            serving_grams?: number | null;
+            /** Serving Label */
+            serving_label?: string | null;
+        };
+        /**
+         * FoodOut
+         * @description A food. Nutrition is **per 100 g** — always, and the field names say so
+         *     nowhere, so this docstring has to.
+         */
+        FoodOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Brand */
+            brand?: string | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+            /** Fiber G */
+            fiber_g?: number | null;
+            /** Serving Grams */
+            serving_grams?: number | null;
+            /** Serving Label */
+            serving_label?: string | null;
+            /** Source */
+            source: string;
+            /**
+             * Is Custom
+             * @default false
+             */
+            is_custom: boolean;
+        };
+        /** FoodPatch */
+        FoodPatch: {
+            /** Name */
+            name?: string | null;
+            /** Brand */
+            brand?: string | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+            /** Fiber G */
+            fiber_g?: number | null;
+            /** Serving Grams */
+            serving_grams?: number | null;
+            /** Serving Label */
+            serving_label?: string | null;
+        };
         /**
          * FrequencyCellOut
          * @description One square of G-05's week x muscle heatmap.
@@ -1707,6 +2245,20 @@ export interface components {
             /** Password */
             password: string;
         };
+        /**
+         * MacrosOut
+         * @description Absolute macros for whatever the containing object says they describe.
+         */
+        MacrosOut: {
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+        };
         /** MeOut */
         MeOut: {
             /** Id */
@@ -1715,6 +2267,192 @@ export interface components {
             email: string;
             /** Status */
             status: string;
+        };
+        /** MealCategoryIn */
+        MealCategoryIn: {
+            /** Name */
+            name: string;
+            /** Default Time */
+            default_time?: string | null;
+        };
+        /** MealCategoryOut */
+        MealCategoryOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Sort Order */
+            sort_order: number;
+            /** Default Time */
+            default_time?: string | null;
+            /** Hidden */
+            hidden: boolean;
+            /** Is Default */
+            is_default: boolean;
+        };
+        /**
+         * MealCategoryPatch
+         * @description No `slug`. The slug is identity and renaming must not touch it — see
+         *     `app.domain.slug`.
+         */
+        MealCategoryPatch: {
+            /** Name */
+            name?: string | null;
+            /** Default Time */
+            default_time?: string | null;
+            /** Hidden */
+            hidden?: boolean | null;
+        };
+        /** MealCopyIn */
+        MealCopyIn: {
+            /**
+             * To Date
+             * Format: date
+             */
+            to_date: string;
+            /** Meal Type */
+            meal_type: string;
+            /** Client Id */
+            client_id?: string | null;
+        };
+        /** MealIn */
+        MealIn: {
+            /** Meal Type */
+            meal_type: string;
+            /** Consumed At */
+            consumed_at?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+            /** Items */
+            items?: components["schemas"]["MealItemIn"][];
+        };
+        /**
+         * MealItemIn
+         * @description One item. Either it references a food, or it names itself.
+         *
+         *     A quick-add with no `food_id` is legitimate — somebody ate something the
+         *     catalog has never heard of — but it still has to say what it was, or the
+         *     diary renders a blank row.
+         */
+        MealItemIn: {
+            /** Food Id */
+            food_id?: string | null;
+            /** Display Name */
+            display_name?: string | null;
+            /** Quantity Grams */
+            quantity_grams?: number | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+            /** Fiber G */
+            fiber_g?: number | null;
+            /**
+             * Confirmed
+             * @default true
+             */
+            confirmed: boolean;
+            /**
+             * Source
+             * @default manual
+             * @enum {string}
+             */
+            source: "manual" | "text_ai" | "image_ai";
+            /** Client Id */
+            client_id?: string | null;
+        };
+        /**
+         * MealItemOut
+         * @description Macros here are **absolute for the quantity**, snapshotted at write.
+         */
+        MealItemOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Food Id */
+            food_id?: string | null;
+            /** Display Name */
+            display_name: string;
+            /** Quantity Grams */
+            quantity_grams?: number | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+            /** Fiber G */
+            fiber_g?: number | null;
+            /** Confirmed */
+            confirmed: boolean;
+            /** User Corrected */
+            user_corrected: boolean;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "manual" | "text_ai" | "image_ai";
+        };
+        /** MealItemPatch */
+        MealItemPatch: {
+            /** Quantity Grams */
+            quantity_grams?: number | null;
+            /** Confirmed */
+            confirmed?: boolean | null;
+            /** Display Name */
+            display_name?: string | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+        };
+        /** MealOut */
+        MealOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Meal Type */
+            meal_type: string;
+            /**
+             * Consumed At
+             * Format: date-time
+             */
+            consumed_at: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Logged Timezone */
+            logged_timezone: string;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["MealItemOut"][];
         };
         /**
          * Meta
@@ -2210,6 +2948,104 @@ export interface components {
              * @default 0
              */
             volume_kg: number;
+        };
+        /** RecipeIn */
+        RecipeIn: {
+            /** Name */
+            name: string;
+            /**
+             * Servings
+             * @default 1
+             */
+            servings: number;
+            /** Notes */
+            notes?: string | null;
+            /** Items */
+            items?: components["schemas"]["RecipeItemIn"][];
+        };
+        /** RecipeItemIn */
+        RecipeItemIn: {
+            /** Food Id */
+            food_id?: string | null;
+            /** Display Name */
+            display_name?: string | null;
+            /** Quantity Grams */
+            quantity_grams?: number | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+        };
+        /** RecipeItemOut */
+        RecipeItemOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Food Id */
+            food_id?: string | null;
+            /** Display Name */
+            display_name: string;
+            /** Quantity Grams */
+            quantity_grams?: number | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
+        };
+        /** RecipeLogIn */
+        RecipeLogIn: {
+            /** Meal Type */
+            meal_type: string;
+            /**
+             * Servings
+             * @default 1
+             */
+            servings: number;
+            /** Consumed At */
+            consumed_at?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+        };
+        /** RecipeOut */
+        RecipeOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Servings */
+            servings: number;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["RecipeItemOut"][];
+            per_serving: components["schemas"]["MacrosOut"];
+        };
+        /** RecipePatch */
+        RecipePatch: {
+            /** Name */
+            name?: string | null;
+            /** Servings */
+            servings?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Items */
+            items?: components["schemas"]["RecipeItemIn"][] | null;
         };
         /**
          * RecordEntryOut
@@ -4430,6 +5266,742 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_AdherenceOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_foods_v1_foods_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CursorEnvelope_list_FoodOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_food_v1_foods_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FoodIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_FoodOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_food_v1_foods__food_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                food_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_FoodOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_food_v1_foods__food_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                food_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FoodPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_FoodOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_meal_v1_meals_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_meal_v1_meals__meal_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_meal_v1_meals__meal_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_meal_item_v1_meal_items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealItemOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_meal_item_v1_meal_items__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealItemPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealItemOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    nutrition_day_v1_nutrition_day_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DayOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copy_meal_v1_meals__meal_id__copy_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                meal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealCopyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    copy_day_v1_nutrition_day_copy_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DayCopyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_MealOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_categories_v1_meal_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_MealCategoryOut__"];
+                };
+            };
+        };
+    };
+    create_category_v1_meal_categories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealCategoryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealCategoryOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_category_v1_meal_categories__category_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealCategoryOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_category_v1_meal_categories__category_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MealCategoryPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealCategoryOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorder_categories_v1_meal_categories_reorder_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryOrderIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_MealCategoryOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_recipes_v1_recipes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_RecipeOut__"];
+                };
+            };
+        };
+    };
+    create_recipe_v1_recipes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecipeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_RecipeOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_recipe_v1_recipes__recipe_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recipe_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_RecipeOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_recipe_v1_recipes__recipe_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recipe_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_RecipeOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_recipe_v1_recipes__recipe_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recipe_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecipePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_RecipeOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    log_recipe_v1_recipes__recipe_id__log_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                recipe_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecipeLogIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealOut_"];
                 };
             };
             /** @description Validation Error */

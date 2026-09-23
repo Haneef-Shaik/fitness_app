@@ -6,7 +6,17 @@ from app.models.exercise import (
     MuscleGroup,
     MuscleRole,
 )
+from app.models.nutrition import (
+    DEFAULT_MEAL_CATEGORIES,
+    Food,
+    FoodSource,
+    ItemSource,
+    Meal,
+    MealCategory,
+    MealItem,
+)
 from app.models.program import PlanExercise, ProgramStatus, WorkoutPlanDay, WorkoutProgram
+from app.models.recipe import Recipe, RecipeItem
 from app.models.session import (
     PersonalRecord,
     RecordType,
@@ -40,4 +50,7 @@ __all__ = [  # noqa: RUF022
     # performed
     "WorkoutSession", "SessionExercise", "WorkoutSet", "PersonalRecord",
     "SessionStatus", "SetType", "RecordType",
+    # nutrition
+    "Food", "FoodSource", "Meal", "MealItem", "ItemSource",
+    "MealCategory", "DEFAULT_MEAL_CATEGORIES", "Recipe", "RecipeItem",
 ]

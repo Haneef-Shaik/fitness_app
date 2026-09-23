@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-22 (G3 closed — the logger) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-23 (G7 closed — nutrition core) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -15,22 +15,22 @@
 
 | | |
 |---|---|
-| **Milestones complete** | M0, M1 — **2 of 9** |
-| **Tests passing** | **509** — 48 TS domain, 164 Python *(3 skipped)*, **297 client** |
-| **API endpoints live** | **49** operations across **37** paths, all with declared response shapes (D17) |
-| **App screens built** | **22** of 103 designed |
+| **Milestones complete** | M0, M1, **M5** — **3 of 9** |
+| **Tests passing** | **886** — 91 TS domain, 293 Python *(3 skipped)*, **502 client** |
+| **API endpoints live** | **80** operations across **58** paths, all with declared response shapes (D17) |
+| **App screens built** | **37** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 25 commits · `60b0bd4` the logger (G3) |
+| **Version control** | git, 37 commits · `218f57a` nutrition core (G7) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
 M0 ████████████ done      specs, design system, 103 screens
 M1 ████████████ done      auth · profile · goals · migrations · CI
-M2 ████████░░░░ in prog   training core — API done, logger client next
-M3 ░░░░░░░░░░░░           retrieval
-M4 ░░░░░░░░░░░░           training analytics
-M5 ░░░░░░░░░░░░           nutrition core
+M2 ████████████ done      training core — AC-01 and AC-02 proven on hardware
+M3 ████████████ done      retrieval
+M4 ████████████ done      training analytics
+M5 ████████████ done      nutrition core
 M6 ░░░░░░░░░░░░           AI nutrition
 M7 ░░░░░░░░░░░░           body & dashboard
 M8 ░░░░░░░░░░░░           hardening
@@ -47,7 +47,7 @@ M8 ░░░░░░░░░░░░           hardening
 | M2 | Training core | [AC-01, AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) | 🟡 |
 | M3 | Retrieval | AC-03, AC-04, AC-05, AC-12 | ⚪ |
 | M4 | Training analytics | AC-06 | ⚪ |
-| M5 | Nutrition core | AC-07 | ⚪ |
+| M5 | Nutrition core | AC-07 | 🟢 |
 | M6 | AI nutrition | AC-08, AC-09, AC-10 | ⚪ |
 | M7 | Progress & dashboard | AC-11 | ⚪ |
 | M8 | Hardening | NFR sign-off | ⚪ |
@@ -164,11 +164,17 @@ client is what remains.
 - [x] PR recomputation on retroactive edit *(full re-scan — a PR can be demoted)* — landed early with M2's finish transaction
 - [ ] Screens: G-01…G-07 with charts
 
-## M5 · Nutrition core ⚪
-- [ ] Models: `foods`, `meals`, `meal_items` **with denormalised macro columns** ([02 §4.2](02-SYSTEM-ARCHITECTURE.md))
-- [ ] Nutrition provider decision 🔴 *(Q1)*
-- [ ] `/foods`, `/meals`, `/meal-items`, `/recipes`
-- [ ] Screens: H-01…H-05, H-10…H-13, H-15, H-16
+## M5 · Nutrition core 🟢
+- [x] Models: `foods`, `meals`, `meal_items` **with denormalised macro columns** ([02 §4.2](02-SYSTEM-ARCHITECTURE.md)),
+      plus `meal_categories` (H-16) and `recipes` / `recipe_items` (H-11). Migration `2fb1377688cf`,
+      round-tripped upgrade → downgrade → re-upgrade, `alembic check` clean
+- [x] Nutrition provider **worked around, not decided** 🟡 *(Q1 still open — see [charter §9](08-PROJECT-CHARTER.md))*.
+      `FoodResolver` Protocol + `InternalCatalogResolver` over 22 seeded foods + a test double
+- [x] `/foods`, `/meals`, `/meal-items`, `/recipes` — and `/meal-categories`, `/nutrition/day`,
+      `/meals/{id}/copy`, `/nutrition/day/copy`
+- [x] Screens: H-01…H-05, H-10…H-13, H-15, H-16
+- [ ] H-14 nutrition analytics — **not in G7's scope**; needs `daily_summaries` (G9)
+- [ ] H-17 barcode scanner — P2, and blocked on Q1
 
 ## M6 · AI nutrition ⚪
 - [ ] `food_analyses` / `food_analysis_items`, append-only
@@ -199,20 +205,24 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G4 — device verification via Maestro on Expo Go** | **Three things now depend on it**: SQLite has never been opened, the kill-and-relaunch recovery is unproven, and tap→set has never been measured | DR4 · AC-02 · AC-04 |
-| 2 | **G5 — history and comparison** | Retrieval | AC-03, AC-05 |
+| 1 | **G8 — AI nutrition** | The meal aggregate exists and an AI item is just an unconfirmed one. AC-10 is the sharpest assertion in the project and it needs the append-only tables first | AC-08, AC-09, AC-10 |
+| 2 | **G9 — body, goals, dashboard** | Also carries the **profile screen G7 discovered is missing** — nothing in the app sets `birth_date`, `sex` or `height_cm`, which H-15's calculator needs | AC-11 |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
 *Cleared 22 Sep: **G1** — generated types (D3b closed), query layer, `DataBoundary`, test harness; D17–D18 recorded.*
 *Cleared 22 Sep: **G2** — 8 catalog and planning screens, the two missing endpoints, m4 migration. **AC-01 reachable**.*
 *Cleared 22 Sep: **G3** — draft store, outbox, 8 logger screens, 4 mutation endpoints. **AC-02 and AC-04 reachable**, pending device proof.*
+*Cleared 23 Sep: **G4** — E2E on a physical phone; **DR4 closed**; p95 measured and missed.*
+*Cleared 23 Sep: **G5** — history, comparison, cursor pagination. **AC-03 and AC-05**.*
+*Cleared 23 Sep: **G6** — six analytics endpoints and a chart kit. **AC-06**.*
+*Cleared 23 Sep: **G7** — nutrition core: foods, meals, the diary, categories, recipes, copying, targets. **AC-07**. Q1 worked around, not answered.*
 
 ## Blocked
 
 | Item | Blocked by | Owner |
 |------|-----------|-------|
-| M5/M6 food coverage | Q1 nutrition provider undecided | User |
+| M6 food coverage, H-17 barcode | Q1 nutrition provider undecided — **narrowed 23 Sep**: M5 shipped without it on a 22-food internal catalog behind the resolver | User |
 | Device verification | No Xcode locally — needs Expo Go on a real phone. The runner is now chosen (**Maestro**, D15) but not installed | User |
 | Age policy on A-07 | Q9 legal position | User |
 
@@ -220,15 +230,15 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **714** — 414 client, 241 API (+3 skipped), 59 domain | grows with each milestone |
+| Tests passing | **886** — 502 client, 293 API (+3 skipped), 91 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **241** | every endpoint, happy + failure |
+| API integration tests | **293** | every endpoint, happy + failure |
 | Migration guards | 2 — drift check + destructive round trip | kept green |
-| Migrations | **4** — M1 foundations, M2 training core, M3 deferrable ordering, **M4 plan time/distance targets** | kept reversible |
-| Mutation checks | **19** verified catches — G5 added 3 (recursion, widening order, and the vacuous test the mutation itself exposed), G6 added 4 (volume summed outside the domain, secondary weighted 1.0, one-level ancestors, and the palette ceiling raised past the spacer) | every guard and shared-vector change |
+| Migrations | **5** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, **M5 nutrition** (foods, meals, meal items, meal categories, recipes) | kept reversible — M5 round-tripped upgrade → downgrade → re-upgrade before it shipped |
+| Mutation checks | **57** verified catches — **G7 added 38** across four layers: the domain target calculator (5), the API (13: the category check, the 409 on a used category, partial reorder, re-slugging on rename, per-serving vs per-batch, the servings factor, the recipe snapshot, AI provenance on a copy, the empty-day and same-day refusals, clock-time preservation, hidden ≠ deleted, and lazy seeding), the management screens (6) and the logging screens (11). **Two of them survived and exposed weak tests**, which is the check working: a 101-step sweep over a 40:30 base could never catch independent rounding (its fractions always sum to 1), and nothing at all covered the "total 100%" gate. Both tests were strengthened and the mutations then failed | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | **enforced**, and **ratcheted in G4** from 45/38/42/46 to **51/47/48/52**. Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed 55.66% includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **51.90%** statements / **52.31%** lines | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **7 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), AC-03, AC-05 and **AC-06** (23 Sep) and AC-12 | 12 of 12 |
+| Coverage gate | **enforced**, and **ratcheted in G7** to **59/54/55/60** (from G6's 54/50/50/55). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **63.91%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **59.96%** statements / **60.93%** lines. G7's jump is the largest since G1 and it is mostly **old** code: `app/nutrition/index.tsx`, AC-07's own surface, was at **0%**, and `src/lib/api-nutrition.ts` at **3.5%** because every screen test mocks the API module and nothing exercised the URLs | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
+| Acceptance criteria passing | **8 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), AC-03, AC-05, **AC-06** and **AC-07** (23 Sep) and AC-12. **AC-07 is proven by API and client tests, not on hardware** — `scripts/e2e.sh` has no nutrition flow | 12 of 12 |
 | tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
 
 ## Changelog
@@ -261,6 +271,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 23 Sep | **G7 — nutrition core.** `foods`, `meals`, `meal_items`, `meal_categories`, `recipes`, migration `2fb1377688cf`. Endpoints `/foods`, `/meals`, `/meal-items`, `/recipes`, `/meal-categories`, `/nutrition/day` and the two copy routes. Screens **H-01…H-05, H-10…H-13, H-15, H-16**. **AC-07 proven — 8 of 12**. API tests 241 → 293, client 414 → 502, domain 59 → 91. Q1 **not** answered; the resolver made it optional |
 | 23 Sep | **G6 — analytics.** Six `/analytics/*` endpoints, a chart kit (**H6.1**) and screens **G-01…G-07**. **AC-06 proven** — **7 of 12**. API tests 209 → 241, client 370 → 414 |
 | 23 Sep | **AC-06 is an agreement, and it has a test that breaks when the agreement does.** One session read on the finish summary, in session detail and in analytics, asserted identical. Mutation-checked by summing volume in the route instead of deferring to `app.domain.training`: AC-06 fails, which is exactly what it is for |
 | 23 Sep | **Adherence had a definition but no implementation.** PRD W07.7 (`completed planned ÷ planned`) is now in `app/domain/adherence.py` **and** `packages/domain/.../adherence.ts`, pinned by new shared vectors — two implementations are allowed, a third in SQL is not. It carries two judgements the ratio does not: **no plan is undefined, never 0**, and **more than planned is 1.0, not 1.25** |
@@ -473,6 +484,80 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G7 · Nutrition core                closed 23 Sep · `218f57a`
+
+**Outcome claimed.** A manually logged meal moves today's totals, on the user's local date —
+**AC-07**. Proven by API tests and client tests; **not** on hardware.
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H3.2 | ⚠️ | **The queue was generic. The door was not.** `createOutbox` only ever touches `readyEntries`/`markSent`/`markRetry`/`markFailed`, so the engine was genuinely reusable — but the only way to put something *in* was `commit(draft, entry)`, which demands a session draft, and a meal has none. Fixed on the shared `SessionStore` contract as `enqueue(entry)`, implemented in both the SQLite and in-memory stores and covered by the one contract suite. **Recorded as a G3 defect**, not answered with a second queue. Meals and recipe logs now ride the same outbox and the same `startOutboxPump` |
+| H6.1 | ✅ | `Meter` from the chart kit draws H-01's remaining-calories bar unchanged. H-15's macro rows are a new control (a track plus steppers) rather than a chart, so they are not in the kit |
+| H5.1 | ✅ | `/foods` uses `CursorEnvelope`, and `meta.filtered` is what lets H-04 tell "you have no foods" from "nothing matches this" (**I13**) |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H7.1 | Food resolver interface | Provider-agnostic — Q1 answerable late without a rewrite | `app/food/resolver.py`: a `Protocol` with `search(query) -> list[Candidate]` and `resolve(ref) -> FoodRef`. One real implementation (`InternalCatalogResolver`, 22 seeded foods) and a test double substituted in the suite. `_resolver()` in `app/api/routes/nutrition.py` is the only place a concrete resolver is named |
+| H7.2 | Meal aggregate | Denormalised macros; only confirmed reaches analytics | `meal_items` hold absolute macros frozen at write; `foods` hold per 100 g. Editing a food afterwards leaves the meal byte identical (asserted). `confirmed` is filtered once, in `app.domain.nutrition.day_totals` |
+
+**Verified.** AC-07: `tests/test_nutrition.py` end to end, plus H-01's own test asserting the
+pending item is visible and in no total · outbox replay: the I8 test in `test_nutrition.py` and the
+store-contract test for `enqueue` · the snapshot rule: log a meal, edit the food, assert identical ·
+the recipe version of it: log a recipe, quadruple the recipe, assert the meal unchanged.
+
+Acceptance criteria now proven: AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, **AC-07**, AC-12 —
+**8 of 12**.
+
+**Decisions recorded.** **Q1 → still open**, and G7 shipped without it. DR2 downgraded from
+"blocks M5/M6" to "blocks coverage and the licensing obligation" ([charter §7](08-PROJECT-CHARTER.md#7-delivery-risks)).
+Two new decisions: **D21** (`meals.meal_type` is a slug, not an ENUM — H-16 makes a fixed four-value
+enum untenable) and **D22** (a recipe is a plan; logging it snapshots).
+
+**Left undone, and why.**
+
+- **H-14 nutrition analytics** and **H-17 barcode** were not in scope. H-14 needs `daily_summaries`
+  (G9's); H-17 is P2 and depends on Q1
+- **No hardware flow for AC-07.** `scripts/e2e.sh` still covers AC-01/02/04/05 only. The claim rests
+  on API and client tests
+- **Q8 is open and now user-visible.** Targets are not versioned, so Volt has no record of what a
+  past day's target was. H-15 therefore says only that nothing already logged is rewritten —
+  deliberately narrower than the wireframe's "past days keep the numbers they had", which the schema
+  cannot support
+- **No screen sets `birth_date`, `sex` or `height_cm`.** The API accepts all three and H-15's
+  calculator needs them; onboarding does not collect them and no profile screen exists. H-15 names
+  the gap and falls back to a weight-and-activity estimate rather than linking to a route that is
+  not there. Belongs to G9
+- **H-15's macro control is steppers, not a gesture slider.** The wireframe draws sliders;
+  `@react-native-community/slider` is a new dependency and D19's history with dependencies that
+  reach for React under Metro argued against one for a control that steppers do equally well — and
+  that a screen reader and a Maestro flow can both drive
+
+**Traps hit.**
+
+- **The `meal_type` enum.** Written in this same goal, before H-16 was read. A four-value Postgres
+  ENUM makes "Pre-workout" a migration. Caught while the migration was still uncommitted, so it was
+  amended rather than superseded — but `alembic check` passed the whole time, because the DB was
+  already at the old version of the same revision. It only surfaced on a forced downgrade
+- **A vacuous 404.** "Another user cannot copy this meal" passed before the route existed: a missing
+  route returns 404 too. Two tests had the same shape; both now assert the owner *can* do it
+- **A 101-step sweep that could not fail.** The macro interlock's "always totals 100" test swept a
+  30/40/30 base, whose two fractional parts always sum to 1 — independent rounding is right every
+  time there. An equal-others base (49.5 / 49.5, both rounding up) is where it breaks. Found by
+  mutation, not by reading
+- **`expo-sqlite` pulled into the whole query layer.** Wiring meals through the store made
+  `hooks.ts` import `src/lib/db`, whose static `import 'expo-sqlite'` throws under Jest — four
+  suites went red. The fix is architectural rather than a mock: `src/lib/db/index.ts` is now a
+  façade that `require`s the implementation on first use, so importing the module costs nothing
+- **`router.replace` undefined in a mock.** ES imports hoist above `const mockReplace = jest.fn()`,
+  so a factory that captures the variable directly captures `undefined`. Calling through a wrapper
+  defers the lookup
 
 ---
 

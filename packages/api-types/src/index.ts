@@ -89,6 +89,30 @@ export type FrequencyCell = Schemas['FrequencyCellOut'];
 export type Adherence = Schemas['AdherenceOut'];
 export type AdherenceWeek = Schemas['AdherenceWeekOut'];
 
+/* ----------------------------------------------------------- nutrition (G7) */
+
+export type Food = Schemas['FoodOut'];
+export type FoodIn = Schemas['FoodIn'];
+export type FoodPatch = Schemas['FoodPatch'];
+export type Meal = Schemas['MealOut'];
+export type MealIn = Schemas['MealIn'];
+export type MealItem = Schemas['MealItemOut'];
+export type MealItemIn = Schemas['MealItemIn'];
+export type MealItemPatch = Schemas['MealItemPatch'];
+export type NutritionDay = Schemas['DayOut'];
+export type MealCategory = Schemas['MealCategoryOut'];
+export type MealCategoryIn = Schemas['MealCategoryIn'];
+export type MealCategoryPatch = Schemas['MealCategoryPatch'];
+export type CategoryOrderIn = Schemas['CategoryOrderIn'];
+export type Recipe = Schemas['RecipeOut'];
+export type RecipeIn = Schemas['RecipeIn'];
+export type RecipePatch = Schemas['RecipePatch'];
+export type RecipeItem = Schemas['RecipeItemOut'];
+export type RecipeItemIn = Schemas['RecipeItemIn'];
+export type RecipeLogIn = Schemas['RecipeLogIn'];
+export type MealCopyIn = Schemas['MealCopyIn'];
+export type DayCopyIn = Schemas['DayCopyIn'];
+
 /* ---------------------------------------------------------- request payloads */
 
 export type ProfilePatch = Schemas['ProfilePatch'];

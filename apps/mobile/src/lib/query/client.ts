@@ -30,6 +30,10 @@ export const staleTimes = {
   sessionComparison: 30 * MINUTE,
   /** A trend over weeks does not move until another session is finished. */
   analytics: 10 * MINUTE,
+  /** Today's diary changes whenever the user eats — short, but not zero. */
+  nutritionDay: 30 * 1000,
+  /** The food catalog is effectively static between edits. */
+  foods: 30 * MINUTE,
 } as const;
 
 /**

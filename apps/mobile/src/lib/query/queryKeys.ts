@@ -78,6 +78,21 @@ export const qk = {
   analyticsRecords: (f: AnalyticsFilters = {}) => ['analytics', 'records', f] as const,
   analyticsFrequency: (f: AnalyticsFilters = {}) => ['analytics', 'frequency', f] as const,
   analyticsAdherence: (f: AnalyticsFilters = {}) => ['analytics', 'adherence', f] as const,
+
+  // nutrition (G7). The diary is keyed by LOCAL date, never by "today" — the
+  // client does not decide which day it is (I7).
+  nutritionDay: (localDate: string) => ['nutrition', 'day', localDate] as const,
+  meal: (id: string) => ['nutrition', 'meal', id] as const,
+  foods: (q?: string) => ['foods', 'list', q ?? ''] as const,
+
+  // H-16. Categories are their OWN key rather than part of `nutrition`: the
+  // logger reads them on every screen, and they do not change when a meal does.
+  mealCategories: () => ['meal-categories'] as const,
+
+  // H-11. A recipe is a plan, so it is keyed apart from the diary it feeds —
+  // logging one changes the day, editing one does not.
+  recipes: () => ['recipes', 'list'] as const,
+  recipe: (id: string) => ['recipes', 'detail', id] as const,
 } as const;
 
 /** The prefixes invalidation targets. Kept beside the registry so they cannot drift. */
@@ -94,4 +109,8 @@ export const qkPrefix = {
   previousOccurrence: () => ['previous-occurrence'] as const,
   sessionComparison: () => ['session-comparison'] as const,
   analytics: () => ['analytics'] as const,
+  nutrition: () => ['nutrition'] as const,
+  foods: () => ['foods'] as const,
+  mealCategories: () => ['meal-categories'] as const,
+  recipes: () => ['recipes'] as const,
 } as const;

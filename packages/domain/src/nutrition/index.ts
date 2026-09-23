@@ -27,3 +27,5 @@ export function dayTotals(items: readonly MealItem[]): DayTotals {
 
 /** Remaining against a target. Negative means over — the UI renders that, never hides it. */
 export const remainingKcal = (consumed: number, target: number): number => target - consumed;
+export * from './scaling';
+export * from './targets';

@@ -1,0 +1,59 @@
+/**
+ * How nutrition reads. One formatter, so H-01, H-02 and the dashboard phrase
+ * the same numbers the same way.
+ */
+export function kcal(v: number | null | undefined): string {
+  if (v === null || v === undefined) return '—';
+  return Math.round(v).toLocaleString('en-US');
+}
+
+/**
+ * Macros to one decimal, and only when the decimal says something.
+ *
+ * `31 g` reads better than `31.0 g`; `0.5 g` must not become `1 g`.
+ */
+export function grams(v: number | null | undefined): string {
+  if (v === null || v === undefined) return '—';
+  const rounded = Math.round(v * 10) / 10;
+  return Number.isInteger(rounded) ? `${rounded} g` : `${rounded.toFixed(1)} g`;
+}
+
+/** "200 g" / "1 slice (32 g)" — the quantity as a person would say it. */
+export function portion(
+  quantityGrams: number | null | undefined,
+  servingLabel?: string | null,
+  servingGrams?: number | null,
+): string {
+  if (quantityGrams === null || quantityGrams === undefined) return '—';
+  if (servingLabel && servingGrams && Math.abs(quantityGrams - servingGrams) < 0.5) {
+    return `${servingLabel} (${grams(quantityGrams)})`;
+  }
+  return grams(quantityGrams);
+}
+
+/** The slugs every account starts with. Mirrors DEFAULT_MEAL_CATEGORIES. */
+export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+export type MealTypeName = (typeof MEAL_TYPES)[number];
+
+export interface NamedCategory {
+  slug: string;
+  name: string;
+}
+
+/**
+ * The label for a meal's category.
+ *
+ * Meals store the **slug**; the name lives on the category, so a rename shows
+ * up everywhere at once (**I15** — one canonical home). The fallback exists for
+ * a meal filed under a category that has since been deleted: "pre-workout"
+ * still reads as "Pre workout" rather than as nothing at all.
+ */
+export function mealTypeLabel(
+  slug: string,
+  categories?: readonly NamedCategory[] | null,
+): string {
+  const match = categories?.find((c) => c.slug === slug);
+  if (match) return match.name;
+  const spaced = slug.replace(/-/g, ' ');
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}

@@ -141,6 +141,60 @@ function contract(name: string, make: () => SessionStore) {
         expect(all[0]!.lastError).toBe('Reps must be at least 1.');
       });
     });
+
+    describe('enqueue — a write with no draft behind it (G7)', () => {
+      /**
+       * G3 built the outbox "generic", and the QUEUE is: `createOutbox` only
+       * touches readyEntries / markSent / markRetry / markFailed. What was NOT
+       * generic is how an entry gets IN — `commit(draft, entry)` demands a
+       * session draft, and a meal does not have one.
+       *
+       * G7's contract calls that a G3 defect to fix here rather than grounds
+       * for a second queue, because two queues is how one of them silently
+       * stops flushing.
+       */
+      it('accepts an entry with no draft at all', async () => {
+        await store.enqueue({
+          aggregateId: 'meal-1', method: 'POST', path: '/meals',
+          body: JSON.stringify({ meal_type: 'lunch' }),
+          idempotencyKey: 'meal-key-1', nextAttemptAt: '2026-09-22T09:00:00Z',
+        });
+
+        const ready = await store.readyEntries('2026-09-22T10:00:00Z');
+        expect(ready).toHaveLength(1);
+        expect(ready[0]!.path).toBe('/meals');
+        expect(await store.loadDraft()).toBeNull();
+      });
+
+      it('leaves a session draft in progress untouched', async () => {
+        // Not faking a draft is the point: logging lunch must not disturb a
+        // workout someone is in the middle of.
+        await store.commit(draft(7, '{"sets":[1]}'));
+
+        await store.enqueue({
+          aggregateId: 'meal-1', method: 'POST', path: '/meals', body: '{}',
+          idempotencyKey: 'meal-key-2', nextAttemptAt: '2026-09-22T09:00:00Z',
+        });
+
+        const d = await store.loadDraft();
+        expect(d?.revision).toBe(7);
+        expect(d?.json).toBe('{"sets":[1]}');
+      });
+
+      it('is idempotent on the key, like every other enqueue (I8)', async () => {
+        const base = {
+          aggregateId: 'meal-1', method: 'POST' as const, path: '/meals',
+          idempotencyKey: 'same-meal-key', nextAttemptAt: '2026-09-22T09:00:00Z',
+        };
+
+        await store.enqueue({ ...base, body: '{"v":1}' });
+        await store.enqueue({ ...base, body: '{"v":2}' });
+
+        const all = await store.allEntries();
+        expect(all).toHaveLength(1);
+        expect(all[0]!.body).toBe('{"v":2}');
+      });
+    });
   });
 }
 

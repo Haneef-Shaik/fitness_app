@@ -14,7 +14,7 @@ import pytest
 
 from app.domain.adherence import adherence, planned_occurrences
 from app.domain.dates import to_local_date
-from app.domain.nutrition import MealItem, day_totals
+from app.domain.nutrition import MealItem, Per100g, day_totals, scale_to_grams
 from app.domain.training import (
     E1RM_FORMULA_VERSION,
     WorkoutSet,
@@ -136,3 +136,16 @@ def test_planned_occurrences(case):
         date.fromisoformat(case["start"]),
         date.fromisoformat(case["end"]),
     ) == case["expected"]
+
+
+@pytest.mark.parametrize(
+    "case", VECTORS["nutrition_scaling"], ids=lambda c: c["note"][:42]
+)
+def test_nutrition_scaling(case):
+    got = scale_to_grams(Per100g(**case["per_100g"]), case["grams"])
+    for field, expected in case["expected"].items():
+        actual = getattr(got, field)
+        if expected is None:
+            assert actual is None, f"{field}: unknown must stay unknown"
+        else:
+            assert actual == pytest.approx(expected, abs=TOL)

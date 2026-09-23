@@ -88,6 +88,19 @@ export function createSqliteStore(name = DATABASE_NAME): SessionStore {
       await d.runAsync('DELETE FROM session_draft WHERE id = 1');
     },
 
+    async enqueue(entry: NewOutboxEntry) {
+      // No transaction needed: this is a single row, and it deliberately does
+      // not touch the draft — see SessionStore.enqueue.
+      const d = await handle();
+      await d.runAsync(
+        `INSERT INTO outbox (aggregate_id, method, path, body, idempotency_key, next_attempt_at)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON CONFLICT(idempotency_key) DO UPDATE SET body = excluded.body`,
+        entry.aggregateId, entry.method, entry.path, entry.body,
+        entry.idempotencyKey, entry.nextAttemptAt,
+      );
+    },
+
     async commit(draft: DraftRecord, entry?: NewOutboxEntry) {
       const d = await handle();
       // Both writes or neither. This is the property the decision rests on.

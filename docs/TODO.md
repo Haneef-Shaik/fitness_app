@@ -1,119 +1,94 @@
 # TODO — active work
 
 **Goal:** G10 · Hardening — make it shippable →
-[contract](10-EXECUTION-GOALS.md) · [tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
-**Exit:** every NFR in [PRD §11](01-PRD.md) has evidence · one alert **deliberately triggered** ·
-an a11y audit done **on the built app**, not on a scan · export produces a complete archive and
-delete leaves nothing behind · **the five acceptance criteria that have never run on hardware do**
+[contract](prompts/G10.md) · [tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
 
 > This file holds **only the work in flight**. Milestone status lives in the tracker — it is not
 > repeated here, because a status maintained in two places drifts.
->
-> A task is done when it meets the [Definition of Done](08-PROJECT-CHARTER.md#4-definition-of-done):
-> tests first, tests fail before the code exists, a deliberate mutation makes them fail again,
-> and the spec doc is updated in the same change if behaviour changed.
+
+**Where G10 stands (23 Sep).** Everything below the line is done and evidenced in
+[nfr-evidence.md](nfr-evidence.md) and [a11y-audit.md](a11y-audit.md). **G10 is not closed**: the
+one release-gate line still open needs a person holding the phone.
 
 ---
 
-## Entry gate — run this first
+## UI shell rework — 23 Sep, from the owner's review on the phone
 
-```bash
-cd /Users/Adya/personals/fitness_app
-grep -n "H9.1" docs/10-EXECUTION-GOALS.md | grep "✅"
-cd services/api && uv run pytest -q && uv run ruff check . && uv run alembic check
-cd ../.. && pnpm --filter @volt/mobile test
-./scripts/verify-containment.sh
-```
+Done, tested (789 client / 473 API), checked by eye on the phone:
 
-**H9.1 must be recorded** and the tracker must show **12 of 12**. All three suites and the
-containment script must be green before a line is written: G10 changes things everywhere, and a red
-baseline makes every later failure ambiguous.
+- [x] **Bottom tab bar** (00 §4, D2): Home · Train · ⊕ · Nutrition · Progress; hidden on
+      sign-in, onboarding and full-screen tasks. Switching tab resets the history
+- [x] **Train hub (C-01)**: today's plan day, empty workout, programs / library / history /
+      analytics / records, recent sessions
+- [x] **Starter programs**: three templates (`GET /v1/program-templates`, `POST …/{key}/start`),
+      offered wherever a new account used to see an empty list
+- [x] **Settings (K-01)**: the avatar opens it; **sign-out asks first** and says what happens to an
+      unfinished workout and unsent changes. The avatar used to *be* sign-out — one tap, no warning
+- [x] **Back no longer lands on "Create account"**: every crossing of the auth boundary resets history
+- [x] **One account's data never shows in another**: the on-device workout and upload queue are
+      stamped with their account (local schema v2); the query cache clears on every identity change
+      (docs/03 §6.2 required it; nothing did it)
+- [x] Tab-root headers (friendly date, bell, avatar), chevron back button, padded buttons, list rows
+      instead of button walls on Home / Nutrition / Progress, pull-to-refresh on tab roots
 
-## 0 · 🔴 Five acceptance criteria have never run on hardware
+Not done:
 
-**This is the largest single gap in the project.** `scripts/e2e.sh` covers AC-01, AC-02, AC-04 and
-AC-05. **AC-03, AC-06, AC-07, AC-08, AC-09, AC-10 and AC-11 rest entirely on API and client tests.**
-They are good tests — every one is mutation-checked — but G4 found *eight* real defects on a phone
-that no suite had caught, and nothing since G4 has run on one.
+- [ ] **The device E2E suite has not been re-run** on these changes. Its prelude signs out whoever is
+      signed in, and the only phone is the owner's — it needs their go-ahead, or a second device
+- [ ] The **active-session bar** (00 §4 ④) is still unbuilt; Train and Home show "Resume" instead
+- [ ] **Profile editing** (name, height, birth date) — K-01 shows the email only
+- [ ] Data on the phone from before local schema v2 cannot be attributed to an account: queued
+      writes are kept but never shown or sent (safer than sending them as the wrong person), and an
+      unfinished workout from before the upgrade is **dropped** by the migration
 
-- [ ] **0.1** Get a device attached, or an emulator that can drive touch. G4's finding stands:
-      **the emulator could not deliver `onPress`** after ruling out overlays, input injection,
-      coordinates, GPU and keyboard config, and the New Architecture. The next thing untried is a
-      different system image (API 35/36)
-- [ ] **0.2** Maestro flows for **AC-07** (log a meal, watch the day move) and **AC-11** (write in
-      all three domains, then read B-01). Both assert against the **API** as well as the screen,
-      the way G4's do
-- [ ] **0.3** AC-08/09/10 need the AI path on a device. The stub gateway makes this affordable —
-      `AI_PROVIDER=stub` produces deterministic items with no key and no cost
-- [ ] **0.4** `.github/workflows/e2e.yml` **has never executed** (H4.1, ⚠️ since G4). Its `appId`
-      and `openLink` launch still need parametrising for a debug APK. A workflow that has never
-      run is not a workflow
+## 0 · 🔴 The screen-reader session — blocks the release
 
-## 1 · The performance budget, measured and missed
+- [ ] **0.1** A TalkBack session on the phone: log a workout (start → load → reps → save ×3 →
+      finish → summary) and read the diary. Record what TalkBack **says**, not what the tree
+      contains — the tree is already read (see the audit's last table). TalkBack cannot be driven
+      from a host: its shortcuts and gestures ignore injected input (tried 23 Sep)
+- [ ] **0.2** While doing it, settle finding 5: does the rest timer's per-second re-render make
+      TalkBack re-announce?
+- [ ] **0.3** Then close G10: tracker handoff, charter §4, **H10.1**, commit
 
-- [ ] **1.1** **tap → set rendered p95 is 396.4 ms over 99 commits** against D16's 100 ms
-      ([write-up](measurements/commit-p95.md)). 118.7 ms over 9 — so it **grows with list length**,
-      which points at the list, not the commit path
-- [ ] **1.2** Measure a production build. G4's numbers are `__DEV__`, and the gap is usually large
-- [ ] **1.3** Fix or re-argue the budget. A budget nobody meets and nobody changes is not a budget
-- [ ] **1.4** Cold start → dashboard interactive < 2.5 s, on a mid-tier Android. **B-01 is now one
-      request** (G9), which was the first half of this
+## 1 · Dated accessibility findings ([audit](a11y-audit.md))
 
-## 2 · Offline, end to end
+- [ ] **#5** rest timer churns the tree every second — *2026-10-15*
+- [ ] **#18** one dropped `Save set 2` tap in four AC-02 runs — reproduce — *2026-10-15*
+- [ ] **#17** the logger's exercise-tab scroller is a nameless Tab stop; it clips the focus ring — *2026-10-31*
+- [ ] **#20** "Log back in to carry on" shown while signed in — *2026-10-31*
+- [ ] **#15b** Shift+Tab cannot enter a text field (RN 0.76) — arrives with the Expo SDK that
+      carries [react-native#48547](https://github.com/react/react-native/pull/48547) — *2026-12-15*
 
-- [ ] **2.1** **L-02 sync centre** — the failed queue is surfaced, not silently retried forever.
-      G3 built `markFailed` and nothing renders it yet
-- [ ] **2.2** **L-07 conflict** — what a user sees when the server refuses a queued write
-- [ ] **2.3** Body metrics and meals both ride the outbox now (G7, G9). Prove the whole queue
-      drains after a long offline period with **three** domains queued at once
+## 2 · Performance
 
-## 3 · Observability
+- [ ] **2.1** tap → set p95 is **296.5 ms** (G4: 396.4 ms) against D16's 100 ms — faster, not
+      fixed. Fix the list, or re-argue the budget; a budget nobody meets is not a budget
+- [ ] **2.2** Cold start and p95 are **`__DEV__` numbers** (DR4: no release build on this machine).
+      The release figures are unmeasured
 
-- [ ] **3.1** RED metrics and the alert table in [02 §9](02-SYSTEM-ARCHITECTURE.md)
-- [ ] **3.2** **Deliberately trigger one alert** and show it firing. An alert that has never fired
-      is a configuration file, not an alert
-- [ ] **3.3** The AI worker needs its own signals: queue depth, failure rate by `error_code`, and
-      time in `processing`. A silently stuck worker is the failure G8's design makes possible
+## 3 · Carried, not started in G10
 
-## 4 · Accessibility — on the built app
+- [ ] **3.1** AC-08/09/10 on a device — needs the AI worker running against the phone
+- [ ] **3.2** `.github/workflows/e2e.yml` has **never executed** (since G4)
+- [ ] **3.3** AI worker signals: queue depth and time in `processing` (outcomes and durations are
+      exported; a stuck queue is not yet visible)
+- [ ] **3.4** The E2E seed never removes programs AC-01 creates — flows now scroll past them, but
+      the list grows every run
 
-- [ ] **4.1** **Not an automated scan.** Log a full session with a screen reader. Navigate the
-      diary with an external keyboard
-- [ ] **4.2** "Colour never carries meaning alone" is already in the design system; this is where
-      it gets checked on the running app. G8's estimated-item treatment (dashed border + "Est." chip
-      + the words in the accessible name) is the pattern to hold everything else to
-- [ ] **4.3** Findings fixed, or logged with a date. Not "noted"
+## Carried forward from G9 (unchanged)
 
-## 5 · Export and deletion
-
-- [ ] **5.1** A complete archive: sessions, sets, meals, foods, body metrics, photos, goals,
-      **and the AI analyses**
-- [ ] **5.2** Deletion leaves nothing behind — and the test asserts it. **`food_analysis_items` is
-      append-only and its FK from `meal_items` is `RESTRICT`**, so a naive delete will fail; the
-      order matters and the trap list names it
-- [ ] **5.3** Progress photos are files in the object store as well as rows. Both go
-
-## 6 · Close the goal
-
-- [ ] **6.1** Tracker: NFR evidence, the p95 figure on a production build, the a11y findings
-- [ ] **6.2** Tick **H10.1** in the [handoff ledger](10-EXECUTION-GOALS.md#3--the-handoff-ledger)
-- [ ] **6.3** Commit: `feat: hardening — observability, accessibility, export and the release gate (G10)`
+- H-14 nutrition analytics unbuilt · no profile screen (`birth_date`, `sex`, `height_cm`) ·
+  I-01's projection unbuilt · reminders do not send · **Q1** (nutrition provider) and **Q8**
+  (versioned targets) still open
 
 ---
 
-## Carried forward from G9
+## Done in G10 — evidence lives elsewhere
 
-- **H-14 nutrition analytics is still unbuilt.** `daily_summaries` now exists, which is what it was
-  waiting for. It was not in G9's scope list
-- **No profile screen.** Nothing in the app sets `birth_date`, `sex` or `height_cm`. H-15's
-  calculator names the gap and falls back to a weight-and-activity estimate. It is a small screen
-  and it is the only thing between the calculator and Mifflin–St Jeor
-- **I-01's projection** ("at this rate, around 12 Nov") is not built. It needs a rate over a 4-week
-  window and an explicit "an estimate, not a prediction"
-- **Reminders do not send.** B-04 stores preferences and says so plainly; `expo-notifications` and
-  a permission flow are what it needs
-- **Q1 is still open** — the nutrition database provider. An AI estimate can only resolve to what
-  the catalog contains, and a third-party catalog carries a **licensing attribution requirement**
-  that has to appear in the UI
-- **Q8 is still open** — are calorie targets versioned? H-15 says only that nothing already logged
-  is rewritten, because the schema cannot support the wireframe's stronger claim
+Observability + one alert fired · export and delete, asserted per domain and per table · L-02 and
+L-07, exercised on the phone · offline: banner reachable, saves no longer wait on the network,
+writes never exhaust while offline · keyboard-only diary pass and keyboard-only logging on the
+phone · focus ring built · text fields keyboard-reachable · contrast pinned in both themes · the
+food catalog seeded in real databases · p95, cold start and bundle measured on the mid-tier phone ·
+the full acceptance suite green on hardware.

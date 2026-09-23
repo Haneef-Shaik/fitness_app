@@ -20,6 +20,11 @@ export interface SendResult {
   ok: boolean;
   /** True when retrying could still succeed: 5xx, timeout, offline, 408/409/429. */
   retryable: boolean;
+  /**
+   * The server was never reached. Such a write never exhausts its attempts:
+   * docs/03 §7 keeps an offline write pending, and offline for a day is normal.
+   */
+  unreachable?: boolean;
   message?: string;
 }
 
@@ -42,6 +47,12 @@ export interface FlushOutcome {
 }
 
 export const DEFAULT_MAX_ATTEMPTS = 8;
+
+/**
+ * What a write that never reached the server records as its last error. One
+ * constant because L-02 reads it back as the app's only connectivity signal.
+ */
+export const UNREACHABLE = 'Could not reach the server.';
 
 export function createOutbox(deps: OutboxDeps) {
   const now = deps.now ?? (() => new Date());
@@ -71,12 +82,13 @@ export function createOutbox(deps: OutboxDeps) {
         continue;
       }
 
-      const exhausted = entry.attempts + 1 >= maxAttempts;
+      // Only a server that ANSWERS and keeps failing uses up attempts.
+      const exhausted = !result.unreachable && entry.attempts + 1 >= maxAttempts;
       if (result.retryable && !exhausted) {
         await deps.store.markRetry(
           entry.id,
           nextAttemptAt(entry.attempts, at, random),
-          result.message ?? 'Could not reach the server.',
+          result.message ?? UNREACHABLE,
         );
         outcome.retried += 1;
       } else {

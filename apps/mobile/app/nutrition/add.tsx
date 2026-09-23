@@ -11,7 +11,9 @@
  */
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import type { Food } from '@volt/api-types';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';

@@ -17,6 +17,14 @@ JDK=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 [ -d "$JDK" ] && export JAVA_HOME="$JDK" && export PATH="$JDK/bin:$PATH"
 export PATH="$PATH:$HOME/.maestro/bin"
 
+# Same two device facts as scripts/e2e.sh, and for the same reasons: the driver
+# needs a longer window on this phone, and Maestro refuses to choose between two
+# attached devices. Getting either wrong looks like a broken flow.
+export MAESTRO_DRIVER_STARTUP_TIMEOUT="${MAESTRO_DRIVER_STARTUP_TIMEOUT:-120000}"
+DEVICE="${DEVICE:-$(adb devices | awk '/\tdevice$/{print $1}' | head -1)}"
+MAESTRO_DEVICE_ARGS=()
+[ -n "$DEVICE" ] && MAESTRO_DEVICE_ARGS=(--device "$DEVICE")
+
 LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo 127.0.0.1)
 HOST="${HOST:-$LAN:8081}"
 # The flow carries its own literal count (Maestro will not interpolate one).
@@ -24,8 +32,22 @@ HOST="${HOST:-$LAN:8081}"
 OUT="${OUT:-docs/measurements/commit-p95.md}"
 
 FLOW="${FLOW:-measure-commit-p95.yaml}"
+
+# Seeded first, exactly as scripts/e2e.sh does. A measurement run is not
+# special: with sessions already logged today the dashboard's training card
+# offers something other than "Start workout", and the flow dies on a selector
+# that is only wrong because of what a PREVIOUS run left behind. A measurement
+# nobody can reproduce is not a measurement.
+printf '\n\033[1mSeeding the known state\033[0m\n'
+( cd services/api && uv run python scripts/seed_catalog.py ) >/dev/null || {
+  printf '\033[31m✗ reference-data seed failed\033[0m\n'; exit 1;
+}
+( cd services/api && uv run python scripts/seed_demo.py ) >/dev/null || {
+  printf '\033[31m✗ seed failed — is the API up on :8000?\033[0m\n'; exit 1;
+}
+
 printf '\n\033[1mRunning %s on the device\033[0m\n' "$FLOW"
-maestro test -e "HOST=$HOST" \
+maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "HOST=$HOST" \
   "apps/mobile/.maestro/$FLOW" || {
   printf '\033[31m✗ the measurement flow did not complete\033[0m\n'; exit 1;
 }
@@ -33,7 +55,7 @@ maestro test -e "HOST=$HOST" \
 # The reading is on screen; take it from the accessibility tree rather than a
 # screenshot, so it is text and not something a human has to squint at.
 HIER=$(mktemp)
-maestro hierarchy > "$HIER" 2>/dev/null
+maestro "${MAESTRO_DEVICE_ARGS[@]}" hierarchy > "$HIER" 2>/dev/null
 
 LINE=$(python3 - "$HIER" <<'PY'
 import json, sys
@@ -56,11 +78,11 @@ if [ -z "$LINE" ]; then
   exit 1
 fi
 
-DEVICE=$(adb shell getprop ro.product.model 2>/dev/null | tr -d '\r')
-ANDROID=$(adb shell getprop ro.build.version.release 2>/dev/null | tr -d '\r')
+MODEL=$(adb -s "$DEVICE" shell getprop ro.product.model 2>/dev/null | tr -d '\r')
+ANDROID=$(adb -s "$DEVICE" shell getprop ro.build.version.release 2>/dev/null | tr -d '\r')
 WHEN=$(date '+%Y-%m-%d %H:%M')
 
-printf '\n\033[1mH4.3\033[0m\n  %s\n  on %s (Android %s)\n\n' "$LINE" "$DEVICE" "$ANDROID"
+printf '\n\033[1mH4.3\033[0m\n  %s\n  on %s (Android %s)\n\n' "$LINE" "$MODEL" "$ANDROID"
 
 mkdir -p "$(dirname "$OUT")"
 cat > "$OUT" <<EOF
@@ -71,7 +93,7 @@ cat > "$OUT" <<EOF
 | | |
 |---|---|
 | **Reading** | \`$LINE\` |
-| Device | $DEVICE, Android $ANDROID |
+| Device | $MODEL, Android $ANDROID |
 | Build | Expo Go over LAN, \`__DEV__\` (a release build can only be faster) |
 | Flow | \`$FLOW\` |
 | Measured | $WHEN |

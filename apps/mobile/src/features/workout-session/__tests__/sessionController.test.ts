@@ -16,7 +16,7 @@ import { flushAndReconcile, outbox } from '../sessionController';
 const TRACKS = { load: true, reps: true, duration: false, distance: false };
 
 let mockStore: SessionStore;
-const mockSendResults = new Map<string, { ok: boolean; retryable: boolean; message?: string }>();
+const mockSendResults = new Map<string, { ok: boolean; retryable: boolean; unreachable?: boolean; message?: string }>();
 
 jest.mock('../../../lib/db', () => ({
   get store() { return mockStore; },
@@ -32,6 +32,9 @@ jest.mock('../../../lib/api', () => {
     api: {
       send: jest.fn(async (_m: string, _p: string, _b: unknown, h: Record<string, string>) => {
         const r = mockSendResults.get(h['Idempotency-Key']!) ?? { ok: true, retryable: false };
+        // What `fetch` really does with no route to the server: it throws a
+        // TypeError, not an ApiError, because there is no response at all.
+        if (!r.ok && r.unreachable) throw new TypeError('Network request failed');
         if (!r.ok) {
           throw new actual.ApiError(
             r.retryable ? 'unavailable' : 'validation_failed',
@@ -68,7 +71,7 @@ const dotFor = (clientId: string) =>
 beforeEach(async () => {
   jest.clearAllMocks();
   mockSendResults.clear();
-  mockStore = createMemoryStore();
+  mockStore = createMemoryStore('user-1');
   await mockStore.open();
   configurePersistence({ store: mockStore });
   outbox.__reset();
@@ -94,6 +97,26 @@ describe('what the sync dot says', () => {
 
     await flushAndReconcile();
 
+    expect(dotFor(key)).toBe('pending');
+  });
+
+  it('a real network failure keeps the set queued however long it lasts', async () => {
+    // G10, on a phone: offline writes became permanent failures after eight
+    // attempts — a few minutes. The chain that prevents it runs from fetch's
+    // TypeError, through this sender, to the outbox's exhaustion rule.
+    const key = '55555555-5555-4555-8555-555555555555';
+    mockSendResults.set(key, { ok: false, retryable: true, unreachable: true });
+    await startWithSets([key]);
+    const [entry] = await mockStore.allEntries();
+    for (let i = 0; i < 20; i += 1) {
+      await mockStore.markRetry(entry!.id, '2000-01-01T00:00:00Z', 'Could not reach the server.');
+    }
+
+    await flushAndReconcile();
+
+    const [after] = await mockStore.allEntries();
+    expect(after!.state).toBe('pending');
+    expect(after!.lastError).toBe('Could not reach the server.');
     expect(dotFor(key)).toBe('pending');
   });
 

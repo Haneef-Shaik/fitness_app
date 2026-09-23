@@ -12,7 +12,8 @@
  */
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
 import { Button, Card, Text } from '@/ui';
 import { Choice } from '@/ui/Choice';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

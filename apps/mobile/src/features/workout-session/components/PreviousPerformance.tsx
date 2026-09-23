@@ -10,7 +10,8 @@
  * are about to do does not depend on knowing the last one.
  */
 import React from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import type { PreviousPerformance as Previous } from '@volt/api-types';
 import { Text } from '@/ui';
 import { formatServerDate } from '@/lib/datetime';

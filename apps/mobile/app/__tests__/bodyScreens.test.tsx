@@ -167,11 +167,24 @@ describe('B-01 · a brand-new user', () => {
 });
 
 describe('B-01 · a user with data', () => {
-  it('shows the date the SERVER resolved, and its timezone', () => {
+  it('shows the date the SERVER resolved, written for a person (B-01)', () => {
     render(<Home />);
-    // Not a date computed here. The screen renders what it was told.
-    expect(screen.getByTestId('dashboard-date').props.children).toBe('2026-09-23');
-    expect(screen.getByText('Europe/London')).toBeTruthy();
+    // Not a date computed here: the server said 2026-09-23 (I7), and the
+    // header says which day that is — not "2026-09-23 / Europe/London".
+    expect(screen.getByTestId('dashboard-date').props.children).toBe('Wednesday, 23 Sep');
+  });
+
+  it('is a tab root: bell and avatar, no wall of navigation buttons (G10)', () => {
+    render(<Home />);
+    expect(screen.getByLabelText('Notifications and reminders')).toBeTruthy();
+    expect(screen.getByLabelText('Profile and settings')).toBeTruthy();
+    // The avatar used to BE the sign-out button.
+    expect(screen.queryByLabelText('Sign out')).toBeNull();
+    // Sections are reached from the tab bar now.
+    for (const id of ['go-programs', 'go-exercises', 'go-history', 'go-trends', 'go-search', 'go-quick']) {
+      expect(screen.queryByTestId(id)).toBeNull();
+    }
+    expect(screen.getByTestId('go-customize')).toBeTruthy();
   });
 
   it('counts only confirmed nutrition and names what is waiting', () => {

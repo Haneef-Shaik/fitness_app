@@ -14,7 +14,24 @@ env:
       EMAIL: ${EMAIL}
       PASSWORD: ${PASSWORD}
       HOST: ${HOST}
+# G9 moved B-01's navigation into an "Elsewhere" row below the cards, so the
+# button is off-screen on a phone until the dashboard is scrolled. The old flows
+# tapped at a position it no longer occupies — found the first time a device was
+# attached after G9, which is the argument for attaching one more often.
+- scrollUntilVisible:
+    element:
+      text: "Start workout"
+    direction: DOWN
+    timeout: 10000
 - tapOn: "Start workout"
+# Scrolled to, not assumed on screen: every AC-01 run adds a "Chest" program
+# the seed does not remove, and enough of them push this row below the fold
+# (three flows failed on exactly that in G10).
+- scrollUntilVisible:
+    element:
+      text: "Start Push.*"
+    direction: DOWN
+    timeout: 15000
 - tapOn:
     # The plan day seed_demo.py creates, so the flow starts from a known
     # prescription (4 x 6-8 @ 80 kg) and a known history.

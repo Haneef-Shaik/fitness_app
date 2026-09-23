@@ -1,7 +1,8 @@
 /** C-03 · Program Detail — days, their prescriptions, and a way into C-05. */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import type { PlanDay, PlanExercise } from '@volt/api-types';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';

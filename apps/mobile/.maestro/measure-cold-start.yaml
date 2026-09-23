@@ -1,0 +1,20 @@
+# H10 · cold start → B-01, timed INSIDE one Maestro run.
+#
+# Not an acceptance criterion — a measurement, read by scripts/measure-cold-start.sh.
+# Polling from the host costs ~20 s per look (a JVM and a driver per call), so
+# the clock lives here instead: Maestro's on-device driver polls the screen in a
+# few hundred ms, and `Date.now()` brackets exactly stop → launch → date shown.
+appId: host.exp.exponent
+name: Measure cold start
+env:
+  HOST: 192.168.1.3:8081
+---
+- stopApp
+- evalScript: ${output.t0 = Date.now()}
+- openLink: exp://${HOST}
+- extendedWaitUntil:
+    visible:
+      id: "dashboard-date"
+    timeout: 90000
+- evalScript: ${output.t1 = Date.now()}
+- evalScript: ${console.log('COLD_START_MS ' + (output.t1 - output.t0))}

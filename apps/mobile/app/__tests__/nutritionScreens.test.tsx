@@ -86,6 +86,7 @@ jest.mock('@/lib/query/hooks', () => ({
   useNutritionDay: () => mocks.day,
   useMeal: () => mocks.meal,
   useFoods: () => mocks.foods,
+  useFood: () => q(OATS),
   useProfile: () => mocks.profile,
   useMealCategories: () => mocks.categories,
   useLogMeal: () => mocks.log,

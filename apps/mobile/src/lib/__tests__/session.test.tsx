@@ -24,11 +24,14 @@ jest.mock('../api', () => ({
   setAccessToken: (...a: unknown[]) => mockSetAccessToken(...a),
 }));
 
-const mockTokens = { value: null as string | null };
+const mockTokens = { value: null as string | null, account: null as string | null };
 jest.mock('../storage', () => ({
   getRefreshToken: jest.fn(async () => mockTokens.value),
   setRefreshToken: jest.fn(async (t: string) => { mockTokens.value = t; }),
   clearRefreshToken: jest.fn(async () => { mockTokens.value = null; }),
+  getAccountId: jest.fn(async () => mockTokens.account),
+  setAccountId: jest.fn(async (id: string) => { mockTokens.account = id; }),
+  clearAccountId: jest.fn(async () => { mockTokens.account = null; }),
 }));
 
 function Probe() {
@@ -36,14 +39,16 @@ function Probe() {
   return <Text testID="state">{`${status}|${email ?? '-'}`}</Text>;
 }
 
-const show = () => render(<SessionProvider><Probe /></SessionProvider>);
+const mockIdentity = jest.fn();
+const show = () => render(<SessionProvider onIdentityChange={mockIdentity}><Probe /></SessionProvider>);
 const state = () => screen.getByTestId('state').props.children;
 
 beforeEach(() => {
   jest.clearAllMocks();
   mockTokens.value = null;
+  mockTokens.account = null;
   mockProfileApi.get.mockResolvedValue({ onboarding_completed: true, timezone: 'UTC' });
-  mockAuth.me.mockResolvedValue({ email: 'a@b.com' });
+  mockAuth.me.mockResolvedValue({ id: 'acct-a', email: 'a@b.com' });
 });
 
 describe('cold start', () => {
@@ -157,5 +162,55 @@ describe('signing out', () => {
     await waitFor(() => expect(state()).toBe('signed-out|-'));
     expect(mockTokens.value).toBeNull();
     expect(mockSetAccessToken).toHaveBeenLastCalledWith(null);
+  });
+});
+
+
+describe('whose data this is (found on a phone in G10)', () => {
+  /**
+   * One account's unfinished workout and failing writes showed up inside
+   * another, and cached screens were never cleared on an account switch
+   * (docs/03 §6.2 — "a stale read across an account switch is a data-leak
+   * bug"). The provider now reports every identity change; the app shell
+   * scopes the on-device store and clears the cache on it.
+   */
+  it('reports the account once a stored session is restored', async () => {
+    mockTokens.value = 'stored';
+    mockApi.tryRefresh.mockResolvedValue(true);
+    show();
+    await waitFor(() => expect(mockIdentity).toHaveBeenLastCalledWith('acct-a'));
+    expect(mockTokens.account).toBe('acct-a');
+  });
+
+  it('offline, restores the account it remembered — logging must still work (I10)', async () => {
+    mockTokens.value = 'stored';
+    mockTokens.account = 'acct-a';
+    mockApi.tryRefresh.mockResolvedValue(false);   // could not ask; token kept
+    show();
+    await waitFor(() => expect(state()).toBe('ready|-'));
+    expect(mockIdentity).toHaveBeenLastCalledWith('acct-a');
+  });
+
+  it('reports nobody when there is no session', async () => {
+    show();
+    await waitFor(() => expect(state()).toBe('signed-out|-'));
+    expect(mockIdentity).toHaveBeenLastCalledWith(null);
+  });
+
+  it('reports the new account on sign-in and nobody on sign-out', async () => {
+    mockAuth.login.mockResolvedValue({ access_token: 'a', refresh_token: 'r', user: { id: 'acct-b', email: 'b@c.com' } });
+    mockAuth.me.mockResolvedValue({ id: 'acct-b', email: 'b@c.com' });
+    let api: ReturnType<typeof useSession> | null = null;
+    function Grab() { api = useSession(); return null; }
+    render(<SessionProvider onIdentityChange={mockIdentity}><Grab /></SessionProvider>);
+    await waitFor(() => expect(mockIdentity).toHaveBeenCalledWith(null));
+
+    await act(async () => { await api!.signIn('b@c.com', 'pw'); });
+    expect(mockIdentity).toHaveBeenLastCalledWith('acct-b');
+    expect(mockTokens.account).toBe('acct-b');
+
+    await act(async () => { await api!.signOut(); });
+    expect(mockIdentity).toHaveBeenLastCalledWith(null);
+    expect(mockTokens.account).toBeNull();
   });
 });

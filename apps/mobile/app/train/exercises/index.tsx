@@ -1,7 +1,9 @@
 /** D-01 · Exercise Library — search, muscle filters, virtualised list. */
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import type { Exercise } from '@volt/api-types';
 import { Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';

@@ -382,6 +382,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/program-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Program Templates
+         * @description C-01 "Browse starter programs" and C-04 "Start from a template".
+         */
+        get: operations["list_program_templates_v1_program_templates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/program-templates/{key}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Program Template
+         * @description Deep-copies a template into the user's own programs. Every day and
+         *     prescription is new, so editing the copy never reaches the template.
+         */
+        post: operations["start_program_template_v1_program_templates__key__start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/workout-sessions": {
         parameters: {
             query?: never;
@@ -479,6 +520,12 @@ export interface paths {
          * Add Set
          * @description 4.3 — `Idempotency-Key` is MANDATORY. Without it a dropped response makes the
          *     client choose between a lost set and a duplicated one, and it will guess wrong.
+         *
+         *     Counted separately from every other write (02 §9): this is the core loop and
+         *     its alert threshold is five times tighter. The counting happens in the HTTP
+         *     middleware rather than here, so a body Pydantic refuses — `reps: 0`, which
+         *     never reaches this function — is still counted as a set the user tried to
+         *     log and did not.
          */
         post: operations["add_set_v1_session_exercises__se_id__sets_post"];
         delete?: never;
@@ -977,7 +1024,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get Food
+         * @description One food by id.
+         *
+         *     Added in G10 because H-05 was **looking its food up in the unfiltered list**
+         *     — capped at 25 rows — so opening a food from search showed "not found" as
+         *     soon as the catalog outgrew one page. Invisible in tests, where the catalog
+         *     is small, and found the first time a device opened a real one.
+         */
+        get: operations["get_food_v1_foods__food_id__get"];
         put?: never;
         post?: never;
         /**
@@ -1580,6 +1636,70 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Alerts */
+        get: operations["alerts_v1_admin_alerts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Account
+         * @description Everything the user owns, in one documented JSON document.
+         *
+         *     Deliberately **not** paginated and deliberately not streamed: an export is
+         *     a thing somebody downloads once, and a paginated export is one a user can
+         *     take an incomplete copy of without noticing.
+         */
+        get: operations["export_account_v1_account_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Account
+         * @description Removes the account and everything in it. There is no undo.
+         *
+         *     The password is required again: a delete reachable by a stolen session token
+         *     is a delete somebody else can perform.
+         */
+        delete: operations["delete_account_v1_account_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2414,6 +2534,14 @@ export interface components {
             success: boolean;
             /** Data */
             data?: components["schemas"]["PersonalRecordRowOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[ProgramTemplateOut]] */
+        Envelope_list_ProgramTemplateOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["ProgramTemplateOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[list[ProgressPhotoOut]] */
@@ -3649,6 +3777,25 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /**
+         * ProgramTemplateOut
+         * @description A starter program (C-01, C-04). Not a program anyone owns: starting one
+         *     copies it into the user's own programs.
+         */
+        ProgramTemplateOut: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Summary */
+            summary: string;
+            /** Level */
+            level: string;
+            /** Days Per Week */
+            days_per_week: number;
+            /** Days */
+            days: components["schemas"]["TemplateDayOut"][];
+        };
         /** ProgressPhotoIn */
         ProgressPhotoIn: {
             /** Image Key */
@@ -4133,6 +4280,15 @@ export interface components {
         SignedOutOut: {
             /** Signed Out */
             signed_out: boolean;
+        };
+        /** TemplateDayOut */
+        TemplateDayOut: {
+            /** Name */
+            name: string;
+            /** Scheduled Weekday */
+            scheduled_weekday: number | null;
+            /** Exercises */
+            exercises: string[];
         };
         /** TextAnalysisIn */
         TextAnalysisIn: {
@@ -5180,6 +5336,57 @@ export interface operations {
             };
         };
     };
+    list_program_templates_v1_program_templates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_ProgramTemplateOut__"];
+                };
+            };
+        };
+    };
+    start_program_template_v1_program_templates__key__start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ProgramOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_sessions_v1_workout_sessions_get: {
         parameters: {
             query?: {
@@ -6171,6 +6378,37 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_FoodOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_food_v1_foods__food_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                food_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7358,6 +7596,78 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_DashboardOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    alerts_v1_admin_alerts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+        };
+    };
+    export_account_v1_account_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+        };
+    };
+    delete_account_v1_account_delete: {
+        parameters: {
+            query: {
+                /** @description The account password. */
+                confirm: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
                 };
             };
             /** @description Validation Error */

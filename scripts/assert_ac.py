@@ -246,7 +246,78 @@ CRITERIA = {
     "ac-02": (ac_02, "Record every performed set with load and reps"),
     "ac-04": (ac_04, "Starting the same workout again shows previous performance"),
     "ac-05": (ac_05, "Retrieve the previous chest-focused session without knowing its date"),
+    # ac-07 and ac-11 are added below, after their functions are defined.
 }
+
+
+def ac_07(token: str, args: argparse.Namespace) -> None:
+    """AC-07 — "A manually logged meal changes today's totals immediately, on
+    the user's LOCAL date."
+
+    Reads the diary the same way the screen does, then checks the meal is
+    actually filed under the day the SERVER calls today — the half a flow
+    cannot see, because a screen showing a number it computed locally looks
+    identical to one showing a number that landed.
+    """
+    day = get("/v1/nutrition/day", token)
+    meals = day["meals"]
+
+    check("a meal is logged today", len(meals) >= 1, f"{len(meals)} meals")
+    check(
+        "the day's total moved",
+        day["calories"] >= args.calories - 2,
+        f"{day['calories']} kcal, wanted at least {args.calories}",
+    )
+
+    profile = get("/v1/profile", token)
+    check(
+        "it is filed under the profile's day, not the device's",
+        all(m["local_date"] == day["local_date"] for m in meals),
+        f"local_date {day['local_date']} in {profile['timezone']}",
+    )
+
+    # I2 / D5 — the number on screen counts confirmed items only.
+    confirmed = [i for m in meals for i in m["items"] if i["confirmed"]]
+    check("every counted item is confirmed", len(confirmed) >= 1,
+          f"{len(confirmed)} confirmed items")
+
+
+def ac_11(token: str, args: argparse.Namespace) -> None:
+    """AC-11 — "All three cards show the just-written data for the local date."
+
+    And the thing the screen cannot prove about itself: that it came from ONE
+    call. The dashboard endpoint either carries all three domains or it does
+    not, and this asks it directly.
+    """
+    board = get("/v1/dashboard", token)
+
+    for domain in ("training", "nutrition", "body", "goals"):
+        check(f"the dashboard carries {domain}", domain in board)
+
+    check(
+        "the body card shows the weigh-in that was just written",
+        board["body"]["latest"] is not None
+        and abs(board["body"]["latest"]["value"] - args.weight) < 0.05,
+        f"{board['body']['latest']}",
+    )
+    check(
+        "the training card shows completed work",
+        board["training"]["last_session"] is not None,
+        f"{board['training']}",
+    )
+    check(
+        "the local date is the profile's, resolved server-side",
+        board["local_date"] == get("/v1/nutrition/day", token)["local_date"],
+        f"{board['local_date']} vs the diary's",
+    )
+
+
+CRITERIA["ac-07"] = (
+    ac_07, "A manually logged meal moves today's totals, on the user's local date",
+)
+CRITERIA["ac-11"] = (
+    ac_11, "The dashboard reflects current workout, nutrition and body state",
+)
 
 
 def main() -> int:
@@ -258,6 +329,10 @@ def main() -> int:
     parser.add_argument("--reps", type=int, default=8)
     parser.add_argument("--exercise", default="Barbell Bench Press")
     parser.add_argument("--muscle", default="chest", help="AC-05: the group to resolve")
+    parser.add_argument("--calories", type=float, default=380.0,
+                        help="AC-07: the kcal the flow logged")
+    parser.add_argument("--weight", type=float, default=78.4,
+                        help="AC-11: the weigh-in the flow wrote")
     args = parser.parse_args()
 
     fn, wording = CRITERIA[args.criterion]

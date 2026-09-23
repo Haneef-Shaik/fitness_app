@@ -7,7 +7,8 @@
  * phone down between sets.
  */
 import React, { useEffect, useState } from 'react';
-import { AppState, Pressable, View } from 'react-native';
+import { AppState, View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import { Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
 import { formatRest, readTimer } from '../restTimer';
@@ -47,7 +48,7 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-        <Text variant="stat" style={{ color: elapsed ? c.good : c.ink }} testID="rest-remaining">
+        <Text variant="stat" style={{ color: elapsed ? c.goodInk : c.ink }} testID="rest-remaining">
           {elapsed ? 'Rest done' : formatRest(remaining)}
         </Text>
         <View style={{ flex: 1 }} />

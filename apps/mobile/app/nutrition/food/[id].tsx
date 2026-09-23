@@ -11,7 +11,8 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
 import { scaleToGrams } from '@volt/domain';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
@@ -19,14 +20,17 @@ import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { grams, kcal } from '@/features/nutrition/format';
 import { useCategoryOptions } from '@/features/nutrition/useCategoryOptions';
 import { FilterChips } from '@/ui/FilterChips';
-import { useFoods, useLogMeal } from '@/lib/query/hooks';
+import { useFood, useLogMeal } from '@/lib/query/hooks';
 import { radius, space, useTheme } from '@/theme';
 
 export default function FoodDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { c } = useTheme();
-  const search = useFoods('');
-  const food = (search.data?.data ?? []).find((f) => String(f.id) === id);
+  // Fetched by id, NOT looked up in the paged list: the list is capped at 25
+  // and a real catalog outgrows that, which made this screen say "not found"
+  // for any food past the first page (found on a device, G10).
+  const search = useFood(id ?? '');
+  const food = search.data;
 
   const [amount, setAmount] = useState('100');
   const [mealType, setMealType] = useState<string>('lunch');

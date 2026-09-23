@@ -26,16 +26,24 @@ Tokens, components, chart specifications and accessibility rules used by every w
 
 | Role | Light | Dark |
 |------|-------|------|
-| `--page` | `#F7F8F7` | `#0E0F11` |
+| `--page` | `#F4F5F3` | `#0E0F11` |
 | `--surface-1` (card / chart surface) | `#FFFFFF` | `#17181A` |
 | `--surface-2` (raised: sheets, popovers) | `#FFFFFF` | `#1F2124` |
-| `--surface-sunken` (input wells, timer) | `#F1F3F2` | `#101214` |
+| `--surface-sunken` (input wells, timer) | `#EDEFEB` | `#0B0C0E` |
 | `--ink-primary` | `#0B0C0D` | `#FFFFFF` |
-| `--ink-secondary` | `#52544F` | `#C4C6C1` |
-| `--ink-muted` (axis, labels, hints) | `#898B85` | `#898B85` |
+| `--ink-secondary` | `#4B4D48` | `#B9BBB6` |
+| `--ink-muted` (axis, labels, hints) | `#696B65` | `#81847E` |
 | `--border-hairline` | `rgba(11,12,13,0.10)` | `rgba(255,255,255,0.10)` |
 | `--gridline` | `#E3E5E1` | `#2C2E2C` |
 | `--baseline` | `#C4C6C1` | `#383A38` |
+
+> **Reconciled with the built app in G10.** This table had drifted from
+> `apps/mobile/src/theme/tokens.ts` (page, sunken and both secondary inks), and
+> the old `--ink-muted` `#898B85` read at about 3.3:1 on the light page. The
+> values above are the shipping ones, and every text tone is now pinned at
+> **4.5:1 on page, surface and sunken in both themes** by
+> `src/theme/__tests__/contrast.test.ts`. Change a hex here and that test is
+> where you find out whether it still reads.
 
 ### 2.2 Brand & interaction
 
@@ -105,13 +113,27 @@ same token fills the calorie meter directly above the macro bars.
 
 | Role | Hex (both modes) | Meaning in this product | Always paired with |
 |------|------------------|-------------------------|--------------------|
-| `--status-good` | `#0CA30C` | Target met · PR achieved · synced | ✓ icon + label |
+| `--status-good` | `#0C8F3C` light · `#3FD07B` dark | Target met · PR achieved · synced | ✓ icon + label |
 | `--status-warning` | `#FAB219` | Approaching a limit · low AI confidence · pending sync | ⚠ icon + label |
 | `--status-serious` | `#EC835A` | Over target · unresolved food · stale data | icon + label |
 | `--status-critical` | `#D03B3B` | Failed write · destructive action · sync failure | icon + label |
 
 On the light surface `warning` (1.79:1) and `serious` (2.57:1) are below 3:1 by design — **the icon
 and label are the mitigation**. Status never carries meaning through color alone.
+
+**So the label is never drawn in the status hex.** G10 found it was: the sync banner's "3 changes
+couldn't sync" was `serious` text at 2.28:1, which removes the very mitigation this rule relies on.
+Text in a status tone uses its `*-ink` shade — same hue, 4.5:1 on every surface:
+
+| Text token | Light | Dark |
+|---|---|---|
+| `--status-good-ink` | `#0A7A33` | `#3FD07B` |
+| `--status-warning-ink` | `#8E6103` | `#FAB219` |
+| `--status-serious-ink` | `#B94315` | `#EC835A` |
+| `--status-critical-ink` | `#C73030` | `#FF6B6B` |
+
+The reserved hexes above stay for fills, dots and icons. A test fails if any text style takes a raw
+status token.
 
 ### 2.5 Semantic data roles
 

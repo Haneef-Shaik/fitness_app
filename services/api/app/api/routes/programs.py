@@ -29,7 +29,10 @@ from app.schemas.programs import (
     ProgramIn,
     ProgramOut,
     ProgramPatch,
+    ProgramTemplateOut,
+    TemplateDayOut,
 )
+from app.seed.program_templates import BY_KEY, TEMPLATES
 
 router = APIRouter(tags=["programs"])
 
@@ -279,3 +282,57 @@ async def set_day_exercises(
         db.add(PlanExercise(plan_day_id=day.id, order_index=position, **item.model_dump()))
     await db.flush()
     return ok(await _serialise(db, await _load_program(db, day.program_id)))
+
+
+# ------------------------------------------------------------ starter programs
+
+
+@router.get("/program-templates", response_model=Envelope[list[ProgramTemplateOut]])
+async def list_program_templates(user: CurrentUser):
+    """C-01 "Browse starter programs" and C-04 "Start from a template"."""
+    return ok([
+        ProgramTemplateOut(
+            key=t.key, name=t.name, summary=t.summary, level=t.level,
+            days_per_week=len(t.days),
+            days=[TemplateDayOut(name=d.name, scheduled_weekday=d.weekday,
+                                 exercises=[e.name for e in d.exercises]) for d in t.days],
+        ).model_dump(mode="json")
+        for t in TEMPLATES
+    ])
+
+
+@router.post("/program-templates/{key}/start", status_code=201, response_model=Envelope[ProgramOut])
+async def start_program_template(key: str, user: CurrentUser, db: DbSession):
+    """Deep-copies a template into the user's own programs. Every day and
+    prescription is new, so editing the copy never reaches the template."""
+    tpl = BY_KEY.get(key)
+    if tpl is None:
+        raise NotFound("That starter program does not exist.")
+
+    names = {e.name for d in tpl.days for e in d.exercises}
+    by_name = dict((await db.execute(
+        select(Exercise.name, Exercise.id)
+        .where(Exercise.owner_user_id.is_(None), Exercise.name.in_(names))
+    )).all())
+    missing = names - by_name.keys()
+    if missing:
+        # The template test makes this unreachable; if it is reached anyway, a
+        # half-built program is worse than a clear failure.
+        raise ValidationFailed(f"Starter program references unknown exercises: {sorted(missing)}")
+
+    program = WorkoutProgram(user_id=user.id, name=tpl.name, description=tpl.summary)
+    db.add(program)
+    await db.flush()
+    for i, d in enumerate(tpl.days):
+        day = WorkoutPlanDay(program_id=program.id, day_index=i, name=d.name,
+                             scheduled_weekday=d.weekday)
+        db.add(day)
+        await db.flush()
+        for j, e in enumerate(d.exercises):
+            db.add(PlanExercise(
+                plan_day_id=day.id, exercise_id=by_name[e.name], order_index=j,
+                target_sets=e.sets, target_reps_min=e.reps_min, target_reps_max=e.reps_max,
+                target_duration_seconds=e.duration_seconds, rest_seconds=e.rest_seconds,
+            ))
+    await db.flush()
+    return ok(await _serialise(db, await _load_program(db, program.id)), status_code=201)

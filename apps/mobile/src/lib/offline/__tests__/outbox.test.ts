@@ -24,12 +24,15 @@ async function seed(store: SessionStore, keys: Array<[string, string?]>) {
 }
 
 const ok = (): SendResult => ({ ok: true, retryable: false });
-const offline = (): SendResult => ({ ok: false, retryable: true, message: 'offline' });
+const offline = (): SendResult => ({
+  ok: false, retryable: true, unreachable: true, message: 'offline',
+});
+const serverError = (): SendResult => ({ ok: false, retryable: true, message: 'Internal error' });
 const rejected = (m: string): SendResult => ({ ok: false, retryable: false, message: m });
 
 describe('flush', () => {
   it('sends the ready queue and clears it', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1'], ['k2']]);
     const send = jest.fn(async () => ok());
 
@@ -41,7 +44,7 @@ describe('flush', () => {
   });
 
   it('sends in order within one aggregate — order is meaning', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1'], ['k2'], ['k3']]);
     const seen: string[] = [];
 
@@ -56,7 +59,7 @@ describe('flush', () => {
   it('replays the idempotency key unchanged (I8)', async () => {
     // The whole duplicate-protection contract is that the client does not
     // regenerate the key on retry.
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['stable-key']]);
     const keys: string[] = [];
     const send = async (e: { idempotencyKey: string }) => {
@@ -76,7 +79,7 @@ describe('flush', () => {
   });
 
   it('never sends a sent entry twice', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1']]);
     const send = jest.fn(async () => ok());
     const outbox = createOutbox({ store, send, now, random: noJitter });
@@ -88,7 +91,7 @@ describe('flush', () => {
   });
 
   it('shares an in-flight flush rather than racing itself', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1']]);
     const send = jest.fn(async () => ok());
     const outbox = createOutbox({ store, send, now, random: noJitter });
@@ -105,7 +108,7 @@ describe('flush', () => {
     // already-running promise coalesces it onto a run that CANNOT see an entry
     // which did not exist when that run started. The test above seeds all its
     // work before flushing, so it shares a flush that had nothing new to find.
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1']]);
 
     let reachSend!: () => void;
@@ -144,7 +147,7 @@ describe('the idempotency key must be a real UUID', () => {
 
 describe('failure handling', () => {
   it('retries a transient failure and pushes the next attempt out', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1']]);
 
     const out = await createOutbox({
@@ -159,7 +162,7 @@ describe('failure handling', () => {
   });
 
   it('a terminal rejection is kept and surfaced, never dropped', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1']]);
 
     const out = await createOutbox({
@@ -172,23 +175,49 @@ describe('failure handling', () => {
     expect(e!.lastError).toBe('Reps must be at least 1.');
   });
 
-  it('gives up after maxAttempts rather than retrying for ever', async () => {
-    const store = createMemoryStore();
+  it('gives up on a server that keeps answering with an error', async () => {
+    // A 5xx means the server was REACHED and failed. Retrying that for ever
+    // would hide a broken endpoint behind a spinner.
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1']]);
-    await store.markRetry(1, '2026-09-22T09:00:00Z', 'offline');
-    await store.markRetry(1, '2026-09-22T09:00:00Z', 'offline');
+    await store.markRetry(1, '2026-09-22T09:00:00Z', 'Internal error');
+    await store.markRetry(1, '2026-09-22T09:00:00Z', 'Internal error');
 
     const out = await createOutbox({
-      store, send: async () => offline(), now, random: noJitter, maxAttempts: 3,
+      store, send: async () => serverError(), now, random: noJitter, maxAttempts: 3,
     }).flush();
 
     expect(out.failed).toBe(1);
     expect((await store.allEntries())[0]!.state).toBe('failed');
   });
 
+  it('never gives up because the phone is offline (docs/03 §7)', async () => {
+    /**
+     * "5xx/offline → retry with backoff, stays 'pending'." The cap used to
+     * apply to offline too, and with backoff capped at 60 s, eight attempts
+     * is a few minutes: on a phone in G10 a weigh-in logged during a short
+     * outage became a permanent FAILURE with "Could not reach the server",
+     * under a banner promising everything was still saving. Being offline
+     * for a day is normal use of an offline-first app.
+     */
+    const store = createMemoryStore('user-1');
+    await seed(store, [['k1']]);
+    for (let i = 0; i < 20; i += 1) {
+      await store.markRetry(1, '2026-09-22T09:00:00Z', 'offline');
+    }
+
+    const out = await createOutbox({
+      store, send: async () => offline(), now, random: noJitter, maxAttempts: 3,
+    }).flush();
+
+    expect(out.failed).toBe(0);
+    expect(out.retried).toBe(1);
+    expect((await store.allEntries())[0]!.state).toBe('pending');
+  });
+
   it('stops that aggregate\'s queue after a failure, so order survives', async () => {
     // Sending set 3 after set 2 failed would reorder the user's workout.
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1'], ['k2'], ['k3']]);
     const seen: string[] = [];
 
@@ -202,7 +231,7 @@ describe('failure handling', () => {
   });
 
   it('one stuck session never blocks another', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['a1', 's1'], ['b1', 's2'], ['b2', 's2']]);
     const seen: string[] = [];
 
@@ -218,7 +247,7 @@ describe('failure handling', () => {
 
 describe('status — what the Sync Center shows', () => {
   it('counts pending and lists failures', async () => {
-    const store = createMemoryStore();
+    const store = createMemoryStore('user-1');
     await seed(store, [['k1', 's1'], ['k2', 's2']]);
     const outbox = createOutbox({
       store, now, random: noJitter,

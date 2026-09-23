@@ -15,7 +15,8 @@
  * reachable while a filter is on, even if the caller supplied no filtered copy.
  */
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import { Button, Text } from './index';
 import { space, useTheme } from '../theme';
 

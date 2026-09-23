@@ -6,7 +6,8 @@
  * row of Pressables per screen.
  */
 import React from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import { Text } from './index';
 import { radius, space, useTheme } from '../theme';
 

@@ -12,6 +12,7 @@ import { View } from 'react-native';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { NavGroup, NavRow } from '@/ui/NavRow';
 import { Line } from '@/ui/charts';
 import { GoalRow } from '../home';
 import { delta, sinceLabel, weight } from '@/features/body/format';
@@ -22,11 +23,14 @@ export default function Progress() {
   const board = useDashboard();
   const series = useBodySeries('body_weight');
 
+  // A tab root (00 §4): reached from the tab bar, so it has no back arrow.
+  // Before the tab bar existed (G10) that made it a dead end.
   return (
     <ScreenScaffold
+      root
       title="Progress"
-      back={false}
       action={{ label: '+ Log', onPress: () => router.push('/progress/log') }}
+      onRefresh={() => { void board.refetch(); void series.refetch(); }}
     >
       <DataBoundary query={board} isEmpty={() => false} empty={{ title: 'Nothing yet' }}>
         {(data) => (
@@ -125,33 +129,16 @@ export default function Progress() {
                   <GoalRow key={String(goal.id)} goal={goal} />
                 ))
               )}
-              <Button
-                title="All goals"
-                kind="ghost"
-                size="sm"
-                testID="go-goals"
-                onPress={() => router.push('/progress/goals')}
-              />
             </View>
 
-            <View style={{ flexDirection: 'row', gap: space.sm }}>
-              <Button
-                title="Measurements"
-                kind="ghost"
-                size="sm"
-                style={{ flex: 1 }}
-                testID="go-measurements"
-                onPress={() => router.push('/progress/measurements/waist_cm')}
-              />
-              <Button
-                title="Photos"
-                kind="ghost"
-                size="sm"
-                style={{ flex: 1 }}
-                testID="go-photos"
-                onPress={() => router.push('/progress/photos')}
-              />
-            </View>
+            <NavGroup>
+              <NavRow icon="flag-outline" label="All goals" testID="go-goals"
+                onPress={() => router.push('/progress/goals')} />
+              <NavRow icon="resize-outline" label="Measurements" testID="go-measurements"
+                onPress={() => router.push('/progress/measurements/waist_cm')} />
+              <NavRow icon="images-outline" label="Progress photos" testID="go-photos"
+                onPress={() => router.push('/progress/photos')} />
+            </NavGroup>
           </View>
         )}
       </DataBoundary>

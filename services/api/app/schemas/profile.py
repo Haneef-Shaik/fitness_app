@@ -22,6 +22,11 @@ class ProfileOut(BaseModel):
     carbs_g_target: int | None = None
     fat_g_target: int | None = None
     onboarding_completed: bool
+    training_experience: Literal["beginner", "intermediate", "advanced"] | None = None
+    training_days_per_week: int | None = None
+    session_minutes: int | None = None
+    equipment: Literal["full_gym", "home_gym", "dumbbells", "bodyweight"] | None = None
+    checkin_interval_days: int = 7
 
 
 class ProfilePatch(BaseModel):
@@ -39,3 +44,8 @@ class ProfilePatch(BaseModel):
     carbs_g_target: int | None = Field(default=None, ge=0, le=1200)
     fat_g_target: int | None = Field(default=None, ge=0, le=400)
     onboarding_completed: bool | None = None
+    training_experience: Literal["beginner", "intermediate", "advanced"] | None = None
+    training_days_per_week: int | None = Field(default=None, ge=1, le=7)
+    session_minutes: int | None = Field(default=None, ge=15, le=240)
+    equipment: Literal["full_gym", "home_gym", "dumbbells", "bodyweight"] | None = None
+    checkin_interval_days: int | None = Field(default=None, ge=1, le=31)

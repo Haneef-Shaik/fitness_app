@@ -32,7 +32,8 @@ export type MutationKind =
   | 'analysis.imagesDeleted'
   | 'bodyMetric.changed'
   | 'progressPhoto.changed'
-  | 'timezone.changed';
+  | 'timezone.changed'
+  | 'outbox.changed';
 
 export interface InvalidationContext {
   sessionId?: string;
@@ -230,9 +231,19 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
     keys: () => [],
     clearAll: true,
   },
+  'outbox.changed': {
+    // Retrying or discarding a queued write changes what the Sync Center shows
+    // and nothing else — the write has not landed, so no server read has moved.
+    doc: 'Retry / discard a queued write in the **Sync Center**',
+    keys: () => [qkPrefix.outbox()],
+  },
   'outbox.flushed': {
     doc: 'Outbox flush (`/sets/batch`)',
-    keys: ({ sessionId }) => (sessionId ? [qk.session(sessionId)] : [qkPrefix.sessions()]),
+    keys: ({ sessionId }) => [
+      ...(sessionId ? [qk.session(sessionId)] : [qkPrefix.sessions()]),
+      // The queue just got shorter, and L-02 is looking at it.
+      qkPrefix.outbox(),
+    ],
     refetch: false,
   },
 };

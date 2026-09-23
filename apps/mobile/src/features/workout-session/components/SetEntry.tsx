@@ -10,8 +10,10 @@
  * for a hand that is mid-workout rather than mid-browse. The commit button is
  * full width and is the only primary action on the screen.
  */
-import React from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import type { Exercise } from '@volt/api-types';
 import { Button, Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
@@ -41,6 +43,21 @@ export interface SetEntryProps {
   busy?: boolean;
 }
 
+/** The text a numeric value should show. Empty for "not set", never "0". */
+function toText(value: number | null, format?: (n: number) => string): string {
+  if (value === null) return '';
+  return String(format ? format(value) : value);
+}
+
+/** What the user typed, as a number — or `null` for "they cleared it". */
+function parseEntry(raw: string): number | null {
+  const cleaned = raw.replace(',', '.').trim();
+  if (cleaned === '') return null;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
+
 function Stepper({
   label, value, onChange, step, min, max, format, testID,
 }: {
@@ -48,9 +65,46 @@ function Stepper({
   step: number; min: number; max: number; format?: (n: number) => string; testID: string;
 }) {
   const { c } = useTheme();
-  const bump = (d: number) => onChange(
-    Math.min(max, Math.max(min, Math.round(((value ?? 0) + d * step) * 100) / 100)),
-  );
+
+  /**
+   * The field keeps its own text while it is being typed into.
+   *
+   * It used to be fully controlled — `value={String(value)}` — which means
+   * every keystroke went up to a reducer and came back down as a new `value`
+   * prop, and the native text was re-set underneath the keyboard. On a device
+   * that races: typing `80` into a field showing `80` produced **800**, and
+   * `8` into one showing `6` produced **86**. Found on hardware in G10; every
+   * unit test passed throughout, because React Testing Library sets text in
+   * one atomic call and never generates the race.
+   *
+   * This is a field holding a **weight**. A wrong number here is a wrong
+   * number in somebody's training history, and they would have no reason to
+   * doubt it.
+   *
+   * The prop still wins when it changes for a reason the user did not cause —
+   * a stepper tap, a new exercise, a repeated set — which is what the
+   * comparison below distinguishes.
+   */
+  const [text, setText] = useState(() => toText(value, format));
+  //: The last value that arrived as a PROP. Never written from `onChangeText`:
+  //: doing so makes the very next render look like the parent changed the
+  //: value, and the field resets itself to what it just told the parent.
+  const lastProp = useRef(value);
+
+  useEffect(() => {
+    if (lastProp.current === value) return;
+    lastProp.current = value;
+    // Only adopt the prop when it disagrees with what is on screen, so a
+    // partially typed "8." is never replaced by "8" mid-keystroke.
+    if (parseEntry(text) !== value) setText(toText(value, format));
+  }, [value, text, format]);
+  const bump = (d: number) => {
+    const next = Math.min(max, Math.max(min, Math.round(((value ?? 0) + d * step) * 100) / 100));
+    // A stepper tap is a deliberate act, so it replaces the draft outright
+    // rather than losing to whatever is half-typed in the box.
+    setText(toText(next, format));
+    onChange(next);
+  };
   const button = (text: string, d: number, a11y: string) => (
     <Pressable
       onPress={() => bump(d)}
@@ -69,21 +123,38 @@ function Stepper({
 
   return (
     <View style={{ gap: 6 }} testID={testID}>
-      <Text variant="caption" tone="ink3">{label}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+      {/* The visible label is hidden FROM the screen reader, because the input
+          below carries the same name. Without this, TalkBack announces
+          "Load (kg)" and then "Load (kg), edit box, 80" — the label twice, for
+          no information. Found by reading the device's own accessibility tree
+          in G10's audit, where two nodes shared the name. */}
+      <Text
+        variant="caption"
+        tone="ink3"
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+      >
+        {label}
+      </Text>
+      {/* Not flattened: as a real native group, Android's Tab order walks
+          − field + as a row. Flattened, it sorted the whole logger into
+          columns (see SetEntry.test.tsx). */}
+      <View
+        collapsable={false}
+        testID={`${testID}-row`}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}
+      >
         {button('−', -1, `Decrease ${label}`)}
         <TextInput
           testID={`${testID}-input`}
           accessibilityLabel={label}
           keyboardType="decimal-pad"
-          value={value === null ? '' : String(format ? format(value) : value)}
+          value={text}
           placeholder="—"
           placeholderTextColor={c.ink3}
-          onChangeText={(t) => {
-            const cleaned = t.replace(',', '.').trim();
-            if (cleaned === '') return onChange(null);
-            const n = Number(cleaned);
-            onChange(Number.isFinite(n) ? n : null);
+          onChangeText={(next) => {
+            setText(next);
+            onChange(parseEntry(next));
           }}
           style={{
             flex: 1, minHeight: LOGGER_TARGET, textAlign: 'center',
@@ -106,7 +177,9 @@ export function SetEntry({
     onChange({ ...value, [k]: v });
 
   return (
-    <View style={{ gap: space.md }} testID="set-entry">
+    // Also a native group, so Warm-up and Save are ordered among the fields and
+    // not among everything else on the logger screen.
+    <View collapsable={false} style={{ gap: space.md }} testID="set-entry">
       {tracks.load ? (
         <Stepper
           label={`Load (${exercise.default_unit ?? 'kg'})`}
@@ -159,7 +232,7 @@ export function SetEntry({
       </Pressable>
 
       {error ? (
-        <Text variant="caption" style={{ color: c.crit }} testID="entry-error">{error}</Text>
+        <Text variant="caption" tone="crit" testID="entry-error">{error}</Text>
       ) : null}
 
       <Button

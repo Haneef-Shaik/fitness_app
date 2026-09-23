@@ -57,8 +57,7 @@ import type {
   TextAnalysisIn,
   HistoryItem,
   PreviousOccurrence,
-  SessionComparison,
-} from '@volt/api-types';
+  SessionComparison, ProgramTemplate } from '@volt/api-types';
 import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
@@ -68,6 +67,8 @@ import { bodyApi, type RangeQuery as BodyRange } from '../api-body';
 import { nutritionApi } from '../api-nutrition';
 import { queueMeal, queueRecipeLog } from '../../features/nutrition/logMeal';
 import { queueMetric } from '../../features/body/logMetric';
+import { store, type OutboxEntry } from '../db';
+import { flushAndReconcile } from '../../features/workout-session/sessionController';
 import { staleTimes } from './client';
 import { applyInvalidation } from './invalidation';
 import { qk } from './queryKeys';
@@ -200,6 +201,24 @@ export function usePrograms() {
     queryKey: qk.programs(),
     queryFn: () => programsApi.list(),
     staleTime: staleTimes.programs,
+  });
+}
+
+/** C-01 / C-04: the starter programs. Static on the server, so cached long. */
+export function useProgramTemplates() {
+  return useQuery<ProgramTemplate[]>({
+    queryKey: qk.programTemplates(),
+    queryFn: () => programsApi.templates(),
+    staleTime: Infinity,
+  });
+}
+
+/** Copies a starter program into the user's own programs. */
+export function useStartTemplate() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (key: string) => programsApi.startTemplate(key),
+    onSuccess: (p) => applyInvalidation(client, 'program.changed', { programId: p.id }),
   });
 }
 
@@ -396,6 +415,21 @@ export function useMeal(id: string) {
   });
 }
 
+/**
+ * One food by id.
+ *
+ * H-05 used to look its food up in `useFoods('')` — an unfiltered list capped
+ * at 25 — so opening a food from search showed "not found" as soon as the
+ * catalog outgrew a page. Invisible in tests, found on a device in G10.
+ */
+export function useFood(id: string) {
+  return useQuery<Food>({
+    queryKey: qk.food(id),
+    queryFn: () => nutritionApi.food(id),
+    enabled: Boolean(id),
+  });
+}
+
 /** H-04's search. `meta.filtered` is what lets the screen offer "create it" (I13). */
 export function useFoods(q?: string) {
   return useQuery({
@@ -416,7 +450,11 @@ export function useLogMeal() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: async (body: MealIn) => queueMeal(body),
-    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+    // NOT returned: TanStack would hold `mutateAsync` until every active read
+    // had refetched, and offline those retry with backoff — Save sat on
+    // "Saving…" for ~14 s (seen on a phone in G10). The write is already safe
+    // in the outbox; the reads refresh when they can.
+    onSuccess: () => { void applyInvalidation(client, 'meal.changed', {}); },
   });
 }
 
@@ -572,7 +610,11 @@ export function useLogRecipe() {
       id: string;
       body: { meal_type: string; servings: number; consumed_at?: string | null };
     }) => queueRecipeLog(id, body),
-    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+    // NOT returned: TanStack would hold `mutateAsync` until every active read
+    // had refetched, and offline those retry with backoff — Save sat on
+    // "Saving…" for ~14 s (seen on a phone in G10). The write is already safe
+    // in the outbox; the reads refresh when they can.
+    onSuccess: () => { void applyInvalidation(client, 'meal.changed', {}); },
   });
 }
 
@@ -728,7 +770,11 @@ export function useLogBodyMetric() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: BodyMetricIn) => queueMetric(body),
-    onSuccess: () => applyInvalidation(client, 'bodyMetric.changed', {}),
+    // NOT returned: TanStack would hold `mutateAsync` until every active read
+    // had refetched, and offline those retry with backoff — Save sat on
+    // "Saving…" for ~14 s (seen on a phone in G10). The write is already safe
+    // in the outbox; the reads refresh when they can.
+    onSuccess: () => { void applyInvalidation(client, 'bodyMetric.changed', {}); },
   });
 }
 
@@ -775,6 +821,62 @@ export function useUpdateTimezone() {
   return useMutation({
     mutationFn: (timezone: string) => profileApi.patch({ timezone }),
     onSuccess: () => applyInvalidation(client, 'timezone.changed', {}),
+  });
+}
+
+
+/* ------------------------------------------------- G10 · the Sync Center */
+
+/**
+ * L-02's view of the outbox.
+ *
+ * Local state, read through the query layer anyway: the Sync Center wants the
+ * same refetch, staleness and `DataBoundary` behaviour every other read gets,
+ * and a second mechanism for one screen is a second thing to get wrong.
+ *
+ * Polled while the screen is open, because the pump drains in the background
+ * and a queue that emptied while somebody was looking at it should look empty.
+ */
+export function useOutbox() {
+  return useQuery<OutboxEntry[]>({
+    queryKey: qk.outbox(),
+    queryFn: () => store.allEntries(),
+    refetchInterval: 3000,
+  });
+}
+
+/** L-02's "Retry". The idempotency key is kept, so a retry is the same write. */
+export function useRetryQueued() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await store.requeue(id, new Date().toISOString());
+      // Due now, so drain now rather than waiting up to a pump interval for
+      // something the user just asked for.
+      await flushAndReconcile();
+    },
+    onSuccess: () => applyInvalidation(client, 'outbox.changed', {}),
+  });
+}
+
+export function useRetryAllQueued() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: readonly number[]) => {
+      const now = new Date().toISOString();
+      for (const id of ids) await store.requeue(id, now);
+      await flushAndReconcile();
+    },
+    onSuccess: () => applyInvalidation(client, 'outbox.changed', {}),
+  });
+}
+
+/** L-02's "Discard". Per-item, and the screen confirms before calling it. */
+export function useDiscardQueued() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => store.discard(id),
+    onSuccess: () => applyInvalidation(client, 'outbox.changed', {}),
   });
 }
 

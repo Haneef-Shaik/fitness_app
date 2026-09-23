@@ -203,12 +203,16 @@ client is what remains.
       meal and weigh-in onto the day it now falls on. The M2 model comment had claimed
       this since before it was true
 
-## M8 · Hardening ⚪
-- [ ] Offline outbox end-to-end, L-02 sync centre, L-07 conflict
-- [ ] Observability: RED metrics, the alert table in [02 §9](02-SYSTEM-ARCHITECTURE.md)
-- [ ] Accessibility audit — keyboard-only logging, screen-reader diary
-- [ ] Performance budgets measured on a mid-tier Android
-- [ ] Account export and deletion end-to-end
+## M8 · Hardening 🟡  ← G10, one line open
+- [x] Offline outbox end-to-end, L-02 sync centre, L-07 conflict — exercised on the phone; three
+      offline defects fixed ([nfr-evidence](nfr-evidence.md))
+- [x] Observability: RED metrics, the alert table in [02 §9](02-SYSTEM-ARCHITECTURE.md) —
+      `set_commit_failures` deliberately fired (0.40% vs 0.10%)
+- [ ] Accessibility audit — **keyboard-only logging ✅ and keyboard diary ✅ on the phone; the
+      TalkBack session is not done** (needs a person; [audit](a11y-audit.md))
+- [x] Performance budgets measured on a mid-tier Android — p95 **296.5 ms** (G4 396.4), cold start
+      **5.97 s** dev upper bound, bundle **4.33 MiB**
+- [x] Account export and deletion end-to-end — per domain, per table
 
 ---
 
@@ -219,7 +223,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G10 — hardening** | Every acceptance criterion is proven and **five of them have never run on hardware**. Also: the p95 budget D16 measured and missed, observability, accessibility, and account export/delete | NFR sign-off · release |
+| 1 | **G10 — the TalkBack session** | Everything else in G10 is done and evidenced; the screen-reader pass on diary and logger needs a person with the phone ([TODO §0](TODO.md)) | NFR sign-off · release |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
@@ -253,8 +257,8 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | Mutation checks | **96** verified catches — **G9 added 17**: the canonical weigh-in in both directions, ordering by written rather than measured, unit conversion skipped, the local date taken from the device clock, four write paths that forget to invalidate a summary, the timezone re-bucket and its cache clear, an unconfirmed item reaching the dashboard's calories, progress clamped, progress reported as zero when unmeasured, a borrowed baseline, a naive streak, and six on the screens. **Three survived and each exposed a real gap**: the timezone test was time-of-day dependent (two profiles **25 hours apart** always differ, one profile only sometimes does); a summary column nothing read could not have its invalidation tested, so the body card now reads it; and `invalidate_all` on a timezone change was unjustified until T4 was actually implemented | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | **enforced**, and **ratcheted in G9** to **65/60/60/66** (from G8's 62/56/57/63). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **68.4%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **65.25%** statements / **66.59%** lines. The gate caught G9 mid-goal: the screens landed before their tests and the functions threshold failed, which is the ratchet working | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **12 of 12** — AC-01 … AC-12, all proven. **AC-07 to AC-11 rest on API and client tests, not on hardware**: `scripts/e2e.sh` still covers AC-01/02/04/05 only, because no device has been attached since G7. That gap is G10's | 12 of 12 ✅ |
-| tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
+| Acceptance criteria passing | **12 of 12** — AC-01 … AC-12, all proven. **On hardware (G10): AC-01, 02, 04, 05, 07, 11 and the offline flow**, each asserted on the screen *and* in the database, suite green on the SM-E546B. AC-03, 06, 08, 09, 10 and 12 still rest on API and client tests | 12 of 12 ✅ |
+| tap → set rendered | **p95 296.5 ms** over 99 commits (G10; G4 was 396.4 ms) — Samsung SM-E546B, Android 16, `__DEV__` build. [G10](measurements/commit-p95-g10.md) · [G4](measurements/commit-p95.md) | p95 < 100 ms (D16) — **still MISSED**, not regressed |
 
 ## Changelog
 

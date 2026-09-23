@@ -8,7 +8,8 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
 import { Button, Card, Text } from '@/ui';
 import { Choice } from '@/ui/Choice';
 import { DataBoundary } from '@/ui/DataBoundary';

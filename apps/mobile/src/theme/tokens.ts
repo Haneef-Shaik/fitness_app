@@ -7,11 +7,16 @@ export type Scheme = 'dark' | 'light';
 
 const dark = {
   page: '#0E0F11', surface: '#17181A', surface2: '#1F2124', sunken: '#0B0C0E',
-  ink: '#FFFFFF', ink2: '#B9BBB6', ink3: '#7E817B',
+  ink: '#FFFFFF', ink2: '#B9BBB6', ink3: '#81847E',
   line: 'rgba(255,255,255,0.085)', line2: 'rgba(255,255,255,0.14)',
   accent: '#B0A4FF', accentHi: '#C9C1FF', accentInk: '#0E0F11',
+  // docs/05 `--focus-ring`: 2 px ring + 2 px offset, never removed.
+  focusRing: '#B0A4FF',
   accentWash: 'rgba(176,164,255,0.13)',
   good: '#3FD07B', warn: '#FAB219', serious: '#EC835A', crit: '#FF6B6B',
+  // Text in a status tone (docs/05 §2.4). On dark these already read at 4.5:1,
+  // so the text shade IS the status hex; on light they are darker (below).
+  goodInk: '#3FD07B', warnInk: '#FAB219', seriousInk: '#EC835A', critInk: '#FF6B6B',
   s1: '#3987E5', s2: '#D95926', s3: '#199E70', s4: '#C98500',
   rowTint: 'rgba(255,255,255,0.028)',
   cardTop: 'rgba(255,255,255,0.045)', cardBottom: 'rgba(255,255,255,0.012)',
@@ -20,11 +25,15 @@ const dark = {
 
 const light: typeof dark = {
   page: '#F4F5F3', surface: '#FFFFFF', surface2: '#FFFFFF', sunken: '#EDEFEB',
-  ink: '#0B0C0D', ink2: '#4B4D48', ink3: '#6E706A',
+  ink: '#0B0C0D', ink2: '#4B4D48', ink3: '#696B65',
   line: 'rgba(11,12,13,0.11)', line2: 'rgba(11,12,13,0.2)',
   accent: '#5A31C4', accentHi: '#4A2AA6', accentInk: '#FFFFFF',
+  focusRing: '#5A31C4',
   accentWash: 'rgba(90,49,196,0.09)',
   good: '#0C8F3C', warn: '#FAB219', serious: '#EC835A', crit: '#D03B3B',
+  // Same hue, darkened to 4.5:1+ on page, surface and sunken — G10 measured the
+  // raw status hexes as TEXT at 1.6–4.4:1 on this theme (contrast.test.ts).
+  goodInk: '#0A7A33', warnInk: '#8E6103', seriousInk: '#B94315', critInk: '#C73030',
   s1: '#2A78D6', s2: '#EB6834', s3: '#1BAF7A', s4: '#EDA100',
   rowTint: 'rgba(11,12,13,0.035)',
   cardTop: '#FFFFFF', cardBottom: '#FCFCFB',

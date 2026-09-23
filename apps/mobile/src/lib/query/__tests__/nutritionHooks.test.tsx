@@ -373,3 +373,34 @@ describe('copying', () => {
     expect(staleness(client, qk.nutritionDay('2026-09-24'))).toBe(true);
   });
 });
+
+describe('a queued write does not wait for the network (found offline on a phone in G10)', () => {
+  /**
+   * Logging a meal only writes to the local outbox. But `onSuccess` returned
+   * the invalidation promise, and TanStack holds `mutateAsync` until it
+   * settles — i.e. until every active read has REFETCHED. Offline, those reads
+   * retry with backoff, so "Save" sat on "Saving…" for ~14 s under a banner
+   * saying everything was still saving. Here the read never answers at all.
+   */
+  const hang = () => new Promise<never>(() => {});
+
+  it.each([
+    ['a meal', () => useLogMeal(), (m: any) => m.mutateAsync({ meal_type: 'lunch', items: [] })],
+    ['a recipe', () => useLogRecipe(),
+      (m: any) => m.mutateAsync({ id: 'r1', body: { meal_type: 'lunch', servings: 1 } })],
+  ])('logging %s resolves while the diary cannot be refetched', async (_name, useIt, fire) => {
+    api.day.mockImplementation(hang);
+    const { client, wrapper } = harness();
+    const { result } = renderHook(() => ({ day: useNutritionDay(), write: useIt() }), { wrapper });
+
+    let settled = false;
+    await act(async () => {
+      void fire(result.current.write).then(() => { settled = true; });
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    expect(settled).toBe(true);
+    // And the diary is still marked stale, so it refreshes once it can.
+    expect(client.getQueryState(qk.nutritionDay('today'))?.isInvalidated).toBe(true);
+  });
+});

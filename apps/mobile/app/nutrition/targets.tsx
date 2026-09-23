@@ -18,7 +18,8 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
 import {
   type ActivityLevel, type MacroKey, type MacroSplit,
   PRESET_SPLITS, bmrMifflinStJeor, caloriesNotice, fallbackMaintenance,

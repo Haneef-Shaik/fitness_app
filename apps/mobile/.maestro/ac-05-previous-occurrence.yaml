@@ -20,7 +20,15 @@ env:
 
 # Navigated to, not deep-linked: "without knowing its date" also means without
 # knowing the URL. F-01 is reachable from the dashboard, F-05 from F-01.
-- tapOn: "History"
+# G9 moved B-01's navigation into an "Elsewhere" row below the cards, so the
+# button is off-screen on a phone until the dashboard is scrolled. The old flows
+# tapped at a position it no longer occupies — found the first time a device was
+# attached after G9, which is the argument for attaching one more often.
+# Train tab → History (G10: sections are tabs, not dashboard buttons).
+- tapOn:
+    id: "tab-train"
+- tapOn:
+    id: "go-history"
 - extendedWaitUntil:
     visible: "Filters"
     timeout: 30000

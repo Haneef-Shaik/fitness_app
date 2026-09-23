@@ -1,7 +1,8 @@
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
@@ -22,6 +23,12 @@ import { flushAndReconcile } from '@/features/workout-session/sessionController'
 import { AuthGate } from '@/lib/AuthGate';
 import { startOutboxPump } from '@/lib/offline/pump';
 import { RecoveryGate } from '@/features/workout-session/RecoveryGate';
+import { SyncShell } from '@/features/sync/SyncBanner';
+import { TabBar } from '@/ui/shell/TabBar';
+import { showsTabBar } from '@/ui/shell/tabs';
+import { BottomInsetHandled } from '@/ui/topInset';
+import { createIdentityHandler } from '@/lib/identity';
+import { useSessionStore } from '@/features/workout-session/store/sessionStore';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -30,21 +37,45 @@ const queryClient = createQueryClient();
 
 function Root() {
   const { c, scheme } = useTheme();
+  // The tab bar (00 §4, D2) sits BELOW the stack rather than over it, so no
+  // screen has to pad itself for it; it owns the home-indicator inset instead.
+  const tabs = showsTabBar(usePathname());
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: c.page }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: c.page },
-          animation: 'fade',
-        }}
-      />
-    </>
+      {/* L-02's banner: a row above the stack, so it can never cover content
+          or swallow a tap. While it shows, it owns the status-bar inset. */}
+      <SyncShell>
+        <BottomInsetHandled.Provider value={tabs}>
+          <View style={{ flex: 1 }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: c.page },
+                animation: 'fade',
+              }}
+            />
+          </View>
+        </BottomInsetHandled.Provider>
+      </SyncShell>
+      {tabs ? <TabBar /> : null}
+    </View>
   );
 }
 
 export default function Layout() {
+  // Whose session this is. `undefined` until the session has decided.
+  const [account, setAccount] = useState<string | null | undefined>(undefined);
+  const onIdentityChange = useMemo(() => {
+    const handle = createIdentityHandler({
+      setOwner: (id) => store.setOwner(id),
+      clearCache: () => queryClient.clear(),
+      releaseWorkout: () => useSessionStore.setState({ draft: null, recoveryCandidate: null }),
+      flush: flushAndReconcile,
+    });
+    return (id: string | null) => { handle(id); setAccount(id); };
+  }, []);
+
   const [loaded] = useFonts({
     Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold, Barlow_700Bold,
     BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
@@ -85,13 +116,15 @@ export default function Layout() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <SessionProvider>
+          <SessionProvider onIdentityChange={onIdentityChange}>
             {/* Watches the session status rather than the route: app/index.tsx
                 redirects only while it is mounted, so losing the session
                 anywhere else left the screen you were on. */}
             <AuthGate />
             <Root />
-            <RecoveryGate enabled />
+            {/* Asked once per ACCOUNT, once that account is known — an unfinished
+                workout belongs to the account that started it (G10). */}
+            <RecoveryGate key={account ?? 'nobody'} enabled={Boolean(account)} />
           </SessionProvider>
         </ThemeProvider>
       </SafeAreaProvider>

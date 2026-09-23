@@ -364,6 +364,7 @@ export const qk = {
   // planning
   programs:            ()                  => ['programs', 'list'] as const,
   program:             (id: string)        => ['programs', 'detail', id] as const,
+  programTemplates:    ()                  => ['programs', 'templates'] as const,
 
   // training
   sessions:            (f: SessionFilters = {}) => ['sessions', 'list', f] as const,
@@ -411,8 +412,9 @@ added here without code — or code without a row — fails the build rather tha
 | Delete the stored **analysis photos** | `analyses(*)` | The photographs go and the records stay (BRD §18), so only the list re-reads |
 | Log / delete a **body measurement** | `body(*)`, `dashboard(*)`, `goals(*)` | B-01 carries the body card, and a goal's progress is measured against the latest weigh-in. `nutrition` and `analytics` are deliberately absent — stepping on a scale changes neither |
 | Add / delete a **progress photo** | `progressPhotos` | Nothing else reads them |
+| Retry / discard a queued write in the **Sync Center** | `outbox(*)` | The write has not landed, so no server read has moved. Only L-02's own view changes |
 | Change the profile **timezone** | **everything** (`queryClient.clear()`) | A timezone change moves a **boundary**: the server re-files every session, meal and weigh-in onto the day it now falls on (**T4**). Every cached read keyed by a day is therefore wrong, which is all of them |
-| Outbox flush (`/sets/batch`) | `session(id)` per affected session | The flush is the network catching up to state the UI already shows |
+| Outbox flush (`/sets/batch`) | `session(id)` per affected session, `outbox(*)` | The flush is the network catching up to state the UI already shows |
 
 Two rules the table encodes, both of which have cost this project before:
 

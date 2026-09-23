@@ -29,7 +29,7 @@ export function StatTile({
         {unit ? <Text variant="caption" tone="ink3">{unit}</Text> : null}
       </View>
       {tone ? (
-        <Text variant="caption" style={{ color: tone === 'good' ? c.good : c.ink2, marginTop: 2 }}>
+        <Text variant="caption" style={{ color: tone === 'good' ? c.goodInk : c.ink2, marginTop: 2 }}>
           {formatDelta(delta!, deltaUnit)}
         </Text>
       ) : null}

@@ -118,6 +118,15 @@ class UserProfile(Base, TimestampMixin):
 
     onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    # The training profile (onboarding step 5). What a program recommendation
+    # depends on; all optional, because every onboarding step but units is.
+    training_experience: Mapped[str | None] = mapped_column(String(20))   # beginner|intermediate|advanced
+    training_days_per_week: Mapped[int | None] = mapped_column()
+    session_minutes: Mapped[int | None] = mapped_column()
+    equipment: Mapped[str | None] = mapped_column(String(20))             # full_gym|home_gym|dumbbells|bodyweight
+    # How often a check-in (weight + measurements) is due. Weekly unless changed.
+    checkin_interval_days: Mapped[int] = mapped_column(default=7, server_default="7", nullable=False)
+
     user: Mapped[User] = relationship(back_populates="profile")
 
 
@@ -139,6 +148,9 @@ class FitnessGoal(Base, TimestampMixin):
 
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     target_date: Mapped[date | None] = mapped_column(Date)
+    # The pace the user chose, in target units per week (always positive; the
+    # direction says which way). Drives the calorie adjustment and the ETA.
+    weekly_rate: Mapped[float | None] = mapped_column(Numeric(5, 2))
     status: Mapped[GoalStatus] = mapped_column(
         Enum(GoalStatus, name="goal_status"), default=GoalStatus.active, nullable=False
     )

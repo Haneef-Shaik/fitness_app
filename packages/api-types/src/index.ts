@@ -49,6 +49,7 @@ export type MuscleGroup = Schemas['MuscleGroupOut'];
 export type MuscleRef = Schemas['MuscleRefOut'];
 
 export type Program = Schemas['ProgramOut'];
+export type ProgramTemplate = Schemas['ProgramTemplateOut'];
 export type PlanDay = Schemas['PlanDayOut'];
 export type PlanExercise = Schemas['PlanExerciseOut'];
 

@@ -11,72 +11,71 @@
  */
 import type { DraftRecord, NewOutboxEntry, OutboxEntry, SessionStore } from './types';
 
-export function createMemoryStore(): SessionStore {
-  let draft: DraftRecord | null = null;
-  let entries: OutboxEntry[] = [];
+type Owned = OutboxEntry & { owner: string };
+
+/** An entry as callers see it — the owner is the store's business. */
+const bare = ({ owner: _owner, ...e }: Owned): OutboxEntry => ({ ...e });
+
+export function createMemoryStore(initialOwner: string | null = null): SessionStore {
+  let owner: string | null = initialOwner;
+  let drafts = new Map<string, DraftRecord>();
+  let entries: Owned[] = [];
   let nextId = 1;
 
+  const mine = () => entries.filter((e) => e.owner === owner);
+  const requireOwner = (): string => {
+    if (owner === null) throw new Error('No account is signed in; nothing can be queued.');
+    return owner;
+  };
+
+  /** Insert, or update the body of the same key (I8) — within this owner. */
+  const upsert = (list: Owned[], who: string, entry: NewOutboxEntry): Owned[] =>
+    list.some((e) => e.idempotencyKey === entry.idempotencyKey)
+      ? list.map((e) => (e.idempotencyKey === entry.idempotencyKey ? { ...e, body: entry.body } : e))
+      : [...list, { ...entry, owner: who, id: nextId++, attempts: 0, state: 'pending', lastError: null }];
+
   return {
+    setOwner(next: string | null) { owner = next; },
+
     async open() { /* nothing to open */ },
 
     journalMode: () => null,
 
-    async loadDraft() { return draft ? { ...draft } : null; },
+    async loadDraft() {
+      const d = owner === null ? undefined : drafts.get(owner);
+      return d ? { ...d } : null;
+    },
 
-    async clearDraft() { draft = null; },
+    async clearDraft() {
+      if (owner === null) return;
+      drafts = new Map([...drafts].filter(([k]) => k !== owner));
+    },
 
     async enqueue(entry: NewOutboxEntry) {
       // Deliberately does NOT touch the draft — see SessionStore.enqueue.
-      const existing = entries.find((e) => e.idempotencyKey === entry.idempotencyKey);
-      if (existing) {
-        entries = entries.map((e) =>
-          e.idempotencyKey === entry.idempotencyKey ? { ...e, body: entry.body } : e,
-        );
-        return;
-      }
-      entries = [...entries, {
-        ...entry, id: nextId++, attempts: 0, state: 'pending', lastError: null,
-      }];
+      entries = upsert(entries, requireOwner(), entry);
     },
 
     async commit(next: DraftRecord, entry?: NewOutboxEntry) {
-      // Synchronous, so the pair cannot tear — the same guarantee the SQLite
-      // implementation buys with a transaction.
-      const previousDraft = draft;
-      const previousEntries = entries;
-      try {
-        draft = { ...next };
-        if (entry) {
-          const existing = entries.find((e) => e.idempotencyKey === entry.idempotencyKey);
-          if (existing) {
-            // An enqueue that happens twice updates, never appends (I8).
-            entries = entries.map((e) =>
-              e.idempotencyKey === entry.idempotencyKey ? { ...e, body: entry.body } : e,
-            );
-          } else {
-            entries = [...entries, {
-              ...entry, id: nextId++, attempts: 0, state: 'pending', lastError: null,
-            }];
-          }
-        }
-      } catch (e) {
-        draft = previousDraft;
-        entries = previousEntries;
-        throw e;
-      }
+      // Built whole and swapped in, so the pair cannot tear — the guarantee the
+      // SQLite implementation buys with a transaction.
+      const who = requireOwner();
+      const nextEntries = entry ? upsert(entries, who, entry) : entries;
+      drafts = new Map(drafts).set(who, { ...next });
+      entries = nextEntries;
     },
 
     async readyEntries(now: string, limit = 50) {
-      return entries
+      return mine()
         .filter((e) => e.state === 'pending' && e.nextAttemptAt <= now)
         .sort((a, b) => (a.aggregateId === b.aggregateId
           ? a.id - b.id
           : a.aggregateId.localeCompare(b.aggregateId)))
         .slice(0, limit)
-        .map((e) => ({ ...e }));
+        .map(bare);
     },
 
-    async allEntries() { return entries.map((e) => ({ ...e })).sort((a, b) => a.id - b.id); },
+    async allEntries() { return mine().map(bare).sort((a, b) => a.id - b.id); },
 
     async markSent(id: number) {
       entries = entries.map((e) =>
@@ -93,6 +92,18 @@ export function createMemoryStore(): SessionStore {
         e.id === id ? { ...e, state: 'failed', attempts: e.attempts + 1, lastError: error } : e);
     },
 
-    async reset() { draft = null; entries = []; nextId = 1; },
+    async requeue(id: number, nextAttemptAt: string) {
+      // The idempotency key is untouched: a retry is the SAME write (I8).
+      entries = entries.map((e) =>
+        e.id === id
+          ? { ...e, state: 'pending', nextAttemptAt, lastError: null }
+          : e);
+    },
+
+    async discard(id: number) {
+      entries = entries.filter((e) => e.id !== id);
+    },
+
+    async reset() { drafts = new Map(); entries = []; nextId = 1; },
   };
 }

@@ -183,6 +183,26 @@ async def list_foods(
     })
 
 
+@router.get("/foods/{food_id}", response_model=Envelope[FoodOut])
+async def get_food(food_id: uuid.UUID, user: CurrentUser, db: DbSession):
+    """One food by id.
+
+    Added in G10 because H-05 was **looking its food up in the unfiltered list**
+    — capped at 25 rows — so opening a food from search showed "not found" as
+    soon as the catalog outgrew one page. Invisible in tests, where the catalog
+    is small, and found the first time a device opened a real one.
+    """
+    food = await db.scalar(
+        select(Food).where(
+            Food.id == food_id,
+            or_(Food.owner_user_id.is_(None), Food.owner_user_id == user.id),
+        )
+    )
+    if food is None:
+        raise NotFound("That food no longer exists.")
+    return ok(_food_out(food))
+
+
 @router.post("/foods", status_code=201, response_model=Envelope[FoodOut])
 async def create_food(body: FoodIn, user: CurrentUser, db: DbSession):
     """A user's own food. `source=user`, so it is never mistaken for catalog."""

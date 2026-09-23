@@ -30,6 +30,9 @@ export const nutritionApi = {
   foods: (q?: string, limit = 25): Promise<Page<Food[]>> =>
     api.getPaged<Food[]>('/foods' + qs({ q, limit })),
 
+  /** One food by id. H-05 used to find it in the paged list — see G10. */
+  food: (id: string) => api.get<Food>(`/foods/${id}`),
+
   createFood: (body: FoodIn) => api.post<Food>('/foods', body),
   updateFood: (id: string, body: FoodPatch) => api.patch<Food>(`/foods/${id}`, body),
   deleteFood: (id: string) => api.del<Food>(`/foods/${id}`),

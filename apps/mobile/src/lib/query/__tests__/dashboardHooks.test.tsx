@@ -198,3 +198,27 @@ describe('changing the timezone', () => {
     expect(client.getQueryData(qk.history())).toBeUndefined();
   });
 });
+
+describe('a weigh-in does not wait for the network (seen offline on a phone in G10)', () => {
+  it('resolves while the dashboard cannot be refetched', async () => {
+    // The weigh-in only writes to the outbox; offline, the dashboard's refetch
+    // retries with backoff, and Save used to sit on "Saving…" through all of it.
+    (bodyApi.dashboard as jest.Mock).mockImplementation(() => new Promise<never>(() => {}));
+    const { client, wrapper } = harness();
+    const { result } = renderHook(
+      () => ({ board: useDashboard(), log: useLogBodyMetric() }), { wrapper },
+    );
+
+    let settled = false;
+    await act(async () => {
+      void result.current.log.mutateAsync({
+        metric_key: 'body_weight', value: 78.1, unit: 'kg',
+        measured_at: null, notes: null, client_id: null,
+      }).then(() => { settled = true; });
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    expect(settled).toBe(true);
+    expect(client.getQueryState(qk.dashboard())?.isInvalidated).toBe(true);
+  });
+});

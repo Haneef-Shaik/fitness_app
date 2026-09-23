@@ -1,8 +1,11 @@
 /** A-03 Sign Up */
 import { router } from 'expo-router';
+import { resetTo } from '@/lib/navigation';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
+import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Field, Text } from '@/ui';
 import { useTheme, space, radius, font } from '@/theme';
 import { useSession } from '@/lib/session';
@@ -23,7 +26,7 @@ export default function Register() {
     setBusy(true); setErrors({}); setGeneral(null);
     try {
       await signUp(email.trim(), password);
-      router.replace('/');
+      resetTo('/');
     } catch (e) {
       if (e instanceof ApiError) {
         setErrors(e.fields);
@@ -40,7 +43,7 @@ export default function Register() {
   } as const;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
+    <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ padding: space.lg }} keyboardShouldPersistTaps="handled">
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back"
@@ -90,6 +93,6 @@ export default function Register() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 }

@@ -6,7 +6,8 @@
  */
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

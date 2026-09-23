@@ -21,7 +21,7 @@
 | **App screens built** | **37** of 103 designed |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 37 commits · `218f57a` nutrition core (G7) |
+| **Version control** | git, 37 commits · `fcbba0b` nutrition core (G7) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -487,7 +487,7 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
 
 ---
 
-### Handoff — G7 · Nutrition core                closed 23 Sep · `218f57a`
+### Handoff — G7 · Nutrition core                closed 23 Sep · `fcbba0b`
 
 **Outcome claimed.** A manually logged meal moves today's totals, on the user's local date —
 **AC-07**. Proven by API tests and client tests; **not** on hardware.

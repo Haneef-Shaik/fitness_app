@@ -93,6 +93,12 @@ export const qk = {
   // logging one changes the day, editing one does not.
   recipes: () => ['recipes', 'list'] as const,
   recipe: (id: string) => ['recipes', 'detail', id] as const,
+
+  // AI analysis (G8). An analysis is its OWN key, not part of `nutrition`: it
+  // is a pending proposal, and it moves no total until someone confirms it.
+  analyses: () => ['analyses', 'list'] as const,
+  analysis: (id: string) => ['analyses', 'detail', id] as const,
+  analysisQuota: () => ['analyses', 'quota'] as const,
 } as const;
 
 /** The prefixes invalidation targets. Kept beside the registry so they cannot drift. */
@@ -113,4 +119,5 @@ export const qkPrefix = {
   foods: () => ['foods'] as const,
   mealCategories: () => ['meal-categories'] as const,
   recipes: () => ['recipes'] as const,
+  analyses: () => ['analyses'] as const,
 } as const;

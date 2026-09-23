@@ -11,6 +11,7 @@ from app.api.routes import (
     analytics,
     auth,
     exercises,
+    food_analysis,
     goals,
     history,
     meal_categories,
@@ -20,6 +21,7 @@ from app.api.routes import (
     programs,
     recipes,
     sessions,
+    uploads,
 )
 from app.core.errors import AppError
 
@@ -98,5 +100,6 @@ for r in (
     exercises.router, programs.router, sessions.router, history.router,
     analytics.router, nutrition.router, nutrition_copy.router,
     meal_categories.router, recipes.router,
+    food_analysis.router, uploads.router,
 ):
     app.include_router(r, prefix="/v1")

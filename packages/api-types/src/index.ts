@@ -113,6 +113,18 @@ export type RecipeLogIn = Schemas['RecipeLogIn'];
 export type MealCopyIn = Schemas['MealCopyIn'];
 export type DayCopyIn = Schemas['DayCopyIn'];
 
+/* ------------------------------------------------------- AI nutrition (G8) */
+
+export type FoodAnalysis = Schemas['AnalysisOut'];
+export type FoodAnalysisItem = Schemas['AnalysisItemOut'];
+export type TextAnalysisIn = Schemas['TextAnalysisIn'];
+export type ImageAnalysisIn = Schemas['ImageAnalysisIn'];
+export type ConfirmIn = Schemas['ConfirmIn'];
+export type ConfirmItemIn = Schemas['ConfirmItemIn'];
+export type UploadSignIn = Schemas['UploadSignIn'];
+export type UploadSign = Schemas['UploadSignOut'];
+export type AnalysisQuota = Schemas['QuotaOut'];
+
 /* ---------------------------------------------------------- request payloads */
 
 export type ProfilePatch = Schemas['ProfilePatch'];

@@ -42,3 +42,21 @@ class Conflict(AppError):
 class RateLimited(AppError):
     status_code, code = 429, "RATE_LIMITED"
     message = "Too many attempts. Try again shortly."
+
+
+class QuotaExceeded(AppError):
+    """The per-user daily AI cap (02 §5.4).
+
+    Its own class rather than a `RateLimited` with different words: the UI
+    states a quota **before** a photo is taken and offers manual entry, where a
+    rate limit says "try again shortly". They are different sentences and
+    different affordances.
+    """
+
+    status_code, code = 429, "QUOTA_EXCEEDED"
+    message = "You have used all of today's food analyses."
+
+
+class PayloadTooLarge(AppError):
+    status_code, code = 413, "PAYLOAD_TOO_LARGE"
+    message = "That file is larger than the upload it was signed for."

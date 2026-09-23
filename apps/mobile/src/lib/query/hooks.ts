@@ -43,6 +43,11 @@ import type {
   Recipe,
   RecipeIn,
   RecipePatch,
+  AnalysisQuota,
+  ConfirmIn,
+  FoodAnalysis,
+  ImageAnalysisIn,
+  TextAnalysisIn,
   HistoryItem,
   PreviousOccurrence,
   SessionComparison,
@@ -51,6 +56,7 @@ import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
 import { analyticsApi, type GroupBy, type RangeQuery } from '../api-analytics';
+import { analysisApi } from '../api-analysis';
 import { nutritionApi } from '../api-nutrition';
 import { queueMeal, queueRecipeLog } from '../../features/nutrition/logMeal';
 import { staleTimes } from './client';
@@ -566,6 +572,87 @@ export function useCopyDay() {
   return useMutation({
     mutationFn: (body: DayCopyIn) => nutritionApi.copyDay(body),
     onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+
+/* ------------------------------------------------- G8 · AI food analysis */
+
+/**
+ * H-07's poll.
+ *
+ * 2 s while it is working, backing off to 5 s, and **stopping entirely** once
+ * the analysis has finished. A poll that keeps running after `completed` is a
+ * battery drain nobody sees in testing.
+ */
+export function useAnalysis(id: string, options: { poll?: boolean } = {}) {
+  return useQuery<FoodAnalysis>({
+    queryKey: qk.analysis(id),
+    queryFn: () => analysisApi.get(id),
+    enabled: Boolean(id),
+    refetchInterval: (query) => {
+      if (options.poll === false) return false;
+      const status = query.state.data?.status;
+      if (status === 'completed' || status === 'failed') return false;
+      return query.state.dataUpdateCount > 5 ? 5000 : 2000;
+    },
+  });
+}
+
+export function useAnalyses() {
+  return useQuery<FoodAnalysis[]>({
+    queryKey: qk.analyses(),
+    queryFn: () => analysisApi.list(),
+  });
+}
+
+/** H-06 and H-09 read this BEFORE offering the button (02 §5.4). */
+export function useAnalysisQuota() {
+  return useQuery<AnalysisQuota>({
+    queryKey: qk.analysisQuota(),
+    queryFn: () => analysisApi.quota(),
+    staleTime: staleTimes.foods,
+  });
+}
+
+export function useAnalyseText() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: TextAnalysisIn) => analysisApi.analyseText(body),
+    onSuccess: () => applyInvalidation(client, 'analysis.submitted', {}),
+  });
+}
+
+export function useAnalyseImage() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ImageAnalysisIn) => analysisApi.analyseImage(body),
+    onSuccess: () => applyInvalidation(client, 'analysis.submitted', {}),
+  });
+}
+
+/**
+ * **AC-10.** Writes the meal and leaves the analysis byte-identical.
+ *
+ * Unlike a manual log this does NOT go through the outbox: confirming needs the
+ * analysis, which lives on the server, so there is nothing to replay offline.
+ * H-08 says so rather than queueing a write that would fail on delivery.
+ */
+export function useConfirmAnalysis() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: ConfirmIn }) =>
+      analysisApi.confirm(id, body),
+    onSuccess: (_meal, { id }) =>
+      applyInvalidation(client, 'analysis.confirmed', { analysisId: id }),
+  });
+}
+
+export function useDeleteAnalysisImages() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => analysisApi.deleteImages(),
+    onSuccess: () => applyInvalidation(client, 'analysis.imagesDeleted', {}),
   });
 }
 

@@ -14,6 +14,9 @@ dependencies = [
     "argon2-cffi>=23.1",
     "pyjwt>=2.10",
     "email-validator>=2.2",
+    # The AI gateway speaks HTTP to a provider. Tests never reach one — the
+    # stub gateway is the default — but the client itself is production code.
+    "httpx>=0.28",
 ]
 
 [dependency-groups]

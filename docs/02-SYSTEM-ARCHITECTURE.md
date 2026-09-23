@@ -311,6 +311,46 @@ able to hold macros without a food.
 | Worker crash mid-job | Job is idempotent on `analysis_id`; re-runs overwrite nothing (items written once, in one transaction). |
 | **Any AI failure** | Workout logging, meal creation, manual food entry and all analytics remain fully functional. |
 
+### 5.3a What G8 built, and where it differs from the drawing above
+
+**The queue is Postgres, not a broker.** `SELECT … FOR UPDATE SKIP LOCKED` over
+`food_analyses` is the correct primitive for exactly this, the database is already
+there, and adding Redis to run one job type would be infrastructure bought on credit.
+Several workers are safe: a row another worker holds is skipped, not waited on. A job
+whose worker died is reclaimed after a lock timeout rather than being stranded.
+
+**The worker is a separate process** — `uv run python -m app.worker`. Nothing in a
+request handler calls a model. That is **I14** made structural rather than promised.
+
+**Object storage is an interface with a local implementation.** The charter's standing
+rule is no cloud, so `app/storage/base.py` is an `ObjectStore` Protocol with
+`LocalObjectStore` behind it and signed, expiring URLs in front. S3 becomes one more
+implementation — the same shape as the food resolver, for the same reason. The
+signature covers the **key, the content type, the declared size and the owner**;
+signing the key alone would let a caller re-point a valid signature at another object.
+
+**Append-only is enforced by the database, not by discipline.** Migration `m6` installs
+two triggers:
+
+| Table | Rule |
+|-------|------|
+| `food_analysis_items` | every `UPDATE` and every `DELETE` is rejected |
+| `food_analyses` | the **request** (`user_id`, `input_type`, `source_text`, `created_at`) is immutable always; the **model's output** (`status`, `model_name`, `schema_version`, `notes`, `error_code`, `completed_at`) is immutable once the analysis has ended |
+
+`food_analyses` is a job as well as a record, and a job has a lifecycle — pretending
+otherwise would mean a second table holding status, which is two homes for one fact
+(**I15**). The line is drawn inside the row instead. `image_key` is excepted, because
+BRD §18 lets a user delete their photographs without deleting the record of what was
+analysed. A "freeze it once it is set" rule was tried first and rejected: it would
+leave a completed analysis that happened to have no notes open to having commentary
+invented for it afterwards.
+
+**EXIF is stripped twice.** The client re-encodes (which drops it) as part of the
+resize it needs anyway; the server walks the JPEG's APPn segments and the PNG's text
+chunks on arrival and drops them again. Either half alone is a single point of
+failure for location data, and the server's half is the one a modified client cannot
+skip.
+
 ### 5.4 Cost and abuse controls
 Per-user daily analysis quota, per-minute rate limit, max image size and count enforced server-side,
 and a content check before the model call. Quota state is surfaced in the UI before the user takes a

@@ -26,7 +26,10 @@ export type MutationKind =
   | 'meal.changed'
   | 'food.changed'
   | 'mealCategory.changed'
-  | 'recipe.changed';
+  | 'recipe.changed'
+  | 'analysis.submitted'
+  | 'analysis.confirmed'
+  | 'analysis.imagesDeleted';
 
 export interface InvalidationContext {
   sessionId?: string;
@@ -34,6 +37,7 @@ export interface InvalidationContext {
   goalId?: string;
   exerciseId?: string;
   recipeId?: string;
+  analysisId?: string;
 }
 
 export type QueryKey = readonly unknown[];
@@ -170,6 +174,28 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
     doc: 'Create / edit / delete a **recipe**',
     keys: ({ recipeId }) =>
       recipeId ? [qkPrefix.recipes(), qk.recipe(recipeId)] : [qkPrefix.recipes()],
+  },
+  'analysis.submitted': {
+    // The list and the quota, and NOT the diary. An analysis that has just been
+    // submitted has changed no total — it has not even run yet. Invalidating
+    // `nutrition` here would be the "just for the preview" bug in cache form.
+    doc: 'Submit a **food analysis** (text or photo)',
+    keys: () => [qkPrefix.analyses()],
+  },
+  'analysis.confirmed': {
+    // NOW the diary moves, because meal_items were written. The analysis is
+    // invalidated too: it is read-only afterwards and shows what was saved
+    // against what was proposed, which is the AC-10 audit view.
+    doc: 'Confirm a **food analysis** into a meal',
+    keys: ({ analysisId }) => [
+      qkPrefix.nutrition(),
+      qkPrefix.analyses(),
+      ...(analysisId ? [qk.analysis(analysisId)] : []),
+    ],
+  },
+  'analysis.imagesDeleted': {
+    doc: 'Delete the stored **analysis photos**',
+    keys: () => [qkPrefix.analyses()],
   },
   'outbox.flushed': {
     doc: 'Outbox flush (`/sets/batch`)',

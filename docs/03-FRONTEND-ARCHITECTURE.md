@@ -406,6 +406,9 @@ added here without code — or code without a row — fails the build rather tha
 | Create / edit / delete a **food** | `foods(*)` | Correcting a food changes the picker and **nothing already logged** ([02 §4.2](02-SYSTEM-ARCHITECTURE.md)). Invalidating the diary here would imply otherwise and refetch for nothing |
 | Create / rename / reorder / hide / delete a **meal category** | `meal-categories(*)`, `nutrition(*)` | The diary renders a category's **name**, so a rename has to reach it. `foods` is deliberately absent — a category is not a food and the picker is unmoved |
 | Create / edit / delete a **recipe** | `recipes(*)`, `recipe(id)` — **never** `nutrition` | A recipe is a **plan**. Editing one changes what it will produce next time and nothing it already produced, because logging it snapshotted the macros. The same rule as a program edit not touching sessions (**AC-12**) |
+| Submit a **food analysis** (text or photo) | `analyses(*)` — **never** `nutrition` | A submitted analysis has changed no total; it has not even run. Invalidating the diary here would be the "count it just for the preview" bug in cache form (**I12**) |
+| Confirm a **food analysis** into a meal | `nutrition(*)`, `analyses(*)`, `analysis(id)` | **Now** the day moves, because `meal_items` were written. The analysis is invalidated too: afterwards it is read-only and shows what was saved against what was proposed — the AC-10 audit view |
+| Delete the stored **analysis photos** | `analyses(*)` | The photographs go and the records stay (BRD §18), so only the list re-reads |
 | Outbox flush (`/sets/batch`) | `session(id)` per affected session | The flush is the network catching up to state the UI already shows |
 
 Two rules the table encodes, both of which have cost this project before:

@@ -21,7 +21,7 @@ const NUMERIC: Variant[] = ['record', 'hero', 'entry', 'display', 'stat'];
 
 export function Text({
   variant = 'body', tone = 'ink', style, ...rest
-}: TextProps & { variant?: Variant; tone?: 'ink' | 'ink2' | 'ink3' | 'accent' | 'good' | 'crit' | 'accentInk' }) {
+}: TextProps & { variant?: Variant; tone?: 'ink' | 'ink2' | 'ink3' | 'accent' | 'good' | 'warn' | 'serious' | 'crit' | 'accentInk' }) {
   const { c } = useTheme();
   const numeric = NUMERIC.includes(variant);
   const base: TextStyle = {

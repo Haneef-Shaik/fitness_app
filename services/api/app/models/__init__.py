@@ -1,3 +1,10 @@
+from app.models.analysis import (
+    AnalysisErrorCode,
+    AnalysisInputType,
+    AnalysisStatus,
+    FoodAnalysis,
+    FoodAnalysisItem,
+)
 from app.models.exercise import (
     CatalogStatus,
     Equipment,
@@ -53,4 +60,7 @@ __all__ = [  # noqa: RUF022
     # nutrition
     "Food", "FoodSource", "Meal", "MealItem", "ItemSource",
     "MealCategory", "DEFAULT_MEAL_CATEGORIES", "Recipe", "RecipeItem",
+    # AI analysis (G8)
+    "FoodAnalysis", "FoodAnalysisItem",
+    "AnalysisInputType", "AnalysisStatus", "AnalysisErrorCode",
 ]

@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-23 (G7 closed — nutrition core) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-23 (G8 closed — AI nutrition) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -15,10 +15,11 @@
 
 | | |
 |---|---|
-| **Milestones complete** | M0, M1, **M5** — **3 of 9** |
-| **Tests passing** | **886** — 91 TS domain, 293 Python *(3 skipped)*, **502 client** |
-| **API endpoints live** | **80** operations across **58** paths, all with declared response shapes (D17) |
-| **App screens built** | **37** of 103 designed |
+| **Milestones complete** | M0, M1, M5, **M6** — **4 of 9** |
+| **Tests passing** | **997** — 91 TS domain, 361 Python *(3 skipped)*, **545 client** |
+| **API endpoints live** | **89** operations across **67** paths, all with declared response shapes (D17) |
+| **App screens built** | **41** of 103 designed |
+| **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
 | **Version control** | git, 37 commits · `fcbba0b` nutrition core (G7) |
@@ -31,7 +32,7 @@ M2 ████████████ done      training core — AC-01 and AC
 M3 ████████████ done      retrieval
 M4 ████████████ done      training analytics
 M5 ████████████ done      nutrition core
-M6 ░░░░░░░░░░░░           AI nutrition
+M6 ████████████ done      AI nutrition
 M7 ░░░░░░░░░░░░           body & dashboard
 M8 ░░░░░░░░░░░░           hardening
 ```
@@ -48,7 +49,7 @@ M8 ░░░░░░░░░░░░           hardening
 | M3 | Retrieval | AC-03, AC-04, AC-05, AC-12 | ⚪ |
 | M4 | Training analytics | AC-06 | ⚪ |
 | M5 | Nutrition core | AC-07 | 🟢 |
-| M6 | AI nutrition | AC-08, AC-09, AC-10 | ⚪ |
+| M6 | AI nutrition | AC-08, AC-09, AC-10 | 🟢 |
 | M7 | Progress & dashboard | AC-11 | ⚪ |
 | M8 | Hardening | NFR sign-off | ⚪ |
 
@@ -176,13 +177,19 @@ client is what remains.
 - [ ] H-14 nutrition analytics — **not in G7's scope**; needs `daily_summaries` (G9)
 - [ ] H-17 barcode scanner — P2, and blocked on Q1
 
-## M6 · AI nutrition ⚪
-- [ ] `food_analyses` / `food_analysis_items`, append-only
-- [ ] Job queue + worker, independently scalable
-- [ ] AI gateway with strict JSON schema; food resolver ladder
-- [ ] Signed upload URLs; EXIF stripped client and server side
-- [ ] Screens: H-06…H-09, H-18
-- [ ] AC-10 — corrected values confirmed, raw analysis untouched
+## M6 · AI nutrition 🟢
+- [x] `food_analyses` / `food_analysis_items`, append-only — **enforced by two database
+      triggers** (migration `m6`), round-tripped before it shipped
+- [x] Job queue + worker, independently scalable — Postgres `FOR UPDATE SKIP LOCKED`,
+      `uv run python -m app.worker` (D25). Several workers are safe; a dead worker's job
+      is reclaimed after a lock timeout
+- [x] AI gateway with strict JSON schema (D23, D24); food resolution ladder in
+      `app/food/ladder.py` with step 5 = **give up**, because a wrong match is worse
+      than no match
+- [x] Signed upload URLs (D26); **EXIF stripped client and server side**, asserted
+      server-side on bytes that genuinely carried GPS coordinates
+- [x] Screens: H-06…H-09, H-18
+- [x] AC-10 — corrected values confirmed, raw analysis **byte-identical**
 
 ## M7 · Progress & dashboard ⚪
 - [ ] `body_metrics`, `/analytics/body`, `daily_summaries`
@@ -205,8 +212,8 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G8 — AI nutrition** | The meal aggregate exists and an AI item is just an unconfirmed one. AC-10 is the sharpest assertion in the project and it needs the append-only tables first | AC-08, AC-09, AC-10 |
-| 2 | **G9 — body, goals, dashboard** | Also carries the **profile screen G7 discovered is missing** — nothing in the app sets `birth_date`, `sex` or `height_cm`, which H-15's calculator needs | AC-11 |
+| 1 | **G9 — body, goals, dashboard** | The last acceptance criterion. Also carries the **profile screen G7 found missing** — nothing in the app sets `birth_date`, `sex` or `height_cm`, which H-15's calculator needs — and `daily_summaries`, which H-14 has been waiting on | AC-11 |
+| 2 | **G10 — hardening** | Observability, accessibility, the performance budget D16 measured and missed, and account export/delete | NFR sign-off |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
@@ -217,12 +224,13 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 *Cleared 23 Sep: **G5** — history, comparison, cursor pagination. **AC-03 and AC-05**.*
 *Cleared 23 Sep: **G6** — six analytics endpoints and a chart kit. **AC-06**.*
 *Cleared 23 Sep: **G7** — nutrition core: foods, meals, the diary, categories, recipes, copying, targets. **AC-07**. Q1 worked around, not answered.*
+*Cleared 23 Sep: **G8** — AI nutrition: append-only analyses, a Postgres-queued worker, a contained gateway, signed uploads. **AC-08, AC-09, AC-10** — 11 of 12.*
 
 ## Blocked
 
 | Item | Blocked by | Owner |
 |------|-----------|-------|
-| M6 food coverage, H-17 barcode | Q1 nutrition provider undecided — **narrowed 23 Sep**: M5 shipped without it on a 22-food internal catalog behind the resolver | User |
+| Food coverage, H-17 barcode | Q1 nutrition provider undecided — **narrowed twice**: M5 shipped without it on a 22-food internal catalog, and M6's AI path resolves through the same interface. What is still blocked is coverage: an AI estimate can only match what the catalog contains, and everything else stays unresolved with the model's own macros | User |
 | Device verification | No Xcode locally — needs Expo Go on a real phone. The runner is now chosen (**Maestro**, D15) but not installed | User |
 | Age policy on A-07 | Q9 legal position | User |
 
@@ -230,15 +238,15 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **886** — 502 client, 293 API (+3 skipped), 91 domain | grows with each milestone |
+| Tests passing | **997** — 545 client, 361 API (+3 skipped), 91 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **293** | every endpoint, happy + failure |
-| Migration guards | 2 — drift check + destructive round trip | kept green |
-| Migrations | **5** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, **M5 nutrition** (foods, meals, meal items, meal categories, recipes) | kept reversible — M5 round-tripped upgrade → downgrade → re-upgrade before it shipped |
-| Mutation checks | **57** verified catches — **G7 added 38** across four layers: the domain target calculator (5), the API (13: the category check, the 409 on a used category, partial reorder, re-slugging on rename, per-serving vs per-batch, the servings factor, the recipe snapshot, AI provenance on a copy, the empty-day and same-day refusals, clock-time preservation, hidden ≠ deleted, and lazy seeding), the management screens (6) and the logging screens (11). **Two of them survived and exposed weak tests**, which is the check working: a 101-step sweep over a 40:30 base could never catch independent rounding (its fractions always sum to 1), and nothing at all covered the "total 100%" gate. Both tests were strengthened and the mutations then failed | every guard and shared-vector change |
+| API integration tests | **361** | every endpoint, happy + failure |
+| Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
+| Migrations | **6** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, M5 nutrition, **M6 AI analyses** (append-only, with two triggers and the FK M5 deferred) | kept reversible — M5 and M6 each round-tripped upgrade → downgrade → re-upgrade before they shipped |
+| Mutation checks | **79** verified catches — **G8 added 22**: the correction detector in both directions, the schema-version gate, the low-confidence threshold, the missing error code, confirm idempotency, the quota, server-side EXIF stripping, signature verification and expiry, the resolver bypass, a worker that writes meal items itself, the append-only trigger, **each of the eight immutability clauses one at a time**, the three code-level guards, and five on the review screen. G7's 38 and the earlier 19 stand behind them. **One mutation survived and exposed a real hole**: the immutability test named a single column, and a "freeze it once it is set" rule would have let commentary be invented for an analysis that had none. The rule and the test were both changed | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | **enforced**, and **ratcheted in G7** to **59/54/55/60** (from G6's 54/50/50/55). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **63.91%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **59.96%** statements / **60.93%** lines. G7's jump is the largest since G1 and it is mostly **old** code: `app/nutrition/index.tsx`, AC-07's own surface, was at **0%**, and `src/lib/api-nutrition.ts` at **3.5%** because every screen test mocks the API module and nothing exercised the URLs | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **8 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), AC-03, AC-05, **AC-06** and **AC-07** (23 Sep) and AC-12. **AC-07 is proven by API and client tests, not on hardware** — `scripts/e2e.sh` has no nutrition flow | 12 of 12 |
+| Coverage gate | **enforced**, and **ratcheted in G8** to **62/56/57/63** (from G7's 59/54/55/60). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **66.03%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **62.15%** statements / **63.35%** lines | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
+| Acceptance criteria passing | **11 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), AC-03, AC-05, AC-06, AC-07, **AC-08, AC-09, AC-10** (23 Sep) and AC-12. **AC-07 to AC-10 are proven by API and client tests, not on hardware** — `scripts/e2e.sh` still covers AC-01/02/04/05 only. AC-11 is G9 | 12 of 12 |
 | tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
 
 ## Changelog
@@ -271,6 +279,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 23 Sep | **G8 — AI nutrition.** `food_analyses` / `food_analysis_items` **append-only at the database level**, a Postgres `SKIP LOCKED` queue with the worker in its own process, an `AIGateway` Protocol (stub by default, Anthropic behind a key), signed uploads with EXIF stripped twice, and screens **H-06…H-09, H-18**. **AC-08, AC-09 and AC-10 proven — 11 of 12**. API tests 293 → 361, client 502 → 545. Migration `m6` |
 | 23 Sep | **G7 — nutrition core.** `foods`, `meals`, `meal_items`, `meal_categories`, `recipes`, migration `2fb1377688cf`. Endpoints `/foods`, `/meals`, `/meal-items`, `/recipes`, `/meal-categories`, `/nutrition/day` and the two copy routes. Screens **H-01…H-05, H-10…H-13, H-15, H-16**. **AC-07 proven — 8 of 12**. API tests 241 → 293, client 414 → 502, domain 59 → 91. Q1 **not** answered; the resolver made it optional |
 | 23 Sep | **G6 — analytics.** Six `/analytics/*` endpoints, a chart kit (**H6.1**) and screens **G-01…G-07**. **AC-06 proven** — **7 of 12**. API tests 209 → 241, client 370 → 414 |
 | 23 Sep | **AC-06 is an agreement, and it has a test that breaks when the agreement does.** One session read on the finish summary, in session detail and in analytics, asserted identical. Mutation-checked by summing volume in the route instead of deferring to `app.domain.training`: AC-06 fails, which is exactly what it is for |
@@ -484,6 +493,91 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G8 · AI nutrition                                closed 23 Sep
+
+**Outcome claimed.** AI estimates food and never becomes the record; a correction is what counts,
+and the raw result survives byte for byte.
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H7.1 | ✅ | The AI path resolves **through** the resolver, not around it. What it needed on top was a ladder — a model says "2 eggs" and the catalog says "Whole Egg" — so `app/food/ladder.py` sits above the interface and below the worker, climbing down in decreasing confidence and **giving up** at step 5. The interface itself did not change, which is what H7.1 claimed |
+| H7.2 | ✅ | A confirmed AI item lands in exactly the same shape as a manual one: snapshotted macros on `meal_items`, `confirmed = true`, counted by the same `day_totals`. Nothing in G8 added a second place where `confirmed` is filtered |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H8.1 | Append-only analysis tables | A correction never mutates the raw AI result | `test_ac10_a_correction_confirms_the_meal_and_leaves_the_analysis_untouched` — a SHA-256 over **every column** of every item row, built from the table's own column list, compared before and after. Plus `test_the_database_itself_refuses_an_update_to_an_analysis_item` / `..._a_delete_...`, and `test_the_request_and_the_model_output_cannot_be_rewritten` parametrised over all seven immutable columns |
+| H8.2 | AI gateway | Strict JSON schema, timeout, containment — training never depends on it | `test_i14_the_whole_logger_still_works_with_the_gateway_dead`, and `scripts/verify-containment.sh` with two real processes and a provider on a closed port |
+
+**Verified.**
+
+- **AC-08** — `test_ac08_three_foods_become_three_separately_editable_items`: *"2 eggs, 3 rotis and
+  200g chicken curry"* yields three rows with three ids, each with a quantity and a unit.
+- **AC-09** — `test_ac09_a_photo_yields_items_with_quantity_macros_and_confidence`, and on the
+  client `sends only the fields the user actually typed` proves every field is editable and that
+  untouched ones are sent as `null`.
+- **AC-10** — byte-identity, not field equality. The fingerprint reads
+  `FoodAnalysisItem.__table__.columns`, so a column added next year is covered without anyone
+  remembering to add it.
+- **Containment** — `scripts/verify-containment.sh` starts `uvicorn` and `python -m app.worker`
+  with `AI_BASE_URL=http://127.0.0.1:1/v1/messages`. The analysis failed `ai_unavailable`, the
+  worker stayed up, and then: a session started, a set logged, the session finished at 480.0 kg,
+  history read, analytics read, a food created and a meal logged at 380.0 kcal. **Nothing else
+  noticed.**
+
+Acceptance criteria now proven: AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, **AC-08, AC-09,
+AC-10**, AC-12 — **11 of 12**. AC-11 is G9's.
+
+**Decisions recorded.** **D23** the provider is Anthropic Claude behind an `AIGateway` Protocol,
+with a **stub as the default** so the suite never makes a network call and a checkout needs no key ·
+**D24** the model contract is versioned (`food_analysis.v1`), stored per row, and an unknown
+version is a failure rather than a guess · **D25** the queue is Postgres `SKIP LOCKED` and the
+worker is a separate process · **D26** object storage is an interface with a local implementation,
+because the charter says no cloud.
+
+**Left undone, and why.**
+
+- **No hardware flow for AC-08/09/10.** `scripts/e2e.sh` still covers AC-01/02/04/05 only. With no
+  device attached, an unrun Maestro flow would be worse than none — G4's own lesson.
+- **H-09 uses the system camera, not an in-app one.** The wireframe draws a preview with a torch
+  and a flip button; this uses `expo-image-picker`, which delivers capture, library, downscale,
+  strip and upload without a second native module and a permissions flow that cannot be exercised
+  on the hardware currently available. It is a later change to one file.
+- **One photo per analysis.** H-09 accepts up to four and submits the first. A meal photographed
+  from two angles is two estimates the user reconciles, which is honest; pretending one call saw
+  both plates would not be. Batching is a server change, not a screen change.
+- **No dictation on H-06.** The platform speech API is another dependency for an affordance the
+  keyboard already covers.
+- **Notifications on completion are not built.** H-07 is dismissible and the analysis is waiting
+  when the user returns, but nothing pushes. That belongs with the rest of the notification work.
+- **Q1 is still open**, and now matters more: an AI estimate can only resolve to what the catalog
+  contains. Everything else stays unresolved with the model's own macros, which works — and is
+  exactly the gap a provider would close.
+
+**Traps hit.**
+
+- **A lifecycle in an append-only table.** `food_analyses` is a *job* as well as a record, so a
+  blanket freeze would have stopped the worker recording that it had finished. The line is drawn
+  inside the row: the request is immutable always, the model's output once the analysis has ended.
+- **"Freeze it once it is set" left a hole**, and a mutation found it: an analysis that legitimately
+  had no `notes` could have commentary written into it afterwards, and the audit trail would show
+  the model saying something it never said. The rule became "immutable once terminal".
+- **A single-column immutability test.** It passed while seven other guards could have been removed.
+  Parametrised over all of them.
+- **`run_once` claims the globally oldest job**, which is right for a fleet of workers and wrong for
+  a test that means "my job has been processed". Eighteen tests were passing or failing on whichever
+  row happened to be first. `drain()` now exists for both.
+- **A lambda that recursed into its own monkeypatch.** `setattr(signing, "_now", lambda: signing._now() + N)`
+  calls the patched function. The original has to be captured first.
+- **The ladder's shortest rung matched everything.** `"Nani's Sunday curry"` leaves a stray `"s"`
+  once punctuation is dropped, and `ILIKE '%s%'` matches most of a food catalog. Rungs are now at
+  least three characters.
 
 ---
 

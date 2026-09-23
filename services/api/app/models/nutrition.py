@@ -226,9 +226,13 @@ class MealItem(Base, TimestampMixin):
         Enum(ItemSource, name="item_source"), default=ItemSource.manual, nullable=False
     )
 
-    # Provenance back to the raw AI row. No FK yet: `food_analysis_items` is
-    # G8's table, and a FK to a table that does not exist is not a migration.
-    analysis_item_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
+    # Provenance back to the raw AI row. G7 left this as a bare UUID because
+    # `food_analysis_items` did not exist yet; G8 built it and added the FK.
+    # RESTRICT, not CASCADE: the analysis row is append-only and must never be
+    # deleted, so a meal item can safely point at it forever.
+    analysis_item_id: Mapped[uuid.UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("food_analysis_items.id", ondelete="RESTRICT")
+    )
 
     client_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True))
 

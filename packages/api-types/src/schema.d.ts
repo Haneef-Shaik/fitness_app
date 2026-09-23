@@ -1266,6 +1266,191 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/food-analysis/quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Quota
+         * @description H-06 and H-09 read this **before** offering the button, never after.
+         */
+        get: operations["read_quota_v1_food_analysis_quota_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/food-analysis/text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Analyse Text
+         * @description **AC-08.** Returns 202 and an id; the worker does the rest.
+         */
+        post: operations["analyse_text_v1_food_analysis_text_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/food-analysis/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Analyse Image
+         * @description **AC-09.** The key must be one this user uploaded and that exists.
+         */
+        post: operations["analyse_image_v1_food_analysis_image_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/food-analysis/{analysis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Analysis */
+        get: operations["get_analysis_v1_food_analysis__analysis_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/food-analyses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Analyses
+         * @description H-18 — the audit trail (BRD §18).
+         */
+        get: operations["list_analyses_v1_food_analyses_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/food-analyses/images": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete All Images
+         * @description H-18's "delete all photos".
+         *
+         *     The photographs go; the **records stay**. What was analysed and what was
+         *     saved is the audit trail, and deleting it would remove a user's own evidence
+         *     of what the model claimed.
+         */
+        delete: operations["delete_all_images_v1_food_analyses_images_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/food-analysis/{analysis_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Analysis
+         * @description **AC-10.** Writes the meal; leaves the analysis byte-identical.
+         *
+         *     Idempotent on the **analysis**, not on a client key: a double tap and a
+         *     second device confirming the same review are the same event, and neither
+         *     should produce two lunches.
+         */
+        post: operations["confirm_analysis_v1_food_analysis__analysis_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/uploads/sign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign Upload
+         * @description Issues a short-lived URL for one object.
+         *
+         *     The size limit is enforced **here**, before a URL exists, so nobody
+         *     discovers it after transferring ten megabytes on a phone connection.
+         */
+        post: operations["sign_upload_v1_uploads_sign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/uploads/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put Upload */
+        put: operations["put_upload_v1_uploads__key__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1301,6 +1486,87 @@ export interface components {
             planned: number;
             /** Completed Planned */
             completed_planned: number;
+        };
+        /**
+         * AnalysisItemOut
+         * @description One food the model reported. **Every number here is a proposal.**
+         *
+         *     Nothing in this object has moved a total. It moves one only after the user
+         *     confirms it in H-08, and then it moves `meal_items`, never this row.
+         */
+        AnalysisItemOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Detected Name */
+            detected_name: string;
+            /** Estimated Quantity */
+            estimated_quantity?: number | null;
+            /** Estimated Unit */
+            estimated_unit: string;
+            /** Confidence */
+            confidence?: number | null;
+            /** Proposed Calories */
+            proposed_calories?: number | null;
+            /** Proposed Protein G */
+            proposed_protein_g?: number | null;
+            /** Proposed Carbs G */
+            proposed_carbs_g?: number | null;
+            /** Proposed Fat G */
+            proposed_fat_g?: number | null;
+            /** Resolved Food Id */
+            resolved_food_id?: string | null;
+            /** Resolved Food Name */
+            resolved_food_name?: string | null;
+            /**
+             * Low Confidence
+             * @default false
+             */
+            low_confidence: boolean;
+        };
+        /** AnalysisOut */
+        AnalysisOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Input Type
+             * @enum {string}
+             */
+            input_type: "text" | "image";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "processing" | "completed" | "failed";
+            /** Source Text */
+            source_text?: string | null;
+            /** Image Key */
+            image_key?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Model Name */
+            model_name?: string | null;
+            /** Schema Version */
+            schema_version?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Confirmed Meal Id */
+            confirmed_meal_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["AnalysisItemOut"][];
         };
         /**
          * AuthOut
@@ -1418,6 +1684,51 @@ export interface components {
             set_count: number;
             /** Duration Seconds */
             duration_seconds?: number | null;
+        };
+        /** ConfirmIn */
+        ConfirmIn: {
+            /** Meal Type */
+            meal_type: string;
+            /** Consumed At */
+            consumed_at?: string | null;
+            /** Items */
+            items?: components["schemas"]["ConfirmItemIn"][];
+            /** Client Id */
+            client_id?: string | null;
+        };
+        /**
+         * ConfirmItemIn
+         * @description One reviewed item.
+         *
+         *     Anything left unset is accepted as proposed. Setting a field is what makes
+         *     it a **correction**, and the route decides `user_corrected` from exactly
+         *     that — not from whether the user opened the screen.
+         */
+        ConfirmItemIn: {
+            /**
+             * Analysis Item Id
+             * Format: uuid
+             */
+            analysis_item_id: string;
+            /**
+             * Include
+             * @default true
+             */
+            include: boolean;
+            /** Display Name */
+            display_name?: string | null;
+            /** Food Id */
+            food_id?: string | null;
+            /** Quantity Grams */
+            quantity_grams?: number | null;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
         };
         /** CursorEnvelope[list[FoodOut]] */
         CursorEnvelope_list_FoodOut__: {
@@ -1550,6 +1861,13 @@ export interface components {
             data?: components["schemas"]["AdherenceOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[AnalysisOut] */
+        Envelope_AnalysisOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["AnalysisOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[AuthOut] */
         Envelope_AuthOut_: {
             /** Success */
@@ -1669,6 +1987,13 @@ export interface components {
             data?: components["schemas"]["ProgramOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[QuotaOut] */
+        Envelope_QuotaOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["QuotaOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[RecipeOut] */
         Envelope_RecipeOut_: {
             /** Success */
@@ -1718,11 +2043,28 @@ export interface components {
             data?: components["schemas"]["PreviousOccurrenceOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[UploadSignOut] */
+        Envelope_UploadSignOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["UploadSignOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[WorkoutAnalyticsOut] */
         Envelope_WorkoutAnalyticsOut_: {
             /** Success */
             success: boolean;
             data?: components["schemas"]["WorkoutAnalyticsOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[dict] */
+        Envelope_dict_: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            } | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[dict[str, RecordEntryOut]] */
@@ -1733,6 +2075,14 @@ export interface components {
             data?: {
                 [key: string]: components["schemas"]["RecordEntryOut"];
             } | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[AnalysisOut]] */
+        Envelope_list_AnalysisOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["AnalysisOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[list[MealCategoryOut]] */
@@ -2234,6 +2584,13 @@ export interface components {
              * @default []
              */
             exercise_names: string[];
+        };
+        /** ImageAnalysisIn */
+        ImageAnalysisIn: {
+            /** Image Key */
+            image_key: string;
+            /** Client Id */
+            client_id?: string | null;
         };
         /** LoginIn */
         LoginIn: {
@@ -2949,6 +3306,23 @@ export interface components {
              */
             volume_kg: number;
         };
+        /**
+         * QuotaOut
+         * @description Stated BEFORE a photo is taken (02 §5.4), never after.
+         */
+        QuotaOut: {
+            /** Used */
+            used: number;
+            /** Limit */
+            limit: number;
+            /** Remaining */
+            remaining: number;
+            /**
+             * Resets At
+             * Format: date-time
+             */
+            resets_at: string;
+        };
         /** RecipeIn */
         RecipeIn: {
             /** Name */
@@ -3351,6 +3725,13 @@ export interface components {
             /** Signed Out */
             signed_out: boolean;
         };
+        /** TextAnalysisIn */
+        TextAnalysisIn: {
+            /** Text */
+            text: string;
+            /** Client Id */
+            client_id?: string | null;
+        };
         /** TokenPair */
         TokenPair: {
             /** Access Token */
@@ -3364,6 +3745,30 @@ export interface components {
             token_type: string;
             /** Expires In */
             expires_in: number;
+        };
+        /** UploadSignIn */
+        UploadSignIn: {
+            /**
+             * Content Type
+             * @enum {string}
+             */
+            content_type: "image/jpeg" | "image/png";
+            /** Byte Size */
+            byte_size: number;
+        };
+        /** UploadSignOut */
+        UploadSignOut: {
+            /** Key */
+            key: string;
+            /** Upload Url */
+            upload_url: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Max Bytes */
+            max_bytes: number;
         };
         /** UserRefOut */
         UserRefOut: {
@@ -6002,6 +6407,268 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_MealOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_quota_v1_food_analysis_quota_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_QuotaOut_"];
+                };
+            };
+        };
+    };
+    analyse_text_v1_food_analysis_text_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TextAnalysisIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_AnalysisOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analyse_image_v1_food_analysis_image_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImageAnalysisIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_AnalysisOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_analysis_v1_food_analysis__analysis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_AnalysisOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_analyses_v1_food_analyses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_AnalysisOut__"];
+                };
+            };
+        };
+    };
+    delete_all_images_v1_food_analyses_images_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+        };
+    };
+    confirm_analysis_v1_food_analysis__analysis_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                analysis_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MealOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sign_upload_v1_uploads_sign_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadSignIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_UploadSignOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_upload_v1_uploads__key__put: {
+        parameters: {
+            query: {
+                size: number;
+                exp: number;
+                sig: string;
+            };
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
                 };
             };
             /** @description Validation Error */

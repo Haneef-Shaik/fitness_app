@@ -106,3 +106,99 @@ async def auth_client(client: AsyncClient) -> AsyncClient:
     assert r.status_code == 201, r.text
     client.headers["authorization"] = f"Bearer {r.json()['data']['access_token']}"
     return client
+
+
+# ------------------------------------------------------------ AI (G8)
+#
+# Nothing in the suite reaches a model. The gateway is the stub, and every test
+# that needs a particular outcome sets it on the stub rather than mocking a
+# transport — so the parser, the worker, the resolver and the persistence path
+# are all genuinely exercised.
+
+
+@pytest_asyncio.fixture
+async def gateway():
+    """The one gateway instance the worker and the API share for a test."""
+    from app.ai.stub import StubGateway
+
+    stub = StubGateway()
+    yield stub
+    stub.reset()
+
+
+@pytest_asyncio.fixture
+async def storage(tmp_path, monkeypatch):
+    """A local object store under pytest's own tmp_path.
+
+    `get_store` is lru_cached, so the cache is cleared around the test rather
+    than left holding a directory that no longer exists.
+    """
+    from app.storage import provider
+    from app.storage.local import LocalObjectStore
+
+    store = LocalObjectStore(tmp_path / "uploads")
+    # Hold the real function so the cache can be cleared afterwards —
+    # `monkeypatch.setattr` replaces the attribute, lru_cache and all.
+    original = provider.get_store
+    original.cache_clear()
+    monkeypatch.setattr(provider, "get_store", lambda: store)
+
+    # The routes import `get_store` by name, so patch it where it is looked up.
+    import app.api.routes.food_analysis as analysis_routes
+    import app.api.routes.uploads as upload_routes
+
+    monkeypatch.setattr(analysis_routes, "get_store", lambda: store)
+    monkeypatch.setattr(upload_routes, "get_store", lambda: store)
+
+    yield store
+    original.cache_clear()
+
+
+@pytest_asyncio.fixture
+async def worker(engine, gateway, storage):
+    """A worker driven one job at a time.
+
+    Deliberately NOT a background process in the suite: `await worker.run_once()`
+    makes "the job has been processed" an explicit line in the test rather than
+    a sleep that is flaky on a loaded machine. The class under test is the same
+    one `python -m app.worker` runs.
+    """
+    from app.worker.runner import AnalysisWorker
+
+    maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    return AnalysisWorker(maker, gateway=gateway, store=storage)
+
+
+@pytest_asyncio.fixture
+async def quota(monkeypatch):
+    """Lets a test lower the daily cap without a 25-request warm-up."""
+    from app.config import get_settings as _get_settings
+
+    settings_obj = _get_settings()
+    original = settings_obj.ai_daily_quota
+
+    class _Quota:
+        @property
+        def limit(self) -> int:
+            return settings_obj.ai_daily_quota
+
+        @limit.setter
+        def limit(self, value: int) -> None:
+            object.__setattr__(settings_obj, "ai_daily_quota", value)
+
+    yield _Quota()
+    object.__setattr__(settings_obj, "ai_daily_quota", original)
+
+
+@pytest_asyncio.fixture
+async def uploaded_image(auth_client, storage) -> str:
+    """A signed upload, actually performed, so the key really exists."""
+    signed = (await auth_client.post("/v1/uploads/sign", json={
+        "content_type": "image/jpeg", "byte_size": 4096,
+    })).json()["data"]
+
+    jpeg = b"\xff\xd8" + b"\xff\xdb\x00\x43" + bytes(65) + b"\xff\xd9"
+    put = await auth_client.put(signed["upload_url"], content=jpeg,
+                                headers={"content-type": "image/jpeg"})
+    assert put.status_code == 200, put.text
+    return signed["key"]

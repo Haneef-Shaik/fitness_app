@@ -118,6 +118,13 @@ export default function Diary() {
                 testID="go-categories"
                 onPress={() => router.push('/nutrition/categories')}
               />
+              <Button
+                title="Food analyses"
+                kind="ghost"
+                size="sm"
+                testID="go-analyses"
+                onPress={() => router.push('/nutrition/analyses')}
+              />
               {data.meals.length > 0 ? (
                 <Button
                   title="Copy this day"

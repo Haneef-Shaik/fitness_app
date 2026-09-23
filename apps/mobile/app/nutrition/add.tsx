@@ -93,9 +93,24 @@ export default function AddFood() {
           )}
         </DataBoundary>
 
-        <Text variant="caption" tone="ink3">
-          Describing a meal and photographing one arrive with the AI work.
-        </Text>
+        <View style={{ flexDirection: 'row', gap: space.sm }}>
+          <Button
+            title="Describe it"
+            kind="ghost"
+            size="sm"
+            style={{ flex: 1 }}
+            testID="go-describe"
+            onPress={() => router.push('/nutrition/describe')}
+          />
+          <Button
+            title="Photograph it"
+            kind="ghost"
+            size="sm"
+            style={{ flex: 1 }}
+            testID="go-photo"
+            onPress={() => router.push('/nutrition/photo')}
+          />
+        </View>
       </View>
     </ScreenScaffold>
   );

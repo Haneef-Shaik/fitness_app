@@ -37,3 +37,32 @@ pnpm --filter @volt/domain test
 
 cd services/api && uv sync && uv run pytest
 ```
+
+## Run
+
+Two processes, and the separation is deliberate (D25):
+
+```bash
+cd services/api
+uv run uvicorn app.main:app --reload     # the API
+uv run python -m app.worker              # the food-analysis worker
+```
+
+The worker calls the AI provider; the API never does. A model call takes seconds and sometimes
+takes the timeout, so doing it in a request handler would mean one slow plate photograph occupying
+a worker a set-commit needs — and **I14**, *no AI failure touches training*, would stop being true
+the first time the provider was slow.
+
+**No key is needed.** `AI_PROVIDER` defaults to `stub`: a deterministic offline gateway that the
+whole test suite runs against. Set `AI_PROVIDER=anthropic` and `AI_API_KEY` to use a real model.
+See [`services/api/.env.example`](services/api/.env.example) — and never commit a key.
+
+To check that the containment actually holds, rather than trusting that it does:
+
+```bash
+./scripts/verify-containment.sh
+```
+
+It starts both processes with the AI endpoint pointed at a closed port, then logs a whole workout
+over HTTP and reads history, analytics and the nutrition diary. Everything works; the analysis
+fails with `ai_unavailable` and nothing else notices.

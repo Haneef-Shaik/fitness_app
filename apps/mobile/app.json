@@ -7,14 +7,38 @@
     "scheme": "volt",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": { "backgroundColor": "#0E0F11", "resizeMode": "contain" },
-    "ios": { "supportsTablet": true, "bundleIdentifier": "com.volt.app" },
+    "splash": {
+      "backgroundColor": "#0E0F11",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.volt.app"
+    },
     "android": {
       "package": "com.volt.app",
-      "adaptiveIcon": { "backgroundColor": "#0E0F11" }
+      "adaptiveIcon": {
+        "backgroundColor": "#0E0F11"
+      }
     },
-    "web": { "bundler": "metro", "output": "single" },
-    "plugins": ["expo-router", "expo-secure-store", "expo-font"],
-    "experiments": { "typedRoutes": true }
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Volt uses your photos to estimate what is in a meal you have already eaten.",
+          "cameraPermission": "Volt uses the camera to photograph a meal so it can estimate the nutrition."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

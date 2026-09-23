@@ -20,6 +20,9 @@ coverage/
 .env.*
 !.env.example
 
+# uploaded images — user data, never in the repo
+services/api/var/
+
 # editors / OS
 .DS_Store
 .idea/

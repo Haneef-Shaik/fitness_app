@@ -22,7 +22,7 @@
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 37 commits · `fcbba0b` nutrition core (G7) |
+| **Version control** | git, 39 commits · `5346e8f` AI nutrition (G8) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -496,7 +496,7 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
 
 ---
 
-### Handoff — G8 · AI nutrition                                closed 23 Sep
+### Handoff — G8 · AI nutrition                    closed 23 Sep · `5346e8f`
 
 **Outcome claimed.** AI estimates food and never becomes the record; a correction is what counts,
 and the raw result survives byte for byte.

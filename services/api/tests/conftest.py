@@ -143,12 +143,20 @@ async def storage(tmp_path, monkeypatch):
     original.cache_clear()
     monkeypatch.setattr(provider, "get_store", lambda: store)
 
-    # The routes import `get_store` by name, so patch it where it is looked up.
-    import app.api.routes.food_analysis as analysis_routes
-    import app.api.routes.uploads as upload_routes
+    # Route modules import `get_store` BY NAME, so patching the provider alone
+    # leaves each module holding the real one. Every importer is patched here,
+    # and the loop means adding a route that stores a file cannot silently miss
+    # the fixture — which is exactly how G9's photo tests first failed.
+    import importlib
 
-    monkeypatch.setattr(analysis_routes, "get_store", lambda: store)
-    monkeypatch.setattr(upload_routes, "get_store", lambda: store)
+    for module_name in (
+        "app.api.routes.food_analysis",
+        "app.api.routes.uploads",
+        "app.api.routes.body",
+    ):
+        module = importlib.import_module(module_name)
+        assert hasattr(module, "get_store"), f"{module_name} no longer imports get_store"
+        monkeypatch.setattr(module, "get_store", lambda: store)
 
     yield store
     original.cache_clear()

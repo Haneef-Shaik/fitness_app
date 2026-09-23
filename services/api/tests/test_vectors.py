@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 from app.domain.adherence import adherence, planned_occurrences
+from app.domain.body import goal_progress, training_streak
 from app.domain.dates import to_local_date
 from app.domain.nutrition import MealItem, Per100g, day_totals, scale_to_grams
 from app.domain.training import (
@@ -149,3 +150,24 @@ def test_nutrition_scaling(case):
             assert actual is None, f"{field}: unknown must stay unknown"
         else:
             assert actual == pytest.approx(expected, abs=TOL)
+
+
+@pytest.mark.parametrize("case", VECTORS["goal_progress"], ids=lambda c: c["note"][:48])
+def test_goal_progress(case):
+    got = goal_progress(
+        start=case["start"], target=case["target"],
+        current=case["current"], direction=case["direction"],
+    )
+    # None is not 0 here, and the assertion has to be able to tell them apart.
+    if case["expected"] is None:
+        assert got is None
+    else:
+        assert got == pytest.approx(case["expected"], abs=TOL)
+
+
+@pytest.mark.parametrize("case", VECTORS["training_streak"], ids=lambda c: c["note"][:48])
+def test_training_streak(case):
+    assert training_streak(
+        date.fromisoformat(case["today"]),
+        [date.fromisoformat(d) for d in case["days"]],
+    ) == case["expected"]

@@ -56,7 +56,7 @@ module.exports = {
   // The house floor is 80% (charter §5). The client started this goal at 0%, so
   // these are a RATCHET, not the target.
   //
-  // Whole project today: 66.0% statements, 67.6% lines, across 545 tests.
+  // Whole project today: 68.4% statements, 69.6% lines, across 621 tests.
   //
   // The figures DROPPED at G4 and that is the gate working, not failing: `app/`
   // was added to the measurement, so the route files stopped being invisible.
@@ -77,7 +77,7 @@ module.exports = {
     // coverage, never to make a red build green.
     //
     // NOT the figure the coverage table prints. Naming a path below REMOVES it
-    // from `global`, so the printed 66.03% includes src/lib/query and
+    // from `global`, so the printed 68.4% includes src/lib/query and
     // DataBoundary while this bucket is everything else.
     //
     // Measured remainder, goal by goal:
@@ -86,12 +86,13 @@ module.exports = {
     //   G6  54.97 / 50.03 / 50.84 / 55.40
     //   G7  59.96 / 54.47 / 55.76 / 60.93
     //   G8  62.15 / 56.34 / 57.55 / 63.35
+    //   G9  65.25 / 60.06 / 60.50 / 66.59
     // Each goal added screens AND their tests, so the floor rises with the
     // ceiling rather than being held down to accommodate untested code. G6's
     // branch figure barely moved because charts are branch-heavy by nature —
     // the thresholds stay where the measurement is, not where it would be
     // flattering.
-    global: { statements: 62, branches: 56, functions: 57, lines: 63 },
+    global: { statements: 65, branches: 60, functions: 60, lines: 66 },
     './src/lib/query/': { statements: 90, branches: 80, functions: 90, lines: 90 },
     './src/ui/DataBoundary.tsx': { statements: 95, branches: 90, functions: 95, lines: 95 },
   },

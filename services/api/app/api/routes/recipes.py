@@ -33,6 +33,7 @@ from app.schemas.recipe import (
     RecipeOut,
     RecipePatch,
 )
+from app.services import summaries
 
 router = APIRouter(tags=["nutrition"])
 
@@ -277,6 +278,7 @@ async def log_recipe(
             **macros,
         ))
 
+    await summaries.invalidate(db, user.id, meal.local_date)
     await db.flush()
     fresh = await db.scalar(
         select(Meal).where(Meal.id == meal.id).options(selectinload(Meal.items))

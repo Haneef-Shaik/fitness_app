@@ -29,7 +29,10 @@ export type MutationKind =
   | 'recipe.changed'
   | 'analysis.submitted'
   | 'analysis.confirmed'
-  | 'analysis.imagesDeleted';
+  | 'analysis.imagesDeleted'
+  | 'bodyMetric.changed'
+  | 'progressPhoto.changed'
+  | 'timezone.changed';
 
 export interface InvalidationContext {
   sessionId?: string;
@@ -70,12 +73,19 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
     clearAll: true,
   },
   'profile.updated': {
+    // The dashboard carries the macro targets, so changing one has to reach
+    // B-01 as well as the profile itself.
     doc: '`PATCH /profile`',
-    keys: () => [qk.profile()],
+    keys: () => [qk.profile(), qkPrefix.dashboard()],
   },
   'goal.changed': {
     doc: 'Create / edit a goal',
-    keys: ({ goalId }) => (goalId ? [qkPrefix.goals(), qk.goal(goalId)] : [qkPrefix.goals()]),
+    keys: ({ goalId }) => [
+      qkPrefix.goals(),
+      ...(goalId ? [qk.goal(goalId)] : []),
+      // B-01 shows the active goals, so the card moves with the list.
+      qkPrefix.dashboard(),
+    ],
   },
   'exercise.changed': {
     doc: 'Create / edit / archive an **exercise**',
@@ -95,7 +105,8 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
   },
   'session.started': {
     doc: 'Start a session',
-    keys: () => [qk.activeSession(), qk.sessions()],
+    // B-01 surfaces the active session so "resume" is reachable.
+    keys: () => [qk.activeSession(), qk.sessions(), qkPrefix.dashboard()],
   },
   'set.changed': {
     // I10: optimistic, no refetch. The local draft is authoritative in-session.
@@ -129,6 +140,8 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       // Every analytics read is derived from completed sessions, so one
       // prefix covers volume, muscle balance, PRs, frequency and adherence.
       qkPrefix.analytics(),
+      // And B-01's training card, which is the same fact one screen over.
+      qkPrefix.dashboard(),
     ],
   },
   'session.lifecycleChanged': {
@@ -145,6 +158,7 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       // Every analytics read is derived from completed sessions, so one
       // prefix covers volume, muscle balance, PRs, frequency and adherence.
       qkPrefix.analytics(),
+      qkPrefix.dashboard(),
     ],
   },
   'meal.changed': {
@@ -152,7 +166,7 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
     // are NOT invalidated: logging a meal does not change any food, and the
     // snapshot means it never will.
     doc: 'Log / edit / delete a **meal** or item',
-    keys: () => [qkPrefix.nutrition()],
+    keys: () => [qkPrefix.nutrition(), qkPrefix.dashboard()],
   },
   'food.changed': {
     // Correcting a food changes the picker and NOTHING already logged —
@@ -189,6 +203,7 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
     doc: 'Confirm a **food analysis** into a meal',
     keys: ({ analysisId }) => [
       qkPrefix.nutrition(),
+      qkPrefix.dashboard(),
       qkPrefix.analyses(),
       ...(analysisId ? [qk.analysis(analysisId)] : []),
     ],
@@ -196,6 +211,24 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
   'analysis.imagesDeleted': {
     doc: 'Delete the stored **analysis photos**',
     keys: () => [qkPrefix.analyses()],
+  },
+  'bodyMetric.changed': {
+    // The dashboard carries the body card, so a weigh-in reaches both. It does
+    // NOT reach `nutrition` or `analytics`: stepping on a scale changes neither.
+    doc: 'Log / delete a **body measurement**',
+    keys: () => [qkPrefix.body(), qkPrefix.dashboard(), qkPrefix.goals()],
+  },
+  'progressPhoto.changed': {
+    doc: 'Add / delete a **progress photo**',
+    keys: () => [qk.progressPhotos()],
+  },
+  'timezone.changed': {
+    // A timezone change moves a BOUNDARY: the server re-files every session,
+    // meal and weigh-in onto the day it now falls on (T4). Every cached read
+    // that is keyed by a day is therefore wrong, which is all of them.
+    doc: 'Change the profile **timezone**',
+    keys: () => [],
+    clearAll: true,
   },
   'outbox.flushed': {
     doc: 'Outbox flush (`/sets/batch`)',

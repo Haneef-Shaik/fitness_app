@@ -56,6 +56,7 @@ from app.schemas.sessions import (
     SetIn,
     SetOut,
 )
+from app.services import summaries
 from app.services.sessions import (
     annotate_set,
     densify_set_indices,
@@ -470,6 +471,9 @@ async def finish(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
         raise Conflict("That workout was discarded.")
 
     summary = await finish_session(db, s)
+    # The day this session belongs to has changed. Forget the cached summary;
+    # the next dashboard read rebuilds it from base tables.
+    await summaries.invalidate(db, user.id, s.local_date)
     payload = await _serialise(db, await load_session(db, s.id))
 
     names = dict((await db.execute(
@@ -496,6 +500,8 @@ async def cancel(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
         raise Conflict("That workout is already finished.")
     s.status = SessionStatus.cancelled
     s.completed_at = datetime.now(UTC)
+    # A cancelled session LEAVES the day's totals, so the day changed here too.
+    await summaries.invalidate(db, user.id, s.local_date)
     await db.flush()
     return ok(await _serialise(db, await load_session(db, s.id)))
 
@@ -520,6 +526,8 @@ async def reopen(session_id: uuid.UUID, user: CurrentUser, db: DbSession):
         )
     s.status = SessionStatus.in_progress
     s.completed_at = None
+    # And a reopened one stops being completed, which also moves the day.
+    await summaries.invalidate(db, user.id, s.local_date)
     await db.flush()
     return ok(await _serialise(db, await load_session(db, s.id)))
 

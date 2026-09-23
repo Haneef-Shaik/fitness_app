@@ -227,6 +227,36 @@ Read-only over the other modules' tables plus `daily_summaries`.
 `daily_summaries` is a **cache, never a source of truth** — every figure must be reproducible from
 base tables, and any inconsistency resolves in favour of base tables.
 
+**How the cache stays honest — decided in G9.** `daily_summaries` is **invalidated on write and
+recomputed on read**, never updated in place. Updating a summary row would mean two pieces of code
+computing the same number — the one that wrote the meal and the one that computes a day — and only
+one of them being right. Deleting the row says "this is unknown again" and lets the single compute
+path in `app/services/summaries.py` answer.
+
+Every write path that can change a day calls `summaries.invalidate(user_id, local_date)`. A missed
+call is a stale dashboard, so the guard is a **cross-check rather than a review habit**: the
+dashboard's nutrition figures are asserted equal to `/nutrition/day`, which always computes fresh.
+A forgotten invalidation fails that comparison loudly.
+
+The row carries no `updated_at`, because it is never edited — only deleted and rebuilt.
+
+### 4.5 Body and the local date
+
+`body_metrics` has **no unique constraint per day**, and that is deliberate. **Q5 — the first
+weigh-in of a day is canonical** — is enforced on the *read* (earliest `measured_at`), because a
+second weigh-in really happened and refusing it would be lying about what the user did. Weight
+drifts a kilogram across a day on water alone, so a chart built from "whenever somebody happened to
+step on the scales" measures hydration rather than progress. Earliest **measured**, not earliest
+written: people weigh themselves at 07:30, forget, and log it after dinner.
+
+**Changing a timezone re-files history — implemented in G9 (edge case T4).** The `local_date` column
+on `workout_sessions` has carried a comment since M2 saying it is "recomputed for the affected rows
+when a user changes their profile timezone". It was not, until G9 found it while proving **I7** for
+the dashboard. `app/services/timezone_change.py` now recomputes `local_date` for every dated row —
+sessions, meals and body metrics — in one statement per table, and drops every cached summary. The
+**instants are untouched**: a workout happened when it happened, and only the calendar day it is
+filed under moves.
+
 ---
 
 ## 5. AI food-analysis pipeline (BRD §12)

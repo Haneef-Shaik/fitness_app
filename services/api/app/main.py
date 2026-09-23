@@ -10,6 +10,8 @@ from app.api.envelope import fail
 from app.api.routes import (
     analytics,
     auth,
+    body,
+    dashboard,
     exercises,
     food_analysis,
     goals,
@@ -101,5 +103,6 @@ for r in (
     analytics.router, nutrition.router, nutrition_copy.router,
     meal_categories.router, recipes.router,
     food_analysis.router, uploads.router,
+    body.router, dashboard.router,
 ):
     app.include_router(r, prefix="/v1")

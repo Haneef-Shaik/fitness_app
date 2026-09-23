@@ -13,6 +13,7 @@ import type {
   ExerciseStats,
   Goal,
   GoalIn,
+  GoalPatch,
   MuscleGroup,
   PlanDayIn,
   PlanDayPatch,
@@ -43,6 +44,12 @@ import type {
   Recipe,
   RecipeIn,
   RecipePatch,
+  BodyMetric,
+  BodyMetricIn,
+  BodySeries,
+  Dashboard,
+  ProgressPhoto,
+  ProgressPhotoIn,
   AnalysisQuota,
   ConfirmIn,
   FoodAnalysis,
@@ -57,8 +64,10 @@ import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
 import { analyticsApi, type GroupBy, type RangeQuery } from '../api-analytics';
 import { analysisApi } from '../api-analysis';
+import { bodyApi, type RangeQuery as BodyRange } from '../api-body';
 import { nutritionApi } from '../api-nutrition';
 import { queueMeal, queueRecipeLog } from '../../features/nutrition/logMeal';
+import { queueMetric } from '../../features/body/logMetric';
 import { staleTimes } from './client';
 import { applyInvalidation } from './invalidation';
 import { qk } from './queryKeys';
@@ -88,6 +97,23 @@ export function useUpdateProfile() {
       client.setQueryData(qk.profile(), profile);
       return applyInvalidation(client, 'profile.updated');
     },
+  });
+}
+
+export function useGoal(id: string) {
+  return useQuery<Goal>({
+    queryKey: qk.goal(id),
+    queryFn: () => goalsApi.get(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useUpdateGoal() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: GoalPatch }) =>
+      goalsApi.patch(id, body),
+    onSuccess: (_goal, { id }) => applyInvalidation(client, 'goal.changed', { goalId: id }),
   });
 }
 
@@ -653,6 +679,102 @@ export function useDeleteAnalysisImages() {
   return useMutation({
     mutationFn: () => analysisApi.deleteImages(),
     onSuccess: () => applyInvalidation(client, 'analysis.imagesDeleted', {}),
+  });
+}
+
+
+/* ----------------------------------------------- G9 · B-01, body, goals */
+
+/**
+ * **AC-11.** The whole dashboard, in one request.
+ *
+ * `localDate` is omitted in normal use, and that omission is the point: the
+ * server resolves the user's day from their profile timezone (**I7**). Passing
+ * a date computed on the device would be right for almost every user and wrong
+ * for exactly the ones who travel — and would fail silently.
+ */
+export function useDashboard(localDate?: string) {
+  return useQuery<Dashboard>({
+    queryKey: qk.dashboard(localDate),
+    queryFn: () => bodyApi.dashboard(localDate),
+    staleTime: staleTimes.nutritionDay,
+  });
+}
+
+/** One point per day — the FIRST weigh-in of each (Q5) — plus a trailing mean. */
+export function useBodySeries(metricKey = 'body_weight', range: BodyRange = {}) {
+  return useQuery<BodySeries>({
+    queryKey: qk.bodySeries(metricKey, range),
+    queryFn: () => bodyApi.series(metricKey, range),
+  });
+}
+
+/** Every entry, including the ones that are not their day's canonical one. */
+export function useBodyMetrics(metricKey = 'body_weight', range: BodyRange = {}) {
+  return useQuery<BodyMetric[]>({
+    queryKey: qk.bodyMetrics(metricKey, range),
+    queryFn: () => bodyApi.metrics(metricKey, range),
+  });
+}
+
+/**
+ * Logging a measurement goes through the **outbox**, like a set and like a meal.
+ *
+ * Somebody weighs themselves in a bathroom, which is where the signal is worst
+ * in any building — so this is the write least able to afford needing the
+ * network.
+ */
+export function useLogBodyMetric() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: BodyMetricIn) => queueMetric(body),
+    onSuccess: () => applyInvalidation(client, 'bodyMetric.changed', {}),
+  });
+}
+
+export function useDeleteBodyMetric() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bodyApi.deleteMetric(id),
+    onSuccess: () => applyInvalidation(client, 'bodyMetric.changed', {}),
+  });
+}
+
+export function useProgressPhotos() {
+  return useQuery<ProgressPhoto[]>({
+    queryKey: qk.progressPhotos(),
+    queryFn: () => bodyApi.photos(),
+  });
+}
+
+export function useCreateProgressPhoto() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ProgressPhotoIn) => bodyApi.createPhoto(body),
+    onSuccess: () => applyInvalidation(client, 'progressPhoto.changed', {}),
+  });
+}
+
+export function useDeleteProgressPhoto() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => bodyApi.deletePhoto(id),
+    onSuccess: () => applyInvalidation(client, 'progressPhoto.changed', {}),
+  });
+}
+
+/**
+ * Changing the timezone drops the whole cache.
+ *
+ * The server re-files every session, meal and weigh-in onto the day it now
+ * falls on (**T4**), so every cached read keyed by a day is wrong — which is
+ * all of them. A targeted invalidation here would be a guess.
+ */
+export function useUpdateTimezone() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (timezone: string) => profileApi.patch({ timezone }),
+    onSuccess: () => applyInvalidation(client, 'timezone.changed', {}),
   });
 }
 

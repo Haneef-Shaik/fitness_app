@@ -99,6 +99,19 @@ export const qk = {
   analyses: () => ['analyses', 'list'] as const,
   analysis: (id: string) => ['analyses', 'detail', id] as const,
   analysisQuota: () => ['analyses', 'quota'] as const,
+
+  // B-01 (G9). Keyed by the date ASKED FOR, which is usually nothing at all:
+  // `undefined` means "the server's today", and caching that under a date the
+  // client made up would defeat the point of asking the server (I7).
+  dashboard: (localDate?: string) => ['dashboard', localDate ?? 'today'] as const,
+
+  // Body. The series and the raw list are different questions — one point per
+  // day versus every entry — so they are different keys.
+  bodySeries: (metricKey: string, f: { from?: string; to?: string } = {}) =>
+    ['body', 'series', metricKey, f] as const,
+  bodyMetrics: (metricKey: string, f: { from?: string; to?: string } = {}) =>
+    ['body', 'list', metricKey, f] as const,
+  progressPhotos: () => ['body', 'photos'] as const,
 } as const;
 
 /** The prefixes invalidation targets. Kept beside the registry so they cannot drift. */
@@ -120,4 +133,6 @@ export const qkPrefix = {
   mealCategories: () => ['meal-categories'] as const,
   recipes: () => ['recipes'] as const,
   analyses: () => ['analyses'] as const,
+  dashboard: () => ['dashboard'] as const,
+  body: () => ['body'] as const,
 } as const;

@@ -5,7 +5,7 @@
  *   { success, data, error: { code, message, fields, request_id } }
  * The client unwraps it and throws ApiError, so callers never inspect `success`.
  */
-import type { Goal, GoalIn, Profile, ProfilePatch, TokenPair } from '@volt/api-types';
+import type { Goal, GoalIn, GoalPatch, Profile, ProfilePatch, TokenPair } from '@volt/api-types';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
@@ -225,5 +225,7 @@ export const profileApi = {
 
 export const goalsApi = {
   list: () => api.get<Goal[]>('/goals'),
+  get: (id: string) => api.get<Goal>(`/goals/${id}`),
   create: (g: GoalIn) => api.post<Goal>('/goals', g),
+  patch: (id: string, body: GoalPatch) => api.patch<Goal>(`/goals/${id}`, body),
 };

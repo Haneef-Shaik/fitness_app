@@ -1451,6 +1451,140 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/body-metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Body Metrics
+         * @description **Every** entry, including the ones that are not canonical.
+         *
+         *     I-01 shows a user what they actually logged. The chart shows one point per
+         *     day; this shows the list.
+         */
+        get: operations["list_body_metrics_v1_body_metrics_get"];
+        put?: never;
+        /**
+         * Create Body Metric
+         * @description Records a measurement. Idempotent on `client_id` (**I8**).
+         *
+         *     Stepping on a scale happens in a bathroom, which is where the signal is
+         *     worst — so this rides the same outbox a set does, and a replayed write must
+         *     not produce two weigh-ins.
+         */
+        post: operations["create_body_metric_v1_body_metrics_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/body-metrics/{metric_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Body Metric */
+        delete: operations["delete_body_metric_v1_body_metrics__metric_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/body": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Body Series
+         * @description One point per day, plus a trailing average and the change across the range.
+         */
+        get: operations["body_series_v1_analytics_body_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/progress-photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Progress Photos */
+        get: operations["list_progress_photos_v1_progress_photos_get"];
+        put?: never;
+        /**
+         * Create Progress Photo
+         * @description Files an already-uploaded photograph.
+         *
+         *     The image went through G8's signed upload, which stripped its EXIF on
+         *     arrival. That matters more here than anywhere else in the app: a progress
+         *     photo is taken in somebody's bathroom, and the coordinates of their home
+         *     are in the file unless something removes them.
+         */
+        post: operations["create_progress_photo_v1_progress_photos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/progress-photos/{photo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Progress Photo
+         * @description Deletes the row **and the file**.
+         *
+         *     Unlike an AI analysis there is nothing to audit here: it is the user's own
+         *     picture of their own body, and when they take it back it goes.
+         */
+        delete: operations["delete_progress_photo_v1_progress_photos__photo_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dashboard */
+        get: operations["dashboard_v1_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1594,6 +1728,103 @@ export interface components {
             reps?: number | null;
             /** E1Rm Kg */
             e1rm_kg?: number | null;
+        };
+        /**
+         * BodyCardOut
+         * @description The last weigh-in, and whether one happened today.
+         *
+         *     `latest` may be days old — that is the number to show, with its date. `today`
+         *     is separately `None` when the user has not stepped on the scales today, which
+         *     is what lets B-01 prompt without pretending an old figure is fresh.
+         */
+        BodyCardOut: {
+            latest?: components["schemas"]["BodyPointOut"] | null;
+            /** Today */
+            today?: number | null;
+            /** Change 7D */
+            change_7d?: number | null;
+            /** Change 30D */
+            change_30d?: number | null;
+            /**
+             * Unit
+             * @default kg
+             */
+            unit: string;
+        };
+        /** BodyMetricIn */
+        BodyMetricIn: {
+            /**
+             * Metric Key
+             * @default body_weight
+             */
+            metric_key: string;
+            /** Value */
+            value: number;
+            /**
+             * Unit
+             * @default kg
+             * @enum {string}
+             */
+            unit: "kg" | "lb" | "cm" | "in" | "%";
+            /** Measured At */
+            measured_at?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+        };
+        /** BodyMetricOut */
+        BodyMetricOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Metric Key */
+            metric_key: string;
+            /** Value */
+            value: number;
+            /** Unit */
+            unit: string;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** BodyPointOut */
+        BodyPointOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Value */
+            value: number;
+            /** Moving Average */
+            moving_average?: number | null;
+        };
+        /** BodySeriesOut */
+        BodySeriesOut: {
+            /** Metric Key */
+            metric_key: string;
+            /** Unit */
+            unit: string;
+            /**
+             * Points
+             * @default []
+             */
+            points: components["schemas"]["BodyPointOut"][];
+            /** Change */
+            change?: number | null;
+            latest?: components["schemas"]["BodyPointOut"] | null;
         };
         /**
          * CategoryOrderIn
@@ -1783,6 +2014,30 @@ export interface components {
             /** Total Unfiltered */
             total_unfiltered?: number | null;
         };
+        /**
+         * DashboardOut
+         * @description **AC-11.** One call, one local date, three domains.
+         *
+         *     Every domain is always present. A brand-new user has three empty ones, and
+         *     that is the *first* dashboard anybody sees — it must render, not 404.
+         */
+        DashboardOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Timezone */
+            timezone: string;
+            training: components["schemas"]["TrainingCardOut"];
+            nutrition: components["schemas"]["NutritionCardOut"];
+            body: components["schemas"]["BodyCardOut"];
+            /**
+             * Goals
+             * @default []
+             */
+            goals: components["schemas"]["GoalCardOut"][];
+        };
         /** DayCopyIn */
         DayCopyIn: {
             /**
@@ -1875,11 +2130,32 @@ export interface components {
             data?: components["schemas"]["AuthOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[BodyMetricOut] */
+        Envelope_BodyMetricOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["BodyMetricOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[BodySeriesOut] */
+        Envelope_BodySeriesOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["BodySeriesOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[ComparisonOut] */
         Envelope_ComparisonOut_: {
             /** Success */
             success: boolean;
             data?: components["schemas"]["ComparisonOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[DashboardOut] */
+        Envelope_DashboardOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["DashboardOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[DayOut] */
@@ -1931,11 +2207,11 @@ export interface components {
             data?: components["schemas"]["FrequencyOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
-        /** Envelope[GoalOut] */
-        Envelope_GoalOut_: {
+        /** Envelope[GoalCardOut] */
+        Envelope_GoalCardOut_: {
             /** Success */
             success: boolean;
-            data?: components["schemas"]["GoalOut"] | null;
+            data?: components["schemas"]["GoalCardOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[MeOut] */
@@ -1985,6 +2261,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["ProgramOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[ProgressPhotoOut] */
+        Envelope_ProgressPhotoOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["ProgressPhotoOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[QuotaOut] */
@@ -2085,6 +2368,14 @@ export interface components {
             data?: components["schemas"]["AnalysisOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[list[BodyMetricOut]] */
+        Envelope_list_BodyMetricOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["BodyMetricOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[list[MealCategoryOut]] */
         Envelope_list_MealCategoryOut__: {
             /** Success */
@@ -2123,6 +2414,14 @@ export interface components {
             success: boolean;
             /** Data */
             data?: components["schemas"]["PersonalRecordRowOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[ProgressPhotoOut]] */
+        Envelope_list_ProgressPhotoOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["ProgressPhotoOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[list[RecipeOut]] */
@@ -2465,6 +2764,32 @@ export interface components {
              */
             cells: components["schemas"]["FrequencyCellOut"][];
         };
+        /** GoalCardOut */
+        GoalCardOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Goal Type */
+            goal_type: string;
+            /** Metric Key */
+            metric_key: string;
+            /** Direction */
+            direction: string;
+            /** Start Value */
+            start_value?: number | null;
+            /** Target Value */
+            target_value: number;
+            /** Target Unit */
+            target_unit: string;
+            /** Current Value */
+            current_value?: number | null;
+            /** Progress */
+            progress?: number | null;
+            /** Status */
+            status: string;
+        };
         /** GoalIn */
         GoalIn: {
             /**
@@ -2499,41 +2824,6 @@ export interface components {
             start_date: string;
             /** Target Date */
             target_date?: string | null;
-        };
-        /** GoalOut */
-        GoalOut: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Goal Type
-             * @enum {string}
-             */
-            goal_type: "fat_loss" | "muscle_gain" | "maintenance" | "strength" | "custom";
-            /** Metric Key */
-            metric_key: string;
-            /** Direction */
-            direction: string;
-            /** Start Value */
-            start_value: number | null;
-            /** Target Value */
-            target_value: number;
-            /** Target Unit */
-            target_unit: string;
-            /**
-             * Start Date
-             * Format: date
-             */
-            start_date: string;
-            /** Target Date */
-            target_date: string | null;
-            /**
-             * Status
-             * @enum {string}
-             */
-            status: "active" | "completed" | "paused";
         };
         /** GoalPatch */
         GoalPatch: {
@@ -2592,6 +2882,28 @@ export interface components {
             /** Client Id */
             client_id?: string | null;
         };
+        /** LastSessionOut */
+        LastSessionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Title */
+            title?: string | null;
+            /** Total Volume Kg */
+            total_volume_kg?: number | null;
+            /**
+             * Set Count
+             * @default 0
+             */
+            set_count: number;
+        };
         /** LoginIn */
         LoginIn: {
             /**
@@ -2601,6 +2913,17 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** MacroTargetsOut */
+        MacroTargetsOut: {
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
         };
         /**
          * MacrosOut
@@ -2895,6 +3218,51 @@ export interface components {
             /** Set Count */
             set_count: number;
         };
+        /**
+         * NutritionCardOut
+         * @description Confirmed items only (**I2 / D5**), through `day_totals` like everything
+         *     else. `pending_count` is how the screen shows an estimate exists without
+         *     letting it into the number.
+         */
+        NutritionCardOut: {
+            /**
+             * Calories
+             * @default 0
+             */
+            calories: number;
+            /**
+             * Protein G
+             * @default 0
+             */
+            protein_g: number;
+            /**
+             * Carbs G
+             * @default 0
+             */
+            carbs_g: number;
+            /**
+             * Fat G
+             * @default 0
+             */
+            fat_g: number;
+            /**
+             * Meals Logged
+             * @default 0
+             */
+            meals_logged: number;
+            /**
+             * Pending Count
+             * @default 0
+             */
+            pending_count: number;
+            /**
+             * Incomplete
+             * @default false
+             */
+            incomplete: boolean;
+            /** @default {} */
+            targets: components["schemas"]["MacroTargetsOut"];
+        };
         /** PagedEnvelope[SetBatchOut] */
         PagedEnvelope_SetBatchOut_: {
             /** Success */
@@ -2921,12 +3289,12 @@ export interface components {
             error?: components["schemas"]["ErrorOut"] | null;
             meta?: components["schemas"]["Meta"] | null;
         };
-        /** PagedEnvelope[list[GoalOut]] */
-        PagedEnvelope_list_GoalOut__: {
+        /** PagedEnvelope[list[GoalCardOut]] */
+        PagedEnvelope_list_GoalCardOut__: {
             /** Success */
             success: boolean;
             /** Data */
-            data?: components["schemas"]["GoalOut"][] | null;
+            data?: components["schemas"]["GoalCardOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
             meta?: components["schemas"]["Meta"] | null;
         };
@@ -3280,6 +3648,47 @@ export interface components {
             name?: string | null;
             /** Description */
             description?: string | null;
+        };
+        /** ProgressPhotoIn */
+        ProgressPhotoIn: {
+            /** Image Key */
+            image_key: string;
+            /** Taken At */
+            taken_at?: string | null;
+            /**
+             * Pose
+             * @default front
+             * @enum {string}
+             */
+            pose: "front" | "side" | "back";
+            /** Notes */
+            notes?: string | null;
+            /** Client Id */
+            client_id?: string | null;
+        };
+        /** ProgressPhotoOut */
+        ProgressPhotoOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Image Key */
+            image_key: string;
+            /**
+             * Taken At
+             * Format: date-time
+             */
+            taken_at: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Pose */
+            pose: string;
+            /** Notes */
+            notes?: string | null;
         };
         /**
          * ProgressionPointOut
@@ -3746,6 +4155,37 @@ export interface components {
             /** Expires In */
             expires_in: number;
         };
+        /** TrainingCardOut */
+        TrainingCardOut: {
+            /**
+             * Sessions Today
+             * @default 0
+             */
+            sessions_today: number;
+            /**
+             * Volume Today Kg
+             * @default 0
+             */
+            volume_today_kg: number;
+            /**
+             * Sessions This Week
+             * @default 0
+             */
+            sessions_this_week: number;
+            /**
+             * Volume This Week Kg
+             * @default 0
+             */
+            volume_this_week_kg: number;
+            /**
+             * Streak Days
+             * @default 0
+             */
+            streak_days: number;
+            /** Active Session Id */
+            active_session_id?: string | null;
+            last_session?: components["schemas"]["LastSessionOut"] | null;
+        };
         /** UploadSignIn */
         UploadSignIn: {
             /**
@@ -4080,7 +4520,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PagedEnvelope_list_GoalOut__"];
+                    "application/json": components["schemas"]["PagedEnvelope_list_GoalCardOut__"];
                 };
             };
             /** @description Validation Error */
@@ -4113,7 +4553,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Envelope_GoalOut_"];
+                    "application/json": components["schemas"]["Envelope_GoalCardOut_"];
                 };
             };
             /** @description Validation Error */
@@ -4144,7 +4584,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Envelope_GoalOut_"];
+                    "application/json": components["schemas"]["Envelope_GoalCardOut_"];
                 };
             };
             /** @description Validation Error */
@@ -4179,7 +4619,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Envelope_GoalOut_"];
+                    "application/json": components["schemas"]["Envelope_GoalCardOut_"];
                 };
             };
             /** @description Validation Error */
@@ -6669,6 +7109,255 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_body_metrics_v1_body_metrics_get: {
+        parameters: {
+            query?: {
+                metric_key?: string;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_BodyMetricOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_body_metric_v1_body_metrics_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BodyMetricIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_BodyMetricOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_body_metric_v1_body_metrics__metric_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                metric_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_BodyMetricOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    body_series_v1_analytics_body_get: {
+        parameters: {
+            query?: {
+                metric_key?: string;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_BodySeriesOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_progress_photos_v1_progress_photos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_ProgressPhotoOut__"];
+                };
+            };
+        };
+    };
+    create_progress_photo_v1_progress_photos_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProgressPhotoIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ProgressPhotoOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_progress_photo_v1_progress_photos__photo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                photo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ProgressPhotoOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dashboard_v1_dashboard_get: {
+        parameters: {
+            query?: {
+                date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DashboardOut_"];
                 };
             };
             /** @description Validation Error */

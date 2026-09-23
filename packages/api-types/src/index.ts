@@ -38,7 +38,7 @@ export type Unwrap<E> = E extends { data?: infer D } ? NonNullable<D> : never;
 /* --------------------------------------------------------- response payloads */
 
 export type Profile = Schemas['ProfileOut'];
-export type Goal = Schemas['GoalOut'];
+export type Goal = Schemas['GoalCardOut'];
 export type User = Schemas['UserRefOut'];
 export type Me = Schemas['MeOut'];
 export type TokenPair = Schemas['TokenPair'];
@@ -124,6 +124,20 @@ export type ConfirmItemIn = Schemas['ConfirmItemIn'];
 export type UploadSignIn = Schemas['UploadSignIn'];
 export type UploadSign = Schemas['UploadSignOut'];
 export type AnalysisQuota = Schemas['QuotaOut'];
+
+/* ------------------------------------------- body, goals and B-01 (G9) */
+
+export type Dashboard = Schemas['DashboardOut'];
+export type TrainingCard = Schemas['TrainingCardOut'];
+export type NutritionCard = Schemas['NutritionCardOut'];
+export type BodyCard = Schemas['BodyCardOut'];
+export type GoalCard = Schemas['GoalCardOut'];
+export type BodyMetric = Schemas['BodyMetricOut'];
+export type BodyMetricIn = Schemas['BodyMetricIn'];
+export type BodySeries = Schemas['BodySeriesOut'];
+export type BodyPoint = Schemas['BodyPointOut'];
+export type ProgressPhoto = Schemas['ProgressPhotoOut'];
+export type ProgressPhotoIn = Schemas['ProgressPhotoIn'];
 
 /* ---------------------------------------------------------- request payloads */
 

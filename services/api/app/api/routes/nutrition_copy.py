@@ -29,6 +29,7 @@ from app.food.categories import assert_category
 from app.models import ItemSource, Meal, MealItem, UserProfile
 from app.schemas.envelope import Envelope
 from app.schemas.nutrition import DayCopyIn, MealCopyIn, MealOut
+from app.services import summaries
 
 router = APIRouter(tags=["nutrition"])
 
@@ -107,6 +108,7 @@ async def copy_meal(
     await db.flush()
     for item in _copied_items(source, target):
         db.add(item)
+    await summaries.invalidate(db, user.id, target.local_date)
     await db.flush()
 
     fresh = await _load_meal(db, user.id, target.id)
@@ -160,6 +162,7 @@ async def copy_day(
             db.add(item)
         created.append(target)
 
+    await summaries.invalidate(db, user.id, body.to_date)
     await db.flush()
     fresh = [await _load_meal(db, user.id, m.id) for m in created]
     return ok([meal_out(m) for m in fresh], status_code=201)

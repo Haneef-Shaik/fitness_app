@@ -23,7 +23,7 @@
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 39 commits · `5346e8f` AI nutrition (G8) |
+| **Version control** | git, 41 commits · `3de5c0e` the dashboard (G9) |
 | **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
 
 ```
@@ -504,7 +504,7 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
 
 ---
 
-### Handoff — G9 · Dashboard                                   closed 23 Sep
+### Handoff — G9 · Dashboard                       closed 23 Sep · `3de5c0e`
 
 **Outcome claimed.** B-01 shows real training, nutrition and body state for the user's local date,
 in one call — **AC-11**. **12 of 12.**

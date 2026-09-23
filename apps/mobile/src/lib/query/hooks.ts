@@ -28,6 +28,21 @@ import type {
   MuscleVolume,
   PersonalRecordRow,
   WorkoutAnalytics,
+  Food,
+  FoodIn,
+  FoodPatch,
+  Meal,
+  MealIn,
+  MealItemPatch,
+  NutritionDay,
+  MealCategory,
+  MealCategoryIn,
+  MealCategoryPatch,
+  MealCopyIn,
+  DayCopyIn,
+  Recipe,
+  RecipeIn,
+  RecipePatch,
   HistoryItem,
   PreviousOccurrence,
   SessionComparison,
@@ -36,6 +51,8 @@ import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
 import { analyticsApi, type GroupBy, type RangeQuery } from '../api-analytics';
+import { nutritionApi } from '../api-nutrition';
+import { queueMeal, queueRecipeLog } from '../../features/nutrition/logMeal';
 import { staleTimes } from './client';
 import { applyInvalidation } from './invalidation';
 import { qk } from './queryKeys';
@@ -320,3 +337,236 @@ export function useAdherence(range: RangeQuery = {}) {
     staleTime: staleTimes.analytics,
   });
 }
+
+
+/* ------------------------------------------------------------ nutrition (G7) */
+
+/**
+ * H-01's diary for one local day.
+ *
+ * The date is passed in, never computed here: the server resolves "today" from
+ * the profile's timezone (**I7**) and the client does not get a second opinion.
+ * Omitting it asks the server for its answer.
+ */
+export function useNutritionDay(localDate?: string) {
+  return useQuery<NutritionDay>({
+    queryKey: qk.nutritionDay(localDate ?? 'today'),
+    queryFn: () => nutritionApi.day(localDate),
+    staleTime: staleTimes.nutritionDay,
+  });
+}
+
+export function useMeal(id: string) {
+  return useQuery<Meal>({
+    queryKey: qk.meal(id),
+    queryFn: () => nutritionApi.meal(id),
+    enabled: Boolean(id),
+  });
+}
+
+/** H-04's search. `meta.filtered` is what lets the screen offer "create it" (I13). */
+export function useFoods(q?: string) {
+  return useQuery({
+    queryKey: qk.foods(q),
+    queryFn: () => nutritionApi.foods(q),
+    staleTime: staleTimes.foods,
+  });
+}
+
+/**
+ * **AC-07** — logs a meal and moves today's totals.
+ *
+ * Goes through the OUTBOX, not a direct POST: a meal logged on the train is
+ * still a meal. The diary is invalidated on success so the server's numbers
+ * replace the optimistic ones as soon as the queue drains.
+ */
+export function useLogMeal() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: MealIn) => queueMeal(body),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+export function useUpdateMealItem() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: MealItemPatch }) =>
+      nutritionApi.updateItem(id, body),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+export function useDeleteMealItem() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => nutritionApi.deleteItem(id),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+export function useDeleteMeal() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => nutritionApi.deleteMeal(id),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+/** H-10. Creating a food changes the picker and nothing already logged. */
+export function useCreateFood() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: FoodIn) => nutritionApi.createFood(body),
+    onSuccess: () => applyInvalidation(client, 'food.changed', {}),
+  });
+}
+
+export function useUpdateFood() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: FoodPatch }) =>
+      nutritionApi.updateFood(id, body),
+    onSuccess: () => applyInvalidation(client, 'food.changed', {}),
+  });
+}
+
+
+/* ---------------------------------------------------- H-16 · categories */
+
+/**
+ * The user's meal categories.
+ *
+ * Returns ALL of them, hidden included — the manager has to show what it would
+ * be un-hiding. Screens that OFFER a category filter to `!hidden` themselves.
+ */
+export function useMealCategories() {
+  return useQuery<MealCategory[]>({
+    queryKey: qk.mealCategories(),
+    queryFn: () => nutritionApi.categories(),
+    staleTime: staleTimes.foods,
+  });
+}
+
+export function useCreateMealCategory() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: MealCategoryIn) => nutritionApi.createCategory(body),
+    onSuccess: () => applyInvalidation(client, 'mealCategory.changed', {}),
+  });
+}
+
+export function useUpdateMealCategory() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: MealCategoryPatch }) =>
+      nutritionApi.updateCategory(id, body),
+    onSuccess: () => applyInvalidation(client, 'mealCategory.changed', {}),
+  });
+}
+
+export function useReorderMealCategories() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: readonly string[]) =>
+      nutritionApi.reorderCategories({ ids: [...ids] }),
+    onSuccess: () => applyInvalidation(client, 'mealCategory.changed', {}),
+  });
+}
+
+export function useDeleteMealCategory() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => nutritionApi.deleteCategory(id),
+    onSuccess: () => applyInvalidation(client, 'mealCategory.changed', {}),
+  });
+}
+
+/* ------------------------------------------------------- H-11 · recipes */
+
+export function useRecipes() {
+  return useQuery<Recipe[]>({
+    queryKey: qk.recipes(),
+    queryFn: () => nutritionApi.recipes(),
+    staleTime: staleTimes.foods,
+  });
+}
+
+export function useRecipe(id: string) {
+  return useQuery<Recipe>({
+    queryKey: qk.recipe(id),
+    queryFn: () => nutritionApi.recipe(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateRecipe() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: RecipeIn) => nutritionApi.createRecipe(body),
+    onSuccess: () => applyInvalidation(client, 'recipe.changed', {}),
+  });
+}
+
+/**
+ * Editing a recipe invalidates the recipe and **not** the diary.
+ *
+ * That absence is the rule, not an omission: logging snapshotted the macros, so
+ * a meal already logged from this recipe has not moved. Invalidating the diary
+ * here would imply it had.
+ */
+export function useUpdateRecipe() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: RecipePatch }) =>
+      nutritionApi.updateRecipe(id, body),
+    onSuccess: (_data, { id }) => applyInvalidation(client, 'recipe.changed', { recipeId: id }),
+  });
+}
+
+export function useDeleteRecipe() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => nutritionApi.deleteRecipe(id),
+    onSuccess: () => applyInvalidation(client, 'recipe.changed', {}),
+  });
+}
+
+/** Logging a recipe is logging a meal, so it rides the same outbox (H3.2). */
+export function useLogRecipe() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: {
+      id: string;
+      body: { meal_type: string; servings: number; consumed_at?: string | null };
+    }) => queueRecipeLog(id, body),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+/* ---------------------------------------------------------- H-12 · copy */
+
+/**
+ * Copying is ONLINE, unlike logging.
+ *
+ * A copy reads a day the client may not hold, so there is nothing to queue —
+ * see `features/nutrition/logMeal.ts`.
+ */
+export function useCopyMeal() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: MealCopyIn }) =>
+      nutritionApi.copyMeal(id, body),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+export function useCopyDay() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: DayCopyIn) => nutritionApi.copyDay(body),
+    onSuccess: () => applyInvalidation(client, 'meal.changed', {}),
+  });
+}
+
+export type { Food };

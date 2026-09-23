@@ -531,5 +531,87 @@
       "expected": 0,
       "note": "Saturday scheduled, range ends Friday the 25th - excluded, so 0"
     }
+  ],
+  "nutrition_scaling": [
+    {
+      "per_100g": {
+        "calories": 165,
+        "protein_g": 31,
+        "carbs_g": 0,
+        "fat_g": 3.6
+      },
+      "grams": 200,
+      "expected": {
+        "calories": 330,
+        "protein_g": 62,
+        "carbs_g": 0,
+        "fat_g": 7.2
+      },
+      "note": "200 g of chicken breast - double the per-100g figures"
+    },
+    {
+      "per_100g": {
+        "calories": 52,
+        "protein_g": 0.3,
+        "carbs_g": 14,
+        "fat_g": 0.2
+      },
+      "grams": 150,
+      "expected": {
+        "calories": 78,
+        "protein_g": 0.45,
+        "carbs_g": 21,
+        "fat_g": 0.3
+      },
+      "note": "150 g apple - 1.5x, and fractional grams survive"
+    },
+    {
+      "per_100g": {
+        "calories": 165,
+        "protein_g": 31,
+        "carbs_g": 0,
+        "fat_g": 3.6
+      },
+      "grams": 0,
+      "expected": {
+        "calories": 0,
+        "protein_g": 0,
+        "carbs_g": 0,
+        "fat_g": 0
+      },
+      "note": "zero grams is zero, not the per-100g figure"
+    },
+    {
+      "per_100g": {
+        "calories": 165,
+        "protein_g": null,
+        "carbs_g": 0,
+        "fat_g": 3.6
+      },
+      "grams": 100,
+      "expected": {
+        "calories": 165,
+        "protein_g": null,
+        "carbs_g": 0,
+        "fat_g": 3.6
+      },
+      "note": "an unknown macro stays unknown - scaling null is still null, never 0"
+    },
+    {
+      "per_100g": {
+        "calories": 400,
+        "protein_g": 10,
+        "carbs_g": 70,
+        "fat_g": 8
+      },
+      "grams": 33.3,
+      "expected": {
+        "calories": 133.2,
+        "protein_g": 3.33,
+        "carbs_g": 23.31,
+        "fat_g": 2.664
+      },
+      "note": "a non-round serving - no rounding at the domain edge"
+    }
   ]
 }

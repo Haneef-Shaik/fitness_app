@@ -21,6 +21,7 @@ from app.config import get_settings
 from app.db import get_db
 from app.main import app
 from app.seed.catalog import seed_catalog
+from app.seed.foods import seed_foods
 
 settings = get_settings()
 
@@ -58,6 +59,7 @@ async def engine():
     maker = async_sessionmaker(eng, class_=AsyncSession, expire_on_commit=False)
     async with maker() as db:
         await seed_catalog(db)
+        await seed_foods(db)
         await db.commit()
 
     yield eng

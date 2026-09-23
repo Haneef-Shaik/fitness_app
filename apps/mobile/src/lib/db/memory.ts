@@ -25,6 +25,20 @@ export function createMemoryStore(): SessionStore {
 
     async clearDraft() { draft = null; },
 
+    async enqueue(entry: NewOutboxEntry) {
+      // Deliberately does NOT touch the draft — see SessionStore.enqueue.
+      const existing = entries.find((e) => e.idempotencyKey === entry.idempotencyKey);
+      if (existing) {
+        entries = entries.map((e) =>
+          e.idempotencyKey === entry.idempotencyKey ? { ...e, body: entry.body } : e,
+        );
+        return;
+      }
+      entries = [...entries, {
+        ...entry, id: nextId++, attempts: 0, state: 'pending', lastError: null,
+      }];
+    },
+
     async commit(next: DraftRecord, entry?: NewOutboxEntry) {
       // Synchronous, so the pair cannot tear — the same guarantee the SQLite
       // implementation buys with a transaction.

@@ -22,13 +22,18 @@ export type MutationKind =
   | 'sessionExercise.changed'
   | 'session.finished'
   | 'session.lifecycleChanged'
-  | 'outbox.flushed';
+  | 'outbox.flushed'
+  | 'meal.changed'
+  | 'food.changed'
+  | 'mealCategory.changed'
+  | 'recipe.changed';
 
 export interface InvalidationContext {
   sessionId?: string;
   programId?: string;
   goalId?: string;
   exerciseId?: string;
+  recipeId?: string;
 }
 
 export type QueryKey = readonly unknown[];
@@ -137,6 +142,34 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       // prefix covers volume, muscle balance, PRs, frequency and adherence.
       qkPrefix.analytics(),
     ],
+  },
+  'meal.changed': {
+    // The diary and the day's totals are the same fact, so one prefix. Foods
+    // are NOT invalidated: logging a meal does not change any food, and the
+    // snapshot means it never will.
+    doc: 'Log / edit / delete a **meal** or item',
+    keys: () => [qkPrefix.nutrition()],
+  },
+  'food.changed': {
+    // Correcting a food changes the picker and NOTHING already logged —
+    // item macros were snapshotted at write (02 §4.2). Invalidating the diary
+    // here would imply otherwise and re-fetch for no reason.
+    doc: 'Create / edit / delete a **food**',
+    keys: () => [qkPrefix.foods()],
+  },
+  'mealCategory.changed': {
+    // The diary renders a category's NAME, so a rename has to reach it. It does
+    // not reach `foods`: a category is not a food, and the picker is unmoved.
+    doc: 'Create / rename / reorder / hide / delete a **meal category**',
+    keys: () => [qkPrefix.mealCategories(), qkPrefix.nutrition()],
+  },
+  'recipe.changed': {
+    // A recipe is a PLAN. Editing one changes what it will produce next time and
+    // nothing it already produced, so the diary is deliberately absent — the
+    // same rule as `program.changed` not touching sessions (AC-12).
+    doc: 'Create / edit / delete a **recipe**',
+    keys: ({ recipeId }) =>
+      recipeId ? [qkPrefix.recipes(), qk.recipe(recipeId)] : [qkPrefix.recipes()],
   },
   'outbox.flushed': {
     doc: 'Outbox flush (`/sets/batch`)',

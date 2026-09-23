@@ -59,6 +59,21 @@ export interface SessionStore {
    */
   commit(draft: DraftRecord, entry?: NewOutboxEntry): Promise<void>;
 
+  /**
+   * Queues a write that has **no draft behind it** — a meal, a body metric.
+   *
+   * Added in G7. The outbox ENGINE was always generic (`createOutbox` only
+   * touches `readyEntries`/`markSent`/`markRetry`/`markFailed`), but the only
+   * way to fill it was `commit(draft, entry)`, which demands a session draft.
+   * That made "the outbox is generic" true of the queue and false of the door.
+   *
+   * Fixed here rather than answered with a second queue: two queues is how one
+   * of them silently stops flushing.
+   *
+   * Idempotent on `idempotencyKey`, exactly as `commit`'s entry is (**I8**).
+   */
+  enqueue(entry: NewOutboxEntry): Promise<void>;
+
   /** Pending entries whose backoff has elapsed, oldest first, FIFO per aggregate. */
   readyEntries(now: string, limit?: number): Promise<OutboxEntry[]>;
 

@@ -11,6 +11,7 @@ import { dirname, resolve } from 'node:path';
 import {
   totalVolumeKg, estimated1rmKg, evaluateRecords, validateSet,
   kgToLb, lbToKg, cmToIn, toLocalDate, dayTotals, adherence, plannedOccurrences,
+  scaleToGrams,
   KG_PER_LB, CM_PER_IN, E1RM_FORMULA_VERSION,
   type WorkoutSet, type SetType,
 } from '../src/index';
@@ -133,6 +134,29 @@ describe('planned occurrences', () => {
   for (const c of V.planned_occurrences) {
     it(c.note, () => {
       expect(plannedOccurrences(c.weekdays, c.start, c.end)).toBe(c.expected);
+    });
+  }
+});
+
+describe('nutrition scaling', () => {
+  for (const c of V.nutrition_scaling) {
+    it(c.note, () => {
+      const got = scaleToGrams({
+        calories: c.per_100g.calories,
+        proteinG: c.per_100g.protein_g,
+        carbsG: c.per_100g.carbs_g,
+        fatG: c.per_100g.fat_g,
+      }, c.grams);
+      const pairs: [number | null, number | null][] = [
+        [got.calories, c.expected.calories],
+        [got.proteinG, c.expected.protein_g],
+        [got.carbsG, c.expected.carbs_g],
+        [got.fatG, c.expected.fat_g],
+      ];
+      for (const [actual, expected] of pairs) {
+        if (expected === null) expect(actual).toBeNull();
+        else expect(actual!).toBeCloseTo(expected, 5);
+      }
     });
   }
 });

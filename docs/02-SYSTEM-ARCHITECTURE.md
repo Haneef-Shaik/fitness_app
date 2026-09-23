@@ -180,6 +180,44 @@ and making `food_id = NULL` items impossible to value. Recommended addition:
 | `user_corrected` | boolean | BRD §13 field, currently only in the AI contract |
 | `display_name` | string | Survives an unresolved or later-archived food |
 
+**Which unit lives in which column — decided in G7.** A `foods` row stores nutrition
+**per 100 g**; a `meal_items` row stores the **absolute** macros for the quantity actually eaten.
+They are never the same column and never the same type: `Per100g` and `Macros` are distinct in the
+domain module in both languages, pinned by the `nutrition_scaling` vectors.
+
+The alternative — one set of columns whose meaning depends on the row — is what writes 165 kcal
+against 2 kg of chicken. `serving_grams` on a food is a *convenience for the picker* ("1 slice =
+32 g"), not a second unit for the nutrition columns.
+
+The conversion is `scale_to_grams(per_100g, grams)`, and **unknown stays unknown**: a null macro
+scales to null, never 0. "We do not know the protein" and "it has no protein" are different claims,
+and `day_totals` already reports the difference through its `incomplete` flag.
+
+**`meals.meal_type` is a slug, not an ENUM — decided in G7.** H-16 lets a user add
+"Pre-workout", so a four-value Postgres enum would make a new category a migration, and would reject
+a row the application is perfectly happy with. The column holds a `meal_categories.slug`, with **no
+foreign key**: the slug has to outlive its category being deleted, exactly as `display_name`
+outlives a food being deleted on a meal item.
+
+`meal_categories` therefore owns the *label*, the order, the default time and the hidden flag, while
+the meal owns the slug. That split is what makes a rename free — meals are untouched — and what
+makes a delete refusable: a category with meals behind it can be **hidden, never deleted** (409),
+the same soft-delete principle exercises and programs use. Hidden categories still render in
+history.
+
+**Recipes are plans, meals are facts — decided in G7.** `recipe_items` reference a live `food_id`
+and carry **no macro snapshot**, so correcting a food updates what a recipe will produce next time.
+Logging a recipe snapshots onto `meal_items` exactly as logging a food does, so what it already
+produced never moves. This is invariant 4 and **AC-12/I1** restated one level up: what happened is
+frozen, what is planned may change. A recipe item with `food_id = NULL` is the recipe-level
+quick-add and carries its own absolute macros for the batch.
+
+**Copying (H-12) strips provenance.** A copied item lands `confirmed = true`, `source = manual`,
+`analysis_item_id = NULL`. A copy is something the user did, not a new estimate (**I12**), and
+carrying the AI provenance across would let an unreviewed estimate reach a total. The new
+`consumed_at` preserves the **local clock time**, not the instant — "the same moment, one day later"
+lands an hour out across a DST boundary.
+
 ### 4.3 Profile
 Owns `users`, `user_profiles`, `fitness_goals`, `body_metrics`, preferences, dashboard layout,
 custom meal categories, notification settings.

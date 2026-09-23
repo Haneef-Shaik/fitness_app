@@ -11,6 +11,7 @@ from app.core.errors import NotFound, ValidationFailed
 from app.models import UserProfile
 from app.schemas.envelope import Envelope
 from app.schemas.profile import ProfileOut, ProfilePatch
+from app.services.timezone_change import rebucket
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -40,7 +41,22 @@ async def patch_profile(body: ProfilePatch, user: CurrentUser, db: DbSession):
                 fields={"timezone": "Unknown time zone."},
             ) from None
 
+    moving = (
+        "timezone" in changes
+        and changes["timezone"] is not None
+        and changes["timezone"] != profile.timezone
+    )
+
     for key, value in changes.items():
         setattr(profile, key, value)
     await db.flush()
+
+    if moving:
+        # A timezone change moves a BOUNDARY, not a value. Every session, meal
+        # and weigh-in is re-filed onto the day it actually falls on now, and
+        # every cached summary is discarded — edge case T4, which the M2 model
+        # comment has claimed was handled since before it was.
+        await rebucket(db, user.id, profile.timezone)
+        await db.flush()
+
     return ok(ProfileOut.model_validate(profile).model_dump(mode="json"))

@@ -44,6 +44,7 @@ from app.schemas.nutrition import (
     MealItemPatch,
     MealOut,
 )
+from app.services import summaries
 
 router = APIRouter(tags=["nutrition"])
 
@@ -57,6 +58,11 @@ def _resolver(db: DbSession, user_id: uuid.UUID) -> FoodResolver:
     directly.
     """
     return InternalCatalogResolver(db, user_id)
+
+
+async def _meal_day(db: DbSession, meal_id: uuid.UUID):
+    """The local date a meal is filed under — the day an item edit changes."""
+    return await db.scalar(select(Meal.local_date).where(Meal.id == meal_id))
 
 
 async def _timezone_of(db: DbSession, user_id: uuid.UUID) -> str:
@@ -297,6 +303,7 @@ async def create_meal(
             **_snapshot(food, item_in, "Quick add"),
         ))
 
+    await summaries.invalidate(db, user.id, meal.local_date)
     await db.flush()
     fresh = await db.scalar(
         select(Meal).where(Meal.id == meal.id).options(selectinload(Meal.items))
@@ -325,6 +332,7 @@ async def delete_meal(meal_id: uuid.UUID, user: CurrentUser, db: DbSession):
     if meal is None:
         raise NotFound("That meal no longer exists.")
     out = meal_out(meal)
+    await summaries.invalidate(db, user.id, meal.local_date)
     await db.delete(meal)
     await db.flush()
     return ok(out)
@@ -379,6 +387,8 @@ async def patch_meal_item(
     if any(k != "confirmed" for k in changes):
         item.user_corrected = True
 
+    # Confirming an item moves a total, which is exactly why this matters here.
+    await summaries.invalidate(db, user.id, await _meal_day(db, item.meal_id))
     await db.flush()
     return ok(_item_out(item))
 
@@ -392,6 +402,7 @@ async def delete_meal_item(item_id: uuid.UUID, user: CurrentUser, db: DbSession)
     if item is None:
         raise NotFound("That item no longer exists.")
     out = _item_out(item)
+    await summaries.invalidate(db, user.id, await _meal_day(db, item.meal_id))
     await db.delete(item)
     await db.flush()
     return ok(out)

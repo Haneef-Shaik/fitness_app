@@ -5,6 +5,7 @@ from app.models.analysis import (
     FoodAnalysis,
     FoodAnalysisItem,
 )
+from app.models.body import BodyMetric, DailySummary, ProgressPhoto
 from app.models.exercise import (
     CatalogStatus,
     Equipment,
@@ -63,4 +64,6 @@ __all__ = [  # noqa: RUF022
     # AI analysis (G8)
     "FoodAnalysis", "FoodAnalysisItem",
     "AnalysisInputType", "AnalysisStatus", "AnalysisErrorCode",
+    # body & summaries (G9)
+    "BodyMetric", "DailySummary", "ProgressPhoto",
 ]

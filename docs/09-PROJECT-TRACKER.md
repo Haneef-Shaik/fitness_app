@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-23 (G8 closed — AI nutrition) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-23 (G9 closed — the dashboard) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -15,10 +15,11 @@
 
 | | |
 |---|---|
-| **Milestones complete** | M0, M1, M5, **M6** — **4 of 9** |
-| **Tests passing** | **997** — 91 TS domain, 361 Python *(3 skipped)*, **545 client** |
-| **API endpoints live** | **89** operations across **67** paths, all with declared response shapes (D17) |
-| **App screens built** | **41** of 103 designed |
+| **Milestones complete** | M0, M1, M2, M3, M4, M5, M6, **M7** — **8 of 9** |
+| **Tests passing** | **1,162** — 110 TS domain, 431 Python *(3 skipped)*, **621 client** |
+| **API endpoints live** | **97** operations across **73** paths, all with declared response shapes (D17) |
+| **App screens built** | **54** of 103 designed |
+| **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
@@ -33,7 +34,7 @@ M3 ████████████ done      retrieval
 M4 ████████████ done      training analytics
 M5 ████████████ done      nutrition core
 M6 ████████████ done      AI nutrition
-M7 ░░░░░░░░░░░░           body & dashboard
+M7 ████████████ done      body & dashboard
 M8 ░░░░░░░░░░░░           hardening
 ```
 
@@ -50,7 +51,7 @@ M8 ░░░░░░░░░░░░           hardening
 | M4 | Training analytics | AC-06 | ⚪ |
 | M5 | Nutrition core | AC-07 | 🟢 |
 | M6 | AI nutrition | AC-08, AC-09, AC-10 | 🟢 |
-| M7 | Progress & dashboard | AC-11 | ⚪ |
+| M7 | Progress & dashboard | AC-11 | 🟢 |
 | M8 | Hardening | NFR sign-off | ⚪ |
 
 ---
@@ -191,10 +192,16 @@ client is what remains.
 - [x] Screens: H-06…H-09, H-18
 - [x] AC-10 — corrected values confirmed, raw analysis **byte-identical**
 
-## M7 · Progress & dashboard ⚪
-- [ ] `body_metrics`, `/analytics/body`, `daily_summaries`
-- [ ] `GET /dashboard` — one aggregated call
-- [ ] Screens: I-01…I-06, J-01…J-04, B-02…B-05
+## M7 · Progress & dashboard 🟢
+- [x] `body_metrics` (**Q5 closed** — first weigh-in of the day is canonical, enforced on
+      the read), `/analytics/body`, `daily_summaries` (**D27** — invalidated on write,
+      recomputed on read, never updated in place). Migration `m7`, round-tripped
+- [x] **`GET /dashboard`** — one aggregated call, one server-resolved local date,
+      three domains. **2 requests → 1**, measured both ways
+- [x] Screens: I-01…I-06, J-01…J-04, B-02…B-05, and B-01 rebuilt on `/dashboard`
+- [x] **Edge case T4 implemented** (**D28**): a timezone change re-files every session,
+      meal and weigh-in onto the day it now falls on. The M2 model comment had claimed
+      this since before it was true
 
 ## M8 · Hardening ⚪
 - [ ] Offline outbox end-to-end, L-02 sync centre, L-07 conflict
@@ -212,8 +219,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G9 — body, goals, dashboard** | The last acceptance criterion. Also carries the **profile screen G7 found missing** — nothing in the app sets `birth_date`, `sex` or `height_cm`, which H-15's calculator needs — and `daily_summaries`, which H-14 has been waiting on | AC-11 |
-| 2 | **G10 — hardening** | Observability, accessibility, the performance budget D16 measured and missed, and account export/delete | NFR sign-off |
+| 1 | **G10 — hardening** | Every acceptance criterion is proven and **five of them have never run on hardware**. Also: the p95 budget D16 measured and missed, observability, accessibility, and account export/delete | NFR sign-off · release |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
@@ -225,6 +231,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 *Cleared 23 Sep: **G6** — six analytics endpoints and a chart kit. **AC-06**.*
 *Cleared 23 Sep: **G7** — nutrition core: foods, meals, the diary, categories, recipes, copying, targets. **AC-07**. Q1 worked around, not answered.*
 *Cleared 23 Sep: **G8** — AI nutrition: append-only analyses, a Postgres-queued worker, a contained gateway, signed uploads. **AC-08, AC-09, AC-10** — 11 of 12.*
+*Cleared 23 Sep: **G9** — body metrics, goals, progress photos and a single-call dashboard. **AC-11 — 12 of 12**. T4 implemented; Q5 closed.*
 
 ## Blocked
 
@@ -238,15 +245,15 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **997** — 545 client, 361 API (+3 skipped), 91 domain | grows with each milestone |
+| Tests passing | **1,162** — 621 client, 431 API (+3 skipped), 110 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **361** | every endpoint, happy + failure |
+| API integration tests | **431** | every endpoint, happy + failure |
 | Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
-| Migrations | **6** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, M5 nutrition, **M6 AI analyses** (append-only, with two triggers and the FK M5 deferred) | kept reversible — M5 and M6 each round-tripped upgrade → downgrade → re-upgrade before they shipped |
-| Mutation checks | **79** verified catches — **G8 added 22**: the correction detector in both directions, the schema-version gate, the low-confidence threshold, the missing error code, confirm idempotency, the quota, server-side EXIF stripping, signature verification and expiry, the resolver bypass, a worker that writes meal items itself, the append-only trigger, **each of the eight immutability clauses one at a time**, the three code-level guards, and five on the review screen. G7's 38 and the earlier 19 stand behind them. **One mutation survived and exposed a real hole**: the immutability test named a single column, and a "freeze it once it is set" rule would have let commentary be invented for an analysis that had none. The rule and the test were both changed | every guard and shared-vector change |
+| Migrations | **7** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, M5 nutrition, M6 AI analyses, **M7 body metrics, daily summaries and progress photos** | kept reversible — M5, M6 and M7 each round-tripped upgrade → downgrade → re-upgrade before they shipped |
+| Mutation checks | **96** verified catches — **G9 added 17**: the canonical weigh-in in both directions, ordering by written rather than measured, unit conversion skipped, the local date taken from the device clock, four write paths that forget to invalidate a summary, the timezone re-bucket and its cache clear, an unconfirmed item reaching the dashboard's calories, progress clamped, progress reported as zero when unmeasured, a borrowed baseline, a naive streak, and six on the screens. **Three survived and each exposed a real gap**: the timezone test was time-of-day dependent (two profiles **25 hours apart** always differ, one profile only sometimes does); a summary column nothing read could not have its invalidation tested, so the body card now reads it; and `invalidate_all` on a timezone change was unjustified until T4 was actually implemented | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
-| Coverage gate | **enforced**, and **ratcheted in G8** to **62/56/57/63** (from G7's 59/54/55/60). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **66.03%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **62.15%** statements / **63.35%** lines | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **11 of 12** — AC-01, AC-02, AC-04 (device + API, 22 Sep), AC-03, AC-05, AC-06, AC-07, **AC-08, AC-09, AC-10** (23 Sep) and AC-12. **AC-07 to AC-10 are proven by API and client tests, not on hardware** — `scripts/e2e.sh` still covers AC-01/02/04/05 only. AC-11 is G9 | 12 of 12 |
+| Coverage gate | **enforced**, and **ratcheted in G9** to **65/60/60/66** (from G8's 62/56/57/63). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **68.4%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **65.25%** statements / **66.59%** lines. The gate caught G9 mid-goal: the screens landed before their tests and the functions threshold failed, which is the ratchet working | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
+| Acceptance criteria passing | **12 of 12** — AC-01 … AC-12, all proven. **AC-07 to AC-11 rest on API and client tests, not on hardware**: `scripts/e2e.sh` still covers AC-01/02/04/05 only, because no device has been attached since G7. That gap is G10's | 12 of 12 ✅ |
 | tap → set rendered | **p95 396.4 ms** over 99 commits, **118.7 ms** over 9 — Samsung SM-E546B, Android 16, `__DEV__` build. [Full write-up](measurements/commit-p95.md) | p95 < 100 ms (D16) — **MISSED at every list length measured** |
 
 ## Changelog
@@ -279,6 +286,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 23 Sep | **G9 — the dashboard.** `body_metrics`, `daily_summaries`, `progress_photos` (migration `m7`), `GET /analytics/body` and **`GET /dashboard`** — one call, one server-resolved local date, three domains. Screens **I-01…I-06, J-01…J-04, B-02…B-05**, and B-01 rebuilt on it: **2 requests → 1**, measured. **AC-11 proven — 12 of 12**. API tests 361 → 431, client 545 → 621, domain 91 → 110. Q5 closed, edge case T4 implemented |
 | 23 Sep | **G8 — AI nutrition.** `food_analyses` / `food_analysis_items` **append-only at the database level**, a Postgres `SKIP LOCKED` queue with the worker in its own process, an `AIGateway` Protocol (stub by default, Anthropic behind a key), signed uploads with EXIF stripped twice, and screens **H-06…H-09, H-18**. **AC-08, AC-09 and AC-10 proven — 11 of 12**. API tests 293 → 361, client 502 → 545. Migration `m6` |
 | 23 Sep | **G7 — nutrition core.** `foods`, `meals`, `meal_items`, `meal_categories`, `recipes`, migration `2fb1377688cf`. Endpoints `/foods`, `/meals`, `/meal-items`, `/recipes`, `/meal-categories`, `/nutrition/day` and the two copy routes. Screens **H-01…H-05, H-10…H-13, H-15, H-16**. **AC-07 proven — 8 of 12**. API tests 241 → 293, client 414 → 502, domain 59 → 91. Q1 **not** answered; the resolver made it optional |
 | 23 Sep | **G6 — analytics.** Six `/analytics/*` endpoints, a chart kit (**H6.1**) and screens **G-01…G-07**. **AC-06 proven** — **7 of 12**. API tests 209 → 241, client 370 → 414 |
@@ -493,6 +501,92 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G9 · Dashboard                                   closed 23 Sep
+
+**Outcome claimed.** B-01 shows real training, nutrition and body state for the user's local date,
+in one call — **AC-11**. **12 of 12.**
+
+**Inherited and used.**
+
+| ID | Held? | Note |
+|----|-------|------|
+| H6.2 | ✅ | The dashboard reads through the same indexed shapes. Its training figures come from `workout_sessions.total_volume_kg`, denormalised at finish, so the card costs one aggregate rather than a scan of every set |
+| H7.2 | ✅ | Its nutrition figures go through `app.domain.nutrition.day_totals` like everything else. There is still exactly one place `confirmed` is filtered, and a test asserts the dashboard equals `/nutrition/day` — which is also what catches a write path that forgot to invalidate |
+| H3.2 | ✅ | **Third domain on the same queue, and it needed nothing new.** G7's `store.enqueue` already accepts a write with no draft behind it, which is what a weigh-in is. `features/body/logMetric.ts` is twenty lines |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H9.1 | `GET /dashboard` | One call, one local date, three domains | **2 requests → 1**, measured at the transport layer in `app/__tests__/dashboardRequests.test.tsx`, which stays in the suite as a ratchet |
+
+**Verified.**
+
+- **AC-11** — `test_ac11_all_three_domains_show_what_was_just_written`: a workout, a meal and a
+  weigh-in, then one `GET /dashboard` carrying all three.
+- **The request count.** Before: **2** (`GET /goals` + `GET /profile`) — and the screen was showing
+  *placeholder* nutrition, no training and no body data at all. A fan-out that actually showed all
+  three domains would have been **6** (profile, goals, nutrition day, active session, last session,
+  body series). After: **1**.
+- **The server-side date.** Two tests. One pins the value against `ZoneInfo('Pacific/Auckland')`.
+  The other is the one that cannot pass by luck: **Kiritimati (UTC+14) and Niue (UTC−11) are 25
+  hours apart**, so their local dates differ at *every* instant — a server reading its own clock
+  returns the same date for both. The first test alone was time-of-day dependent, and a mutation
+  found that.
+- **A brand-new user's dashboard**: `local_date`, `timezone`, and four cards — "Nothing logged yet"
+  with *Start workout*; "No targets set yet" with *Set a target* and **no meter drawn against
+  nothing**; "Track your weight to see the trend" with **no chart and no zero line**; "No goals yet"
+  with *Set a goal*. Status 200, never a 404.
+- **Q5** — two weigh-ins on one day, and the morning figure is the one the chart and the goal use.
+  Earliest *measured*, not earliest written.
+
+Acceptance criteria now proven: AC-01 … AC-12 — **12 of 12**.
+
+**Decisions recorded.** **D27** `daily_summaries` is invalidated on write and recomputed on read,
+never updated in place · **D28** a timezone change re-files history (edge case T4) · **D29** device
+preferences live in a local JSON file, not on the server and not in the keychain. **Q5 closed.**
+
+**Left undone, and why.**
+
+- **No hardware run, for anything.** `scripts/e2e.sh` still covers AC-01/02/04/05. **Five criteria
+  — AC-07 through AC-11 — rest entirely on API and client tests.** No device has been attached
+  since G7, and an unrun Maestro flow is worse than none (G4's own lesson). This is the largest
+  single gap in the project and it belongs to G10.
+- **H-14 nutrition analytics is still unbuilt.** `daily_summaries` now exists, which was what it was
+  waiting for, but the screen was not in G9's scope list.
+- **The projection on I-01** ("at this rate, around 12 Nov") is not built. It needs a rate estimate
+  over a 4-week window and a clear statement that it is an estimate; guessing at it badly on a
+  screen somebody checks weekly is worse than not offering it.
+- **No profile screen still.** G7 found that nothing sets `birth_date`, `sex` or `height_cm`, and
+  G9 did not add one — body metrics are a different table and H-15's calculator still falls back.
+  It is a small screen and it is now the only thing standing between the calculator and Mifflin–St
+  Jeor.
+- **Reminders do not send.** B-04 stores the preferences and **says plainly that nothing fires
+  yet**, because a toggle that silently does nothing is worse than one that admits it.
+
+**Traps hit.**
+
+- **A test that passed by luck.** The timezone assertion compared UTC against Auckland, which are
+  only on different dates for part of the day. It would have gone green on most CI runs and red on
+  some, for reasons nobody would have connected to the code. Two profiles 25 hours apart cannot.
+- **A cached column nothing read.** `daily_summaries.body_weight_kg` was written and never
+  consulted, so "did the weigh-in invalidate the summary?" was untestable — the mutation survived.
+  The body card now reads it as `today`, which is also a state B-01 wanted: *logged today* versus
+  *last logged on the 21st*.
+- **An unjustified `invalidate_all`.** Clearing every summary on a timezone change looked obviously
+  right and was, at that moment, dead code: `local_date` columns never moved, so the cached rows
+  stayed correct. Rather than delete it, G9 implemented the thing that had been claimed since M2 —
+  and it is load-bearing now.
+- **A backup loop that collided on a basename.** `app/domain/body.py` and `app/api/routes/body.py`
+  both backed up to `/tmp/body.py.orig` during a mutation run, and the restore wrote the domain
+  module over the routes file. Caught immediately by the suite; worth recording because the
+  mutation-testing scaffolding is code too.
+- **`expo-file-system` in the graph of every screen.** Exactly G7's `expo-sqlite` problem, one goal
+  later: a static import of a native module in `lib/prefs.ts` took out the dashboard's own test
+  suite. Required lazily, same as `lib/db`.
 
 ---
 

@@ -7,3 +7,4 @@ export * from './training/adherence';
 export * from './units/index';
 export * from './datetime/index';
 export * from './nutrition/index';
+export * from './body/index';

@@ -147,7 +147,7 @@
       "expected_e1rm_kg": 101.333333333
     },
     {
-      "name": "high reps — formula unreliable above ~12, still defined",
+      "name": "high reps \u2014 formula unreliable above ~12, still defined",
       "load_kg": 60,
       "reps": 20,
       "expected_e1rm_kg": 100.0
@@ -257,13 +257,13 @@
       "instant": "2026-09-21T18:20:00Z",
       "timezone": "Asia/Kolkata",
       "expected_local_date": "2026-09-21",
-      "note": "23:50 local — still the same day"
+      "note": "23:50 local \u2014 still the same day"
     },
     {
       "instant": "2026-09-21T18:40:00Z",
       "timezone": "Asia/Kolkata",
       "expected_local_date": "2026-09-22",
-      "note": "00:10 local — rolled over"
+      "note": "00:10 local \u2014 rolled over"
     },
     {
       "instant": "2026-09-21T23:40:00Z",
@@ -612,6 +612,168 @@
         "fat_g": 2.664
       },
       "note": "a non-round serving - no rounding at the domain edge"
+    }
+  ],
+  "goal_progress": [
+    {
+      "start": 80.0,
+      "target": 75.0,
+      "current": 78.5,
+      "direction": "down",
+      "expected": 0.3,
+      "note": "80 to 75 is 5 kg; 80 to 78.5 is 1.5 of them"
+    },
+    {
+      "start": 80.0,
+      "target": 75.0,
+      "current": 80.0,
+      "direction": "down",
+      "expected": 0.0,
+      "note": "measured, and exactly where they started"
+    },
+    {
+      "start": 80.0,
+      "target": 75.0,
+      "current": 75.0,
+      "direction": "down",
+      "expected": 1.0,
+      "note": "arrived"
+    },
+    {
+      "start": 80.0,
+      "target": 75.0,
+      "current": 72.0,
+      "direction": "down",
+      "expected": 1.0,
+      "note": "overshoot is complete, never more than complete"
+    },
+    {
+      "start": 80.0,
+      "target": 75.0,
+      "current": 81.0,
+      "direction": "down",
+      "expected": -0.2,
+      "note": "the wrong way is NEGATIVE, not clamped to zero - hiding it behind a 0% meter is how someone finds out in three months"
+    },
+    {
+      "start": 70.0,
+      "target": 78.0,
+      "current": 74.0,
+      "direction": "up",
+      "expected": 0.5,
+      "note": "gaining works the same way in the other direction"
+    },
+    {
+      "start": 70.0,
+      "target": 78.0,
+      "current": 68.0,
+      "direction": "up",
+      "expected": -0.25,
+      "note": "losing weight while trying to gain it"
+    },
+    {
+      "start": 75.0,
+      "target": 75.0,
+      "current": 75.0,
+      "direction": "hold",
+      "expected": 1.0,
+      "note": "holding, and holding it - a zero-width target would divide by zero"
+    },
+    {
+      "start": 75.0,
+      "target": 75.0,
+      "current": 76.5,
+      "direction": "hold",
+      "expected": 0.0,
+      "note": "holding, and not holding it. 1.5 kg out of a 75 kg target is beyond the 1% band"
+    },
+    {
+      "start": 75.0,
+      "target": 75.0,
+      "current": 75.3,
+      "direction": "hold",
+      "expected": 1.0,
+      "note": "within the band a scale moves on its own"
+    },
+    {
+      "start": null,
+      "target": 75.0,
+      "current": 78.0,
+      "direction": "down",
+      "expected": null,
+      "note": "no starting point means no denominator - null, never 0"
+    },
+    {
+      "start": 80.0,
+      "target": 75.0,
+      "current": null,
+      "direction": "down",
+      "expected": null,
+      "note": "not measured yet is not the same as no progress"
+    }
+  ],
+  "training_streak": [
+    {
+      "today": "2026-09-23",
+      "days": [
+        "2026-09-23",
+        "2026-09-22",
+        "2026-09-21"
+      ],
+      "expected": 3,
+      "note": "three consecutive days ending today"
+    },
+    {
+      "today": "2026-09-23",
+      "days": [
+        "2026-09-22",
+        "2026-09-21"
+      ],
+      "expected": 2,
+      "note": "yesterday still counts - a streak does not end because today is not over"
+    },
+    {
+      "today": "2026-09-23",
+      "days": [
+        "2026-09-21",
+        "2026-09-20"
+      ],
+      "expected": 0,
+      "note": "a gap of a whole day ends it"
+    },
+    {
+      "today": "2026-09-23",
+      "days": [],
+      "expected": 0,
+      "note": "nobody has trained"
+    },
+    {
+      "today": "2026-09-23",
+      "days": [
+        "2026-09-23",
+        "2026-09-23",
+        "2026-09-22"
+      ],
+      "expected": 2,
+      "note": "two sessions in one day is one day of streak"
+    },
+    {
+      "today": "2026-09-23",
+      "days": [
+        "2026-09-24",
+        "2026-09-23"
+      ],
+      "expected": 2,
+      "note": "a session dated ahead of the profile's today still counts - a timezone edge, not a reason to drop it"
+    },
+    {
+      "today": "2026-03-02",
+      "days": [
+        "2026-03-01",
+        "2026-02-28"
+      ],
+      "expected": 2,
+      "note": "February in a non-leap year - month arithmetic, not day arithmetic"
     }
   ]
 }

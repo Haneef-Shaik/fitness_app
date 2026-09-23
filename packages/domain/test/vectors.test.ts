@@ -11,7 +11,7 @@ import { dirname, resolve } from 'node:path';
 import {
   totalVolumeKg, estimated1rmKg, evaluateRecords, validateSet,
   kgToLb, lbToKg, cmToIn, toLocalDate, dayTotals, adherence, plannedOccurrences,
-  scaleToGrams,
+  scaleToGrams, goalProgress, trainingStreak,
   KG_PER_LB, CM_PER_IN, E1RM_FORMULA_VERSION,
   type WorkoutSet, type SetType,
 } from '../src/index';
@@ -157,6 +157,27 @@ describe('nutrition scaling', () => {
         if (expected === null) expect(actual).toBeNull();
         else expect(actual!).toBeCloseTo(expected, 5);
       }
+    });
+  }
+});
+
+describe('goal progress (G9)', () => {
+  for (const c of V.goal_progress) {
+    it(c.note, () => {
+      const got = goalProgress({
+        start: c.start, target: c.target, current: c.current, direction: c.direction,
+      });
+      // null is not 0 here, and the assertion has to be able to tell them apart.
+      if (c.expected === null) expect(got).toBeNull();
+      else expect(got!).toBeCloseTo(c.expected, 9);
+    });
+  }
+});
+
+describe('training streak (G9)', () => {
+  for (const c of V.training_streak) {
+    it(c.note, () => {
+      expect(trainingStreak(c.today, c.days)).toBe(c.expected);
     });
   }
 });

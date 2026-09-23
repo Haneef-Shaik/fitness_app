@@ -49,6 +49,7 @@ from app.schemas.analysis import (
 )
 from app.schemas.envelope import Envelope
 from app.schemas.nutrition import MealOut
+from app.services import summaries
 from app.storage.provider import get_store
 
 router = APIRouter(tags=["ai-nutrition"])
@@ -351,6 +352,8 @@ async def confirm_analysis(
     # The single write to the analysis row: which meal it became. The trigger
     # in migration m6 refuses anything else.
     analysis.confirmed_meal_id = meal.id
+    # An estimate becoming a confirmed meal is the moment the day moves (I12).
+    await summaries.invalidate(db, user.id, meal.local_date)
     await db.flush()
 
     fresh = await db.scalar(

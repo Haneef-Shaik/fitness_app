@@ -1,189 +1,415 @@
-/** B-01 Home Dashboard — BRD §14. First-run shows a checklist, never zeroed charts. */
+/**
+ * B-01 · Home Dashboard — **AC-11**.
+ *
+ * **One request.** Training, nutrition, body and goals all come from
+ * `GET /dashboard`, and `app/__tests__/dashboardRequests.test.tsx` asserts the
+ * count so a future screen cannot quietly reintroduce a fan-out. This screen is
+ * the one a user sees most often and judges the app by; every extra request was
+ * latency on it.
+ *
+ * **The day is the server's.** Nothing here computes "today". The date shown is
+ * the one the server resolved from the profile's timezone (**I7**) — a phone in
+ * a different timezone from the profile is not a bug this screen gets to have
+ * an opinion about.
+ *
+ * **Each domain renders its own empty state.** A brand-new user has three empty
+ * ones, and that is the *first* dashboard anybody sees. One empty domain never
+ * blanks the other two.
+ */
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Card, Meter, Pill, Stat, StatRow, Text, Well } from '@/ui';
+import type { BodyCard, GoalCard, NutritionCard, TrainingCard } from '@volt/api-types';
+import { Button, Card, Meter, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { useTheme, space, font } from '@/theme';
 import { useSession } from '@/lib/session';
-import { formatDayLabel } from '@/lib/datetime';
-import { useCreateGoal, useGoals } from '@/lib/query/hooks';
-import { dayTotals, remainingKcal } from '@volt/domain';
+import { useDashboard } from '@/lib/query/hooks';
+import { grams, kcal } from '@/features/nutrition/format';
+import {
+  DEFAULT_LAYOUT, loadDashboardLayout, type DashboardLayout,
+} from '@/features/dashboard/layout';
 
 export default function Home() {
   const { c } = useTheme();
-  const { profile, email, signOut, refreshProfile } = useSession();
+  const { email, signOut } = useSession();
+  const board = useDashboard();
 
-  // The query layer owns fetching, caching, retry and the error surface (docs/03 §6).
-  const goals = useGoals();
-  const createGoal = useCreateGoal();
-
-  // No meals logged yet — the totals come from the domain package, not a hardcoded 0.
-  const totals = dayTotals([]);
-  const target = profile?.daily_calorie_target ?? 0;
-  const remaining = remainingKcal(totals.calories, target);
-  const tz = profile?.timezone ?? 'UTC';
+  // B-02's choice, applied. The request is unchanged either way — hiding a card
+  // hides a card, it does not stop anything being tracked.
+  const [layout, setLayout] = useState<DashboardLayout>(DEFAULT_LAYOUT);
+  useEffect(() => { void loadDashboardLayout().then(setLayout); }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
       <ScrollView
         contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge }}
         refreshControl={
-          <RefreshControl refreshing={goals.isFetching} tintColor={c.ink3}
-            onRefresh={async () => { await Promise.all([goals.refetch(), refreshProfile()]); }} />
+          <RefreshControl
+            refreshing={board.isFetching}
+            tintColor={c.ink3}
+            onRefresh={() => { void board.refetch(); }}
+          />
         }
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text variant="title">{formatDayLabel(new Date(), tz)}</Text>
-          <Pressable onPress={signOut} accessibilityRole="button" accessibilityLabel="Sign out"
-            style={{ width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: c.line2,
-              alignItems: 'center', justifyContent: 'center' }}>
-            <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi }}>
-              {(email ?? 'U').slice(0, 2).toUpperCase()}
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Today's workout */}
-        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Today's workout</Text>
-        <Card hero>
-          <Pill>No program yet</Pill>
-          <Text variant="display" style={{ fontSize: 28, marginTop: 10 }}>Nothing planned</Text>
-          <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-            Build a program, or start an empty session.
-          </Text>
-          {/* Starting a workout is the primary thing this screen is for. G3 left
-              it reachable only by URL, which G4 found by trying to drive it. */}
-          <Button
-            title="Start workout"
-            style={{ marginTop: space.base }}
-            onPress={() => router.push('/train/start')}
-          />
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-            <Button
-              title="Programs"
-              kind="ghost"
-              size="sm"
-              style={{ flex: 1 }}
-              onPress={() => router.push('/train/programs')}
-            />
-            <Button
-              title="Exercises"
-              kind="ghost"
-              size="sm"
-              style={{ flex: 1 }}
-              onPress={() => router.push('/train/exercises')}
-            />
-            {/* G4's lesson: a screen reachable only by typing a URL is not
-                reachable. F-01 gets a button the moment it exists. */}
-            <Button
-              title="History"
-              kind="ghost"
-              size="sm"
-              style={{ flex: 1 }}
-              onPress={() => router.push('/train/history')}
-            />
-            <Button
-              title="Trends"
-              kind="ghost"
-              size="sm"
-              style={{ flex: 1 }}
-              onPress={() => router.push('/train/analytics')}
-            />
-          </View>
-        </Card>
-
-        {/* Today's nutrition */}
-        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Today's nutrition</Text>
-        <Card hero>
-          {target > 0 ? (
+        <DataBoundary
+          query={board}
+          isEmpty={() => false}
+          empty={{ title: 'Nothing to show yet' }}
+        >
+          {(data) => (
             <>
-              <View style={{ alignItems: 'center' }}>
-                <Text variant="hero" style={{ fontSize: 56 }}>{remaining.toLocaleString()}</Text>
-                <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-                  kcal left · {totals.calories.toLocaleString()} of {target.toLocaleString()}
-                </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View>
+                  {/* The server's date, rendered. Not a date computed here. */}
+                  <Text variant="title" testID="dashboard-date">{data.local_date}</Text>
+                  <Text variant="caption" tone="ink3">{data.timezone}</Text>
+                </View>
+                <Pressable
+                  onPress={signOut}
+                  accessibilityRole="button"
+                  accessibilityLabel="Sign out"
+                  style={{
+                    width: 32, height: 32, borderRadius: 16, borderWidth: 1,
+                    borderColor: c.line2, alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi }}>
+                    {(email ?? 'U').slice(0, 2).toUpperCase()}
+                  </Text>
+                </Pressable>
               </View>
-              <View style={{ marginTop: space.md }}>
-                <Meter value={totals.calories} max={target} />
-              </View>
-              <View style={{ marginTop: space.base, gap: 9 }}>
-                {([['Protein', profile?.protein_g_target, c.s1],
-                   ['Carbs', profile?.carbs_g_target, c.s2],
-                   ['Fat', profile?.fat_g_target, c.s3]] as const).map(([n, t, col]) => (
-                  <View key={n} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <Text variant="caption" tone="ink3" style={{ width: 54 }}>{n}</Text>
-                    <View style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: c.sunken,
-                      borderWidth: 1, borderColor: c.line, overflow: 'hidden' }}>
-                      <View style={{ width: '0%', height: '100%', backgroundColor: col }} />
-                    </View>
-                    <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi, fontSize: 14 }}>
-                      0/{t ?? 0} g
-                    </Text>
-                  </View>
+
+              {layout.filter((s) => s.visible).map((section) => {
+                switch (section.key) {
+                  case 'training':
+                    return <TrainingSection key="training" card={data.training} />;
+                  case 'nutrition':
+                    return <NutritionSection key="nutrition" card={data.nutrition} />;
+                  case 'body':
+                    return <BodySection key="body" card={data.body} />;
+                  case 'goals':
+                    return <GoalsSection key="goals" goals={data.goals ?? []} />;
+                  default:
+                    return null;
+                }
+              })}
+
+              <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+                Elsewhere
+              </Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
+                {([
+                  ['Programs', '/train/programs', 'go-programs'],
+                  ['Exercises', '/train/exercises', 'go-exercises'],
+                  ['History', '/train/history', 'go-history'],
+                  ['Trends', '/train/analytics', 'go-trends'],
+                  ['Progress', '/progress', 'go-progress'],
+                  ['Customise', '/home/customize', 'go-customize'],
+                  ['Search', '/search', 'go-search'],
+                  ['Quick actions', '/quick', 'go-quick'],
+                  ['Reminders', '/notifications', 'go-notifications'],
+                ] as const).map(([label, href, testID]) => (
+                  <Button
+                    key={href}
+                    title={label}
+                    kind="ghost"
+                    size="sm"
+                    testID={testID}
+                    onPress={() => router.push(href)}
+                  />
                 ))}
               </View>
-              <Text variant="caption" tone="ink3" style={{ marginTop: space.md }}>Nothing logged yet.</Text>
-            </>
-          ) : (
-            <>
-              <Text variant="body" tone="ink2">No targets set yet.</Text>
-              <Button title="Set a target" kind="ghost" size="sm" style={{ marginTop: space.md }} />
-            </>
-          )}
-        </Card>
-
-        {/* Goals */}
-        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Goals</Text>
-        <DataBoundary
-          query={goals}
-          empty={{
-            title: 'No goals yet',
-            body: 'Set a goal to track progress against.',
-            action: {
-              label: 'Set a goal',
-              onPress: () => createGoal.mutate({
-                goal_type: 'fat_loss', metric_key: 'body_weight', direction: 'down',
-                start_value: 78.4, target_value: 74, target_unit: 'kg',
-                start_date: new Date().toISOString().slice(0, 10),
-              } as never),
-            },
-          }}
-        >
-          {(rows) => (
-            <>
-              {rows.map(g => (
-                <Card key={g.id} style={{ marginBottom: 10 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text variant="label">{g.goal_type.replace('_', ' ')}</Text>
-                    <Pill kind="accent">{g.status}</Pill>
-                  </View>
-                  <Text variant="stat" style={{ marginTop: 8 }}>
-                    {g.start_value ?? '—'} → {g.target_value} <Text variant="caption" tone="ink3">{g.target_unit}</Text>
-                  </Text>
-                  <View style={{ marginTop: space.md }}>
-                    <Meter value={0.54} max={1} />
-                  </View>
-                </Card>
-              ))}
             </>
           )}
         </DataBoundary>
-
-        {/* Profile summary — proves the API round-trip */}
-        <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>Your setup</Text>
-        <StatRow>
-          <Stat value={profile?.preferred_unit_system === 'metric' ? 'kg' : 'lb'} label="Units" />
-          <Stat value={String(profile?.daily_calorie_target ?? '—')} label="kcal target" />
-          <Stat value={String(profile?.protein_g_target ?? '—')} label="g protein" />
-        </StatRow>
-        <Well style={{ marginTop: space.md }}>
-          <Text variant="caption" tone="ink3">
-            Signed in as {email} · time zone {tz}. Your day starts and ends there — that decides
-            which day a workout or meal belongs to.
-          </Text>
-        </Well>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+/* ------------------------------------------------------------- training */
+
+function TrainingSection({ card }: { card: TrainingCard }) {
+  const empty = card.sessions_today === 0 && !card.last_session;
+
+  return (
+    <>
+      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+        Training
+      </Text>
+      <Card hero>
+        {card.active_session_id ? (
+          <>
+            <Pill kind="accent">In progress</Pill>
+            <Button
+              title="Resume workout"
+              style={{ marginTop: space.base }}
+              testID="resume-session"
+              onPress={() => router.push(`/session/${card.active_session_id}`)}
+            />
+          </>
+        ) : empty ? (
+          <>
+            {/* Not a zeroed chart. A first-run checklist (BRD §14). */}
+            <Text variant="body" testID="training-empty">Nothing logged yet</Text>
+            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+              Start a workout and this fills in as you go.
+            </Text>
+            <Button
+              title="Start workout"
+              style={{ marginTop: space.base }}
+              testID="start-workout"
+              onPress={() => router.push('/train/start')}
+            />
+          </>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+              <Text variant="display" style={{ fontSize: 30 }} testID="training-volume">
+                {kcal(card.volume_today_kg)}
+              </Text>
+              <Text variant="caption" tone="ink3">kg today</Text>
+            </View>
+            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+              {card.sessions_this_week} session{card.sessions_this_week === 1 ? '' : 's'} this
+              week · {kcal(card.volume_this_week_kg)} kg
+              {card.streak_days > 0 ? ` · ${card.streak_days}-day streak` : ''}
+            </Text>
+            {card.last_session ? (
+              <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+                Last: {card.last_session.local_date} ·{' '}
+                {card.last_session.set_count} sets
+              </Text>
+            ) : null}
+            <Button
+              title="Start workout"
+              style={{ marginTop: space.base }}
+              testID="start-workout"
+              onPress={() => router.push('/train/start')}
+            />
+          </>
+        )}
+      </Card>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------ nutrition */
+
+function NutritionSection({ card }: { card: NutritionCard }) {
+  const target = card.targets?.calories ?? null;
+  const remaining = target === null ? null : target - card.calories;
+
+  return (
+    <>
+      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+        Nutrition
+      </Text>
+      <Card hero>
+        {target !== null ? (
+          <>
+            <View style={{ alignItems: 'center' }}>
+              <Text variant="hero" style={{ fontSize: 48 }} testID="kcal-remaining">
+                {kcal(remaining)}
+              </Text>
+              <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+                kcal left · {kcal(card.calories)} of {kcal(target)}
+              </Text>
+            </View>
+            <View style={{ marginTop: space.md }}>
+              <Meter value={card.calories} max={target} over={card.calories > target} />
+            </View>
+          </>
+        ) : (
+          <>
+            {/* No invented target, and no meter drawn against nothing. */}
+            <Text variant="body" tone="ink2" testID="no-target">No targets set yet.</Text>
+            <Button
+              title="Set a target"
+              kind="ghost"
+              size="sm"
+              style={{ marginTop: space.md }}
+              testID="go-targets"
+              onPress={() => router.push('/nutrition/targets')}
+            />
+          </>
+        )}
+
+        <View style={{ flexDirection: 'row', gap: space.lg, marginTop: space.base }}>
+          <Macro label="Protein" value={card.protein_g} target={card.targets?.protein_g} />
+          <Macro label="Carbs" value={card.carbs_g} target={card.targets?.carbs_g} />
+          <Macro label="Fat" value={card.fat_g} target={card.targets?.fat_g} />
+        </View>
+
+        {card.pending_count > 0 ? (
+          // Visible, and in no total. I12 — the preview IS the bug.
+          <Text variant="caption" tone="ink3" style={{ marginTop: space.sm }} testID="pending">
+            {card.pending_count} item{card.pending_count === 1 ? '' : 's'} waiting to be
+            confirmed — not counted yet.
+          </Text>
+        ) : null}
+        {card.incomplete ? (
+          <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+            Some items are missing macros, so this total is a floor.
+          </Text>
+        ) : null}
+        {card.meals_logged === 0 ? (
+          <Text variant="caption" tone="ink3" style={{ marginTop: space.sm }} testID="nutrition-empty">
+            Nothing logged today.
+          </Text>
+        ) : null}
+
+        <Button
+          title="Log food"
+          kind="ghost"
+          size="sm"
+          style={{ marginTop: space.base }}
+          testID="go-nutrition"
+          onPress={() => router.push('/nutrition')}
+        />
+      </Card>
+    </>
+  );
+}
+
+function Macro({
+  label, value, target,
+}: { label: string; value: number; target?: number | null }) {
+  return (
+    <View>
+      <Text variant="label" tone="ink3">{label}</Text>
+      <Text variant="body">
+        {grams(value)}{target ? ` / ${target} g` : ''}
+      </Text>
+    </View>
+  );
+}
+
+/* ----------------------------------------------------------------- body */
+
+function BodySection({ card }: { card: BodyCard }) {
+  return (
+    <>
+      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+        Body
+      </Text>
+      <Card>
+        {card.latest ? (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+              <Text variant="display" style={{ fontSize: 28 }} testID="body-latest">
+                {card.latest.value.toFixed(1)}
+              </Text>
+              <Text variant="caption" tone="ink3">{card.unit}</Text>
+            </View>
+            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+              {card.today === null || card.today === undefined
+                // An old figure is shown WITH its date, never as if it were fresh.
+                ? `Last logged ${card.latest.local_date}`
+                : 'Logged today'}
+              {card.change_7d !== null && card.change_7d !== undefined
+                ? ` · ${card.change_7d > 0 ? '+' : ''}${card.change_7d.toFixed(1)} ${card.unit} in 7 days`
+                : ''}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text variant="body" testID="body-empty">Track your weight to see the trend</Text>
+            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+              One entry a week is enough to see where you are going.
+            </Text>
+          </>
+        )}
+        <Button
+          title={card.today === null || card.today === undefined ? 'Log today' : 'Progress'}
+          kind="ghost"
+          size="sm"
+          style={{ marginTop: space.base }}
+          testID="go-body"
+          onPress={() => router.push('/progress')}
+        />
+      </Card>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------- goals */
+
+function GoalsSection({ goals }: { goals: readonly GoalCard[] }) {
+  return (
+    <>
+      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+        Goals
+      </Text>
+      {goals.length === 0 ? (
+        <Card>
+          <Text variant="body" testID="goals-empty">No goals yet</Text>
+          <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+            Set one and everything above gets something to aim at.
+          </Text>
+          <Button
+            title="Set a goal"
+            kind="ghost"
+            size="sm"
+            style={{ marginTop: space.base }}
+            testID="go-new-goal"
+            onPress={() => router.push('/progress/goals/new')}
+          />
+        </Card>
+      ) : (
+        goals.map((goal) => <GoalRow key={String(goal.id)} goal={goal} />)
+      )}
+    </>
+  );
+}
+
+export function GoalRow({ goal }: { goal: GoalCard }) {
+  const progress = goal.progress;
+
+  return (
+    <Pressable
+      onPress={() => router.push(`/progress/goals/${goal.id}`)}
+      accessibilityRole="button"
+      accessibilityLabel={
+        `${goal.goal_type.replace('_', ' ')}, ${goal.target_value} ${goal.target_unit}, `
+        + (progress === null || progress === undefined
+          ? 'not measured yet'
+          : `${Math.round(progress * 100)} percent`)
+      }
+      testID={`goal-${goal.id}`}
+    >
+      <Card style={{ marginBottom: 10 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text variant="label">{goal.goal_type.replace('_', ' ')}</Text>
+          <Pill kind={progress !== null && progress !== undefined && progress >= 1 ? 'good' : 'accent'}>
+            {goal.status}
+          </Pill>
+        </View>
+        <Text variant="stat" style={{ marginTop: 8 }}>
+          {goal.current_value?.toFixed(1) ?? goal.start_value?.toFixed(1) ?? '—'} →{' '}
+          {goal.target_value} <Text variant="caption" tone="ink3">{goal.target_unit}</Text>
+        </Text>
+
+        {progress === null || progress === undefined ? (
+          // Null is not zero. A meter at 0% would read as "no progress" when
+          // the truth is "we have not weighed you yet".
+          <Text variant="caption" tone="ink3" style={{ marginTop: space.md }} testID={`goal-${goal.id}-unmeasured`}>
+            Log a measurement and this starts tracking.
+          </Text>
+        ) : (
+          <View style={{ marginTop: space.md }}>
+            <Meter value={Math.max(0, progress)} max={1} over={progress < 0} />
+            <Text variant="caption" tone={progress < 0 ? 'serious' : 'ink3'} style={{ marginTop: 4 }}>
+              {progress < 0
+                // Shown, not hidden behind an empty meter.
+                ? 'Moving away from it at the moment'
+                : `${Math.round(progress * 100)}% of the way`}
+            </Text>
+          </View>
+        )}
+      </Card>
+    </Pressable>
   );
 }

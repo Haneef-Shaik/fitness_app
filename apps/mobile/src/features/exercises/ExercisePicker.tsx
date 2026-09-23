@@ -11,7 +11,9 @@
  * Single-select (swap) is `max={1}`.
  */
 import React, { useMemo, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import type { Exercise } from '@volt/api-types';
 import { Button, Text } from '../../ui';
 import { DataBoundary } from '../../ui/DataBoundary';

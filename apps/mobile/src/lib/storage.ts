@@ -33,3 +33,32 @@ export async function clearRefreshToken(): Promise<void> {
     else await SecureStore.deleteItemAsync(REFRESH);
   } catch { /* nothing to do */ }
 }
+
+/**
+ * The signed-in account's id, kept beside the refresh token.
+ *
+ * Needed offline: a session restored without reaching the server still has to
+ * know whose unfinished workout and queue are on the device (G10), or the
+ * logger — which must work offline (I10) — would have nowhere to write.
+ */
+const ACCOUNT = 'volt.account_id';
+
+export async function setAccountId(id: string): Promise<void> {
+  try {
+    if (web) localStorage.setItem(ACCOUNT, id);
+    else await SecureStore.setItemAsync(ACCOUNT, id);
+  } catch { /* see setRefreshToken */ }
+}
+
+export async function getAccountId(): Promise<string | null> {
+  try {
+    return web ? localStorage.getItem(ACCOUNT) : await SecureStore.getItemAsync(ACCOUNT);
+  } catch { return null; }
+}
+
+export async function clearAccountId(): Promise<void> {
+  try {
+    if (web) localStorage.removeItem(ACCOUNT);
+    else await SecureStore.deleteItemAsync(ACCOUNT);
+  } catch { /* nothing to do */ }
+}

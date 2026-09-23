@@ -19,11 +19,15 @@ class GoalIn(BaseModel):
     target_unit: str = Field(default="kg", max_length=16)
     start_date: date
     target_date: date | None = None
+    #: Target units per week, always positive. 1.5 kg a week is already an
+    #: aggressive cut; anything faster is almost certainly a typo.
+    weekly_rate: float | None = Field(default=None, gt=0, le=1.5)
 
 
 class GoalPatch(BaseModel):
     target_value: float | None = None
     target_date: date | None = None
+    weekly_rate: float | None = Field(default=None, gt=0, le=1.5)
     status: GoalStatusT | None = None
 
 

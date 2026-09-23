@@ -40,6 +40,7 @@ from app.models import (
     FoodAnalysis,
     FoodAnalysisItem,
 )
+from app.observability.metrics import registry
 from app.storage.base import ObjectStore
 from app.storage.provider import get_store
 
@@ -160,6 +161,10 @@ class AnalysisWorker:
         if analysis is None:
             return
 
+        # Queued to finished, which is what a user waits through — not just the
+        # model call. 02 §9 alerts on the p95 of this.
+        started = (analysis.created_at or datetime.now(UTC)).timestamp()
+
         try:
             result = await self._analyse(analysis)
         except AIUnavailable as exc:
@@ -177,6 +182,7 @@ class AnalysisWorker:
             return await self._fail(session, analysis, AnalysisErrorCode.ai_unavailable)
 
         await self._persist(session, analysis, result)
+        registry.record_analysis("completed", datetime.now(UTC).timestamp() - started)
 
     async def _analyse(self, analysis: FoodAnalysis) -> AnalysisResult:
         if analysis.input_type == AnalysisInputType.text:
@@ -203,6 +209,9 @@ class AnalysisWorker:
             # H7.1 — the AI path resolves THROUGH the resolver, not around it.
             # Unresolved is a legitimate answer (ladder step 5), not a failure.
             resolved = await resolve_detected_name(resolver, item.detected_name)
+            # A high unresolved rate is a data-coverage problem, and the one Q1
+            # would close (02 §9).
+            registry.record_resolution(resolved is not None)
 
             session.add(FoodAnalysisItem(
                 analysis_id=analysis.id,
@@ -239,6 +248,7 @@ class AnalysisWorker:
         analysis.status = AnalysisStatus.failed
         analysis.error_code = code
         analysis.completed_at = datetime.now(UTC)
+        registry.record_analysis("failed")
         await session.flush()
 
 

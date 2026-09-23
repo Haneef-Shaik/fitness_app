@@ -1,4 +1,8 @@
-"""Seed the global catalog.  uv run python scripts/seed_catalog.py"""
+"""Seed all global reference data.  uv run python scripts/seed_catalog.py
+
+Named for the exercise catalog it started as; it now seeds everything in
+`app.seed`, which is what `seed_all` is for.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -9,16 +13,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from app.db import SessionLocal
-from app.seed.catalog import SEED_VERSION, seed_catalog
+from app.seed import seed_all
+from app.seed.catalog import SEED_VERSION
 
 
 async def main() -> int:
     async with SessionLocal() as db:
-        result = await seed_catalog(db)
+        result = await seed_all(db)
         await db.commit()
-    print(f"catalog seed v{SEED_VERSION}")
-    print(f"  muscle groups added: {result['muscle_groups']}")
-    print(f"  exercises added:     {result['exercises']}")
+    print(f"reference data seed v{SEED_VERSION}")
+    for kind, added in sorted(result.items()):
+        print(f"  {kind + ' added:':22} {added}")
     return 0
 
 

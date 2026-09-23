@@ -27,6 +27,18 @@ JDK=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 [ -d "$JDK" ] && export JAVA_HOME="$JDK" && export PATH="$JDK/bin:$PATH"
 export PATH="$PATH:$HOME/.maestro/bin:$HOME/Library/Android/sdk/platform-tools"
 
+# Maestro installs a driver APK and talks to it over gRPC. On this phone the
+# default startup window is not enough — the symptom is `StatusRuntimeException:
+# UNAVAILABLE` and a flow that "did not complete" with no steps, which reads
+# like a broken flow and is not one.
+export MAESTRO_DRIVER_STARTUP_TIMEOUT="${MAESTRO_DRIVER_STARTUP_TIMEOUT:-120000}"
+
+# With two devices attached (a phone and an emulator) Maestro cannot choose and
+# gives up with "0 devices connected". Pin one when there is more than one.
+DEVICE="${DEVICE:-$(adb devices | awk '/\tdevice$/{print $1}' | head -1)}"
+MAESTRO_DEVICE_ARGS=()
+[ -n "$DEVICE" ] && MAESTRO_DEVICE_ARGS=(--device "$DEVICE")
+
 # An emulator reaches the host through its OWN localhost, via the `adb reverse`
 # that scripts/emulator.sh sets up; a physical phone reaches it over the LAN.
 # Detected rather than configured, because getting it wrong produces a blank app
@@ -89,7 +101,7 @@ rewire() {
 
 flow() {
   rewire
-  maestro test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$1"
+  maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$1"
 }
 
 run_one() {
@@ -103,7 +115,7 @@ run_one() {
   # open and leaves completed history alone, which is exactly the guarantee.
   seed
   rewire
-  if ! maestro test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$flow"; then
+  if ! maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$flow"; then
     fail "$id — the flow did not complete"
     failures=$((failures + 1))
     return
@@ -118,6 +130,12 @@ run_one() {
 }
 
 bold "Seeding the known state"
+# Reference data FIRST, and every run. It is global and idempotent, and without
+# it the food catalog is empty — which G10 discovered on the phone, where
+# "Add food" answered *Nothing matches* for every staple in the seed.
+( cd services/api && uv run python scripts/seed_catalog.py ) >/dev/null || {
+  fail "reference-data seed failed"; exit 1;
+}
 ( cd services/api && uv run python scripts/seed_demo.py ) || {
   fail "seed failed — is the API up on :8000?"; exit 1;
 }
@@ -132,6 +150,17 @@ if [ "$WANT" = all ] || [ "$WANT" = ac-02 ]; then
 fi
 if [ "$WANT" = all ] || [ "$WANT" = ac-04 ]; then
   run_one ac-04 ac-04-previous-performance.yaml --exercise "Barbell Bench Press"
+fi
+if [ "$WANT" = all ] || [ "$WANT" = ac-07 ]; then
+  # G10: the first hardware proof of AC-07. Until now it rested on API and
+  # client tests — good ones, but G4 found eight defects on a phone that no
+  # suite had caught.
+  run_one ac-07 ac-07-log-a-meal.yaml --calories 389
+fi
+if [ "$WANT" = all ] || [ "$WANT" = ac-11 ]; then
+  # Runs after AC-01/AC-02 on purpose: the training card reads the sessions
+  # they leave behind.
+  run_one ac-11 ac-11-dashboard-shows-everything.yaml --weight 78.4
 fi
 if [ "$WANT" = all ] || [ "$WANT" = ac-05 ]; then
   run_one ac-05 ac-05-previous-occurrence.yaml --muscle chest

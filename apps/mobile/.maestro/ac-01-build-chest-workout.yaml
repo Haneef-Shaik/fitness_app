@@ -14,7 +14,16 @@ env:
       EMAIL: ${EMAIL}
       PASSWORD: ${PASSWORD}
       HOST: ${HOST}
-- tapOn: "Programs"
+# G9 moved B-01's navigation into an "Elsewhere" row below the cards, so the
+# button is off-screen on a phone until the dashboard is scrolled. The old flows
+# tapped at a position it no longer occupies — found the first time a device was
+# attached after G9, which is the argument for attaching one more often.
+# Train tab → Programs. The dashboard's wall of buttons is gone (G10): every
+# section is a tab now.
+- tapOn:
+    id: "tab-train"
+- tapOn:
+    id: "go-programs"
 - assertVisible: "Programs"
 
 - tapOn: "\\+ New"

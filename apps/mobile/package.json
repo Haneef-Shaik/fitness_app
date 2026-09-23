@@ -17,6 +17,7 @@
     "@expo-google-fonts/barlow": "^0.4.1",
     "@expo-google-fonts/barlow-condensed": "^0.4.1",
     "@expo/metro-runtime": "~4.0.1",
+    "@expo/vector-icons": "~14.0.4",
     "@tanstack/react-query": "^5.103.2",
     "@volt/api-types": "workspace:*",
     "@volt/domain": "workspace:*",

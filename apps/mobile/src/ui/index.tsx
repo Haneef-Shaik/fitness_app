@@ -11,6 +11,8 @@ import {
   type PressableProps, type TextProps, type ViewProps, type TextStyle, type ViewStyle,
 } from 'react-native';
 import { useTheme, font, type, space, radius, target } from '@/theme';
+import { FocusRing, useFocusRing } from './focusRing';
+import { textColor, type TextTone } from './textTone';
 
 /* ---------------- Text ---------------- */
 type Variant =
@@ -21,18 +23,18 @@ const NUMERIC: Variant[] = ['record', 'hero', 'entry', 'display', 'stat'];
 
 export function Text({
   variant = 'body', tone = 'ink', style, ...rest
-}: TextProps & { variant?: Variant; tone?: 'ink' | 'ink2' | 'ink3' | 'accent' | 'good' | 'warn' | 'serious' | 'crit' | 'accentInk' }) {
+}: TextProps & { variant?: Variant; tone?: TextTone }) {
   const { c } = useTheme();
   const numeric = NUMERIC.includes(variant);
   const base: TextStyle = {
-    color: c[tone],
+    color: textColor(c, tone),
     fontSize: type[variant],
     fontFamily: numeric ? font.data : variant === 'label' ? font.uiSemi : font.ui,
   };
   if (numeric) { base.letterSpacing = -0.4; base.lineHeight = type[variant] * 0.96; }
   if (variant === 'label') {
     base.letterSpacing = 1.5; base.textTransform = 'uppercase'; base.color = c.ink3;
-    if (tone !== 'ink') base.color = c[tone];
+    if (tone !== 'ink') base.color = textColor(c, tone);
   }
   if (variant === 'title' || variant === 'h1' || variant === 'h2') base.fontFamily = font.uiSemi;
   return <RNText {...rest} style={[base, style]} />;
@@ -90,10 +92,12 @@ export function Button({
   loading?: boolean;
 }) {
   const { c } = useTheme();
+  const own = React.useRef<View | null>(null);
+  const focused = useFocusRing(own);
   const h = size === 'md' ? target.logger - 2 : 46;
   const isPrimary = kind === 'primary';
   const bg = isPrimary ? c.accent : kind === 'ghost' ? c.surface : 'transparent';
-  const fg = isPrimary ? c.accentInk : kind === 'danger' ? c.crit : c.ink2;
+  const fg = isPrimary ? c.accentInk : kind === 'danger' ? c.critInk : c.ink2;
 
   return (
     <Pressable
@@ -104,9 +108,13 @@ export function Button({
       accessibilityState={{ disabled: !!disabled || !!loading, busy: !!loading }}
       disabled={disabled || loading}
       {...rest}
+      ref={own}
       style={({ pressed }) => [
         {
           minHeight: h,
+          // Room around the label. Without it a small button was exactly as
+          // wide as its words and they touched its border (G10, on a phone).
+          paddingHorizontal: size === 'md' ? space.lg : 14,
           borderRadius: radius.btn,
           alignItems: 'center',
           justifyContent: 'center',
@@ -126,6 +134,7 @@ export function Button({
         typeof style === 'function' ? style({ pressed } as never) : style,
       ]}
     >
+      {focused ? <FocusRing radius={radius.btn} /> : null}
       {loading ? <ActivityIndicator color={fg} /> : (
         <RNText style={{ color: fg, fontFamily: font.uiSemi, fontSize: size === 'md' ? 16 : 14.5 }}>
           {title}
@@ -158,7 +167,7 @@ export function Pill({ children, kind = 'mute' }: { children: React.ReactNode; k
   const map = {
     mute: { bg: c.sunken, fg: c.ink3, bd: c.line },
     accent: { bg: c.accentWash, fg: c.accent, bd: withAlpha(c.accent, 0.45) },
-    good: { bg: withAlpha(c.good, 0.16), fg: c.good, bd: withAlpha(c.good, 0.4) },
+    good: { bg: withAlpha(c.good, 0.16), fg: c.goodInk, bd: withAlpha(c.good, 0.4) },
   }[kind];
   return (
     <View style={{ backgroundColor: map.bg, borderColor: map.bd, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' }}>

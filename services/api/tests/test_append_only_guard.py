@@ -20,6 +20,14 @@ MIGRATIONS = Path(__file__).parents[1] / "alembic" / "versions"
 
 PROTECTED = ("food_analysis_items", "food_analyses")
 
+#: **The one audited exception**, and it is an allow-list of exactly one file.
+#:
+#: G10's account deletion has to remove these rows — a user asking to be
+#: forgotten outranks an audit trail about them — and it is the only place in
+#: the product that may. Adding a second entry here should require the same
+#: argument, which is why it is a list of one rather than a pattern.
+DELETION_EXEMPT = {"app/api/routes/account.py"}
+
 _MUTATING_SQL = re.compile(
     r"\b(update|delete\s+from)\s+(food_analysis_items|food_analyses)\b",
     re.IGNORECASE,
@@ -33,9 +41,12 @@ def _python_files(root: Path) -> list[Path]:
 def test_no_raw_sql_mutates_an_analysis_table():
     offenders: list[str] = []
     for path in _python_files(APP):
+        relative = str(path.relative_to(APP.parent))
+        if relative in DELETION_EXEMPT:
+            continue
         for number, line in enumerate(path.read_text().splitlines(), 1):
             if _MUTATING_SQL.search(line):
-                offenders.append(f"{path.relative_to(APP.parent)}:{number}: {line.strip()}")
+                offenders.append(f"{relative}:{number}: {line.strip()}")
 
     assert not offenders, (
         "analysis tables are append-only; these statements would mutate one:\n"
@@ -43,11 +54,42 @@ def test_no_raw_sql_mutates_an_analysis_table():
     )
 
 
+def test_the_only_exemption_is_account_deletion_and_it_is_only_a_delete():
+    """The exemption is audited rather than trusted.
+
+    G8's guard caught G10's own account deletion, which is the guard working.
+    Exempting the file is only safe if the exemption stays narrow — so this
+    asserts the exempt file deletes and never UPDATEs, and that the trigger it
+    stands down is re-enabled in a `finally`.
+    """
+    for relative in DELETION_EXEMPT:
+        source = (APP.parent / relative).read_text()
+
+        updates = [
+            line.strip() for line in source.splitlines()
+            if re.search(r"\bupdate\s+food_analys", line, re.IGNORECASE)
+        ]
+        assert not updates, f"{relative} UPDATEs an append-only table: {updates}"
+
+        # The trigger is stood down for one transaction. If it is not put back,
+        # the append-only guarantee is gone for every later request too.
+        assert "DISABLE TRIGGER food_analysis_items_no_update" in source
+        assert "ENABLE TRIGGER food_analysis_items_no_update" in source
+        disable = source.index("DISABLE TRIGGER food_analysis_items_no_update")
+        enable = source.index("ENABLE TRIGGER food_analysis_items_no_update")
+        assert "finally:" in source[disable:enable], (
+            f"{relative} re-enables the trigger outside a finally — an exception "
+            "in the middle would leave the table writable"
+        )
+
+
 def test_nothing_asks_the_orm_to_delete_an_analysis_row():
     """`session.delete(row)` is the ORM's way of writing the same statement."""
     offenders: list[str] = []
 
     for path in _python_files(APP):
+        if str(path.relative_to(APP.parent)) in DELETION_EXEMPT:
+            continue
         tree = ast.parse(path.read_text())
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):

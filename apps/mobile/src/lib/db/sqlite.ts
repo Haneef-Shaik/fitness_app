@@ -38,6 +38,12 @@ export function createSqliteStore(name = DATABASE_NAME): SessionStore {
   let db: SQLite.SQLiteDatabase | null = null;
   let opening: Promise<SQLite.SQLiteDatabase> | null = null;
   let mode: string | null = null;
+  // Whose rows this is (see SessionStore.setOwner). '' is never an account id.
+  let owner: string | null = null;
+  const requireOwner = (): string => {
+    if (owner === null) throw new Error('No account is signed in; nothing can be queued.');
+    return owner;
+  };
 
   async function handle(): Promise<SQLite.SQLiteDatabase> {
     if (db) return db;
@@ -70,73 +76,75 @@ export function createSqliteStore(name = DATABASE_NAME): SessionStore {
     return opening;
   }
 
+  const UPSERT_ENTRY = `INSERT INTO outbox (aggregate_id, method, path, body, idempotency_key, next_attempt_at, owner)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(idempotency_key) DO UPDATE SET body = excluded.body`;
+
   return {
+    setOwner(next: string | null) { owner = next; },
+
     async open() { await handle(); },
 
     journalMode: () => mode,
 
     async loadDraft() {
+      if (owner === null) return null;
       const d = await handle();
       const row = await d.getFirstAsync<{ revision: number; updated_at: string; json: string }>(
-        'SELECT revision, updated_at, json FROM session_draft WHERE id = 1',
+        'SELECT revision, updated_at, json FROM session_draft WHERE owner = ?', owner,
       );
       return row ? { revision: row.revision, updatedAt: row.updated_at, json: row.json } : null;
     },
 
     async clearDraft() {
       const d = await handle();
-      await d.runAsync('DELETE FROM session_draft WHERE id = 1');
+      if (owner === null) return;
+      await d.runAsync('DELETE FROM session_draft WHERE owner = ?', owner);
     },
 
     async enqueue(entry: NewOutboxEntry) {
       // No transaction needed: this is a single row, and it deliberately does
       // not touch the draft — see SessionStore.enqueue.
+      const who = requireOwner();
       const d = await handle();
-      await d.runAsync(
-        `INSERT INTO outbox (aggregate_id, method, path, body, idempotency_key, next_attempt_at)
-         VALUES (?, ?, ?, ?, ?, ?)
-         ON CONFLICT(idempotency_key) DO UPDATE SET body = excluded.body`,
-        entry.aggregateId, entry.method, entry.path, entry.body,
-        entry.idempotencyKey, entry.nextAttemptAt,
-      );
+      await d.runAsync(UPSERT_ENTRY, entry.aggregateId, entry.method, entry.path, entry.body,
+        entry.idempotencyKey, entry.nextAttemptAt, who);
     },
 
     async commit(draft: DraftRecord, entry?: NewOutboxEntry) {
+      const who = requireOwner();
       const d = await handle();
       // Both writes or neither. This is the property the decision rests on.
       await d.withTransactionAsync(async () => {
         await d.runAsync(
-          `INSERT INTO session_draft (id, revision, updated_at, json) VALUES (1, ?, ?, ?)
-           ON CONFLICT(id) DO UPDATE SET revision = excluded.revision,
+          `INSERT INTO session_draft (owner, revision, updated_at, json) VALUES (?, ?, ?, ?)
+           ON CONFLICT(owner) DO UPDATE SET revision = excluded.revision,
              updated_at = excluded.updated_at, json = excluded.json`,
-          draft.revision, draft.updatedAt, draft.json,
+          who, draft.revision, draft.updatedAt, draft.json,
         );
         if (entry) {
           // An enqueue that happens twice is a no-op, not a duplicate set (I8).
-          await d.runAsync(
-            `INSERT INTO outbox (aggregate_id, method, path, body, idempotency_key, next_attempt_at)
-             VALUES (?, ?, ?, ?, ?, ?)
-             ON CONFLICT(idempotency_key) DO UPDATE SET body = excluded.body`,
-            entry.aggregateId, entry.method, entry.path, entry.body,
-            entry.idempotencyKey, entry.nextAttemptAt,
-          );
+          await d.runAsync(UPSERT_ENTRY, entry.aggregateId, entry.method, entry.path, entry.body,
+            entry.idempotencyKey, entry.nextAttemptAt, who);
         }
       });
     },
 
     async readyEntries(now: string, limit = 50) {
+      if (owner === null) return [];
       const d = await handle();
       const rows = await d.getAllAsync<OutboxRow>(
-        `SELECT * FROM outbox WHERE state = 'pending' AND next_attempt_at <= ?
+        `SELECT * FROM outbox WHERE owner = ? AND state = 'pending' AND next_attempt_at <= ?
          ORDER BY aggregate_id, id LIMIT ?`,
-        now, limit,
+        owner, now, limit,
       );
       return rows.map(toEntry);
     },
 
     async allEntries() {
       const d = await handle();
-      const rows = await d.getAllAsync<OutboxRow>('SELECT * FROM outbox ORDER BY id');
+      if (owner === null) return [];
+      const rows = await d.getAllAsync<OutboxRow>('SELECT * FROM outbox WHERE owner = ? ORDER BY id', owner);
       return rows.map(toEntry);
     },
 
@@ -160,6 +168,22 @@ export function createSqliteStore(name = DATABASE_NAME): SessionStore {
         "UPDATE outbox SET state = 'failed', attempts = attempts + 1, last_error = ? WHERE id = ?",
         error, id,
       );
+    },
+
+    async requeue(id: number, nextAttemptAt: string) {
+      const d = await handle();
+      // `idempotency_key` is deliberately untouched: a retry is the SAME write
+      // (I8), and a new key could double the thing it is retrying.
+      await d.runAsync(
+        `UPDATE outbox SET state = 'pending', next_attempt_at = ?, last_error = NULL
+         WHERE id = ?`,
+        nextAttemptAt, id,
+      );
+    },
+
+    async discard(id: number) {
+      const d = await handle();
+      await d.runAsync('DELETE FROM outbox WHERE id = ?', id);
     },
 
     async reset() {

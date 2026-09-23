@@ -6,12 +6,13 @@
  * their day is the portion they will actually eat.
  */
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import type { Recipe } from '@volt/api-types';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
-import { grams, kcal } from '@/features/nutrition/format';
+import { grams, kcal, count } from '@/features/nutrition/format';
 import { useRecipes } from '@/lib/query/hooks';
 import { space } from '@/theme';
 
@@ -49,7 +50,7 @@ function RecipeRow({ recipe }: { recipe: Recipe }) {
     <Pressable
       onPress={() => router.push(`/nutrition/recipes/${recipe.id}`)}
       accessibilityRole="button"
-      accessibilityLabel={`${recipe.name}, ${items.length} items, ${kcal(per?.calories)} kcal per serving`}
+      accessibilityLabel={`${recipe.name}, ${count(items.length, 'item')}, ${kcal(per?.calories)} kcal per serving`}
       testID={`recipe-${recipe.id}`}
     >
       <Card>

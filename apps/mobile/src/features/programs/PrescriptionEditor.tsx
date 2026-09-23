@@ -10,7 +10,8 @@
  * not an error worth stopping on, and the server swaps it the same way.
  */
 import React, { useMemo, useState } from 'react';
-import { ScrollView, TextInput, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
 import type { Exercise, PlanExerciseIn } from '@volt/api-types';
 import { Button, Text } from '../../ui';
 import { Sheet } from '../../ui/Sheet';

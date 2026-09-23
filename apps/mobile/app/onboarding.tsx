@@ -1,8 +1,10 @@
 /** A-07 Onboarding — step 2 (units & timezone) cannot be skipped: every later number depends on it. */
 import { router } from 'expo-router';
+import { resetTo } from '@/lib/navigation';
 import { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
+import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Card, Field, Text, Well } from '@/ui';
 import { useTheme, space, radius, font } from '@/theme';
 import { useSession } from '@/lib/session';
@@ -42,7 +44,7 @@ export default function Onboarding() {
         carbs_g_target: carbs, fat_g_target: fat, onboarding_completed: true,
       } as never);
       await refreshProfile();
-      router.replace('/home');
+      resetTo('/home');
     } finally { setBusy(false); }
   }
 
@@ -76,7 +78,7 @@ export default function Onboarding() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
+    <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
       <View style={{ paddingHorizontal: space.lg, paddingTop: space.sm, flexDirection: 'row',
         alignItems: 'center', justifyContent: 'space-between' }}>
         <Pressable onPress={() => (step === 0 ? null : setStep(step - 1))} style={{ width: 34 }}>
@@ -160,6 +162,6 @@ export default function Onboarding() {
           onPress={() => (step === 2 ? finish() : setStep(step + 1))}
         />
       </View>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 }

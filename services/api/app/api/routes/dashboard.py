@@ -269,6 +269,9 @@ async def goal_card(db: DbSession, user_id: uuid.UUID, goal: FitnessGoal) -> Goa
         start_value=start,
         target_value=float(goal.target_value),
         target_unit=goal.target_unit,
+        start_date=goal.start_date,
+        target_date=goal.target_date,
+        weekly_rate=float(goal.weekly_rate) if goal.weekly_rate is not None else None,
         current_value=current_value,
         progress=goal_progress(
             start=start, target=float(goal.target_value),

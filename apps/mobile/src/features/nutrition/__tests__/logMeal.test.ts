@@ -5,7 +5,7 @@
 import { createMemoryStore } from '../../../lib/db/memory';
 
 // `mock`-prefixed: Jest forbids a mock factory closing over anything else.
-const mockStore = createMemoryStore();
+const mockStore = createMemoryStore('user-1');
 jest.mock('../../../lib/db', () => ({ get store() { return mockStore; } }));
 
 import { queueMeal } from '../logMeal';

@@ -123,3 +123,114 @@ describe('entry behaviour', () => {
     expect(screen.getByTestId('entry-error')).toBeTruthy();
   });
 });
+
+describe('typing into the numeric fields (G10, found on a device)', () => {
+  /**
+   * The field used to be fully controlled: every keystroke went up to a
+   * reducer and came back as a new `value` prop, and the native text was
+   * re-set underneath the keyboard. On hardware that races — typing `80` into
+   * a field showing `80` produced **800**.
+   *
+   * These tests cannot reproduce the race (RNTL sets text atomically), so they
+   * pin the behaviour the fix depends on instead: the field shows what was
+   * typed, a stepper still wins, and a prop change from elsewhere still wins.
+   */
+  const entry = (over: Partial<SetEntryValue> = {}): SetEntryValue => ({
+    ...EMPTY, loadKg: 80, reps: 8, ...over,
+  });
+
+  it('shows what was typed, not what the parent last sent', () => {
+    const { onChange } = show(ex(), entry());
+
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '82.5');
+
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('82.5');
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ loadKg: 82.5 }));
+  });
+
+  it('keeps a half-typed decimal rather than swallowing the point', () => {
+    show(ex(), entry());
+
+    // "82." parses to 82, and a controlled field would immediately rewrite the
+    // text to "82" — deleting the point the user just pressed.
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '82.');
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('82.');
+  });
+
+  it('clearing it means "not set", never zero', () => {
+    const { onChange } = show(ex(), entry());
+
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '');
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ loadKg: null }));
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('');
+  });
+
+  it('a stepper tap still wins over what is on screen', () => {
+    // A LIVE parent, because that is the only faithful test of this: in the app
+    // the value goes up on every keystroke and comes back down, and the whole
+    // point of the fix is that the round trip no longer fights the keyboard.
+    function Live() {
+      const [value, setValue] = React.useState<SetEntryValue>(entry());
+      return (
+        <SetEntry
+          exercise={ex()}
+          value={value}
+          onChange={setValue}
+          onCommit={jest.fn()}
+        />
+      );
+    }
+    render(<Live />);
+
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '77');
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('77');
+
+    fireEvent.press(screen.getByLabelText('Increase Load (kg)'));
+
+    // The stepper steps from what the user typed, not from a stale prop.
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('79.5');
+  });
+
+  it('a live parent round trip does not rewrite what is being typed', () => {
+    function Live() {
+      const [value, setValue] = React.useState<SetEntryValue>(entry());
+      return (
+        <SetEntry
+          exercise={ex()}
+          value={value}
+          onChange={setValue}
+          onCommit={jest.fn()}
+        />
+      );
+    }
+    render(<Live />);
+
+    // Character by character, the way a keyboard does it. Each one goes up to
+    // the parent and comes back; none of them may disturb the text.
+    for (const next of ['8', '82', '82.', '82.5']) {
+      fireEvent.changeText(screen.getByTestId('entry-load-input'), next);
+      expect(screen.getByTestId('entry-load-input').props.value).toBe(next);
+    }
+  });
+});
+
+describe('keyboard order follows the screen (found on a phone in G10)', () => {
+  /**
+   * With Fabric's view flattening, each stepper's row View is layout-only and
+   * disappears natively — so every control in the logger became a sibling of
+   * every other, and Android's Tab order sorted that one flat list into
+   * COLUMNS: both "−" buttons, Warm-up, Save, then the two fields, then both
+   * "+". A keyboard user typing reps had to go round the whole screen to Save.
+   * Each row must stay a real native group so it is ordered as a row.
+   */
+  it('keeps each stepper row a native group', () => {
+    show(ex());
+    for (const id of ['entry-load', 'entry-reps']) {
+      const row = screen.getByTestId(`${id}-row`);
+      expect(row.props.collapsable).toBe(false);
+    }
+    // And the entry as a whole, so Warm-up and Save sit among the fields.
+    expect(screen.getByTestId('set-entry').props.collapsable).toBe(false);
+  });
+});

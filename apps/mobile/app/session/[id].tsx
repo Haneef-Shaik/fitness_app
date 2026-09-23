@@ -8,8 +8,9 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { AppState, Pressable, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppState, ScrollView, View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
+import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import type { Exercise, PersonalRecord } from '@volt/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { useExercises, usePreviousPerformance } from '@/lib/query/hooks';
@@ -124,7 +125,7 @@ export default function ActiveSession() {
 
   if (finished) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
+      <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
         <ScrollView contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge }}>
           <Text variant="title" accessibilityRole="header" style={{ marginBottom: space.lg }}>
             Workout finished
@@ -135,16 +136,16 @@ export default function ActiveSession() {
             onDone={() => router.replace('/home')}
           />
         </ScrollView>
-      </SafeAreaView>
+      </ScreenSafeArea>
     );
   }
 
   if (!draft) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: c.page, padding: space.lg }}>
+      <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page, padding: space.lg }}>
         <Text variant="body">No workout in progress.</Text>
         <Button title="Start one" style={{ marginTop: space.md }} onPress={() => router.replace('/train/start')} />
-      </SafeAreaView>
+      </ScreenSafeArea>
     );
   }
 
@@ -186,7 +187,7 @@ export default function ActiveSession() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
+    <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
       <View style={{
         flexDirection: 'row', alignItems: 'center', gap: space.md,
         paddingHorizontal: space.lg, paddingVertical: space.md,
@@ -208,7 +209,7 @@ export default function ActiveSession() {
           accessibilityLabel="Discard workout"
           hitSlop={10}
         >
-          <Text variant="caption" style={{ color: c.crit }}>Discard</Text>
+          <Text variant="caption" tone="crit">Discard</Text>
         </Pressable>
       </View>
 
@@ -303,7 +304,7 @@ export default function ActiveSession() {
                   </View>
                 ))}
                 {exercise.sets.some((s) => s.syncState === 'failed') ? (
-                  <Text variant="caption" style={{ color: c.crit, marginTop: space.sm }} testID="sync-failed">
+                  <Text variant="caption" tone="crit" style={{ marginTop: space.sm }} testID="sync-failed">
                     Some sets couldn't be uploaded. They're saved here and listed in the Sync Center.
                   </Text>
                 ) : null}
@@ -381,6 +382,6 @@ export default function ActiveSession() {
         onCancel={() => setDiscarding(false)}
         onConfirm={async () => { setDiscarding(false); await cancel(id); router.replace('/home'); }}
       />
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 }

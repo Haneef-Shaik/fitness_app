@@ -7,7 +7,9 @@
  */
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import { Card, Pill, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useExercises, useFoods } from '@/lib/query/hooks';

@@ -18,22 +18,21 @@
  */
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
+import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import type { BodyCard, GoalCard, NutritionCard, TrainingCard } from '@volt/api-types';
 import { Button, Card, Meter, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { useTheme, space, font } from '@/theme';
-import { useSession } from '@/lib/session';
 import { useDashboard } from '@/lib/query/hooks';
 import { grams, kcal } from '@/features/nutrition/format';
 import {
   DEFAULT_LAYOUT, loadDashboardLayout, type DashboardLayout,
 } from '@/features/dashboard/layout';
+import { friendlyDate } from '@/features/dashboard/date';
 
 export default function Home() {
-  const { c } = useTheme();
-  const { email, signOut } = useSession();
   const board = useDashboard();
 
   // B-02's choice, applied. The request is unchanged either way — hiding a card
@@ -41,91 +40,53 @@ export default function Home() {
   const [layout, setLayout] = useState<DashboardLayout>(DEFAULT_LAYOUT);
   useEffect(() => { void loadDashboardLayout().then(setLayout); }, []);
 
+  const date = board.data ? friendlyDate(board.data.local_date) : null;
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
-      <ScrollView
-        contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge }}
-        refreshControl={
-          <RefreshControl
-            refreshing={board.isFetching}
-            tintColor={c.ink3}
-            onRefresh={() => { void board.refetch(); }}
-          />
-        }
+    <ScreenScaffold
+      root
+      title={date ?? 'Today'}
+      // Only once the server has answered: flows wait on this id as "the
+      // dashboard is up".
+      titleTestID={date ? 'dashboard-date' : undefined}
+      onRefresh={() => { void board.refetch(); }}
+    >
+      <DataBoundary
+        query={board}
+        isEmpty={() => false}
+        empty={{ title: 'Nothing to show yet' }}
       >
-        <DataBoundary
-          query={board}
-          isEmpty={() => false}
-          empty={{ title: 'Nothing to show yet' }}
-        >
-          {(data) => (
-            <>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <View>
-                  {/* The server's date, rendered. Not a date computed here. */}
-                  <Text variant="title" testID="dashboard-date">{data.local_date}</Text>
-                  <Text variant="caption" tone="ink3">{data.timezone}</Text>
-                </View>
-                <Pressable
-                  onPress={signOut}
-                  accessibilityRole="button"
-                  accessibilityLabel="Sign out"
-                  style={{
-                    width: 32, height: 32, borderRadius: 16, borderWidth: 1,
-                    borderColor: c.line2, alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
-                  <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi }}>
-                    {(email ?? 'U').slice(0, 2).toUpperCase()}
-                  </Text>
-                </Pressable>
-              </View>
+        {(data) => (
+          <View style={{ gap: space.xl }}>
+            {layout.filter((s) => s.visible).map((section) => {
+              switch (section.key) {
+                case 'training':
+                  return <TrainingSection key="training" card={data.training} />;
+                case 'nutrition':
+                  return <NutritionSection key="nutrition" card={data.nutrition} />;
+                case 'body':
+                  return <BodySection key="body" card={data.body} />;
+                case 'goals':
+                  return <GoalsSection key="goals" goals={data.goals ?? []} />;
+                default:
+                  return null;
+              }
+            })}
 
-              {layout.filter((s) => s.visible).map((section) => {
-                switch (section.key) {
-                  case 'training':
-                    return <TrainingSection key="training" card={data.training} />;
-                  case 'nutrition':
-                    return <NutritionSection key="nutrition" card={data.nutrition} />;
-                  case 'body':
-                    return <BodySection key="body" card={data.body} />;
-                  case 'goals':
-                    return <GoalsSection key="goals" goals={data.goals ?? []} />;
-                  default:
-                    return null;
-                }
-              })}
-
-              <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
-                Elsewhere
-              </Text>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-                {([
-                  ['Programs', '/train/programs', 'go-programs'],
-                  ['Exercises', '/train/exercises', 'go-exercises'],
-                  ['History', '/train/history', 'go-history'],
-                  ['Trends', '/train/analytics', 'go-trends'],
-                  ['Progress', '/progress', 'go-progress'],
-                  ['Customise', '/home/customize', 'go-customize'],
-                  ['Search', '/search', 'go-search'],
-                  ['Quick actions', '/quick', 'go-quick'],
-                  ['Reminders', '/notifications', 'go-notifications'],
-                ] as const).map(([label, href, testID]) => (
-                  <Button
-                    key={href}
-                    title={label}
-                    kind="ghost"
-                    size="sm"
-                    testID={testID}
-                    onPress={() => router.push(href)}
-                  />
-                ))}
-              </View>
-            </>
-          )}
-        </DataBoundary>
-      </ScrollView>
-    </SafeAreaView>
+            {/* B-01 ends with one way to shape the page. Everything else is a
+                tab — the wall of buttons that stood here was the navigation. */}
+            <Button
+              title="Customize dashboard"
+              kind="ghost"
+              size="sm"
+              testID="go-customize"
+              style={{ alignSelf: 'center' }}
+              onPress={() => router.push('/home/customize')}
+            />
+          </View>
+        )}
+      </DataBoundary>
+    </ScreenScaffold>
   );
 }
 
@@ -135,8 +96,8 @@ function TrainingSection({ card }: { card: TrainingCard }) {
   const empty = card.sessions_today === 0 && !card.last_session;
 
   return (
-    <>
-      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+    <View>
+      <Text variant="label" style={{ marginBottom: space.sm }}>
         Training
       </Text>
       <Card hero>
@@ -192,7 +153,7 @@ function TrainingSection({ card }: { card: TrainingCard }) {
           </>
         )}
       </Card>
-    </>
+    </View>
   );
 }
 
@@ -203,8 +164,8 @@ function NutritionSection({ card }: { card: NutritionCard }) {
   const remaining = target === null ? null : target - card.calories;
 
   return (
-    <>
-      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+    <View>
+      <Text variant="label" style={{ marginBottom: space.sm }}>
         Nutrition
       </Text>
       <Card hero>
@@ -270,7 +231,7 @@ function NutritionSection({ card }: { card: NutritionCard }) {
           onPress={() => router.push('/nutrition')}
         />
       </Card>
-    </>
+    </View>
   );
 }
 
@@ -291,8 +252,8 @@ function Macro({
 
 function BodySection({ card }: { card: BodyCard }) {
   return (
-    <>
-      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+    <View>
+      <Text variant="label" style={{ marginBottom: space.sm }}>
         Body
       </Text>
       <Card>
@@ -331,7 +292,7 @@ function BodySection({ card }: { card: BodyCard }) {
           onPress={() => router.push('/progress')}
         />
       </Card>
-    </>
+    </View>
   );
 }
 
@@ -339,8 +300,8 @@ function BodySection({ card }: { card: BodyCard }) {
 
 function GoalsSection({ goals }: { goals: readonly GoalCard[] }) {
   return (
-    <>
-      <Text variant="label" style={{ marginTop: space.xl, marginBottom: space.sm }}>
+    <View>
+      <Text variant="label" style={{ marginBottom: space.sm }}>
         Goals
       </Text>
       {goals.length === 0 ? (
@@ -361,7 +322,7 @@ function GoalsSection({ goals }: { goals: readonly GoalCard[] }) {
       ) : (
         goals.map((goal) => <GoalRow key={String(goal.id)} goal={goal} />)
       )}
-    </>
+    </View>
   );
 }
 

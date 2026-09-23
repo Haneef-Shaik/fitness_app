@@ -50,6 +50,7 @@ export const qk = {
   // planning
   programs: () => ['programs', 'list'] as const,
   program: (id: string) => ['programs', 'detail', id] as const,
+  programTemplates: () => ['programs', 'templates'] as const,
 
   // training
   sessions: (f: SessionFilters = {}) => ['sessions', 'list', f] as const,
@@ -84,6 +85,7 @@ export const qk = {
   nutritionDay: (localDate: string) => ['nutrition', 'day', localDate] as const,
   meal: (id: string) => ['nutrition', 'meal', id] as const,
   foods: (q?: string) => ['foods', 'list', q ?? ''] as const,
+  food: (id: string) => ['foods', 'detail', id] as const,
 
   // H-16. Categories are their OWN key rather than part of `nutrition`: the
   // logger reads them on every screen, and they do not change when a meal does.
@@ -112,6 +114,12 @@ export const qk = {
   bodyMetrics: (metricKey: string, f: { from?: string; to?: string } = {}) =>
     ['body', 'list', metricKey, f] as const,
   progressPhotos: () => ['body', 'photos'] as const,
+
+  // L-02. The outbox is LOCAL state, and it is in the query cache anyway: the
+  // Sync Center wants the same refetch, staleness and boundary behaviour every
+  // other read gets, and a second mechanism for one screen is a second thing
+  // to get wrong.
+  outbox: () => ['outbox'] as const,
 } as const;
 
 /** The prefixes invalidation targets. Kept beside the registry so they cannot drift. */
@@ -135,4 +143,5 @@ export const qkPrefix = {
   analyses: () => ['analyses'] as const,
   dashboard: () => ['dashboard'] as const,
   body: () => ['body'] as const,
+  outbox: () => ['outbox'] as const,
 } as const;

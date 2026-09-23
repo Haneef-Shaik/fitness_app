@@ -18,8 +18,7 @@ import type {
   PlanExerciseIn,
   Program,
   ProgramIn,
-  ProgramPatch,
-} from '@volt/api-types';
+  ProgramPatch, ProgramTemplate } from '@volt/api-types';
 import { api } from './api';
 
 export interface ExerciseQuery {
@@ -80,6 +79,10 @@ export const programsApi = {
   duplicate: (id: string) => api.post<Program>(`/workout-programs/${id}/duplicate`),
   archive: (id: string) => api.post<Program>(`/workout-programs/${id}/archive`),
   remove: (id: string) => api.del<{ deleted: boolean }>(`/workout-programs/${id}`),
+  /** Starter programs (C-01, C-04): plans nobody owns until one is started. */
+  templates: () => api.get<ProgramTemplate[]>('/program-templates'),
+  /** Deep-copies a template into the user's own programs. */
+  startTemplate: (key: string) => api.post<Program>(`/program-templates/${key}/start`),
 
   addDay: (programId: string, body: PlanDayIn) =>
     api.post<Program>(`/workout-programs/${programId}/days`, body),

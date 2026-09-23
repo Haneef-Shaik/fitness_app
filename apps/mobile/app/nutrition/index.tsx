@@ -9,14 +9,17 @@
  * would be as wrong as counting them.
  */
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import type { Meal, MealCategory } from '@volt/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { Meter } from '@/ui/charts';
-import { grams, kcal, mealTypeLabel } from '@/features/nutrition/format';
+import { grams, kcal, mealTypeLabel, count } from '@/features/nutrition/format';
 import { useMealCategories, useNutritionDay, useProfile } from '@/lib/query/hooks';
+import { NavGroup, NavRow } from '@/ui/NavRow';
+import { friendlyDate } from '@/features/dashboard/date';
 import { space } from '@/theme';
 
 export default function Diary() {
@@ -27,11 +30,16 @@ export default function Diary() {
   const categories = useMealCategories();
   const target = profile.data?.daily_calorie_target ?? null;
 
+  // The wireframes call this a tab root, and there is no tab bar yet — so
+  // `back={false}` made it a dead end: reachable from B-01, with no way home
+  // except the hardware button, which on this phone exits the app from a root.
+  // Found on a device in G10; it cost AC-11 a run.
   return (
     <ScreenScaffold
+      root
       title="Nutrition"
-      back={false}
       action={{ label: '+ Food', onPress: () => router.push('/nutrition/add') }}
+      onRefresh={() => { void day.refetch(); }}
     >
       <DataBoundary
         query={day}
@@ -41,7 +49,7 @@ export default function Diary() {
         {(data) => (
           <View style={{ gap: space.lg }}>
             <Card hero>
-              <Pill>{data.local_date}</Pill>
+              <Pill>{friendlyDate(data.local_date)}</Pill>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
                 <Text variant="display" style={{ fontSize: 34 }}>{kcal(data.calories)}</Text>
                 <Text variant="caption" tone="ink3">kcal</Text>
@@ -96,45 +104,20 @@ export default function Diary() {
 
             {/* The rest of the nutrition surface. Kept at the bottom because the
                 day is what this screen is for; everything here is management. */}
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-              <Button
-                title="Recipes"
-                kind="ghost"
-                size="sm"
-                testID="go-recipes"
-                onPress={() => router.push('/nutrition/recipes')}
-              />
-              <Button
-                title="Targets"
-                kind="ghost"
-                size="sm"
-                testID="go-targets"
-                onPress={() => router.push('/nutrition/targets')}
-              />
-              <Button
-                title="Categories"
-                kind="ghost"
-                size="sm"
-                testID="go-categories"
-                onPress={() => router.push('/nutrition/categories')}
-              />
-              <Button
-                title="Food analyses"
-                kind="ghost"
-                size="sm"
-                testID="go-analyses"
-                onPress={() => router.push('/nutrition/analyses')}
-              />
+            <NavGroup>
+              <NavRow icon="book-outline" label="Recipes" testID="go-recipes"
+                onPress={() => router.push('/nutrition/recipes')} />
+              <NavRow icon="flame-outline" label="Targets" testID="go-targets"
+                onPress={() => router.push('/nutrition/targets')} />
+              <NavRow icon="pricetags-outline" label="Meal categories" testID="go-categories"
+                onPress={() => router.push('/nutrition/categories')} />
+              <NavRow icon="sparkles-outline" label="Food analyses" testID="go-analyses"
+                onPress={() => router.push('/nutrition/analyses')} />
               {data.meals.length > 0 ? (
-                <Button
-                  title="Copy this day"
-                  kind="ghost"
-                  size="sm"
-                  testID="go-copy-day"
-                  onPress={() => router.push(`/nutrition/copy?date=${data.local_date}`)}
-                />
+                <NavRow icon="copy-outline" label="Copy this day" testID="go-copy-day"
+                  onPress={() => router.push(`/nutrition/copy?date=${data.local_date}`)} />
               ) : null}
-            </View>
+            </NavGroup>
           </View>
         )}
       </DataBoundary>
@@ -161,7 +144,7 @@ function MealRow({ meal, categories }: { meal: Meal; categories?: MealCategory[]
     <Pressable
       onPress={() => router.push(`/nutrition/meal/${meal.id}`)}
       accessibilityRole="button"
-      accessibilityLabel={`${mealTypeLabel(meal.meal_type, categories)}, ${kcal(total)} kcal, ${items.length} items`}
+      accessibilityLabel={`${mealTypeLabel(meal.meal_type, categories)}, ${kcal(total)} kcal, ${count(items.length, 'item')}`}
     >
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

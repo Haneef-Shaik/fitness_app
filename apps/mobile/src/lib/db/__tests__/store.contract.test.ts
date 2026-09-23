@@ -21,7 +21,7 @@ const entry = (key: string, aggregateId = 's1', at = '2026-09-22T10:00:00Z'): Ne
 function contract(name: string, make: () => SessionStore) {
   describe(name, () => {
     let store: SessionStore;
-    beforeEach(async () => { store = make(); await store.open(); await store.reset(); });
+    beforeEach(async () => { store = make(); await store.open(); await store.reset(); store.setOwner('user-a'); });
 
     describe('draft', () => {
       it('starts empty — a first launch has no session', async () => {
@@ -193,6 +193,119 @@ function contract(name: string, make: () => SessionStore) {
         const all = await store.allEntries();
         expect(all).toHaveLength(1);
         expect(all[0]!.body).toBe('{"v":2}');
+      });
+    });
+    describe('what the Sync Center needs (L-02, G10)', () => {
+      /**
+       * G3 built the queue and G7 built the door. What neither built is the
+       * way OUT: a terminal failure lands in `failed` and, until G10, nothing
+       * could either retry it or throw it away.
+       *
+       * "Nothing is ever dropped silently" (L-02) is only true if a user has
+       * somewhere to drop it deliberately.
+       */
+      it('requeues a failed entry so it is due again now', async () => {
+        await store.commit(draft(1), entry('k1'));
+        const [e] = await store.readyEntries('2026-09-22T11:00:00Z');
+        await store.markFailed(e!.id, 'Reps must be at least 1.');
+
+        await store.requeue(e!.id, '2026-09-22T12:00:00Z');
+
+        const ready = await store.readyEntries('2026-09-22T12:00:00Z');
+        expect(ready.map((r) => r.id)).toEqual([e!.id]);
+        const [again] = await store.allEntries();
+        expect(again!.state).toBe('pending');
+        // The error is cleared: keeping it would make a successful retry look
+        // like it had failed.
+        expect(again!.lastError).toBeNull();
+      });
+
+      it('requeueing keeps the idempotency key, so a retry is the same write', async () => {
+        await store.commit(draft(1), entry('k1'));
+        const [e] = await store.readyEntries('2026-09-22T11:00:00Z');
+        await store.markFailed(e!.id, 'nope');
+
+        await store.requeue(e!.id, '2026-09-22T12:00:00Z');
+
+        const [again] = await store.allEntries();
+        // I8. A retry that generated a new key could double the write it is
+        // retrying, which is the one thing the outbox exists to prevent.
+        expect(again!.idempotencyKey).toBe('k1');
+      });
+
+      it('discards an entry outright', async () => {
+        await store.commit(draft(1), entry('k1'));
+        const [e] = await store.readyEntries('2026-09-22T11:00:00Z');
+        await store.markFailed(e!.id, 'nope');
+
+        await store.discard(e!.id);
+
+        expect(await store.allEntries()).toEqual([]);
+      });
+
+      it('discarding one leaves the others alone', async () => {
+        await store.commit(draft(1), entry('k1'));
+        await store.commit(draft(2), entry('k2'));
+        const all = await store.allEntries();
+
+        await store.discard(all[0]!.id);
+
+        const left = await store.allEntries();
+        expect(left.map((r) => r.idempotencyKey)).toEqual(['k2']);
+      });
+
+      it('requeueing something that is not there is not an error', async () => {
+        // A user taps retry; the pump drained it a moment earlier. That is
+        // ordinary, not exceptional.
+        await expect(store.requeue(9999, '2026-09-22T12:00:00Z')).resolves.toBeUndefined();
+        await expect(store.discard(9999)).resolves.toBeUndefined();
+      });
+    });
+    describe('one account never sees another\'s (found on a phone in G10)', () => {
+      /**
+       * The draft and the queue lived on the phone with no record of whose they
+       * were. After the demo account's test runs, the owner's OWN account opened
+       * on "You left a workout open" — the demo's workout — and "4 changes
+       * couldn't sync", the demo's writes being sent with the owner's token.
+       * K-01: an unfinished workout "will still be here when you sign back in".
+       */
+      it('keeps each account\'s draft to itself, and gives it back on return', async () => {
+        await store.commit(draft(1, '{"who":"a"}'));
+        store.setOwner('user-b');
+        await expect(store.loadDraft()).resolves.toBeNull();
+        await store.commit(draft(1, '{"who":"b"}'));
+        store.setOwner('user-a');
+        await expect(store.loadDraft()).resolves.toMatchObject({ json: '{"who":"a"}' });
+      });
+
+      it('keeps each account\'s queue to itself — and never SENDS another\'s', async () => {
+        await store.enqueue(entry('ka'));
+        store.setOwner('user-b');
+        await store.enqueue(entry('kb'));
+        expect((await store.allEntries()).map((e) => e.idempotencyKey)).toEqual(['kb']);
+        expect((await store.readyEntries('2026-09-23T00:00:00Z')).map((e) => e.idempotencyKey)).toEqual(['kb']);
+        store.setOwner('user-a');
+        expect((await store.allEntries()).map((e) => e.idempotencyKey)).toEqual(['ka']);
+      });
+
+      it('clearing a draft clears only the signed-in account\'s', async () => {
+        await store.commit(draft(1));
+        store.setOwner('user-b');
+        await store.commit(draft(1));
+        await store.clearDraft();
+        store.setOwner('user-a');
+        await expect(store.loadDraft()).resolves.not.toBeNull();
+      });
+
+      it('signed out, there is nothing to read and nothing may be written', async () => {
+        await store.commit(draft(1));
+        await store.enqueue(entry('k1'));
+        store.setOwner(null);
+        await expect(store.loadDraft()).resolves.toBeNull();
+        await expect(store.allEntries()).resolves.toEqual([]);
+        await expect(store.readyEntries('2026-09-23T00:00:00Z')).resolves.toEqual([]);
+        await expect(store.enqueue(entry('k2'))).rejects.toThrow(/signed in/);
+        await expect(store.commit(draft(2))).rejects.toThrow(/signed in/);
       });
     });
   });

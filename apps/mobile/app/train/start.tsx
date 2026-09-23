@@ -1,7 +1,8 @@
 /** E-01 · Start Workout. */
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import type { PlanDay, Program, WorkoutSession } from '@volt/api-types';
 import { Button, Card, Pill, Text, Well } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
@@ -79,7 +80,7 @@ export default function StartWorkout() {
     <ScreenScaffold title="Start a workout">
       <View style={{ gap: space.lg }}>
         {error ? (
-          <Text variant="caption" style={{ color: c.crit }} testID="start-error">{error}</Text>
+          <Text variant="caption" tone="crit" testID="start-error">{error}</Text>
         ) : null}
 
         <Button
@@ -94,8 +95,8 @@ export default function StartWorkout() {
             query={programs}
             empty={{
               title: 'No programs yet',
-              body: 'Build one, or just start an empty workout and add as you go.',
-              action: { label: 'Build a program', onPress: () => router.push('/train/programs') },
+              body: 'Add a starter program, or just start an empty workout and add exercises as you go.',
+              action: { label: 'Browse starter programs', onPress: () => router.push('/train/programs/templates') },
             }}
           >
             {(rows) => {

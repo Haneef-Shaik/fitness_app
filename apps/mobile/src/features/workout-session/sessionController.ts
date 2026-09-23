@@ -7,7 +7,7 @@
  */
 import { ApiError, api } from '../../lib/api';
 import { store } from '../../lib/db';
-import { createOutbox, type SendResult } from '../../lib/offline/outbox';
+import { createOutbox, UNREACHABLE, type SendResult } from '../../lib/offline/outbox';
 import type { OutboxEntry } from '../../lib/db/types';
 import { isRetryable } from '../../lib/query/client';
 import { useSessionStore } from './store/sessionStore';
@@ -40,7 +40,7 @@ function build() {
         // Sync Center surfaces rather than a queue that spins for ever.
         return { ok: false, retryable: isRetryable(e), message: e.message };
       }
-      return { ok: false, retryable: true, message: 'Could not reach the server.' };
+      return { ok: false, retryable: true, unreachable: true, message: UNREACHABLE };
     }
   },
   });

@@ -1,14 +1,14 @@
 /** A-02 Welcome */
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Card, Text } from '@/ui';
 import { useTheme, space, radius } from '@/theme';
 
 export default function Welcome() {
   const { c } = useTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.page }}>
+    <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
       <View style={{ flex: 1, padding: space.lg, justifyContent: 'space-between' }}>
         <View>
           <View style={{
@@ -55,6 +55,6 @@ export default function Welcome() {
           </Text>
         </View>
       </View>
-    </SafeAreaView>
+    </ScreenSafeArea>
   );
 }

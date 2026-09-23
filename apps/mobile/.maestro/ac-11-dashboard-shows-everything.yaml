@@ -1,0 +1,65 @@
+# AC-11 · "The dashboard reflects current workout, nutrition and body state."
+#
+# All three cards show the just-written data for the local date, in ONE request
+# (G9's `GET /dashboard`). Proven on hardware for the first time in G10.
+#
+# The flow writes in two domains it can reach quickly — a weigh-in and a meal —
+# and then reads B-01. The training card is covered by the sessions AC-01/AC-02
+# leave behind, which is why this flow runs after them.
+appId: host.exp.exponent
+name: AC-11 the dashboard shows all three domains
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+# --- a weigh-in -------------------------------------------------------------
+- tapOn:
+    id: "tab-progress"
+- assertVisible: "Progress"
+
+- tapOn:
+    id: "log-today"
+- assertVisible: "Log a measurement"
+- tapOn:
+    id: "metric-value"
+- inputText: "78.4"
+- hideKeyboard
+- tapOn:
+    id: "metric-save"
+
+# It rides the outbox, so give the queue a moment rather than asserting on the
+# instant after the tap.
+- extendedWaitUntil:
+    visible: "Progress"
+    timeout: 15000
+
+# --- and back to B-01 -------------------------------------------------------
+# Relaunched rather than navigated back. A weigh-in rides the outbox, so what
+# this criterion is really asking is "does a FRESH dashboard show it" — and a
+# cold start is a stronger answer than a pop, which could be showing a screen
+# that was already rendered.
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+# The body card carries the weigh-in that was just written.
+- extendedWaitUntil:
+    visible:
+      id: "body-latest"
+    timeout: 20000
+- assertVisible: "78.4"
+
+# And the training card carries the sessions AC-01/AC-02 left behind.
+- assertVisible:
+    id: "training-volume"

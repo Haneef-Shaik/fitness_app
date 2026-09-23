@@ -118,6 +118,9 @@ class GoalCardOut(BaseModel):
     start_value: float | None = None
     target_value: float
     target_unit: str
+    start_date: date | None = None
+    target_date: date | None = None
+    weekly_rate: float | None = None
     #: The latest canonical measurement for this goal's metric, or `None`.
     current_value: float | None = None
     #: `None` when it cannot be known. **Null is not zero** — see

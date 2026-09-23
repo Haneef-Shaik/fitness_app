@@ -7,7 +7,9 @@
  * and a Maestro flow can both drive.
  */
 import React from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import { Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
 

@@ -32,6 +32,7 @@ function impl(): SessionStore {
  * exists so importing this module costs nothing.
  */
 export const store: SessionStore = {
+  setOwner: (owner: string | null) => impl().setOwner(owner),
   open: () => impl().open(),
   journalMode: () => impl().journalMode(),
   loadDraft: () => impl().loadDraft(),
@@ -44,6 +45,8 @@ export const store: SessionStore = {
   markRetry: (id: number, nextAttemptAt: string, error: string) =>
     impl().markRetry(id, nextAttemptAt, error),
   markFailed: (id: number, error: string) => impl().markFailed(id, error),
+  requeue: (id: number, nextAttemptAt: string) => impl().requeue(id, nextAttemptAt),
+  discard: (id: number) => impl().discard(id),
   reset: () => impl().reset(),
 };
 

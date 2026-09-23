@@ -1,7 +1,8 @@
 /** C-02 · Programs List. */
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import type { Program } from '@volt/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
@@ -34,8 +35,8 @@ export default function ProgramsList() {
         query={programs}
         empty={{
           title: 'No programs yet',
-          body: 'A program is a set of days you repeat — push, pull, legs.',
-          action: { label: 'Create a program', onPress: newProgram },
+          body: 'A program is a set of days you repeat — push, pull, legs. Start from one of ours, or tap + New to build your own.',
+          action: { label: 'Browse starter programs', onPress: () => router.push('/train/programs/templates') },
         }}
       >
         {(rows) => (
@@ -61,6 +62,12 @@ export default function ProgramsList() {
               </Pressable>
             ))}
             <Button title="New program" kind="ghost" onPress={newProgram} loading={busy} />
+            <Button
+              title="Start from a starter program"
+              kind="ghost"
+              testID="programs-templates"
+              onPress={() => router.push('/train/programs/templates')}
+            />
           </View>
         )}
       </DataBoundary>

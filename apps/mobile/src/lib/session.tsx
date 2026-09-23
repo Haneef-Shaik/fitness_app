@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { auth, profileApi, setAccessToken, type Profile } from './api';
-import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
+import {
+  clearAccountId, clearRefreshToken, getAccountId, getRefreshToken, setAccountId, setRefreshToken,
+} from './storage';
 import { api } from './api';
 
 type Status = 'loading' | 'signed-out' | 'onboarding' | 'ready';
@@ -17,13 +19,27 @@ interface SessionValue {
 
 const Ctx = createContext<SessionValue>(null as never);
 
-export function SessionProvider({ children }: { children: React.ReactNode }) {
+/**
+ * `onIdentityChange` is told whose session this is — an account id, or null
+ * for nobody — whenever that changes. The app shell uses it to scope the
+ * on-device store and to clear every cached read (docs/03 §6.2), so nothing of
+ * one account is ever shown to another (G10).
+ */
+export function SessionProvider({ children, onIdentityChange }: {
+  children: React.ReactNode;
+  onIdentityChange?: (accountId: string | null) => void;
+}) {
   const [status, setStatus] = useState<Status>('loading');
   const [email, setEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const identity = React.useRef(onIdentityChange);
+  identity.current = onIdentityChange;
+  const announce = useCallback((id: string | null) => { identity.current?.(id); }, []);
 
   const load = useCallback(async () => {
     const me = await auth.me();
+    await setAccountId(me.id);
+    announce(me.id);
     setEmail(me.email);
     const p = await profileApi.get();
     setProfile(p);
@@ -34,7 +50,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       const token = await getRefreshToken();
-      if (!token) { setStatus('signed-out'); return; }
+      if (!token) { announce(null); setStatus('signed-out'); return; }
       const ok = await api.tryRefresh();
       if (!ok) {
         // O9 vs O10. `performRefresh` clears the stored token ONLY when the
@@ -44,7 +60,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         //   with a cache is full logging, not a login screen (O10).
         // Signing out here ejected someone from a workout in progress for
         // having no reception.
-        if (await getRefreshToken()) { setStatus('ready'); return; }
+        if (await getRefreshToken()) {
+          // Whose workout is on this phone is remembered, not asked for.
+          announce(await getAccountId());
+          setStatus('ready');
+          return;
+        }
+        announce(null);
         setStatus('signed-out');
         return;
       }
@@ -54,12 +76,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         // `load` sets the email before it fetches the profile, so a failure part
         // way through would otherwise leave the app signed out while still
         // showing whose account it was. Clear the identity with the status.
+        announce(null);
         setEmail(null);
         setProfile(null);
         setStatus('signed-out');
       }
     })();
-  }, [load]);
+  }, [load, announce]);
 
   const afterAuth = useCallback(async (res: { access_token: string; refresh_token: string; user: { email: string } }) => {
     setAccessToken(res.access_token);
@@ -76,7 +99,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const t = await getRefreshToken();
       if (t) { try { await auth.logout(t); } catch { /* best effort */ } }
       await clearRefreshToken();
+      await clearAccountId();
       setAccessToken(null);
+      // The unfinished workout stays on the device for this account (K-01);
+      // it is only hidden until they sign back in.
+      announce(null);
       setProfile(null); setEmail(null); setStatus('signed-out');
     },
     refreshProfile: async () => {
@@ -84,7 +111,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setProfile(p);
       setStatus(p.onboarding_completed ? 'ready' : 'onboarding');
     },
-  }), [status, email, profile, afterAuth]);
+  }), [status, email, profile, afterAuth, announce]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

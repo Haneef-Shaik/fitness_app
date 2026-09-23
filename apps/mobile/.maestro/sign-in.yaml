@@ -20,6 +20,15 @@ env:
 # Stop first: a previous flow may have left the app deep in a stack, and
 # openLink alone resumes it there rather than at the root.
 - stopApp
+# Expo Go FIRST, then the link. Sent to a cold process, the link sometimes
+# reaches Expo Go's launcher activity, which finishes itself without opening
+# the project — the phone lands on its home screen and every step after this
+# fails. Seen twice in one G10 run (`wm_finish_activity … LauncherActivity,
+# app-request` in the event log, no ExperienceActivity). A running process
+# takes the link reliably.
+- launchApp:
+    appId: host.exp.exponent
+    stopApp: false
 - openLink: exp://${HOST}
 - waitForAnimationToEnd:
     timeout: 40000
@@ -46,11 +55,19 @@ env:
 # spent a whole session running as a different user than the one the seed
 # prepares, against 14 programs of their own debris and none of the seeded
 # history that AC-04 reads.
+#
+# G10: sign-out is no longer the avatar itself. The avatar opens Settings, and
+# sign-out there asks first — so this is three steps where it used to be one.
 - runFlow:
     when:
-      visible: "Sign out"
+      visible:
+        id: "open-settings"
     commands:
-      - tapOn: "Sign out"
+      - tapOn:
+          id: "open-settings"
+      - tapOn:
+          id: "sign-out"
+      - tapOn: "Yes, sign out"
       # Sign-out is async — it clears a token and then re-routes. Without this
       # wait the NEXT conditional is evaluated against the still-rendered
       # dashboard, finds no welcome screen, skips the login, and the flow walks
@@ -106,6 +123,12 @@ env:
       - waitForAnimationToEnd:
           timeout: 4000
 
+# Anchored on a testID, not on a section label. `Text variant="label"` renders
+# `textTransform: uppercase`, so the label reaches the accessibility tree as
+# "TRAINING" — and matching it by its source spelling worked only by luck.
+# G9 had already renamed it once ("Today's workout" → "Training") with nothing
+# to catch that, because no device was attached to run this on.
 - extendedWaitUntil:
-    visible: "Today's workout"
+    visible:
+      id: "dashboard-date"
     timeout: 60000

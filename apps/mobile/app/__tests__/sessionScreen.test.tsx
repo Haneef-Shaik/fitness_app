@@ -60,7 +60,7 @@ function seed(setCount: number) {
 
 beforeEach(async () => {
   jest.clearAllMocks();
-  const store = createMemoryStore();
+  const store = createMemoryStore('user-1');
   await store.open();
   configurePersistence({ store });
   useSessionStore.setState({ draft: null, recoveryCandidate: null });

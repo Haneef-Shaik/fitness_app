@@ -77,3 +77,20 @@ class ProgramOut(BaseModel):
     description: str | None
     status: Literal["active", "archived"]
     days: list[PlanDayOut] = []
+
+
+class TemplateDayOut(BaseModel):
+    name: str
+    scheduled_weekday: int | None
+    exercises: list[str]
+
+
+class ProgramTemplateOut(BaseModel):
+    """A starter program (C-01, C-04). Not a program anyone owns: starting one
+    copies it into the user's own programs."""
+    key: str
+    name: str
+    summary: str
+    level: str
+    days_per_week: int
+    days: list[TemplateDayOut]

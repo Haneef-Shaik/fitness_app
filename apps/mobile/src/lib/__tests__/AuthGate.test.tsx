@@ -18,7 +18,10 @@ import { AuthGate } from '../AuthGate';
 const mockReplace = jest.fn();
 const mockRoute = { path: '/home' };
 jest.mock('expo-router', () => ({
-  router: { replace: (...a: unknown[]) => mockReplace(...a), push: jest.fn(), back: jest.fn() },
+  router: {
+    replace: (...a: unknown[]) => mockReplace(...a), push: jest.fn(), back: jest.fn(),
+    canDismiss: () => false, dismissAll: jest.fn(),
+  },
   usePathname: () => mockRoute.path,
 }));
 

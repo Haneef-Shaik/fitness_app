@@ -12,7 +12,9 @@
  * accurate the calories are. Nothing here implies otherwise.
  */
 import React from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import type { FoodAnalysisItem } from '@volt/api-types';
 import { Pill, Text } from '@/ui';
 import { grams, kcal } from './format';

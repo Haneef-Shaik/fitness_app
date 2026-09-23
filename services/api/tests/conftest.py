@@ -153,6 +153,7 @@ async def storage(tmp_path, monkeypatch):
         "app.api.routes.food_analysis",
         "app.api.routes.uploads",
         "app.api.routes.body",
+        "app.api.routes.account",
     ):
         module = importlib.import_module(module_name)
         assert hasattr(module, "get_store"), f"{module_name} no longer imports get_store"

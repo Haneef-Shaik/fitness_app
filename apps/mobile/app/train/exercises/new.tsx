@@ -2,7 +2,9 @@
  *  not only by the API, so the user never round-trips to learn it. */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { TextInput } from '@/ui/TextInput';
+import { Pressable } from '@/ui/Pressable';
 import type { ExerciseIn } from '@volt/api-types';
 import { Button, Field, Pill, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
@@ -156,7 +158,7 @@ export default function NewExercise() {
           <Pill>{problem}</Pill>
         ) : null}
         {error ? (
-          <Text variant="caption" style={{ color: c.crit }} testID="save-error">{error}</Text>
+          <Text variant="caption" tone="crit" testID="save-error">{error}</Text>
         ) : null}
 
         <Button

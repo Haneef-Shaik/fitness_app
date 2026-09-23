@@ -11,7 +11,8 @@
  * longer works.
  */
 import { useEffect } from 'react';
-import { router, usePathname } from 'expo-router';
+import { usePathname } from 'expo-router';
+import { resetTo } from './navigation';
 import { useSession } from './session';
 
 /**
@@ -38,7 +39,7 @@ export function AuthGate() {
     if (PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) {
       return;
     }
-    router.replace('/welcome');
+    resetTo('/welcome');
   }, [status, pathname]);
 
   return null;

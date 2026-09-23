@@ -22,3 +22,14 @@ jest.mock('expo-secure-store', () => {
     __store: store,
   };
 });
+
+// Icons load a native font module, which Jest does not have. A stand-in that
+// renders the icon's name keeps screens renderable and lets a test assert which
+// icon is shown (e.g. the filled one on the active tab).
+jest.mock('@expo/vector-icons/Ionicons', () => {
+  const { Text } = jest.requireActual('react-native');
+  const React = jest.requireActual('react');
+  const Icon = ({ name, testID }: { name: string; testID?: string }) =>
+    React.createElement(Text, { testID: testID ?? `icon-${name}` }, name);
+  return { __esModule: true, default: Icon };
+});

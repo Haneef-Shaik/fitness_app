@@ -1,0 +1,81 @@
+# AC-07 · "A manually logged meal changes today's totals immediately, on the
+# user's local date."
+#
+# Proven on hardware for the first time in G10. Until now this criterion rested
+# on API and client tests — good ones, every guard mutation-checked, but G4
+# found eight real defects on a phone that no suite had caught.
+#
+# The flow logs a real food at a real portion and then reads the diary's own
+# total. `assert_ac.py ac-07` asks the server whether the meal actually landed,
+# because a screen showing a number it computed locally cannot tell you that.
+appId: host.exp.exponent
+name: AC-07 log a meal and watch the day move
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+# B-01's nutrition card is the entry point — G4's lesson is that a screen
+# reachable only by typing a URL is not reachable.
+- scrollUntilVisible:
+    element:
+      id: "go-nutrition"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "go-nutrition"
+- assertVisible: "Nutrition"
+
+- tapOn: "+ Food"
+- assertVisible: "Add food"
+
+# A seeded catalog food, so the macros are known and the assertion can be exact.
+- tapOn:
+    id: "food-search"
+- inputText: "Rolled Oats"
+- hideKeyboard
+# Waited for by the ROW'S OWN NAME, never the bare food name: the search box
+# the flow just typed into now contains "Rolled Oats" too, so `visible:
+# "Rolled Oats"` passes on a screen that actually reads *Nothing matches*.
+# It did exactly that until G10 — the whole food catalog was seeded only in
+# `conftest`, so no real database had ever had one.
+- extendedWaitUntil:
+    visible: "Rolled Oats, .* kcal per 100 grams"
+    timeout: 10000
+- tapOn: "Rolled Oats, .* kcal per 100 grams"
+
+# The detail screen fetches the food before the portion field exists, so wait
+# for the field rather than for the navigation.
+- extendedWaitUntil:
+    visible:
+      id: "portion-grams"
+    timeout: 15000
+
+# 100 g is the default portion; state it anyway so the flow does not depend on
+# a default that could change.
+- tapOn:
+    id: "portion-grams"
+- eraseText
+- inputText: "100"
+- hideKeyboard
+- tapOn: "Add to diary"
+
+# Back on the diary, and the number has moved. This is the whole criterion.
+- extendedWaitUntil:
+    visible: "Nutrition"
+    timeout: 15000
+# 389 kcal is `Rolled Oats` at 100 g, straight out of the seeded catalog
+# (`app/seed/foods.py`) — a window of ±1 for how the screen rounds, and no
+# wider, because a range loose enough to swallow a different food proves
+# nothing about this one.
+- extendedWaitUntil:
+    visible:
+      text: "388|389|390"
+    timeout: 20000

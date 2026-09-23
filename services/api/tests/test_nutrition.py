@@ -320,3 +320,47 @@ class TestGuards:
         r = await auth_client.patch(f"/v1/foods/{seeded.id}", json={"calories": 1.0})
 
         assert r.status_code == 403, r.text
+
+
+class TestOneFoodById:
+    """H-05 used to look its food up in the unfiltered list, which is paged.
+
+    The catalog is 22 seeded foods; add a few custom ones and the page fills.
+    Opening a food from search then showed "not found" — invisible in a test
+    with a small catalog, and found the first time a device opened a real one.
+    """
+
+    async def test_it_finds_a_food_past_the_first_page(self, auth_client):
+        # Push the target well beyond the default page of 25.
+        for i in range(30):
+            _data(await auth_client.post("/v1/foods", json={
+                "name": f"Filler {i:02d}", "calories": 100.0,
+            }), 201)
+        target = _data(await auth_client.post("/v1/foods", json={
+            "name": "Zzz Last Alphabetically", "calories": 250.0, "protein_g": 9.0,
+        }), 201)
+
+        page = _data(await auth_client.get("/v1/foods"))
+        assert target["id"] not in [f["id"] for f in page], "the fixture no longer proves anything"
+
+        fetched = _data(await auth_client.get(f"/v1/foods/{target['id']}"))
+        assert fetched["name"] == "Zzz Last Alphabetically"
+        assert fetched["calories"] == pytest.approx(250.0)
+
+    async def test_a_catalog_food_is_readable(self, auth_client):
+        page = _data(await auth_client.get("/v1/foods", params={"q": "Oats"}))
+        oats = page[0]
+        assert _data(await auth_client.get(f"/v1/foods/{oats['id']}"))["id"] == oats["id"]
+
+    async def test_another_users_custom_food_is_not(self, auth_client, client):
+        mine = await _a_food(auth_client)
+
+        email = f"other-{uuid.uuid4().hex[:8]}@example.com"
+        r = await client.post("/v1/auth/register",
+                              json={"email": email, "password": "correct-horse-battery"})
+        token = r.json()["data"]["access_token"]
+
+        theirs = await client.get(f"/v1/foods/{mine['id']}",
+                                  headers={"authorization": f"Bearer {token}"})
+        assert theirs.status_code == 404, theirs.text
+        assert (await auth_client.get(f"/v1/foods/{mine['id']}")).status_code == 200

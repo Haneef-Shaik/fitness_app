@@ -57,3 +57,8 @@ export function mealTypeLabel(
   const spaced = slug.replace(/-/g, ' ');
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
+
+/** "1 item", "3 items" — a count that is read aloud has to be grammatical. */
+export function count(n: number, noun: string): string {
+  return `${n} ${noun}${n === 1 ? '' : 's'}`;
+}

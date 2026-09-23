@@ -7,7 +7,8 @@
  * (docs/03 §4.3).
  */
 import React from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, View } from 'react-native';
+import { Pressable } from '@/ui/Pressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './index';
 import { radius, space, useTheme } from '../theme';

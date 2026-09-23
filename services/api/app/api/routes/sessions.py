@@ -354,7 +354,14 @@ async def add_set(
     idempotency_key: Annotated[uuid.UUID | None, Header(alias="Idempotency-Key")] = None,
 ):
     """4.3 — `Idempotency-Key` is MANDATORY. Without it a dropped response makes the
-    client choose between a lost set and a duplicated one, and it will guess wrong."""
+    client choose between a lost set and a duplicated one, and it will guess wrong.
+
+    Counted separately from every other write (02 §9): this is the core loop and
+    its alert threshold is five times tighter. The counting happens in the HTTP
+    middleware rather than here, so a body Pydantic refuses — `reps: 0`, which
+    never reaches this function — is still counted as a set the user tried to
+    log and did not.
+    """
     client_id = idempotency_key or body.client_id
     if client_id is None:
         raise ValidationFailed(

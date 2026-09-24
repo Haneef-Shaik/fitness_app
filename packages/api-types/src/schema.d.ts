@@ -391,7 +391,11 @@ export interface paths {
         };
         /**
          * List Program Templates
-         * @description C-01 "Browse starter programs" and C-04 "Start from a template".
+         * @description The starter-program library, best first for this user (A-09).
+         *
+         *     Ranked from what onboarding collected — experience, days a week, equipment,
+         *     session length — and the active goal. With none of it answered, the order
+         *     is simply easiest first.
          */
         get: operations["list_program_templates_v1_program_templates_get"];
         put?: never;
@@ -1555,6 +1559,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/body/checkins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Body Checkins
+         * @description Check-ins: each day's weight and measurements, with change since the
+         *     first (the baseline onboarding records), and when the next is due.
+         *
+         *     "Today" is the profile's day (I7); the next check-in is one interval after
+         *     the last one — or today, if there has never been one.
+         */
+        get: operations["body_checkins_v1_body_checkins_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/analytics/body": {
         parameters: {
             query?: never;
@@ -1959,6 +1987,51 @@ export interface components {
             ids: string[];
         };
         /**
+         * CheckinOut
+         * @description Everything measured on one local day, read together.
+         */
+        CheckinOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Values */
+            values: {
+                [key: string]: number;
+            };
+            /**
+             * Since Baseline
+             * @default {}
+             */
+            since_baseline: {
+                [key: string]: number;
+            };
+        };
+        /**
+         * CheckinsOut
+         * @description Check-ins as milestones (G10). The first one is the baseline.
+         */
+        CheckinsOut: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Interval Days */
+            interval_days: number;
+            /**
+             * Next Due
+             * Format: date
+             */
+            next_due: string;
+            /** Overdue */
+            overdue: boolean;
+            baseline: components["schemas"]["CheckinOut"] | null;
+            /** Checkins */
+            checkins: components["schemas"]["CheckinOut"][];
+        };
+        /**
          * ComparisonCellOut
          * @description One exercise in one session.
          *
@@ -2262,6 +2335,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["BodySeriesOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[CheckinsOut] */
+        Envelope_CheckinsOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["CheckinsOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[ComparisonOut] */
@@ -2911,6 +2991,12 @@ export interface components {
             target_value: number;
             /** Target Unit */
             target_unit: string;
+            /** Start Date */
+            start_date?: string | null;
+            /** Target Date */
+            target_date?: string | null;
+            /** Weekly Rate */
+            weekly_rate?: number | null;
             /** Current Value */
             current_value?: number | null;
             /** Progress */
@@ -2952,6 +3038,8 @@ export interface components {
             start_date: string;
             /** Target Date */
             target_date?: string | null;
+            /** Weekly Rate */
+            weekly_rate?: number | null;
         };
         /** GoalPatch */
         GoalPatch: {
@@ -2959,6 +3047,8 @@ export interface components {
             target_value?: number | null;
             /** Target Date */
             target_date?: string | null;
+            /** Weekly Rate */
+            weekly_rate?: number | null;
             /** Status */
             status?: ("active" | "completed" | "paused") | null;
         };
@@ -3708,6 +3798,19 @@ export interface components {
             fat_g_target?: number | null;
             /** Onboarding Completed */
             onboarding_completed: boolean;
+            /** Training Experience */
+            training_experience?: ("beginner" | "intermediate" | "advanced") | null;
+            /** Training Days Per Week */
+            training_days_per_week?: number | null;
+            /** Session Minutes */
+            session_minutes?: number | null;
+            /** Equipment */
+            equipment?: ("full_gym" | "home_gym" | "dumbbells" | "bodyweight") | null;
+            /**
+             * Checkin Interval Days
+             * @default 7
+             */
+            checkin_interval_days: number;
         };
         /**
          * ProfilePatch
@@ -3740,6 +3843,16 @@ export interface components {
             fat_g_target?: number | null;
             /** Onboarding Completed */
             onboarding_completed?: boolean | null;
+            /** Training Experience */
+            training_experience?: ("beginner" | "intermediate" | "advanced") | null;
+            /** Training Days Per Week */
+            training_days_per_week?: number | null;
+            /** Session Minutes */
+            session_minutes?: number | null;
+            /** Equipment */
+            equipment?: ("full_gym" | "home_gym" | "dumbbells" | "bodyweight") | null;
+            /** Checkin Interval Days */
+            checkin_interval_days?: number | null;
         };
         /** ProgramIn */
         ProgramIn: {
@@ -3779,8 +3892,12 @@ export interface components {
         };
         /**
          * ProgramTemplateOut
-         * @description A starter program (C-01, C-04). Not a program anyone owns: starting one
-         *     copies it into the user's own programs.
+         * @description A starter program (C-01, C-04, A-09). Not a program anyone owns:
+         *     starting one copies it into the user's own programs.
+         *
+         *     Listed best-first for the signed-in user; `fits` is false only when it
+         *     needs equipment they said they do not have, and `reasons` says why it was
+         *     ranked where it is.
          */
         ProgramTemplateOut: {
             /** Key */
@@ -3789,12 +3906,48 @@ export interface components {
             name: string;
             /** Summary */
             summary: string;
-            /** Level */
-            level: string;
+            /**
+             * Level
+             * @enum {string}
+             */
+            level: "beginner" | "intermediate" | "advanced";
+            /**
+             * Focus
+             * @enum {string}
+             */
+            focus: "strength" | "hypertrophy" | "general";
+            /**
+             * Equipment
+             * @enum {string}
+             */
+            equipment: "full_gym" | "home_gym" | "dumbbells" | "bodyweight";
+            /** Session Minutes */
+            session_minutes: number;
             /** Days Per Week */
             days_per_week: number;
+            /** Schedule */
+            schedule: string;
+            /** Progression */
+            progression: string;
+            /** Based On */
+            based_on: string | null;
             /** Days */
             days: components["schemas"]["TemplateDayOut"][];
+            /**
+             * Fits
+             * @default true
+             */
+            fits: boolean;
+            /**
+             * Recommended
+             * @default false
+             */
+            recommended: boolean;
+            /**
+             * Reasons
+             * @default []
+             */
+            reasons: string[];
         };
         /** ProgressPhotoIn */
         ProgressPhotoIn: {
@@ -4287,8 +4440,25 @@ export interface components {
             name: string;
             /** Scheduled Weekday */
             scheduled_weekday: number | null;
+            /** Notes */
+            notes?: string | null;
             /** Exercises */
-            exercises: string[];
+            exercises: components["schemas"]["TemplateExerciseOut"][];
+        };
+        /** TemplateExerciseOut */
+        TemplateExerciseOut: {
+            /** Name */
+            name: string;
+            /** Sets */
+            sets: number;
+            /** Reps Min */
+            reps_min: number | null;
+            /** Reps Max */
+            reps_max: number | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Rest Seconds */
+            rest_seconds: number;
         };
         /** TextAnalysisIn */
         TextAnalysisIn: {
@@ -7455,6 +7625,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    body_checkins_v1_body_checkins_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CheckinsOut_"];
                 };
             };
         };

@@ -1,167 +1,211 @@
-/** A-07 Onboarding — step 2 (units & timezone) cannot be skipped: every later number depends on it. */
-import { router } from 'expo-router';
+/**
+ * A-07 … A-10 · Onboarding — rebuilt in G10 from the owner's review.
+ *
+ * The old version asked for units and an activity level, then showed a calorie
+ * target computed from a HARD-CODED BMR of 1,680 — the same number for everyone
+ * — under the words "Mifflin–St Jeor", with every macro bar drawn at 70%. This
+ * one asks what a target and a program depend on — who you are, your goal and
+ * pace, how you can train — records your first check-in, shows the working
+ * behind the target (A-08), and recommends a program (A-09).
+ *
+ * Units come first, not second as in the wireframe: height and weight cannot
+ * be typed before we know whether they are kg or lb.
+ *
+ * Saving: the profile is PATCHed as each step is completed (A-07), so leaving
+ * half way keeps what was answered. The goal, the baseline check-in and the
+ * targets are written once, on "Looks good". Onboarding is only marked
+ * complete at the very end.
+ */
+import { useMemo, useState } from 'react';
+import { Text } from '@/ui';
 import { resetTo } from '@/lib/navigation';
-import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import { Pressable } from '@/ui/Pressable';
-import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
-import { Button, Card, Field, Text, Well } from '@/ui';
-import { useTheme, space, radius, font } from '@/theme';
+import { ApiError, goalsApi, profileApi } from '@/lib/api';
+import { programsApi } from '@/lib/api-catalog';
 import { useSession } from '@/lib/session';
-import { profileApi } from '@/lib/api';
+import { queueMetric } from '@/features/body/logMetric';
+import { StepFrame } from '@/features/onboarding/ui';
+import {
+  ageOn, answersFrom, baselineMetrics, goalFrom, planFrom, plausibility, profilePatch,
+  type Answers,
+} from '@/features/onboarding/answers';
+import {
+  AboutYouStep, ActivityStep, GoalStep, MeasurementsStep, TrainingStep, UnitsStep,
+} from '@/features/onboarding/stepsAboutYou';
+import { DoneStep, ProgramStep, TargetsStep } from '@/features/onboarding/stepsPlan';
 
-const ZONES = ['Asia/Kolkata', 'Europe/London', 'America/New_York', 'Australia/Sydney', 'UTC'];
-const ACTIVITY = [
-  ['sedentary', 'Desk job, little exercise'],
-  ['light', 'Light exercise 1–3 days'],
-  ['moderate', 'Moderate 3–5 days'],
-  ['very', 'Hard exercise 6–7 days'],
-] as const;
+const STEPS: readonly { key: string; title: string; subtitle?: string; skippable: boolean }[] = [
+  { key: 'units', title: 'How should we show your numbers?', skippable: false },
+  { key: 'about', title: 'About you', subtitle: 'So your targets are yours, not an average.', skippable: true },
+  { key: 'activity', title: 'How active are you, outside training?', skippable: true },
+  { key: 'goal', title: "What's your goal?", skippable: true },
+  { key: 'training', title: 'How do you train?', subtitle: 'We use this to recommend a program.', skippable: true },
+  { key: 'measure', title: 'Your first check-in', subtitle: 'Your starting point. Later check-ins are measured against it.', skippable: true },
+  { key: 'targets', title: 'Your starting targets', subtitle: 'From your body, your activity and the pace you picked.', skippable: true },
+  { key: 'program', title: 'Pick a program', subtitle: 'Ranked for your experience, schedule and equipment.', skippable: true },
+  { key: 'done', title: "You're all set", skippable: false },
+];
+
+/** A-07: under 13, stop and explain. `[ASSUMPTION — confirm legal position]` */
+const MIN_AGE = 13;
+
+function detectedTimezone(): string {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; }
+}
+
+/** Today in the chosen timezone — the calendar the server will use (I7). */
+function todayIn(timezone: string): string {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date());
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+const CONTINUE_LABEL: Record<string, string> = {
+  targets: 'Looks good', done: 'Go to my dashboard',
+};
 
 export default function Onboarding() {
-  const { c } = useTheme();
   const { refreshProfile, profile } = useSession();
-  const [step, setStep] = useState(0);
-  const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
-  const [tz, setTz] = useState(profile?.timezone === 'UTC' ? 'Asia/Kolkata' : profile?.timezone ?? 'Asia/Kolkata');
-  const [activity, setActivity] = useState('moderate');
+  const [i, setI] = useState(0);
+  // Answers saved on an earlier visit come back (each step is PATCHed as it is done).
+  const [a, setA] = useState<Answers>(() => answersFrom(profile, detectedTimezone()));
+  const [program, setProgram] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [warned, setWarned] = useState(false);
+  // Written once, however often the user goes back and forward.
+  const [wrotePlan, setWrotePlan] = useState(false);
+  const [wroteProgram, setWroteProgram] = useState(false);
+  const [extra, setExtra] = useState<string[]>([]);
 
-  // Mifflin–St Jeor with the documented activity multipliers, minus 10% for fat loss.
-  const multiplier = { sedentary: 1.2, light: 1.375, moderate: 1.55, very: 1.725, extra: 1.9 }[activity] ?? 1.55;
-  const bmr = 1680;
-  const target = Math.round((bmr * multiplier * 0.9) / 10) * 10;
-  const protein = Math.round((target * 0.3) / 4);
-  const carbs = Math.round((target * 0.4) / 4);
-  const fat = Math.round((target * 0.3) / 9);
+  const today = todayIn(a.timezone);
+  const plan = useMemo(() => planFrom(a, today), [a, today]);
+  const step = STEPS[i]!;
+  const set = (patch: Partial<Answers>) => { setA((prev) => ({ ...prev, ...patch })); setWarned(false); };
 
-  async function finish() {
+  const age = a.birthDate ? ageOn(a.birthDate, today) : null;
+  const tooYoung = step.key === 'about' && age != null && age < MIN_AGE;
+  const warnings = step.key === 'about' || step.key === 'goal' ? plausibility(a, today) : [];
+
+  const writePlan = async () => {
+    if (wrotePlan) return;
+    if (plan) {
+      await profileApi.patch({
+        daily_calorie_target: plan.calories, protein_g_target: plan.proteinG,
+        carbs_g_target: plan.carbsG, fat_g_target: plan.fatG,
+      } as never);
+    }
+    const goal = goalFrom(a, today);
+    if (goal) {
+      // Onboarding can be left after this step and started again; the goal it
+      // wrote then is updated, not joined by a second active one.
+      const earlier = (await goalsApi.list()).find((g) =>
+        g.status === 'active' && g.goal_type === goal.goal_type && g.metric_key === goal.metric_key);
+      if (earlier) {
+        await goalsApi.patch(earlier.id, { target_value: goal.target_value, weekly_rate: goal.weekly_rate });
+      } else {
+        await goalsApi.create(goal as never);
+      }
+    }
+    // The baseline rides the outbox like any weigh-in: it survives a dropped signal.
+    for (const m of baselineMetrics(a)) {
+      await queueMetric({ ...m, measured_at: null, notes: 'Starting check-in', client_id: null } as never);
+    }
+    setWrotePlan(true);
+  };
+
+  const summary = (): string[] => {
+    const lines: string[] = [];
+    if (plan && wrotePlan) {
+      lines.push(`Daily target: ${plan.calories.toLocaleString('en-GB')} kcal · ${plan.proteinG} g protein`);
+    }
+    const goal = goalFrom(a, today);
+    if (goal && goal.direction !== 'hold') {
+      lines.push(`Goal: ${goal.target_value} kg, starting from ${goal.start_value} kg`);
+    }
+    if (wroteProgram) lines.push('Your program is ready in the Train tab.');
+    const baseline = baselineMetrics(a);
+    const hasWeight = baseline.some((m) => m.metric_key === 'body_weight');
+    const tape = baseline.length - (hasWeight ? 1 : 0);
+    const parts = [hasWeight ? 'weight' : null, tape ? `${tape} measurement${tape === 1 ? '' : 's'}` : null]
+      .filter(Boolean).join(' and ');
+    lines.push(baseline.length
+      ? `Your first check-in is recorded (${parts}). The next is due in ${a.checkinDays} days.`
+      : 'Log your weight in Progress to start tracking.');
+    return [...lines, ...extra];
+  };
+
+  const next = async (skip: boolean) => {
+    setError(null);
+    if (!skip && warnings.length && !warned) { setWarned(true); return; }   // shown once, then allowed
     setBusy(true);
     try {
-      await profileApi.patch({
-        preferred_unit_system: units, timezone: tz, activity_level: activity,
-        daily_calorie_target: target, protein_g_target: protein,
-        carbs_g_target: carbs, fat_g_target: fat, onboarding_completed: true,
-      } as never);
-      await refreshProfile();
-      resetTo('/home');
-    } finally { setBusy(false); }
-  }
+      if (step.key === 'done') {
+        await profileApi.patch({ onboarding_completed: true } as never);
+        await refreshProfile();
+        resetTo('/home');
+        return;
+      }
+      if (step.key === 'targets') {
+        if (!skip) await writePlan();
+      } else if (step.key === 'program') {
+        if (!skip && program && !wroteProgram) {
+          try {
+            await programsApi.startTemplate(program);
+            setWroteProgram(true);
+          } catch {
+            // A-09: onboarding must never dead-end on a non-essential step.
+            setExtra(["We couldn't add that program — add it from Train → Starter programs."]);
+          }
+        }
+      } else {
+        await profileApi.patch(profilePatch(a) as never);
+      }
+      setWarned(false);
+      setI(i + 1);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "That didn't save. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
-  const Dots = () => (
-    <View style={{ flexDirection: 'row', gap: 6 }}>
-      {[0, 1, 2].map(i => (
-        <View key={i} style={{
-          width: i === step ? 18 : 6, height: 6, borderRadius: 3,
-          backgroundColor: i <= step ? c.accent : c.line2,
-        }} />
-      ))}
-    </View>
-  );
-
-  const Option = ({ on, title, sub, onPress }: { on: boolean; title: string; sub?: string; onPress: () => void }) => (
-    <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected: on }}
-      style={{
-        flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, marginTop: 10,
-        borderRadius: radius.card, borderWidth: 1,
-        borderColor: on ? c.accent : c.line, backgroundColor: on ? c.accentWash : c.surface,
-      }}>
-      <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1.5,
-        borderColor: on ? c.accent : c.line2, alignItems: 'center', justifyContent: 'center' }}>
-        {on ? <View style={{ width: 11, height: 11, borderRadius: 6, backgroundColor: c.accent }} /> : null}
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text variant="body" style={{ fontFamily: font.uiSemi }}>{title}</Text>
-        {sub ? <Text variant="caption" tone="ink3">{sub}</Text> : null}
-      </View>
-    </Pressable>
-  );
+  const props = { a, set, today };
+  const label = step.key === 'program'
+    ? (program ? 'Use this program' : 'Continue without one')
+    : CONTINUE_LABEL[step.key] ?? 'Continue';
 
   return (
-    <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
-      <View style={{ paddingHorizontal: space.lg, paddingTop: space.sm, flexDirection: 'row',
-        alignItems: 'center', justifyContent: 'space-between' }}>
-        <Pressable onPress={() => (step === 0 ? null : setStep(step - 1))} style={{ width: 34 }}>
-          <Text variant="h2" tone={step === 0 ? 'ink3' : 'ink'}>‹</Text>
-        </Pressable>
-        <Dots />
-        <View style={{ width: 34 }} />
-      </View>
-
-      <ScrollView contentContainerStyle={{ padding: space.lg }}>
-        {step === 0 && (
-          <>
-            <Text variant="display" style={{ fontSize: 30 }}>How should we{'\n'}show your numbers?</Text>
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: space.lg }}>
-              {(['metric', 'imperial'] as const).map(u => (
-                <Pressable key={u} onPress={() => setUnits(u)} style={{ flex: 1 }}>
-                  <Card style={{ borderColor: units === u ? c.accent : c.line }}>
-                    <Text variant="body" style={{ fontFamily: font.uiSemi, textTransform: 'capitalize' }}>{u}</Text>
-                    <Text variant="caption" tone="ink3">{u === 'metric' ? 'kg · cm · g' : 'lb · in · oz'}</Text>
-                  </Card>
-                </Pressable>
-              ))}
-            </View>
-
-            <Text variant="label" style={{ marginTop: space.xl, marginBottom: 4 }}>Time zone</Text>
-            {ZONES.map(z => <Option key={z} on={tz === z} title={z} onPress={() => setTz(z)} />)}
-            <Well style={{ marginTop: space.base }}>
-              <Text variant="caption" tone="ink3">
-                This sets when your day starts and ends for calories and workouts.
-                It cannot be skipped — every later number depends on it.
-              </Text>
-            </Well>
-          </>
-        )}
-
-        {step === 1 && (
-          <>
-            <Text variant="display" style={{ fontSize: 30 }}>How active{'\n'}are you?</Text>
-            {ACTIVITY.map(([k, label]) => (
-              <Option key={k} on={activity === k} title={k[0].toUpperCase() + k.slice(1)} sub={label}
-                onPress={() => setActivity(k)} />
-            ))}
-          </>
-        )}
-
-        {step === 2 && (
-          <>
-            <Text variant="display" style={{ fontSize: 30 }}>Your starting{'\n'}targets</Text>
-            <Card hero style={{ marginTop: space.lg, borderStyle: 'dashed', borderColor: c.line2 }}>
-              <Text variant="label" tone="accent">✦ Estimated from your profile</Text>
-              <View style={{ alignItems: 'center', marginTop: 12 }}>
-                <Text variant="hero" style={{ fontSize: 54 }}>{target.toLocaleString()}</Text>
-                <Text variant="caption" tone="ink3">kcal per day</Text>
-              </View>
-              <View style={{ marginTop: space.lg, gap: 8 }}>
-                {[['Protein', protein, c.s1], ['Carbs', carbs, c.s2], ['Fat', fat, c.s3]].map(([n, v, col]) => (
-                  <View key={n as string} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <Text variant="caption" tone="ink3" style={{ width: 54 }}>{n as string}</Text>
-                    <View style={{ flex: 1, height: 7, borderRadius: 4, backgroundColor: c.sunken, overflow: 'hidden' }}>
-                      <View style={{ width: '70%', height: '100%', backgroundColor: col as string }} />
-                    </View>
-                    <Text variant="caption" tone="ink2" style={{ fontFamily: font.dataSemi, fontSize: 14 }}>{v as number} g</Text>
-                  </View>
-                ))}
-              </View>
-            </Card>
-            <Well style={{ marginTop: space.base }}>
-              <Text variant="caption" tone="ink3">
-                Mifflin–St Jeor, activity ×{multiplier}, then −10% for fat loss.
-                An estimate, not medical advice. Change it any time in Settings.
-              </Text>
-            </Well>
-          </>
-        )}
-      </ScrollView>
-
-      <View style={{ padding: space.lg, paddingTop: 0 }}>
-        <Button
-          title={step === 2 ? 'Looks good' : 'Continue'}
-          loading={busy}
-          onPress={() => (step === 2 ? finish() : setStep(step + 1))}
-        />
-      </View>
-    </ScreenSafeArea>
+    <StepFrame
+      step={i + 1}
+      of={STEPS.length}
+      title={step.title}
+      subtitle={step.subtitle}
+      onBack={i > 0 && step.key !== 'done' ? () => { setWarned(false); setI(i - 1); } : undefined}
+      onSkip={step.skippable ? () => { void next(true); } : undefined}
+      onContinue={() => { void next(false); }}
+      continueLabel={label}
+      canContinue={!tooYoung}
+      busy={busy}
+      notices={[
+        ...(tooYoung ? [`Volt is for people aged ${MIN_AGE} and over.`] : []),
+        ...(warned ? [...warnings, "If that's right, tap Continue again."] : []),
+        ...(error ? [error] : []),
+      ]}
+    >
+      {step.key === 'units' ? <UnitsStep {...props} /> : null}
+      {step.key === 'about' ? <AboutYouStep {...props} /> : null}
+      {step.key === 'activity' ? <ActivityStep {...props} /> : null}
+      {step.key === 'goal' ? <GoalStep {...props} /> : null}
+      {step.key === 'training' ? <TrainingStep {...props} /> : null}
+      {step.key === 'measure' ? <MeasurementsStep {...props} /> : null}
+      {step.key === 'targets' ? <TargetsStep plan={plan} /> : null}
+      {step.key === 'program' ? <ProgramStep chosen={program} onChoose={setProgram} /> : null}
+      {step.key === 'done' ? <DoneStep lines={summary()} /> : null}
+      {tooYoung ? <Text variant="body" tone="ink2">If you entered the wrong date, change it above.</Text> : null}
+    </StepFrame>
   );
 }

@@ -114,6 +114,7 @@ export const qk = {
   bodyMetrics: (metricKey: string, f: { from?: string; to?: string } = {}) =>
     ['body', 'list', metricKey, f] as const,
   progressPhotos: () => ['body', 'photos'] as const,
+  bodyCheckins: () => ['body', 'checkins'] as const,
 
   // L-02. The outbox is LOCAL state, and it is in the query cache anyway: the
   // Sync Center wants the same refetch, staleness and boundary behaviour every

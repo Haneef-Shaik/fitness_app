@@ -393,7 +393,7 @@ added here without code — or code without a row — fails the build rather tha
 | Mutation | Invalidates | Why exactly this |
 |----------|-------------|------------------|
 | Sign in / sign out | **everything** (`queryClient.clear()`) | Cached data belongs to the previous identity. A stale read across an account switch is a data-leak bug, not a refresh bug |
-| `PATCH /profile` | `profile`, `dashboard(*)` | Targets and timezone are read from the profile everywhere; the day-bucketing rule (**I7**) depends on it |
+| `PATCH /profile` | `profile`, `dashboard(*)`, `bodyCheckins` | Targets and timezone are read from the profile everywhere; the day-bucketing rule (**I7**) depends on it. The check-in interval lives there too, and moves when the next check-in is due |
 | Create / edit a goal | `goals`, `goal(id)`, `dashboard(*)` | The list shows progress, the detail shows the same numbers |
 | Create / edit / archive an **exercise** | `exercises`, `exercise(id)` | Catalog filters and the picker read the list; the detail reads one |
 | Create / edit / duplicate / archive / delete a **program** | `programs`, `program(id)` — **never** `sessions`, `records` or any analytics | **AC-12.** A performed session snapshots its prescription; editing the plan must not appear to rewrite history |

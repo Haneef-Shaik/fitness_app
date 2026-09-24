@@ -5,7 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models import Exercise, ExerciseMuscle, MuscleGroup, MuscleRole
-from app.seed.catalog import MUSCLES, seed_catalog
+from app.seed.catalog import EXERCISES, MUSCLES, seed_catalog
 
 
 async def _session(engine) -> AsyncSession:
@@ -38,7 +38,9 @@ async def test_seed_is_idempotent(engine):
             ),
         }
     assert counts["muscle_groups"] == 22, counts
-    assert counts["exercises"] == 29, counts
+    # Every seeded exercise exactly once — not a hand-kept number that goes
+    # stale the next time the catalog grows (it did in G10).
+    assert counts["exercises"] == len(EXERCISES), counts
 
 
 async def test_every_exercise_has_a_primary_muscle(engine):

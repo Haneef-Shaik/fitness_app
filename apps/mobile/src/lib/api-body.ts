@@ -10,7 +10,7 @@
  * different thing from "today" and is always an explicit choice.
  */
 import type {
-  BodyMetric, BodyMetricIn, BodySeries, Dashboard, ProgressPhoto, ProgressPhotoIn,
+  BodyMetric, BodyMetricIn, BodySeries, Checkins, Dashboard, ProgressPhoto, ProgressPhotoIn,
 } from '@volt/api-types';
 import { api } from './api';
 
@@ -40,6 +40,9 @@ export const bodyApi = {
   /** One point per day — the FIRST weigh-in of each (Q5) — plus the average. */
   series: (metricKey = 'body_weight', range: RangeQuery = {}) =>
     api.get<BodySeries>('/analytics/body' + qs({ metric_key: metricKey, ...range })),
+
+  /** Each day's weight and measurements, change since the baseline, and when the next is due. */
+  checkins: () => api.get<Checkins>('/body/checkins'),
 
   photos: () => api.get<ProgressPhoto[]>('/progress-photos'),
   createPhoto: (body: ProgressPhotoIn) =>

@@ -29,3 +29,4 @@ export function dayTotals(items: readonly MealItem[]): DayTotals {
 export const remainingKcal = (consumed: number, target: number): number => target - consumed;
 export * from './scaling';
 export * from './targets';
+export * from './plan';

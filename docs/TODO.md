@@ -41,6 +41,37 @@ Not done:
       writes are kept but never shown or sent (safer than sending them as the wrong person), and an
       unfinished workout from before the upgrade is **dropped** by the migration
 
+## Onboarding, check-ins and the program library — 23 Sep, from the owner's review
+
+Done and tested (836 client / 513 API / 131 domain). Checked by eye in the web build (390 × 844,
+dark) against a throwaway local account. **Not yet checked on the phone.**
+
+- [x] **Onboarding asks what a target depends on** (9 steps): units, name / sex / birth date /
+      height / weight, activity, goal + target weight + pace (with a projected date), experience /
+      days / session length / equipment, a first check-in (weight + six measurements), then the
+      target **with its working shown** (maintenance, deficit, the formula). It replaced a target
+      computed from a hard-coded BMR of 1,680
+- [x] Leaving onboarding half way and coming back **keeps the answers** (they were saved but not
+      shown); running it again after "Looks good" **updates the goal instead of adding a second one**
+- [x] **Check-ins as milestones**: Progress shows the goal as a journey (start → now → target,
+      markers every quarter, next milestone, projected date) and a check-in card (next due, change
+      since the first, recent); a check-in screen takes weight + measurements together
+- [x] **14 well-known programs**, fully set up (StrongLifts-style 5×5, Starting Strength-style 3×5,
+      GZCLP, PPL ×2, PHUL, Texas Method, 5/3/1 BBB, Arnold split, upper/lower, dumbbell-only,
+      bodyweight…) with sets × reps, schedule and progression; ranked per user with reasons.
+      Someone with a full gym is no longer steered to the dumbbell or bodyweight routines
+- [x] Opening a screen straight from a link could hang on "Loading…" for ever: the identity change
+      cleared the cache under the mounted screen. Now mounted reads are reset and refetched
+
+Not done:
+
+- [ ] Walk the new onboarding and Progress **on the phone** (needs the owner, or a second account on
+      their go-ahead)
+- [ ] Web only: after "Create account" the web build lands on the welcome screen (reload continues
+      into onboarding). The phone does not do this; web is a development surface
+- [ ] The goal and pace are not saved until "Looks good", so leaving before that re-asks them
+- [ ] Home's body card does not show goal progress yet — the journey lives on Progress
+
 ## 0 · 🔴 The screen-reader session — blocks the release
 
 - [ ] **0.1** A TalkBack session on the phone: log a workout (start → load → reps → save ×3 →

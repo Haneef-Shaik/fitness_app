@@ -10,6 +10,7 @@ import type {
   ExerciseProgression,
   Frequency,
   MuscleVolume,
+  NutritionRange,
   PersonalRecordRow,
   WorkoutAnalytics,
 } from '@volt/api-types';
@@ -56,4 +57,8 @@ export const analyticsApi = {
   /** G-06's meter. `adherence` is null when nothing was planned. */
   adherence: (q: RangeQuery = {}) =>
     api.get<Adherence>('/analytics/adherence' + qs(q)),
+
+  /** H-14. Averages are over logged days only; `logged_days` travels with them. */
+  nutrition: (q: RangeQuery = {}) =>
+    api.get<NutritionRange>('/analytics/nutrition' + qs(q)),
 };

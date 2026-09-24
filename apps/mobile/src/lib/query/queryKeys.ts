@@ -84,6 +84,11 @@ export const qk = {
   // client does not decide which day it is (I7).
   nutritionDay: (localDate: string) => ['nutrition', 'day', localDate] as const,
   meal: (id: string) => ['nutrition', 'meal', id] as const,
+  // H-14. Under `nutrition` so every meal write reaches it; sessions and
+  // weigh-ins reach it through `nutritionAnalytics` explicitly (training vs
+  // rest days, the weight chart).
+  nutritionAnalytics: (range: { from?: string; to?: string }) =>
+    ['nutrition', 'analytics', range] as const,
   foods: (q?: string) => ['foods', 'list', q ?? ''] as const,
   food: (id: string) => ['foods', 'detail', id] as const,
 
@@ -138,6 +143,7 @@ export const qkPrefix = {
   sessionComparison: () => ['session-comparison'] as const,
   analytics: () => ['analytics'] as const,
   nutrition: () => ['nutrition'] as const,
+  nutritionAnalytics: () => ['nutrition', 'analytics'] as const,
   foods: () => ['foods'] as const,
   mealCategories: () => ['meal-categories'] as const,
   recipes: () => ['recipes'] as const,

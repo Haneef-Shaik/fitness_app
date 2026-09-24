@@ -398,6 +398,9 @@ Fields below are **additions/refinements** the BRD schema needs to satisfy its o
 | `users` | `deleted_at` | §18 account deletion, with soft-delete grace |
 | `user_profiles` | `birth_date`, `sex`, `dashboard_layout jsonb`, `logging_field_prefs jsonb` | TDEE inputs (§9 activity_level is alone insufficient); §15 customization |
 | `user_profiles` | `daily_calorie_target`, `protein/carbs/fat_g_target` | §15 custom targets; §11 day metrics need a target |
+| `user_profiles` | `training_experience`, `training_days_per_week`, `session_minutes`, `equipment`, `checkin_interval_days` (G10) | Onboarding's training answers drive the starter-program ranking; the check-in interval drives when the next check-in is due |
+| `calorie_targets` (new, G10) | `(user_id, effective_from)` PK, `calories`, `protein_g`, `carbs_g`, `fat_g` | **Q8 — targets are versioned.** One row per day the targets changed; a day is judged against the latest row on or before it (H-01, H-14). The profile keeps the current targets |
+| `fitness_goals` | `weekly_rate` (G10) | The chosen pace; drives the planned projection before a week of weigh-ins exists |
 | `fitness_goals` | `metric_key`, `direction` | §P02.4 progress needs to know which metric a custom goal tracks |
 | `exercises` | `default_unit`, `tracks_load/reps/duration/distance` (bool) | Cardio and bodyweight exercises must not demand load (W04.8) |
 | `exercises` | `aliases text[]` | §15 custom aliases; resolution quality |
@@ -582,6 +585,8 @@ common read/write set.
 | AI item edit rate | tracked as a model-quality metric, alert on a step change |
 | Outbox depth / age (client-reported) | p95 age > 5 min |
 | Sessions abandoned in `in_progress` > 24 h | trend watch |
+| AI job held in `processing` (read from the DB at scrape time) | > 300 s — the worker's lock timeout |
+| Oldest AI job not yet picked up | > 60 s — nothing is taking work |
 
 Traces carry `request_id` end-to-end, including into the AI worker via the job payload, so one food
 photo is one traceable story.

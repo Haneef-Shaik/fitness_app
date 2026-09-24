@@ -312,8 +312,74 @@ def ac_11(token: str, args: argparse.Namespace) -> None:
     )
 
 
+def _latest_analysis(token: str, input_type: str) -> dict:
+    rows = [a for a in get("/v1/food-analyses", token) if a["input_type"] == input_type]
+    check(f"a {input_type} analysis exists", len(rows) >= 1, f"{len(rows)} {input_type} analyses")
+    rows.sort(key=lambda a: a["created_at"], reverse=True)
+    return get(f"/v1/food-analysis/{rows[0]['id']}", token)
+
+
+def _editable_candidates(analysis: dict, minimum: int) -> None:
+    check("it finished", analysis["status"] == "completed", analysis["status"])
+    items = analysis["items"]
+    check(f"at least {minimum} candidate(s)", len(items) >= minimum, f"{len(items)} items")
+    check("every candidate carries estimated nutrition",
+          all(i["proposed_calories"] is not None for i in items),
+          ", ".join(f"{i['detected_name']} {i['proposed_calories']}" for i in items))
+
+
+def ac_08(token: str, args: argparse.Namespace) -> None:
+    """AC-08 — "Text food input produces editable structured candidates."
+
+    The screen shows fields; this asks the server whether the analysis it drew
+    them from is structured — named items with quantities and nutrition."""
+    analysis = _latest_analysis(token, "text")
+    _editable_candidates(analysis, minimum=2)
+    check("it keeps the user's own words", bool(analysis.get("source_text")), analysis.get("source_text") or "")
+
+
+def ac_09(token: str, args: argparse.Namespace) -> None:
+    """AC-09 — "Food-image input produces editable candidates with estimated nutrition"."""
+    analysis = _latest_analysis(token, "image")
+    _editable_candidates(analysis, minimum=1)
+    check("the photograph is stored with it", bool(analysis.get("image_key")), analysis.get("image_key") or "")
+
+
+def ac_10(token: str, args: argparse.Namespace) -> None:
+    """AC-10 — "Corrected nutrition becomes confirmed while the original AI
+    result stays available."
+
+    Both halves live on the server: the meal item holds the CORRECTED values,
+    confirmed and marked as corrected, and the analysis still holds what was
+    proposed. A screen showing the corrected number proves only the first."""
+    analysis = _latest_analysis(token, "text")
+    check("it was confirmed into a meal", analysis["confirmed_meal_id"] is not None,
+          str(analysis["confirmed_meal_id"]))
+    day = get("/v1/nutrition/day", token)
+    items = [i for m in day["meals"] if m["id"] == analysis["confirmed_meal_id"] for i in m["items"]]
+    check("the meal is in today's diary", len(items) >= 1, f"{len(items)} items")
+    corrected = [i for i in items if i["user_corrected"]]
+    check("a corrected item is marked as corrected", len(corrected) >= 1, f"{len(corrected)} corrected")
+    check("and it is confirmed — it counts", all(i["confirmed"] for i in corrected))
+    proposed = {i["id"]: i for i in analysis["items"]}
+    originals = [proposed.get(i.get("analysis_item_id")) for i in corrected]
+    check("the original AI result is still there, unchanged",
+          all(o is not None and o["estimated_quantity"] is not None for o in originals),
+          "; ".join(f"{o['detected_name']}: proposed {o['estimated_quantity']} {o['estimated_unit']}"
+                    for o in originals if o))
+    check("and it differs from what was saved",
+          any(o and abs((o["estimated_quantity"] or 0) - float(i["quantity_grams"] or 0)) > 0.5
+              for i, o in zip(corrected, originals, strict=False)),
+          ", ".join(f"saved {i['quantity_grams']} g" for i in corrected))
+
+
 CRITERIA["ac-07"] = (
     ac_07, "A manually logged meal moves today's totals, on the user's local date",
+)
+CRITERIA["ac-08"] = (ac_08, "Text food input produces editable structured candidates")
+CRITERIA["ac-09"] = (ac_09, "Food-image input produces editable candidates with estimated nutrition")
+CRITERIA["ac-10"] = (
+    ac_10, "Corrected nutrition is confirmed while the original AI result stays available",
 )
 CRITERIA["ac-11"] = (
     ac_11, "The dashboard reflects current workout, nutrition and body state",

@@ -36,6 +36,7 @@ from app.models.session import (
 )
 from app.models.user import (
     ActivityLevel,
+    CalorieTarget,
     FitnessGoal,
     GoalStatus,
     GoalType,
@@ -49,7 +50,7 @@ from app.models.user import (
 # Grouped by domain rather than sorted — the grouping is the documentation.
 __all__ = [  # noqa: RUF022
     # user
-    "User", "UserProfile", "FitnessGoal", "RefreshToken",
+    "User", "UserProfile", "FitnessGoal", "RefreshToken", "CalorieTarget",
     "UserStatus", "UnitSystem", "ActivityLevel", "GoalType", "GoalStatus",
     # catalog
     "MuscleGroup", "Exercise", "ExerciseMuscle", "Equipment", "CatalogStatus", "MuscleRole",

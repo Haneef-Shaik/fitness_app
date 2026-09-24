@@ -11,6 +11,7 @@ from app.core.errors import NotFound, ValidationFailed
 from app.models import UserProfile
 from app.schemas.envelope import Envelope
 from app.schemas.profile import ProfileOut, ProfilePatch
+from app.services import targets
 from app.services.timezone_change import rebucket
 
 router = APIRouter(prefix="/profile", tags=["profile"])
@@ -50,6 +51,12 @@ async def patch_profile(body: ProfilePatch, user: CurrentUser, db: DbSession):
     for key, value in changes.items():
         setattr(profile, key, value)
     await db.flush()
+
+    # Q8: a change of target is dated, so past days keep the one they had.
+    # After the timezone is applied, so "today" is the day the user means.
+    if any(field in changes for field in targets.TARGET_FIELDS):
+        await targets.record(db, profile)
+        await db.flush()
 
     if moving:
         # A timezone change moves a BOUNDARY, not a value. Every session, meal

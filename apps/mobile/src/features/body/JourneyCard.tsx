@@ -16,22 +16,45 @@ import { shortDate } from '@/features/dashboard/date';
 import { font, space, useTheme } from '@/theme';
 
 const kg = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} kg`;
+const round1 = (n: number) => Math.round(n * 10) / 10;
 
-export function JourneyCard({ goal, today }: { goal: GoalCard; today: string }) {
-  const { c } = useTheme();
+/** The journey for a weight goal that has one — not for a hold goal, or one with no start. */
+export function journeyFor(goal: GoalCard, today: string) {
   if (goal.direction === 'hold' || goal.start_value == null || !goal.start_date) return null;
-
-  const j = goalJourney({
+  return goalJourney({
     start: goal.start_value, target: goal.target_value, direction: goal.direction as 'up' | 'down',
     startDate: goal.start_date, weeklyRate: goal.weekly_rate ?? null,
     current: goal.current_value ?? null, today,
   });
+}
+
+/** The active weight goal a journey is drawn for, if there is one. */
+export function weightGoalOf(goals: readonly GoalCard[] | null | undefined): GoalCard | undefined {
+  return (goals ?? []).find(
+    (g) => g.metric_key === 'body_weight' && g.status === 'active' && g.direction !== 'hold',
+  );
+}
+
+/** One line for Home's body card: where the goal stands, in words. */
+export function journeyLine(goal: GoalCard, today: string): string | null {
+  const j = journeyFor(goal, today);
+  if (!j) return null;
+  if (j.done) return `Goal reached — ${kg(goal.target_value)}`;
+  if (!j.next || goal.current_value == null) return `Goal ${kg(goal.target_value)}`;
+  return `Next milestone ${kg(j.next.value)} · ${kg(round1(Math.abs(goal.current_value - j.next.value)))} to go · goal ${kg(goal.target_value)}`;
+}
+
+export function JourneyCard({ goal, today }: { goal: GoalCard; today: string }) {
+  const { c } = useTheme();
+  const j = journeyFor(goal, today);
+  if (!j) return null;
+  const start = goal.start_value!;   // journeyFor returns null without one
   const fill = Math.max(0, Math.min(1, j.progress ?? 0));
 
   const headline = j.done
     ? `Goal reached — ${kg(goal.target_value)}`
     : j.next
-      ? `Next milestone: ${kg(j.next.value)}${goal.current_value != null ? ` · ${kg(Math.abs(goal.current_value - j.next.value))} to go` : ''}`
+      ? `Next milestone: ${kg(j.next.value)}${goal.current_value != null ? ` · ${kg(round1(Math.abs(goal.current_value - j.next.value)))} to go` : ''}`
       : 'Log a weigh-in to start the journey';
 
   const projection = j.done ? null
@@ -45,7 +68,7 @@ export function JourneyCard({ goal, today }: { goal: GoalCard; today: string }) 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: space.sm }}>
         <View>
           <Text variant="caption" tone="ink3">Start</Text>
-          <Text variant="body" style={{ fontFamily: font.dataSemi }}>{kg(goal.start_value)}</Text>
+          <Text variant="body" style={{ fontFamily: font.dataSemi }}>{kg(start)}</Text>
         </View>
         <View style={{ alignItems: 'center' }}>
           <Text variant="caption" tone="ink3">Now</Text>

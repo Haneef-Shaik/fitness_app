@@ -229,3 +229,48 @@ class TestTheAlertTable:
         body = _data(await auth_client.get("/v1/admin/alerts"))
         assert "rules" in body and "firing" in body
         assert len(body["rules"]) >= 7
+
+
+class TestTheAIQueue:
+    """G10 TODO 3.3: outcomes and durations were exported, but a stuck queue was
+    invisible — a job that never finishes records neither. Depth and age are
+    read from the database at scrape time, so they are true across restarts."""
+
+    async def test_metrics_export_queue_depth_and_the_oldest_waiting_job(self, auth_client):
+        _data(await auth_client.post("/v1/food-analysis/text", json={"text": "2 eggs"}), 202)
+        _data(await auth_client.post("/v1/food-analysis/text", json={"text": "1 roti"}), 202)
+
+        body = (await auth_client.get("/metrics")).text
+        assert _metric(body, "volt_ai_queue_depth", status="pending") == 2
+        assert _metric(body, "volt_ai_queue_depth", status="processing") == 0
+        assert "volt_ai_queue_oldest_pending_seconds" in body
+        assert "volt_ai_queue_oldest_processing_seconds" in body
+
+    async def test_a_job_stuck_in_processing_fires_an_alert(self, auth_client, db):
+        from datetime import UTC, datetime, timedelta
+
+        from app.models.analysis import AnalysisStatus, FoodAnalysis
+
+        made = _data(await auth_client.post("/v1/food-analysis/text", json={"text": "2 eggs"}), 202)
+        row = await db.get(FoodAnalysis, uuid.UUID(made["id"]))
+        row.status = AnalysisStatus.processing
+        row.locked_at = datetime.now(UTC) - timedelta(minutes=10)
+        await db.commit()
+
+        body = _data(await auth_client.get("/v1/admin/alerts"))
+        assert body["snapshot"]["ai_queue_processing"] == 1
+        assert body["snapshot"]["ai_oldest_processing_seconds"] >= 590
+        assert "ai_queue_stuck" in [a["name"] for a in body["firing"]]
+
+    def test_the_queue_rules(self):
+        from app.observability.alerts import evaluate
+
+        def names(snap):
+            return [a.rule.name for a in evaluate(snap)]
+
+        # A job the worker took and never finished: past the worker's own lock timeout.
+        assert "ai_queue_stuck" in names({"ai_oldest_processing_seconds": 301})
+        assert "ai_queue_stuck" not in names({"ai_oldest_processing_seconds": 30})
+        # Nothing is picking jobs up: the oldest has waited longer than the latency alert.
+        assert "ai_queue_waiting" in names({"ai_oldest_pending_seconds": 61})
+        assert "ai_queue_waiting" not in names({"ai_oldest_pending_seconds": 5})

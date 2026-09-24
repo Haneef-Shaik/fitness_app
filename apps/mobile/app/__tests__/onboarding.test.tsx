@@ -113,13 +113,18 @@ it('saves the profile step by step, with the training answers', async () => {
   expect(mockPatch.mock.calls.every(([b]) => !('onboarding_completed' in b))).toBe(true);
 });
 
-it('"Looks good" writes targets, the goal and the baseline check-in — once', async () => {
+it('the goal is saved when its step is passed, before "Looks good"', async () => {
+  // It used to wait for "Looks good", so leaving before that asked for it again.
   await answerThroughMeasurements();
-  await cont();                                       // Looks good
   expect(mockGoal).toHaveBeenCalledTimes(1);
   expect(mockGoal.mock.calls[0]![0]).toMatchObject({
     goal_type: 'fat_loss', direction: 'down', start_value: 84, target_value: 76, weekly_rate: 0.5,
   });
+});
+
+it('"Looks good" writes the targets and the baseline check-in — once', async () => {
+  await answerThroughMeasurements();
+  await cont();                                       // Looks good
   expect(mockQueue.mock.calls.map(([m]) => m.metric_key)).toEqual(['body_weight', 'waist_cm']);
   expect(mockPatch.mock.calls.some(([b]) => 'daily_calorie_target' in b)).toBe(true);
 
@@ -172,15 +177,37 @@ it('stops someone under 13 (A-07)', async () => {
   expect(screen.getByTestId('onboarding-continue').props.accessibilityState.disabled).toBe(true);
 });
 
-it('coming back after "Looks good" updates the goal it already wrote instead of adding a second', async () => {
-  // The app can be closed between "Looks good" and the last step; onboarding
-  // then starts again. It used to create a second active goal.
+it('coming back to onboarding restores the saved goal, and passing the step again updates it', async () => {
+  // Onboarding can be left and started again. It used to re-ask the goal and
+  // then create a second active one.
   mockGoals.mockResolvedValue([
-    { id: 'old', status: 'achieved', goal_type: 'fat_loss', metric_key: 'body_weight' },
-    { id: 'g0', status: 'active', goal_type: 'fat_loss', metric_key: 'body_weight' },
+    { id: 'old', status: 'completed', goal_type: 'fat_loss', metric_key: 'body_weight' },
+    { id: 'g0', status: 'active', goal_type: 'fat_loss', metric_key: 'body_weight',
+      start_value: 84, target_value: 76, weekly_rate: 0.5 },
   ]);
-  await answerThroughMeasurements();
-  await cont();                                       // Looks good
+  render(<Onboarding />);
+  await waitFor(() => expect(mockGoals).toHaveBeenCalled());
+  await cont();                                       // units
+  expect(screen.getByTestId('about-weight').props.value).toBe('84');
+  await cont();                                       // about
+  await cont();                                       // activity
+  expect(screen.getByTestId('goal-target').props.value).toBe('76');
+  type('goal-target', '75');
+  await cont();                                       // goal
   expect(mockGoal).not.toHaveBeenCalled();
-  expect(mockGoalPatch).toHaveBeenCalledWith('g0', { target_value: 76, weekly_rate: 0.5 });
+  expect(mockGoalPatch).toHaveBeenCalledWith('g0', { target_value: 75, weekly_rate: 0.5 });
+});
+
+it('a changed goal type pauses the old goal rather than leaving two active', async () => {
+  mockGoals.mockResolvedValue([{ id: 'g0', status: 'active', goal_type: 'muscle_gain', metric_key: 'body_weight',
+    start_value: 84, target_value: 90, weekly_rate: 0.25 }]);
+  render(<Onboarding />);
+  await waitFor(() => expect(mockGoals).toHaveBeenCalled());
+  await cont(); await cont(); await cont();           // units, about, activity
+  fireEvent.press(screen.getByTestId('goal-fat_loss'));
+  type('goal-target', '76');
+  fireEvent.press(screen.getByTestId('goal-pace-0.5'));
+  await cont();
+  expect(mockGoalPatch).toHaveBeenCalledWith('g0', { status: 'paused' });
+  expect(mockGoal).toHaveBeenCalledTimes(1);
 });

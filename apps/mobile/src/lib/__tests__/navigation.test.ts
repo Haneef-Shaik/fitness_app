@@ -34,3 +34,21 @@ it('with nothing to clear, only lands', () => {
   expect(mockDismissAll).not.toHaveBeenCalled();
   expect(mockReplace).toHaveBeenCalledWith('/welcome');
 });
+
+describe('on web', () => {
+  // Found in G10: on web, "Create account" landed on the welcome screen. The
+  // pop-to-top updates the router's state a tick later, so a replace issued in
+  // the same tick was applied to the screen being popped — and lost.
+  const { Platform } = jest.requireActual('react-native');
+  const os = Platform.OS;
+  beforeEach(() => { Platform.OS = 'web'; jest.useFakeTimers(); });
+  afterEach(() => { Platform.OS = os; jest.useRealTimers(); });
+
+  it('lands only after the history has been cleared', () => {
+    resetTo('/');
+    expect(mockDismissAll).toHaveBeenCalledTimes(1);
+    expect(mockReplace).not.toHaveBeenCalled();
+    jest.runAllTimers();
+    expect(mockReplace).toHaveBeenCalledWith('/');
+  });
+});

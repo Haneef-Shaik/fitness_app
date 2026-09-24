@@ -77,6 +77,20 @@ RULES: tuple[Rule, ...] = (
         numerator="outbox_age_p95_seconds", denominator=None,
         threshold=300.0, minimum_sample=0, unit="seconds",
     ),
+    # G10 (TODO 3.3): a job that never finishes records no outcome and no
+    # duration, so the two AI rules above could not see a stuck queue.
+    Rule(
+        name="ai_queue_stuck",
+        doc="AI job held in `processing` longer than the worker's lock timeout (300 s) | any",
+        numerator="ai_oldest_processing_seconds", denominator=None,
+        threshold=300.0, minimum_sample=0, unit="seconds",
+    ),
+    Rule(
+        name="ai_queue_waiting",
+        doc="Oldest AI job not yet picked up | > 60 s — nothing is taking work",
+        numerator="ai_oldest_pending_seconds", denominator=None,
+        threshold=60.0, minimum_sample=0, unit="seconds",
+    ),
     Rule(
         name="abandoned_sessions",
         doc="Sessions abandoned in `in_progress` > 24 h | trend watch",

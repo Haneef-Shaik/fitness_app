@@ -1,0 +1,42 @@
+# AC-10 · "Corrected nutrition becomes confirmed while the original AI result
+# stays available."
+#
+# The flow corrects one candidate's amount and saves. The screen can only show
+# that the diary moved; `assert_ac.py ac-10` checks both halves on the server —
+# the meal item holds the corrected amount, confirmed and marked corrected, and
+# the analysis still holds what was proposed.
+appId: host.exp.exponent
+name: AC-10 correct and confirm
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: ac-08-describe-a-meal.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+# The stub proposes 200 g for "2 eggs"; say it was 150.
+- tapOn: "2 eggs, Amount \\(g\\)"
+- eraseText
+- inputText: "150"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "analysis-save"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "analysis-save"
+
+# Back on the diary, with the meal in it.
+- extendedWaitUntil:
+    notVisible:
+      id: "analysis-save"
+    timeout: 20000
+- extendedWaitUntil:
+    visible: ".*2 eggs.*"
+    timeout: 20000

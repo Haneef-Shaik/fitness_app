@@ -33,6 +33,15 @@ env:
 - waitForAnimationToEnd:
     timeout: 40000
 
+# A password-manager prompt a PREVIOUS run left up survives the app restart: it
+# is the system's window, not ours. While it is up every conditional below sees
+# nothing of the app and skips — found in G10 when a run started behind one.
+- runFlow:
+    when:
+      visible: "Save (sign-in info|password).*"
+    commands:
+      - tapOn: "Cancel"
+
 # A session an earlier flow left open gates the dashboard, so clear it. Without
 # this the next flow starts on the recovery card and every selector below misses.
 - runFlow:
@@ -86,8 +95,11 @@ env:
       - hideKeyboard
       - tapOn: "••••••••••"
       - inputText: ${PASSWORD}
-      - hideKeyboard
-      - tapOn: "Log in"
+      # The keyboard's Go submits. `hideKeyboard` is a Back press on Android
+      # when the keyboard is already down, and here it once walked back to the
+      # welcome screen — where Samsung Pass offered to save the half-filled
+      # form over it and "Log in" was never found (G10).
+      - pressKey: Enter
 
 # And AGAIN, now that a user is signed in. The recovery gate reads the session
 # belonging to whoever just logged in, so a sheet dismissed before the sign-out

@@ -1,0 +1,46 @@
+# AC-08 · "Text food input produces editable structured candidates."
+#
+# First run on hardware in G10 (TODO 3.1). The API and client suites proved it
+# against the stub gateway; this proves a person can get there and that what
+# comes back is a set of fields they can change. `assert_ac.py ac-08` then asks
+# the server whether the analysis is structured — named items, quantities,
+# nutrition — rather than trusting the screen.
+#
+# Needs the AI worker running (scripts/e2e.sh starts one); the stub provider
+# answers deterministically, so no key and no cost.
+appId: host.exp.exponent
+name: AC-08 describe a meal
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+- tapOn:
+    id: "tab-nutrition"
+- tapOn: "\\+ Food"
+- tapOn:
+    id: "go-describe"
+- assertVisible: "Describe your meal"
+- tapOn:
+    id: "describe-text"
+- inputText: "2 eggs, 3 rotis"
+- hideKeyboard
+- tapOn:
+    id: "describe-submit"
+
+# The worker picks the job up within its poll interval; the screen polls too.
+- extendedWaitUntil:
+    visible: "2 eggs, Amount \\(g\\)"
+    timeout: 45000
+# Editable: every candidate has its own fields.
+- assertVisible: "3 rotis, Amount \\(g\\)"
+- assertVisible: "2 eggs, kcal"
+- assertVisible:
+    id: "analysis-save"

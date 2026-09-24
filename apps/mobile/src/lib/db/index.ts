@@ -47,6 +47,8 @@ export const store: SessionStore = {
   markFailed: (id: number, error: string) => impl().markFailed(id, error),
   requeue: (id: number, nextAttemptAt: string) => impl().requeue(id, nextAttemptAt),
   discard: (id: number) => impl().discard(id),
+  unattributedCount: () => impl().unattributedCount(),
+  discardUnattributed: () => impl().discardUnattributed(),
   reset: () => impl().reset(),
 };
 

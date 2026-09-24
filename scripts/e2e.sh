@@ -57,7 +57,19 @@ bold() { printf '\n\033[1m%s\033[0m\n' "$1"; }
 fail() { printf '\033[31m✗ %s\033[0m\n' "$1"; }
 pass() { printf '\033[32m✓ %s\033[0m\n' "$1"; }
 
+
+# The phone is someone's phone. A call in progress covers the app, fails the
+# flow, and a failure screenshot would capture the call — so wait for it to
+# end rather than run through it (G10: two runs landed on calls).
+wait_for_idle_phone() {
+  local dev="${1:-}"
+  local args=(); [ -n "$dev" ] && args=(-s "$dev")
+  while adb "${args[@]}" shell dumpsys telephony.registry 2>/dev/null | grep -m1 mCallState | grep -qv "mCallState=0"; do
+    printf '  the phone is on a call — waiting\n'; sleep 30
+  done
+}
 failures=0
+wait_for_idle_phone "$DEVICE"
 
 seed() {
   ( cd services/api && uv run python scripts/seed_demo.py ) >/dev/null 2>&1
@@ -115,6 +127,7 @@ run_one() {
   # open and leaves completed history alone, which is exactly the guarantee.
   seed
   rewire
+  wait_for_idle_phone "$DEVICE"
   if ! maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$flow"; then
     fail "$id — the flow did not complete"
     failures=$((failures + 1))
@@ -156,6 +169,19 @@ if [ "$WANT" = all ] || [ "$WANT" = ac-07 ]; then
   # client tests — good ones, but G4 found eight defects on a phone that no
   # suite had caught.
   run_one ac-07 ac-07-log-a-meal.yaml --calories 389
+fi
+# AC-08 / AC-10 need the AI worker; the stub provider answers, so no key and
+# no cost. Started for these two and stopped after, so nothing else runs
+# against a queue it did not expect (G10, TODO 3.1).
+if [ "$WANT" = all ] || [ "$WANT" = ac-08 ] || [ "$WANT" = ac-10 ]; then
+  ( cd services/api && nohup uv run python -m app.worker </dev/null >/tmp/volt-worker.log 2>&1 & echo $! > /tmp/volt-worker.pid )
+  if [ "$WANT" = all ] || [ "$WANT" = ac-08 ]; then
+    run_one ac-08 ac-08-describe-a-meal.yaml
+  fi
+  if [ "$WANT" = all ] || [ "$WANT" = ac-10 ]; then
+    run_one ac-10 ac-10-correct-and-confirm.yaml
+  fi
+  pkill -f "app.worker" 2>/dev/null
 fi
 if [ "$WANT" = all ] || [ "$WANT" = ac-11 ]; then
   # Runs after AC-01/AC-02 on purpose: the training card reads the sessions

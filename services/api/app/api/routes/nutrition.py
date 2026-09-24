@@ -45,6 +45,7 @@ from app.schemas.nutrition import (
     MealOut,
 )
 from app.services import summaries
+from app.services import targets as targets_service
 
 router = APIRouter(tags=["nutrition"])
 
@@ -93,6 +94,7 @@ def _item_out(item: MealItem) -> dict:
         carbs_g=_num(item.carbs_g), fat_g=_num(item.fat_g), fiber_g=_num(item.fiber_g),
         confirmed=item.confirmed, user_corrected=item.user_corrected,
         source=item.source.value if hasattr(item.source, "value") else str(item.source),
+        analysis_item_id=item.analysis_item_id,
     ).model_dump(mode="json")
 
 
@@ -460,8 +462,11 @@ async def nutrition_day(
         for meal in meals for i in meal.items
     ])
 
+    in_force = (await targets_service.history(db, user.id)).on(target)
+
     return ok(DayOut(
         local_date=target,
+        targets=in_force.as_dict() if in_force else None,
         calories=totals.calories, protein_g=totals.protein_g,
         carbs_g=totals.carbs_g, fat_g=totals.fat_g,
         pending_count=totals.pending_count, incomplete=totals.incomplete,

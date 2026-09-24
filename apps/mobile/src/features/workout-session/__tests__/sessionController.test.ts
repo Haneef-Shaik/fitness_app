@@ -16,7 +16,9 @@ import { flushAndReconcile, outbox } from '../sessionController';
 const TRACKS = { load: true, reps: true, duration: false, distance: false };
 
 let mockStore: SessionStore;
-const mockSendResults = new Map<string, { ok: boolean; retryable: boolean; unreachable?: boolean; message?: string }>();
+const mockSendResults = new Map<string, {
+  ok: boolean; retryable: boolean; unreachable?: boolean; message?: string; status?: number;
+}>();
 
 jest.mock('../../../lib/db', () => ({
   get store() { return mockStore; },
@@ -39,7 +41,7 @@ jest.mock('../../../lib/api', () => {
           throw new actual.ApiError(
             r.retryable ? 'unavailable' : 'validation_failed',
             r.message ?? 'failed',
-            r.retryable ? 503 : 422,
+            r.status ?? (r.retryable ? 503 : 422),
           );
         }
         return {};
@@ -118,6 +120,20 @@ describe('what the sync dot says', () => {
     expect(after!.state).toBe('pending');
     expect(after!.lastError).toBe('Could not reach the server.');
     expect(dotFor(key)).toBe('pending');
+  });
+
+  it('a 401 keeps the set waiting for the next sign-in, not Failed (a11y #20)', async () => {
+    const key = '66666666-6666-4666-8666-666666666666';
+    mockSendResults.set(key, { ok: false, retryable: false, message: 'Log back in to carry on.', status: 401 });
+    await startWithSets([key]);
+    const [entry] = await mockStore.allEntries();
+    for (let i = 0; i < 10; i += 1) await mockStore.markRetry(entry!.id, '2026-01-01T00:00:00Z', 'x');
+
+    await flushAndReconcile();
+
+    expect(dotFor(key)).toBe('pending');
+    const [after] = await mockStore.allEntries();
+    expect(after!.lastError).toBe('Waiting for you to sign in.');
   });
 
   it('reads Failed, with the reason, on a terminal rejection', async () => {

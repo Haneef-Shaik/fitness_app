@@ -31,6 +31,7 @@ from app.core.errors import Unauthorized
 from app.core.security import verify_password
 from app.models import (
     BodyMetric,
+    CalorieTarget,
     FitnessGoal,
     Food,
     FoodAnalysis,
@@ -52,6 +53,10 @@ router = APIRouter(prefix="/account", tags=["account"])
 #: Bumped when the shape changes. An archive with no version is an archive
 #: nobody can write an importer for later.
 EXPORT_FORMAT = "volt.export.v1"
+
+
+def _enum(value):
+    return value.value if hasattr(value, "value") else value
 
 
 def _num(v) -> float | None:
@@ -123,6 +128,10 @@ async def export_account(user: CurrentUser, db: DbSession):
     records = (await db.scalars(
         select(PersonalRecord).where(PersonalRecord.user_id == user.id)
     )).all()
+    target_history = (await db.scalars(
+        select(CalorieTarget).where(CalorieTarget.user_id == user.id)
+        .order_by(CalorieTarget.effective_from)
+    )).all()
 
     return ok({
         "format": EXPORT_FORMAT,
@@ -143,7 +152,20 @@ async def export_account(user: CurrentUser, db: DbSession):
             "protein_g_target": profile.protein_g_target if profile else None,
             "carbs_g_target": profile.carbs_g_target if profile else None,
             "fat_g_target": profile.fat_g_target if profile else None,
+            # What onboarding asks since G10.
+            "activity_level": _enum(profile.activity_level) if profile else None,
+            "training_experience": profile.training_experience if profile else None,
+            "training_days_per_week": profile.training_days_per_week if profile else None,
+            "session_minutes": profile.session_minutes if profile else None,
+            "equipment": profile.equipment if profile else None,
+            "checkin_interval_days": profile.checkin_interval_days if profile else None,
         },
+        # Q8: every target, with the day it took effect.
+        "calorie_targets": [
+            {"effective_from": _iso(t.effective_from), "calories": t.calories,
+             "protein_g": t.protein_g, "carbs_g": t.carbs_g, "fat_g": t.fat_g}
+            for t in target_history
+        ],
         "goals": [
             {
                 "goal_type": g.goal_type.value if hasattr(g.goal_type, "value") else str(g.goal_type),
@@ -316,7 +338,7 @@ EXPORTED_TABLES = {
     "plan_exercises", "workout_sessions", "session_exercises", "workout_sets",
     "personal_records", "foods", "meal_categories", "meals", "meal_items",
     "recipes", "recipe_items", "body_metrics", "progress_photos",
-    "food_analyses", "food_analysis_items",
+    "food_analyses", "food_analysis_items", "calorie_targets",
 }
 
 
@@ -364,6 +386,7 @@ _DELETE_ORDER = (
     "DELETE FROM progress_photos WHERE user_id = :uid",
     "DELETE FROM daily_summaries WHERE user_id = :uid",
     "DELETE FROM fitness_goals WHERE user_id = :uid",
+    "DELETE FROM calorie_targets WHERE user_id = :uid",
     "DELETE FROM refresh_tokens WHERE user_id = :uid",
     "DELETE FROM user_profiles WHERE user_id = :uid",
     "DELETE FROM users WHERE id = :uid",

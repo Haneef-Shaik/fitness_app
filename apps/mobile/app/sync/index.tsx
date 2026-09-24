@@ -22,8 +22,9 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { syncState, type QueuedChange } from '@/features/sync/describe';
 import {
-  useDiscardQueued, useOutbox, useRetryAllQueued, useRetryQueued,
+  useDiscardQueued, useDiscardUnattributed, useOutbox, useRetryAllQueued, useRetryQueued, useUnattributed,
 } from '@/lib/query/hooks';
+import { count } from '@/features/nutrition/format';
 import { space } from '@/theme';
 
 export default function SyncCenter() {
@@ -84,6 +85,8 @@ export default function SyncCenter() {
                   />
                 </View>
               ) : null}
+
+              <Unattributed />
             </View>
           );
         }}
@@ -197,6 +200,38 @@ function FailedRow({ change }: { change: QueuedChange }) {
             onPress={() => setConfirming(true)}
           />
         </View>
+      )}
+    </Card>
+  );
+}
+
+/**
+ * Writes queued before local schema v2 (G10). Nothing records whose they
+ * were, so they are never sent as whoever is signed in — that could file one
+ * person's meal under another's name. Shown so they are not invisible and
+ * permanent; thrown away only when the user confirms.
+ */
+function Unattributed() {
+  const n = useUnattributed().data ?? 0;
+  const discard = useDiscardUnattributed();
+  const [confirming, setConfirming] = useState(false);
+  if (n === 0) return null;
+  return (
+    <Card testID="sync-unattributed">
+      <Text variant="body">{count(n, 'change')} from an older version of the app</Text>
+      <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+        They were saved before this phone kept each account separate, so there is no telling whose
+        they are. They won&apos;t upload.
+      </Text>
+      {confirming ? (
+        <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.base }}>
+          <Button title="Keep them" kind="ghost" size="sm" style={{ flex: 1 }} onPress={() => setConfirming(false)} />
+          <Button title="Discard" kind="danger" size="sm" style={{ flex: 1 }}
+            testID="sync-unattributed-discard-confirm" onPress={() => discard.mutate()} />
+        </View>
+      ) : (
+        <Button title="Discard them" kind="ghost" size="sm" style={{ marginTop: space.base }}
+          testID="sync-unattributed-discard" onPress={() => setConfirming(true)} />
       )}
     </Card>
   );

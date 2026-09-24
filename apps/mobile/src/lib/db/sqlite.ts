@@ -186,6 +186,27 @@ export function createSqliteStore(name = DATABASE_NAME): SessionStore {
       await d.runAsync('DELETE FROM outbox WHERE id = ?', id);
     },
 
+    async unattributedCount() {
+      const d = await handle();
+      const row = await d.getFirstAsync<{ n: number }>(
+        "SELECT COUNT(*) AS n FROM outbox WHERE owner = '' AND state != 'sent'",
+      );
+      return row?.n ?? 0;
+    },
+
+    async discardUnattributed() {
+      const d = await handle();
+      let n = 0;
+      await d.withTransactionAsync(async () => {
+        const row = await d.getFirstAsync<{ n: number }>(
+          "SELECT COUNT(*) AS n FROM outbox WHERE owner = '' AND state != 'sent'",
+        );
+        n = row?.n ?? 0;
+        await d.runAsync("DELETE FROM outbox WHERE owner = ''");
+      });
+      return n;
+    },
+
     async reset() {
       const d = await handle();
       await d.execAsync('DELETE FROM outbox; DELETE FROM session_draft;');

@@ -1,4 +1,4 @@
-import { formatRest, readTimer, targetFor } from '../restTimer';
+import { formatRest, readTimer, restAnnouncement, targetFor } from '../restTimer';
 
 const START = new Date('2026-09-22T10:00:00Z');
 
@@ -52,5 +52,26 @@ describe('formatting', () => {
 
   it('never shows a negative rest', () => {
     expect(formatRest(-5)).toBe('0:00');
+  });
+});
+
+describe('what a screen reader is told (a11y #5)', () => {
+  // The label used to change every second, so the accessibility tree churned
+  // once a second: uiautomator could never reach idle, and TalkBack had a node
+  // re-describing itself continuously. It now moves in 15-second steps.
+  it('rounds up to the next 15 seconds, in words', () => {
+    expect(restAnnouncement(180, false)).toBe('3 minutes of rest left');
+    expect(restAnnouncement(83, false)).toBe('1 minute 30 seconds of rest left');
+    expect(restAnnouncement(45, false)).toBe('45 seconds of rest left');
+    expect(restAnnouncement(10, false)).toBe('Less than 15 seconds of rest left');
+  });
+
+  it('is the same for every second inside one step', () => {
+    const labels = new Set([76, 80, 85, 89, 90].map((s) => restAnnouncement(s, false)));
+    expect(labels.size).toBe(1);
+  });
+
+  it('says when rest is over', () => {
+    expect(restAnnouncement(0, true)).toBe('Rest complete');
   });
 });

@@ -11,7 +11,7 @@ import { AppState, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
-import { formatRest, readTimer } from '../restTimer';
+import { formatRest, readTimer, restAnnouncement } from '../restTimer';
 
 export interface RestTimerProps {
   targetIso: string;
@@ -40,7 +40,9 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
     <View
       testID="rest-timer"
       accessibilityRole="timer"
-      accessibilityLabel={elapsed ? 'Rest complete' : `${remaining} seconds of rest left`}
+      // 15-second steps, not the second: a label that changes every second
+      // churns the tree for TalkBack and tooling alike (a11y finding #5).
+      accessibilityLabel={restAnnouncement(remaining, elapsed)}
       style={{
         borderRadius: radius.card, borderWidth: 1,
         borderColor: elapsed ? c.good : c.line2,
@@ -48,7 +50,14 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-        <Text variant="stat" style={{ color: elapsed ? c.goodInk : c.ink }} testID="rest-remaining">
+        <Text
+          variant="stat"
+          style={{ color: elapsed ? c.goodInk : c.ink }}
+          testID="rest-remaining"
+          // The ticking digits are for the eye; the timer's label speaks for them.
+          importantForAccessibility="no"
+          accessibilityElementsHidden
+        >
           {elapsed ? 'Rest done' : formatRest(remaining)}
         </Text>
         <View style={{ flex: 1 }} />

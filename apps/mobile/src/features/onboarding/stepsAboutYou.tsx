@@ -11,7 +11,7 @@ import { Text } from '@/ui';
 import { shortDate } from '@/features/dashboard/date';
 import { space } from '@/theme';
 import {
-  MEASUREMENTS, targetKg, weightKg, type Answers, type Equipment, type Experience, type Goal,
+  MEASUREMENTS, targetKg, weightKg, withUnits, type Answers, type Equipment, type Experience, type Goal,
 } from './answers';
 import { Chips, Labelled, NumberField, Options, TextField } from './ui';
 
@@ -26,7 +26,7 @@ export function UnitsStep({ a, set }: StepProps) {
       <Options
         testID="units"
         value={a.units}
-        onChange={(units) => set({ units })}
+        onChange={(units) => set(withUnits(a, units))}
         options={[
           { value: 'metric', title: 'Metric', detail: 'kg · cm' },
           { value: 'imperial', title: 'Imperial', detail: 'lb · ft and in' },
@@ -43,7 +43,8 @@ export function UnitsStep({ a, set }: StepProps) {
   );
 }
 
-export function AboutYouStep({ a, set }: StepProps) {
+/** `showWeight` is off in Profile: weight is a check-in there, with its own history, not a setting. */
+export function AboutYouStep({ a, set, showWeight = true }: StepProps & { showWeight?: boolean }) {
   const [y = '', m = '', d = ''] = a.birthDate ? a.birthDate.split('-') : [];
   const setDate = (part: 'y' | 'm' | 'd', v: string) => {
     const next = { y, m, d, [part]: v.replace(/\D/g, '') };
@@ -76,7 +77,9 @@ export function AboutYouStep({ a, set }: StepProps) {
           <NumberField label=" " unit="in" value={a.heightIn} onChange={(heightIn) => set({ heightIn })} flex={1} testID="about-height-in" />
         </View>
       )}
-      <NumberField label="Current weight" unit={mass(a)} value={a.weight} onChange={(weight) => set({ weight })} testID="about-weight" />
+      {showWeight ? (
+        <NumberField label="Current weight" unit={mass(a)} value={a.weight} onChange={(weight) => set({ weight })} testID="about-weight" />
+      ) : null}
       <Text variant="caption" tone="ink3">
         Birth date, sex and height let us use the Mifflin–St Jeor formula. Skip them and we'll use a rougher
         estimate — and say so.

@@ -25,6 +25,8 @@ import { startOutboxPump } from '@/lib/offline/pump';
 import { RecoveryGate } from '@/features/workout-session/RecoveryGate';
 import { SyncShell } from '@/features/sync/SyncBanner';
 import { TabBar } from '@/ui/shell/TabBar';
+import { ActiveSessionBar } from '@/ui/shell/ActiveSessionBar';
+import { ReminderSync } from '@/features/reminders/useReminderSync';
 import { showsTabBar } from '@/ui/shell/tabs';
 import { BottomInsetHandled } from '@/ui/topInset';
 import { createIdentityHandler, dropCachedReads } from '@/lib/identity';
@@ -58,6 +60,8 @@ function Root() {
           </View>
         </BottomInsetHandled.Provider>
       </SyncShell>
+      {/* 00 §4 ④: while a workout is open, on every tab, above the tab bar. */}
+      {tabs ? <ActiveSessionBar /> : null}
       {tabs ? <TabBar /> : null}
     </View>
   );
@@ -121,6 +125,8 @@ export default function Layout() {
                 redirects only while it is mounted, so losing the session
                 anywhere else left the screen you were on. */}
             <AuthGate />
+            {/* B-04: scheduled reminders follow the program and the next check-in. */}
+            <ReminderSync />
             <Root />
             {/* Asked once per ACCOUNT, once that account is known — an unfinished
                 workout belongs to the account that started it (G10). */}

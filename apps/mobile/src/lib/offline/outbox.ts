@@ -25,6 +25,13 @@ export interface SendResult {
    * docs/03 §7 keeps an offline write pending, and offline for a day is normal.
    */
   unreachable?: boolean;
+  /**
+   * The server refused it for want of a session (401). Nothing is wrong with
+   * the write: it waits for the next sign-in and never exhausts. It used to
+   * fail with "Log back in to carry on" and keep saying so after the user had
+   * (a11y finding #20).
+   */
+  awaitingSignIn?: boolean;
   message?: string;
 }
 
@@ -53,6 +60,9 @@ export const DEFAULT_MAX_ATTEMPTS = 8;
  * constant because L-02 reads it back as the app's only connectivity signal.
  */
 export const UNREACHABLE = 'Could not reach the server.';
+
+/** What a write refused for want of a session records while it waits (a11y #20). */
+export const AWAITING_SIGN_IN = 'Waiting for you to sign in.';
 
 export function createOutbox(deps: OutboxDeps) {
   const now = deps.now ?? (() => new Date());
@@ -83,7 +93,8 @@ export function createOutbox(deps: OutboxDeps) {
       }
 
       // Only a server that ANSWERS and keeps failing uses up attempts.
-      const exhausted = !result.unreachable && entry.attempts + 1 >= maxAttempts;
+      const waiting = result.unreachable || result.awaitingSignIn;
+      const exhausted = !waiting && entry.attempts + 1 >= maxAttempts;
       if (result.retryable && !exhausted) {
         await deps.store.markRetry(
           entry.id,

@@ -130,6 +130,32 @@ class UserProfile(Base, TimestampMixin):
     user: Mapped[User] = relationship(back_populates="profile")
 
 
+class CalorieTarget(Base):
+    """Q8 — targets are versioned: a row per day the targets changed (G10).
+
+    H-15 promises "your past days keep the numbers they had". With the target
+    one column on the profile, changing it rewrote every past day's meter. The
+    profile keeps the CURRENT targets (every existing reader is unchanged); this
+    table is what a past day is judged against — the latest row on or before it.
+    One row per day: changing twice in a day keeps the last.
+    """
+
+    __tablename__ = "calorie_targets"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    #: The profile's local date the change was made on (I7).
+    effective_from: Mapped[date] = mapped_column(Date, primary_key=True)
+    calories: Mapped[int | None] = mapped_column()
+    protein_g: Mapped[int | None] = mapped_column()
+    carbs_g: Mapped[int | None] = mapped_column()
+    fat_g: Mapped[int | None] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
 class FitnessGoal(Base, TimestampMixin):
     __tablename__ = "fitness_goals"
 

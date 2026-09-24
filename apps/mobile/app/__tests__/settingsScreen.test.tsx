@@ -45,6 +45,9 @@ it('shows whose account this is', () => {
 
 it('links to the settings that exist', () => {
   render(<Settings />);
+  // K-01 showed the email only; the answers onboarding collects are editable now.
+  fireEvent.press(screen.getByLabelText('Your details'));
+  expect(mockPush).toHaveBeenLastCalledWith('/settings/profile');
   fireEvent.press(screen.getByLabelText('Calorie and macro targets'));
   expect(mockPush).toHaveBeenLastCalledWith('/nutrition/targets');
   fireEvent.press(screen.getByLabelText('Dashboard layout'));

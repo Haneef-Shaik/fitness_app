@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 
+from app.api.deps import DbSession
 from app.api.envelope import fail
 from app.api.routes import (
     account,
@@ -22,6 +23,7 @@ from app.api.routes import (
     history,
     meal_categories,
     nutrition,
+    nutrition_analytics,
     nutrition_copy,
     profile,
     programs,
@@ -30,6 +32,7 @@ from app.api.routes import (
     uploads,
 )
 from app.core.errors import AppError
+from app.observability import queue as queue_metrics
 from app.observability.metrics import registry
 
 app = FastAPI(
@@ -146,7 +149,7 @@ async def health():
 
 
 @app.get("/metrics", tags=["meta"], include_in_schema=False)
-async def metrics():
+async def metrics(db: DbSession):
     """Prometheus text exposition.
 
     **Deliberately unauthenticated.** A scraper is not a user, and requiring a
@@ -154,7 +157,9 @@ async def metrics():
     carries counts and durations by route template — no ids, no bodies, nothing
     a user typed.
     """
-    return PlainTextResponse(registry.render(), media_type="text/plain; version=0.0.4")
+    # The in-process counters, then the AI queue as the database sees it (G10).
+    body = registry.render() + queue_metrics.render(await queue_metrics.ai_queue_signals(db))
+    return PlainTextResponse(body, media_type="text/plain; version=0.0.4")
 
 
 for r in (
@@ -164,5 +169,6 @@ for r in (
     meal_categories.router, recipes.router,
     food_analysis.router, uploads.router,
     body.router, dashboard.router, admin.router, account.router,
+    nutrition_analytics.router,
 ):
     app.include_router(r, prefix="/v1")

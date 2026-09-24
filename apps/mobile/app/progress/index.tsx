@@ -17,7 +17,7 @@ import { Line } from '@/ui/charts';
 import { GoalRow } from '../home';
 import { delta, sinceLabel, weight } from '@/features/body/format';
 import { useBodySeries, useCheckins, useDashboard } from '@/lib/query/hooks';
-import { JourneyCard } from '@/features/body/JourneyCard';
+import { JourneyCard, weightGoalOf } from '@/features/body/JourneyCard';
 import { CheckinCard } from '@/features/body/CheckinCard';
 import { space } from '@/theme';
 
@@ -38,9 +38,7 @@ export default function Progress() {
       <DataBoundary query={board} isEmpty={() => false} empty={{ title: 'Nothing yet' }}>
         {(data) => {
           // The journey follows the active weight goal; other goals keep their rows below.
-          const weightGoal = (data.goals ?? []).find(
-            (g) => g.metric_key === 'body_weight' && g.status === 'active' && g.direction !== 'hold',
-          );
+          const weightGoal = weightGoalOf(data.goals);
           return (
           <View style={{ gap: space.lg }}>
             {weightGoal ? <JourneyCard goal={weightGoal} today={data.local_date} /> : null}

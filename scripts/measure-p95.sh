@@ -33,6 +33,18 @@ OUT="${OUT:-docs/measurements/commit-p95.md}"
 
 FLOW="${FLOW:-measure-commit-p95.yaml}"
 
+# What was measured. The default is the dev bundle; a production bundle is
+# measured by pointing HOST at a Metro started with
+#   EXPO_PUBLIC_MEASURE=1 expo start --no-dev --minify --port 8082
+# and setting PROD=1 (TODO 2.2: the D16 budget is about the build users run).
+if [ "${PROD:-0}" = "1" ]; then
+  BUILD='Expo Go over LAN, **production bundle** (`--no-dev --minify`, Hermes) — the JS a release build runs; the host app is still Expo Go'
+  WHY='**Why not a store build.** DR4: no signing or store pipeline on this machine. A production JS bundle is what differs between the dev build and a release for this path — the commit is JS on the UI thread — so this is the release number for everything but the native host.'
+else
+  BUILD='Expo Go over LAN, `__DEV__` (a release build can only be faster)'
+  WHY='**Why a dev build.** The number is pessimistic: it carries the dev bundle'"'"'s overhead. It is reported as measured rather than adjusted. `PROD=1` measures a production bundle.'
+fi
+
 # Seeded first, exactly as scripts/e2e.sh does. A measurement run is not
 # special: with sessions already logged today the dashboard's training card
 # offers something other than "Start workout", and the flow dies on a selector
@@ -46,7 +58,19 @@ printf '\n\033[1mSeeding the known state\033[0m\n'
   printf '\033[31m✗ seed failed — is the API up on :8000?\033[0m\n'; exit 1;
 }
 
+
+# The phone is someone's phone. A call in progress covers the app, fails the
+# flow, and a failure screenshot would capture the call — so wait for it to
+# end rather than run through it (G10: two runs landed on calls).
+wait_for_idle_phone() {
+  local dev="${1:-}"
+  local args=(); [ -n "$dev" ] && args=(-s "$dev")
+  while adb "${args[@]}" shell dumpsys telephony.registry 2>/dev/null | grep -m1 mCallState | grep -qv "mCallState=0"; do
+    printf '  the phone is on a call — waiting\n'; sleep 30
+  done
+}
 printf '\n\033[1mRunning %s on the device\033[0m\n' "$FLOW"
+wait_for_idle_phone "$DEVICE"
 maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "HOST=$HOST" \
   "apps/mobile/.maestro/$FLOW" || {
   printf '\033[31m✗ the measurement flow did not complete\033[0m\n'; exit 1;
@@ -74,7 +98,7 @@ PY
 rm -f "$HIER"
 
 if [ -z "$LINE" ]; then
-  printf '\033[31m✗ no reading on screen — is this a __DEV__ build?\033[0m\n'
+  printf '\033[31m✗ no reading on screen — is this a __DEV__ build, or a production one with EXPO_PUBLIC_MEASURE=1?\033[0m\n'
   exit 1
 fi
 
@@ -94,7 +118,7 @@ cat > "$OUT" <<EOF
 |---|---|
 | **Reading** | \`$LINE\` |
 | Device | $MODEL, Android $ANDROID |
-| Build | Expo Go over LAN, \`__DEV__\` (a release build can only be faster) |
+| Build | $BUILD |
 | Flow | \`$FLOW\` |
 | Measured | $WHEN |
 | Budget | p95 < 100 ms (D16) |
@@ -104,8 +128,6 @@ cat > "$OUT" <<EOF
 includes validate → reduce → publish → paint, and excludes the upload, which is
 not on the commit path (I10).
 
-**Why a dev build.** DR4 rules out a release build on this machine. The number is
-therefore pessimistic: it carries the dev bundle's overhead. It is reported as
-measured rather than adjusted.
+$WHY
 EOF
 printf 'written to %s\n' "$OUT"

@@ -240,6 +240,8 @@ class TestAC10:
         assert item["user_corrected"] is True
         assert item["quantity_grams"] == pytest.approx(corrected_grams)
         assert item["source"] == "text_ai"
+        # …and says which proposal it came from, so the original is one lookup away (H-18).
+        assert item["analysis_item_id"] == first["id"]
 
         db.expire_all()
         after = await _fingerprint(db, uuid.UUID(started["id"]))

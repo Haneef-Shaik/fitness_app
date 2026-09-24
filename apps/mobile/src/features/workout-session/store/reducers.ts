@@ -145,7 +145,11 @@ export function setSyncState(
 ): SessionDraft {
   let found = false;
   const exercises = d.exercises.map((e) => {
-    if (!e.sets.some((s) => s.clientId === setClientId)) return e;
+    const target = e.sets.find((s) => s.clientId === setClientId);
+    // Already in that state: no new object, so nothing re-renders. Every flush
+    // re-marks every set, and a new draft per mark cost one full render of the
+    // logger per logged set, inside the tap → paint span (TODO 2.1).
+    if (!target || (target.syncState === state && (target.syncError ?? null) === error)) return e;
     found = true;
     return {
       ...e,

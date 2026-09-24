@@ -98,6 +98,16 @@ describe('edit', () => {
     expect(d.exercises[0]!.sets[0]!.syncState).toBe('pending');
   });
 
+  it('marking a set with the state it already has returns the SAME draft (TODO 2.1)', () => {
+    // Every flush re-marks every set in the draft. When each mark built a new
+    // draft, one commit re-rendered the whole logger once per set logged so far
+    // — right between the tap and the paint that D16's 100 ms budget measures.
+    let d = appendSet(draft(), 'x1', set({ clientId: 'c1' }));
+    d = setSyncState(d, 'c1', 'synced');
+    expect(setSyncState(d, 'c1', 'synced')).toBe(d);
+    expect(setSyncState(d, 'c1', 'failed', 'nope')).not.toBe(d);
+  });
+
   it('never changes a set index', () => {
     let d = appendSet(draft(), 'x1', set({ clientId: 'c1' }));
     d = appendSet(d, 'x1', set({ clientId: 'c2' }));

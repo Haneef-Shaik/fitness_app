@@ -224,6 +224,18 @@ describe('B-01 · a user with data', () => {
     expect(mockPush).toHaveBeenCalledWith('/session/sess-9');
   });
 
+  it('the body card shows where the weight goal stands — the next milestone and the target (G10)', () => {
+    render(<Home />);
+    // 80 → 75, now 78.4: the next milestone is 77.5, 0.9 kg away.
+    expect(screen.getByTestId('body-goal').props.children).toBe('Next milestone 77.5 kg · 0.9 kg to go · goal 75 kg');
+  });
+
+  it('with no weight goal, the body card says nothing about one', () => {
+    mocks.dashboard = q({ ...FULL, goals: [] });
+    render(<Home />);
+    expect(screen.queryByTestId('body-goal')).toBeNull();
+  });
+
   it('a goal with no measurement says so instead of showing a 0% meter', () => {
     mocks.dashboard = q({
       ...FULL,

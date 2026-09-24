@@ -115,6 +115,16 @@ export interface SessionStore {
   /** Throw an entry away. Per-item and confirmed in the UI, never automatic. */
   discard(id: number): Promise<void>;
 
+  /**
+   * Writes queued before local schema v2, which the migration could not
+   * attribute to an account (empty owner). They are never sent — sending them
+   * as whoever signs in could file one person's meal under another's name —
+   * so the Sync Center counts them and offers to discard them (G10).
+   */
+  unattributedCount(): Promise<number>;
+  /** Throw those writes away; returns how many. Confirmed in the UI, never automatic. */
+  discardUnattributed(): Promise<number>;
+
   /** Test and "clear data" support. */
   reset(): Promise<void>;
 }

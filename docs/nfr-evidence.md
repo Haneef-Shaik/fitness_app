@@ -11,8 +11,8 @@ and this table is the place they are not allowed.
 | Area | Requirement | Evidence | Verdict |
 |------|-------------|----------|---------|
 | **Performance** | < 300 ms API latency for common reads/writes | RED histograms per route template, exported at `/metrics` (02 §9). The **alert** is p95 > 300 ms on the common set, and `set_commit_failures` is the tightest rule in the table. Set commits never await the network at all (**I10**) — `commitPath.test.ts` asserts the commit is synchronous | evidence recorded |
-| **Performance** | tap → set rendered p95 < 100 ms ([D16](08-PROJECT-CHARTER.md#6-decision-log)) | [commit-p95-g10.md](measurements/commit-p95-g10.md), same phone and flow as G4 | **MISSED, not regressed** — see below |
-| **Performance** | cold start → dashboard interactive < 2.5 s | [release-build.md](measurements/release-build.md): an installed **release APK**, **median 1.23 s** (1.07–2.52 s, n=5) from process start to the dashboard holding its data, read from logcat's own timestamps. The Expo Go dev figure ([cold-start.md](measurements/cold-start.md), 5.97 s) fetched and compiled a 14.5 MB bundle every launch | **MET on a release build** (24 Sep). The first launch after install read 2.52 s |
+| **Performance** | tap → set rendered p95 < 100 ms ([D16](08-PROJECT-CHARTER.md#6-decision-log)) | [release-build.md](measurements/release-build.md): an installed **release APK**, the same 100-commit flow as G4 — **p95 67.4 ms**, p50 54.7 ms, worst 79.3 ms (n=99). The dev-build reading ([commit-p95-g10.md](measurements/commit-p95-g10.md), 296.5 ms) carried Expo Go and `__DEV__` overhead, and predates memoised set rows and the no-op sync-state skip | **MET on a release build** (24 Sep) |
+| **Performance** | cold start → dashboard interactive < 2.5 s | [release-build.md](measurements/release-build.md): an installed **release APK**, **median 1.02 s** (0.95–1.48 s, n=5) from process start to the dashboard holding its data, read from logcat's own timestamps. A first run the same day read median 1.23 s (1.07–2.52 s; its first launch followed a fresh install). The Expo Go dev figure ([cold-start.md](measurements/cold-start.md), 5.97 s) fetched and compiled a 14.5 MB bundle every launch | **MET on a release build** (24 Sep) |
 | **Performance** | JS bundle size, tracked | [bundle-size.md](measurements/bundle-size.md) — 4.33 MiB Hermes bytecode, first reading = baseline | **recorded** |
 | **Availability** | Core workout logging usable when AI is down | `scripts/verify-containment.sh`: two real processes, the AI endpoint on a closed port. Analysis failed `ai_unavailable`; a whole workout, history, analytics and a manual meal all worked. Plus `test_i14_the_whole_logger_still_works_with_the_gateway_dead` | **verified, by killing it** |
 | **Offline** | Local logging + sync | SQLite draft + outbox (D14), proven on hardware in G4 and again in G10's offline flow (server killed, force-quit, relaunch, drain, **no duplicate `client_id`**). G10 on the phone, API stopped: the **offline banner** now appears (it could not before — finding 11); a queued weigh-in saves in **3.4 s instead of >30 s** (finding 12); writes stay **pending however long the outage** instead of failing after eight attempts (finding 13); three weigh-ins queued offline all reached the server once it returned, none duplicated. **L-02** exercised on the phone: retry one, discard with inline confirm, retry all, empty state | **verified on a device** |
@@ -33,10 +33,13 @@ the same 100-commit flow both times.
 | tap → set p50 | 244 ms | **184.8 ms** | −24% |
 | tap → set p95 | 396.4 ms | **296.5 ms** | −25% |
 | worst | 407.6 ms | 310.4 ms | −24% |
-| budget (D16) | 100 ms | 100 ms | still ~3× over |
-| cold start → B-01 | not measured | **5.97 s** median (dev) | first reading |
+| budget (D16) | 100 ms | 100 ms | still ~3× over in dev |
+| **release APK** p95 | — | **67.4 ms** (p50 54.7) | **within budget** |
+| cold start → B-01 | not measured | **5.97 s** median (dev) · **1.02 s** (release) | first reading |
 | JS bundle | not measured | **4.33 MiB** Hermes bytecode | first reading = baseline |
 
-**Not a regression**, so not a release blocker under the contract's rule — but
-still a missed budget. Both readings are dev builds; DR4 rules out a release
-build on this machine, so the production figure is unmeasured.
+The dev rows are Expo Go with `__DEV__` on; they are kept to compare with G4
+on equal terms. **The release figures are the ones the budgets are judged on**:
+a release APK was built on this machine after all (`assembleRelease`, see
+[release-build.md](measurements/release-build.md)), and on it both budgets are
+met — p95 67.4 ms against 100 ms, cold start 1.02 s against 2.5 s.

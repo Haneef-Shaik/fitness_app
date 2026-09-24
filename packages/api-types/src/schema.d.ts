@@ -3352,6 +3352,8 @@ export interface components {
              * @enum {string}
              */
             source: "manual" | "text_ai" | "image_ai";
+            /** Analysis Item Id */
+            analysis_item_id?: string | null;
         };
         /** MealItemPatch */
         MealItemPatch: {

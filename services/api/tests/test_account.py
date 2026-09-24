@@ -88,6 +88,9 @@ async def _populate(client) -> dict:
         "measured_at": datetime(2026, 9, 21, 7, 30, tzinfo=UTC).isoformat(),
     }, headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
 
+    # A dated calorie target (Q8, G10) — its own table.
+    _data(await client.patch("/v1/profile", json={"daily_calorie_target": 2200, "protein_g_target": 160}))
+
     # Warms a daily_summaries row, which nothing else in this fixture writes.
     _data(await client.get("/v1/dashboard"))
     return out

@@ -1,0 +1,126 @@
+# Prelude for a RELEASE build (TODO 2.2): the same states as sign-in.yaml,
+# reached in the installed app `com.volt.app` rather than through Expo Go and a
+# deep link. Everything after the launch is sign-in.yaml's, verbatim.
+appId: com.volt.app
+name: Sign in (release build)
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+---
+- launchApp:
+    appId: com.volt.app
+    stopApp: true
+- waitForAnimationToEnd:
+    timeout: 20000
+
+# A password-manager prompt a PREVIOUS run left up survives the app restart: it
+# is the system's window, not ours. While it is up every conditional below sees
+# nothing of the app and skips — found in G10 when a run started behind one.
+- runFlow:
+    when:
+      visible: "Save (sign-in info|password).*"
+    commands:
+      - tapOn: "Cancel"
+
+# A session an earlier flow left open gates the dashboard, so clear it. Without
+# this the next flow starts on the recovery card and every selector below misses.
+- runFlow:
+    when:
+      visible: "You left a workout open"
+    commands:
+      - tapOn: "Discard"
+      # Wait for the CARD to go, not for the dashboard to arrive. Discarding is
+      # async, so reaching for the next control immediately taps a screen on its
+      # way out. But where it lands is not ours to assert: if the discard call
+      # fails the app may legitimately end up signed out, and demanding the
+      # dashboard turns a recoverable state into a failed run. The branches
+      # below handle whatever this actually leaves behind.
+      - extendedWaitUntil:
+          notVisible: "You left a workout open"
+          timeout: 20000
+
+# Sign out if anyone is signed in, so the credentials above decide the account
+# rather than whoever the last run left behind. This is not hygiene: the flows
+# spent a whole session running as a different user than the one the seed
+# prepares, against 14 programs of their own debris and none of the seeded
+# history that AC-04 reads.
+#
+# G10: sign-out is no longer the avatar itself. The avatar opens Settings, and
+# sign-out there asks first — so this is three steps where it used to be one.
+- runFlow:
+    when:
+      visible:
+        id: "open-settings"
+    commands:
+      - tapOn:
+          id: "open-settings"
+      - tapOn:
+          id: "sign-out"
+      - tapOn: "Yes, sign out"
+      # Sign-out is async — it clears a token and then re-routes. Without this
+      # wait the NEXT conditional is evaluated against the still-rendered
+      # dashboard, finds no welcome screen, skips the login, and the flow walks
+      # on signed out until the first query 401s into "Something went wrong".
+      - extendedWaitUntil:
+          visible: "I already have one"
+          timeout: 20000
+
+- runFlow:
+    when:
+      visible: "I already have one"
+    commands:
+      - tapOn: "I already have one"
+      - tapOn: "you@example.com"
+      - inputText: ${EMAIL}
+      - hideKeyboard
+      - tapOn: "••••••••••"
+      - inputText: ${PASSWORD}
+      # The keyboard's Go submits. `hideKeyboard` is a Back press on Android
+      # when the keyboard is already down, and here it once walked back to the
+      # welcome screen — where Samsung Pass offered to save the half-filled
+      # form over it and "Log in" was never found (G10).
+      - pressKey: Enter
+
+# And AGAIN, now that a user is signed in. The recovery gate reads the session
+# belonging to whoever just logged in, so a sheet dismissed before the sign-out
+# says nothing about this account. It is a Modal: while it is up it masks the
+# dashboard out of the accessibility tree entirely, so the wait below sat out
+# its full sixty seconds staring at a screen that was there all along.
+# Polled, not checked once: the gate needs the session fetch to come back, so a
+# single check straight after "Log in" can run before the sheet has opened and
+# skip it — and then the wait below sits out its full timeout behind a Modal.
+- repeat:
+    times: 4
+    commands:
+      # The phone's password manager offers to save the credentials the moment
+      # the login is submitted. It is a SYSTEM dialog, so while it is up it
+      # masks the app out of the accessibility tree completely: every
+      # conditional below skips, and the wait at the end fails against a
+      # dashboard that was there the whole time. Not a product bug — a real
+      # device having opinions, and exactly the kind of thing only hardware
+      # tells you. Samsung Pass and Google both phrase it as "Save ...".
+      #
+      # "Cancel", not "Never for this app": dismissing is enough, and the other
+      # button writes a setting onto someone's phone.
+      - runFlow:
+          when:
+            visible: "Save (sign-in info|password).*"
+          commands:
+            - tapOn: "Cancel"
+      - runFlow:
+          when:
+            visible: "You left a workout open"
+          commands:
+            - tapOn: "Discard"
+      - waitForAnimationToEnd:
+          timeout: 4000
+
+# Anchored on a testID, not on a section label. `Text variant="label"` renders
+# `textTransform: uppercase`, so the label reaches the accessibility tree as
+# "TRAINING" — and matching it by its source spelling worked only by luck.
+# G9 had already renamed it once ("Today's workout" → "Training") with nothing
+# to catch that, because no device was attached to run this on.
+- extendedWaitUntil:
+    visible:
+      id: "dashboard-date"
+    timeout: 60000

@@ -6,9 +6,9 @@
  * a target and a program actually depend on. This module is the arithmetic
  * between the answers and the records — pure, so every rule is tested here.
  */
-import type { Profile } from '@volt/api-types';
+import type { Goal, Profile } from '@volt/api-types';
 import {
-  ageOn, answersFrom, baselineMetrics, EMPTY_ANSWERS, goalFrom, heightCm, planFrom, plausibility, profilePatch,
+  ageOn, answersFrom, baselineMetrics, goalAnswers, goalWrite, withUnits, EMPTY_ANSWERS, goalFrom, heightCm, planFrom, plausibility, profilePatch,
   weightKg, type Answers,
 } from '../answers';
 
@@ -152,5 +152,74 @@ describe('answersFrom — coming back to onboarding after leaving half way', () 
     const a = answersFrom({ timezone: 'UTC' } as unknown as Profile, 'Asia/Kolkata');
     expect(a).toEqual({ ...EMPTY_ANSWERS, timezone: 'Asia/Kolkata' });
     expect(answersFrom(null, 'Asia/Kolkata')).toEqual({ ...EMPTY_ANSWERS, timezone: 'Asia/Kolkata' });
+  });
+});
+
+describe('goalWrite — the goal is saved at the goal step, once', () => {
+  // The goal and pace used to be written only on "Looks good", so leaving
+  // onboarding before then asked for them again. Saving earlier means the step
+  // can be passed more than once, so the write must be idempotent.
+  const goal = goalFrom(full, '2026-09-23')!;
+  const active = (over: Record<string, unknown>) =>
+    ({ id: 'g0', status: 'active', goal_type: 'fat_loss', metric_key: 'body_weight', ...over }) as unknown as Goal;
+
+  it('creates the goal when there is none', () => {
+    expect(goalWrite([], goal)).toEqual({ kind: 'create' });
+  });
+
+  it('updates the one written on an earlier pass', () => {
+    expect(goalWrite([active({})], goal)).toEqual({
+      kind: 'patch', id: 'g0', body: { target_value: goal.target_value, weekly_rate: goal.weekly_rate },
+    });
+  });
+
+  it('a changed goal type pauses the old goal and creates the new one', () => {
+    expect(goalWrite([active({ goal_type: 'muscle_gain' })], goal)).toEqual({ kind: 'replace', pauseId: 'g0' });
+  });
+
+  it('ignores goals that are not active, or not about body weight', () => {
+    expect(goalWrite([active({ status: 'completed' }), active({ metric_key: 'waist_cm' })], goal))
+      .toEqual({ kind: 'create' });
+  });
+});
+
+describe('goalAnswers — a saved goal back into the form', () => {
+  const saved = {
+    goal_type: 'fat_loss', metric_key: 'body_weight', status: 'active', start_value: 86, target_value: 78,
+    weekly_rate: 0.5,
+  } as unknown as Goal;
+
+  it('restores the goal, target, pace and the weight it started from', () => {
+    expect(goalAnswers(saved, 'metric')).toEqual({ goal: 'fat_loss', targetWeight: '78', pace: 0.5, weight: '86' });
+  });
+
+  it('in pounds for someone who reads pounds', () => {
+    expect(goalAnswers(saved, 'imperial')).toEqual({
+      goal: 'fat_loss', targetWeight: '172', pace: 0.5, weight: '189.6',
+    });
+  });
+
+  it('a hold goal has no target weight or pace to restore', () => {
+    expect(goalAnswers({ ...saved, goal_type: 'strength', weekly_rate: null } as Goal, 'metric'))
+      .toEqual({ goal: 'strength', targetWeight: '', pace: null, weight: '86' });
+  });
+});
+
+describe('withUnits — switching units keeps what was typed', () => {
+  it('a height in cm becomes feet and inches, and back', () => {
+    const metric = { ...EMPTY_ANSWERS, units: 'metric' as const, height: '180' };
+    const imperial = withUnits(metric, 'imperial');
+    expect([imperial.heightFt, imperial.heightIn]).toEqual(['5', '11']);
+    expect(withUnits(imperial, 'metric').height).toBe('180.3');
+  });
+
+  it('a typed weight and target are converted too', () => {
+    const a = withUnits({ ...EMPTY_ANSWERS, weight: '80', targetWeight: '75' }, 'imperial');
+    expect([a.weight, a.targetWeight]).toEqual(['176.4', '165.3']);
+  });
+
+  it('switching to the units already chosen changes nothing', () => {
+    const a = { ...EMPTY_ANSWERS, height: '180' };
+    expect(withUnits(a, 'metric')).toBe(a);
   });
 });

@@ -7,7 +7,7 @@
  */
 import { ApiError, api } from '../../lib/api';
 import { store } from '../../lib/db';
-import { createOutbox, UNREACHABLE, type SendResult } from '../../lib/offline/outbox';
+import { AWAITING_SIGN_IN, createOutbox, UNREACHABLE, type SendResult } from '../../lib/offline/outbox';
 import type { OutboxEntry } from '../../lib/db/types';
 import { isRetryable } from '../../lib/query/client';
 import { useSessionStore } from './store/sessionStore';
@@ -35,6 +35,10 @@ function build() {
       );
       return { ok: true, retryable: false };
     } catch (e) {
+      if (e instanceof ApiError && e.status === 401) {
+        // No session, not a bad write: it waits for the next sign-in (a11y #20).
+        return { ok: false, retryable: true, awaitingSignIn: true, message: AWAITING_SIGN_IN };
+      }
       if (e instanceof ApiError) {
         // A 4xx will never succeed on retry, so it becomes a failed entry the
         // Sync Center surfaces rather than a queue that spins for ever.

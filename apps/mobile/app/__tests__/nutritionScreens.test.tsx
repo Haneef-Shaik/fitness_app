@@ -134,6 +134,12 @@ describe('H-01 · the diary is AC-07 on screen', () => {
     expect(screen.getByText('1,620 left')).toBeTruthy();
   });
 
+  it('uses the target in force on the day shown, not only the profile (Q8)', () => {
+    mocks.day = q({ ...DAY, targets: { calories: 1500, protein_g: null, carbs_g: null, fat_g: null } });
+    render(<Diary />);
+    expect(screen.getByText('1,120 left')).toBeTruthy();
+  });
+
   it('draws no meter at all when no target is set', () => {
     mocks.profile = q({ daily_calorie_target: null });
     render(<Diary />);
@@ -154,6 +160,12 @@ describe('H-01 · the diary is AC-07 on screen', () => {
     expect(screen.getByText('Nothing logged today')).toBeTruthy();
     // I13 — an empty diary offers the way out of being empty.
     expect(screen.getByLabelText('Add food')).toBeTruthy();
+  });
+
+  it('leads to H-14, the analytics over a range (G10)', () => {
+    render(<Diary />);
+    fireEvent.press(screen.getByTestId('go-nutrition-analytics'));
+    expect(mockPush).toHaveBeenCalledWith('/nutrition/analytics');
   });
 
   it('hides "copy this day" when there is nothing to copy', () => {

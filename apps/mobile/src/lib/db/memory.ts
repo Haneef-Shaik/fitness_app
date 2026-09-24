@@ -104,6 +104,16 @@ export function createMemoryStore(initialOwner: string | null = null): SessionSt
       entries = entries.filter((e) => e.id !== id);
     },
 
+    async unattributedCount() {
+      return entries.filter((e) => e.owner === '' && e.state !== 'sent').length;
+    },
+
+    async discardUnattributed() {
+      const n = entries.filter((e) => e.owner === '' && e.state !== 'sent').length;
+      entries = entries.filter((e) => e.owner !== '');
+      return n;
+    },
+
     async reset() { drafts = new Map(); entries = []; nextId = 1; },
   };
 }

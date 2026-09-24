@@ -73,6 +73,9 @@ export default function Login() {
               value={password} onChangeText={setPassword}
               placeholder="••••••••••" placeholderTextColor={c.ink3}
               secureTextEntry autoCapitalize="none" textContentType="password" autoComplete="password"
+              // The keyboard's Go logs in: no reaching past the keyboard for the button.
+              returnKeyType="go" onSubmitEditing={() => { if (!busy) void submit(); }}
+              testID="login-password"
               style={[input, { borderColor: errors.password ? c.crit : c.line }]}
             />
           </Field>

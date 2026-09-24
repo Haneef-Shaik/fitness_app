@@ -1733,6 +1733,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/analytics/nutrition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Nutrition Range */
+        get: operations["nutrition_range_v1_analytics_nutrition_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1867,6 +1884,17 @@ export interface components {
             /** Expires In */
             expires_in: number;
             user: components["schemas"]["UserRefOut"];
+        };
+        /** AveragesOut */
+        AveragesOut: {
+            /** Calories */
+            calories: number;
+            /** Protein G */
+            protein_g: number;
+            /** Carbs G */
+            carbs_g: number;
+            /** Fat G */
+            fat_g: number;
         };
         /** BestSetOut */
         BestSetOut: {
@@ -2261,6 +2289,7 @@ export interface components {
              * Format: date
              */
             local_date: string;
+            targets?: components["schemas"]["DayTargetsOut"] | null;
             /** Calories */
             calories: number;
             /** Protein G */
@@ -2278,6 +2307,17 @@ export interface components {
              * @default []
              */
             meals: components["schemas"]["MealOut"][];
+        };
+        /** DayTargetsOut */
+        DayTargetsOut: {
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Carbs G */
+            carbs_g?: number | null;
+            /** Fat G */
+            fat_g?: number | null;
         };
         /**
          * DeletedOut
@@ -2440,6 +2480,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["MealOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[NutritionRangeOut] */
+        Envelope_NutritionRangeOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["NutritionRangeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[PreviousPerformanceOut] */
@@ -3481,6 +3528,61 @@ export interface components {
             /** @default {} */
             targets: components["schemas"]["MacroTargetsOut"];
         };
+        /** NutritionDayOut */
+        NutritionDayOut: {
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Calories */
+            calories?: number | null;
+            /** Protein G */
+            protein_g?: number | null;
+            /** Trained */
+            trained: boolean;
+            /** Body Weight Kg */
+            body_weight_kg?: number | null;
+        };
+        /**
+         * NutritionRangeOut
+         * @description Averages are over LOGGED days only, and `logged_days` is always beside
+         *     them. Below three logged days `enough_data` is false and the screen says so
+         *     rather than drawing a chart (H-14 edge cases).
+         */
+        NutritionRangeOut: {
+            /**
+             * From
+             * Format: date
+             */
+            from: string;
+            /**
+             * To
+             * Format: date
+             */
+            to: string;
+            /** Days */
+            days: number;
+            /** Logged Days */
+            logged_days: number;
+            /** Enough Data */
+            enough_data: boolean;
+            averages?: components["schemas"]["AveragesOut"] | null;
+            /** Macro Split */
+            macro_split?: {
+                [key: string]: number;
+            } | null;
+            /** Target Kcal */
+            target_kcal?: number | null;
+            /** Within Target Days */
+            within_target_days?: number | null;
+            /** Incomplete Days */
+            incomplete_days: number;
+            training?: components["schemas"]["SplitOut"] | null;
+            rest?: components["schemas"]["SplitOut"] | null;
+            /** Daily */
+            daily: components["schemas"]["NutritionDayOut"][];
+        };
         /** PagedEnvelope[SetBatchOut] */
         PagedEnvelope_SetBatchOut_: {
             /** Success */
@@ -4433,6 +4535,15 @@ export interface components {
         SignedOutOut: {
             /** Signed Out */
             signed_out: boolean;
+        };
+        /** SplitOut */
+        SplitOut: {
+            /** Days */
+            days: number;
+            /** Calories */
+            calories: number;
+            /** Protein G */
+            protein_g: number;
         };
         /** TemplateDayOut */
         TemplateDayOut: {
@@ -7858,6 +7969,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    nutrition_range_v1_analytics_nutrition_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_NutritionRangeOut_"];
                 };
             };
             /** @description Validation Error */

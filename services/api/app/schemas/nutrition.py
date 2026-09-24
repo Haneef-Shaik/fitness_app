@@ -104,6 +104,9 @@ class MealItemOut(BaseModel):
     confirmed: bool
     user_corrected: bool
     source: ItemSourceT
+    #: The AI proposal this item came from, when it did — how AC-10's "the
+    #: original stays available" is reached from the diary (H-18).
+    analysis_item_id: uuid.UUID | None = None
 
 
 class MealItemPatch(BaseModel):
@@ -134,6 +137,13 @@ class MealOut(BaseModel):
     items: list[MealItemOut] = []
 
 
+class DayTargetsOut(BaseModel):
+    calories: int | None = None
+    protein_g: int | None = None
+    carbs_g: int | None = None
+    fat_g: int | None = None
+
+
 class DayOut(BaseModel):
     """H-01's diary for one local day.
 
@@ -146,6 +156,8 @@ class DayOut(BaseModel):
     """
 
     local_date: date
+    #: The targets in force ON THIS DAY (Q8), not today's: null before any was set.
+    targets: DayTargetsOut | None = None
     calories: float
     protein_g: float
     carbs_g: float

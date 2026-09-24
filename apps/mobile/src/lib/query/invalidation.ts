@@ -142,6 +142,9 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
       // Every analytics read is derived from completed sessions, so one
       // prefix covers volume, muscle balance, PRs, frequency and adherence.
       qkPrefix.analytics(),
+      qkPrefix.nutritionAnalytics(),
+      // H-14 splits intake into training and rest days.
+      qkPrefix.nutritionAnalytics(),
       // And B-01's training card, which is the same fact one screen over.
       qkPrefix.dashboard(),
     ],
@@ -216,9 +219,10 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
   },
   'bodyMetric.changed': {
     // The dashboard carries the body card, so a weigh-in reaches both. It does
-    // NOT reach `nutrition` or `analytics`: stepping on a scale changes neither.
+    // NOT reach the diary or `analytics` — stepping on a scale changes neither —
+    // but H-14 draws weight under intake, so its range is stale.
     doc: 'Log / delete a **body measurement**',
-    keys: () => [qkPrefix.body(), qkPrefix.dashboard(), qkPrefix.goals()],
+    keys: () => [qkPrefix.body(), qkPrefix.dashboard(), qkPrefix.goals(), qkPrefix.nutritionAnalytics()],
   },
   'progressPhoto.changed': {
     doc: 'Add / delete a **progress photo**',

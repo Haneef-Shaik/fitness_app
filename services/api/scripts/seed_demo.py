@@ -2,8 +2,9 @@
 
     uv run python scripts/seed_demo.py
 
-Idempotent, but NOT a wipe: it creates what is missing and cancels whatever
-session was left open. Existing programs and completed history are kept.
+Idempotent, but NOT a wipe: it creates what is missing, cancels whatever
+session was left open, and removes programs other than the seeded one (AC-01
+builds one per run). Completed history is kept.
 """
 from __future__ import annotations
 
@@ -61,14 +62,36 @@ async def _catalog(c, h) -> dict[str, str]:
     return {e["name"]: e["id"] for e in rows}
 
 
+PROGRAM_NAME = "Push / Pull / Legs"
+
+
+async def _prune_programs(c, h) -> int:
+    """Remove every program but the seeded one — AC-01 builds a new one each run.
+
+    Before this the list grew by one per run, and the flows that open a program
+    had to scroll past all of them (G10 TODO 3.4). A program a session used
+    cannot be deleted (BRD §7 soft delete), so that one is archived instead.
+    """
+    removed = 0
+    for p in (await c.get("/v1/workout-programs", headers=h)).json()["data"]:
+        if p["name"] == PROGRAM_NAME or p.get("status") == "archived":
+            continue
+        r = await c.delete(f"/v1/workout-programs/{p['id']}", headers=h)
+        if r.status_code == 409:
+            r = await c.post(f"/v1/workout-programs/{p['id']}/archive", headers=h)
+        removed += r.status_code in (200, 204)
+    return removed
+
+
 async def _seed_program(c, h, catalog: dict[str, str]) -> dict[str, str]:
-    """Returns {day name: plan day id}. Skipped entirely if a program already exists."""
-    existing = (await c.get("/v1/workout-programs", headers=h)).json()["data"]
+    """Returns {day name: plan day id}. Skipped entirely if the program already exists."""
+    existing = [p for p in (await c.get("/v1/workout-programs", headers=h)).json()["data"]
+                if p["name"] == PROGRAM_NAME]
     if existing:
         return {d["name"]: d["id"] for d in existing[0]["days"]}
 
     r = await c.post("/v1/workout-programs", headers=h, json={
-        "name": "Push / Pull / Legs", "description": "Three-day split, repeated twice a week",
+        "name": PROGRAM_NAME, "description": "Three-day split, repeated twice a week",
     })
     assert r.status_code == 201, r.text
     pid = r.json()["data"]["id"]
@@ -194,6 +217,7 @@ async def main() -> int:
             })
 
         catalog = await _catalog(c, h)
+        pruned = await _prune_programs(c, h)
         day_ids = await _seed_program(c, h, catalog)
         await _seed_history(c, h, day_ids)
 
@@ -205,7 +229,8 @@ async def main() -> int:
         print("  password ", PASSWORD)
         print("  profile  ", "2,340 kcal · 176 g protein · Asia/Kolkata")
         print("  goals    ", goals["meta"]["total"])
-        print("  programs ", programs["meta"]["total"], "·", len(day_ids), "plan days")
+        print("  programs ", programs["meta"]["total"], "·", len(day_ids), "plan days",
+              f"· {pruned} left over from earlier runs removed" if pruned else "")
         print("  history  ", history["meta"]["count"], "completed sessions")
         return 0
 

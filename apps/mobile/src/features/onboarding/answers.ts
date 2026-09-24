@@ -10,9 +10,9 @@
  * Answers are kept as the user typed them (strings), because a half-typed
  * "84," is a real state of the form. They are parsed only on the way out.
  */
-import type { Profile } from '@volt/api-types';
+import type { Goal as SavedGoal, Profile } from '@volt/api-types';
 import {
-  energyPlan, lbToKg, type ActivityLevel, type EnergyPlan, type PlanGoal,
+  energyPlan, kgToLb, lbToKg, type ActivityLevel, type EnergyPlan, type PlanGoal,
 } from '@volt/domain';
 
 export type Units = 'metric' | 'imperial';
@@ -123,6 +123,40 @@ const massKg = (a: Answers, text: string): number | null => {
 };
 
 export const weightKg = (a: Answers) => massKg(a, a.weight);
+
+/**
+ * The same answers in the other units: what was typed is converted, not lost.
+ * Height in cm becomes feet + inches (whole inches), masses and tape
+ * measurements convert to one decimal.
+ */
+export function withUnits(a: Answers, units: Units): Answers {
+  if (a.units === units) return a;
+  const cm = heightCm(a);
+  const totalIn = cm != null ? Math.round(cm / CM_PER_IN) : null;
+  const mass = (text: string) => {
+    const v = num(text);
+    if (v == null) return text;
+    return String(round1(units === 'imperial' ? kgToLb(v) : lbToKg(v)));
+  };
+  const tape = (text: string | undefined) => {
+    const v = num(text);
+    if (v == null) return text;
+    return String(round1(units === 'imperial' ? v / CM_PER_IN : v * CM_PER_IN));
+  };
+  const measurements = Object.fromEntries(
+    Object.entries(a.measurements).map(([k, v]) => [k, k.endsWith('_pct') ? v : tape(v)]),
+  ) as Answers['measurements'];
+  return {
+    ...a,
+    units,
+    height: units === 'metric' && cm != null ? String(cm) : a.height,
+    heightFt: units === 'imperial' && totalIn != null ? String(Math.floor(totalIn / 12)) : a.heightFt,
+    heightIn: units === 'imperial' && totalIn != null ? String(totalIn % 12) : a.heightIn,
+    weight: mass(a.weight),
+    targetWeight: mass(a.targetWeight),
+    measurements,
+  };
+}
 export const targetKg = (a: Answers) => massKg(a, a.targetWeight);
 
 /** Whole years on `today`, or null if the birth date is not a real date. */
@@ -215,4 +249,36 @@ export function planFrom(a: Answers, today: string): EnergyPlan | null {
     goal: (a.goal ?? 'maintenance') as PlanGoal,
     weeklyRateKg: a.goal === 'fat_loss' || a.goal === 'muscle_gain' ? a.pace : null,
   });
+}
+
+export type GoalWrite =
+  | { kind: 'create' }
+  | { kind: 'patch'; id: string; body: { target_value: number; weekly_rate: number | null } }
+  | { kind: 'replace'; pauseId: string };
+
+/**
+ * How to save the goal step (G10). It is saved when the step is passed rather
+ * than at the end, so leaving onboarding keeps it — which means the step can
+ * be passed more than once and the write must not add a second active goal.
+ * A changed goal type cannot be patched (direction and type are fixed), so the
+ * old goal is paused and a new one created.
+ */
+export function goalWrite(existing: readonly SavedGoal[], goal: NonNullable<ReturnType<typeof goalFrom>>): GoalWrite {
+  const earlier = existing.find((g) => g.status === 'active' && g.metric_key === goal.metric_key);
+  if (!earlier) return { kind: 'create' };
+  if (earlier.goal_type !== goal.goal_type) return { kind: 'replace', pauseId: earlier.id };
+  return { kind: 'patch', id: earlier.id, body: { target_value: goal.target_value, weekly_rate: goal.weekly_rate } };
+}
+
+/** A saved goal back into the form, in the units the user reads. */
+export function goalAnswers(g: SavedGoal, units: Units): Pick<Answers, 'goal' | 'targetWeight' | 'pace' | 'weight'> {
+  const shown = (kg: number | null | undefined) =>
+    (kg == null ? '' : String(units === 'metric' ? kg : round1(kgToLb(kg))));
+  const weightGoal = g.goal_type === 'fat_loss' || g.goal_type === 'muscle_gain';
+  return {
+    goal: g.goal_type === 'custom' ? null : (g.goal_type as Goal),
+    targetWeight: weightGoal ? shown(g.target_value) : '',
+    pace: weightGoal ? (g.weekly_rate ?? null) : null,
+    weight: shown(g.start_value),
+  };
 }

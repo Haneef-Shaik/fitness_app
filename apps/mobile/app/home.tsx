@@ -31,6 +31,10 @@ import {
   DEFAULT_LAYOUT, loadDashboardLayout, type DashboardLayout,
 } from '@/features/dashboard/layout';
 import { friendlyDate } from '@/features/dashboard/date';
+import { journeyLine, weightGoalOf } from '@/features/body/JourneyCard';
+
+/** Once per process: the cold-start marker is about the first dashboard, not every visit. */
+let reported = false;
 
 export default function Home() {
   const board = useDashboard();
@@ -41,6 +45,16 @@ export default function Home() {
   useEffect(() => { void loadDashboardLayout().then(setLayout); }, []);
 
   const date = board.data ? friendlyDate(board.data.local_date) : null;
+
+  // Cold-start measurement (TODO 2.2): one line in the platform log the moment
+  // the dashboard has its data, so the span is read from logcat's own
+  // timestamps — process start to this line — with no test driver in it.
+  useEffect(() => {
+    if (board.data && process.env.EXPO_PUBLIC_MEASURE === '1' && !reported) {
+      reported = true;
+      console.info('VOLT_DASHBOARD_READY');
+    }
+  }, [board.data]);
 
   return (
     <ScreenScaffold
@@ -65,7 +79,9 @@ export default function Home() {
                 case 'nutrition':
                   return <NutritionSection key="nutrition" card={data.nutrition} />;
                 case 'body':
-                  return <BodySection key="body" card={data.body} />;
+                  return (
+                    <BodySection key="body" card={data.body} goal={weightGoalOf(data.goals)} today={data.local_date} />
+                  );
                 case 'goals':
                   return <GoalsSection key="goals" goals={data.goals ?? []} />;
                 default:
@@ -250,7 +266,10 @@ function Macro({
 
 /* ----------------------------------------------------------------- body */
 
-function BodySection({ card }: { card: BodyCard }) {
+function BodySection({ card, goal, today }: { card: BodyCard; goal?: GoalCard; today: string }) {
+  // Where the goal stands, on the page people open every day (G10) — the full
+  // journey is one tap away on Progress.
+  const line = goal ? journeyLine(goal, today) : null;
   return (
     <View>
       <Text variant="label" style={{ marginBottom: space.sm }}>
@@ -283,6 +302,9 @@ function BodySection({ card }: { card: BodyCard }) {
             </Text>
           </>
         )}
+        {line ? (
+          <Text variant="caption" tone="accent" style={{ marginTop: space.sm }} testID="body-goal">{line}</Text>
+        ) : null}
         <Button
           title={card.today === null || card.today === undefined ? 'Log today' : 'Progress'}
           kind="ghost"

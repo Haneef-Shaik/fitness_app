@@ -71,6 +71,8 @@ export default function Settings() {
         <View>
           <Text variant="label" style={{ marginBottom: space.sm }}>Settings</Text>
           <NavGroup>
+            <NavRow icon="person-outline" label="Your details" testID="go-profile-details"
+              onPress={() => router.push('/settings/profile')} />
             <NavRow icon="flame-outline" label="Calorie and macro targets"
               onPress={() => router.push('/nutrition/targets')} />
             <NavRow icon="grid-outline" label="Dashboard layout"

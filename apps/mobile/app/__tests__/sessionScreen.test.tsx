@@ -117,6 +117,16 @@ describe('the session screen', () => {
     expect(screen.getAllByText('640 kg')).toHaveLength(2);
   });
 
+  it('the exercise switcher is a named stop with room for the focus ring (a11y #17)', () => {
+    // Android makes a horizontal ScrollView a keyboard stop of its own; it had
+    // no name, and it clipped the 2 px ring + 2 px offset of the tab in focus.
+    seed(1);
+    render(<ActiveSession />);
+    const scroller = screen.getByTestId('exercise-switcher');
+    expect(scroller.props.accessibilityLabel).toBe('Exercises in this workout');
+    expect(scroller.props.contentContainerStyle).toMatchObject({ padding: 4 });
+  });
+
   it('labels each set row for a screen reader', () => {
     seed(1);
     render(<ActiveSession />);
@@ -141,5 +151,21 @@ describe('the session screen', () => {
     fireEvent.press(screen.getByLabelText('Discard workout'));
 
     expect(screen.getByText(/1 exercise and 4 sets will be lost/)).toBeTruthy();
+  });
+});
+
+describe('the entry stays in reach (G10)', () => {
+  // Each set lands above the entry, so Save walked down the screen one row per
+  // set; by set 17 it was below the fold (seen on the phone and in the p95 run).
+  it('scrolls to keep the entry in view after a set is saved — and only then', () => {
+    const { ScrollView } = jest.requireActual('react-native');
+    const toEnd = jest.spyOn(ScrollView.prototype, 'scrollToEnd').mockImplementation(() => {});
+    seed(1);
+    render(<ActiveSession />);
+    expect(toEnd).not.toHaveBeenCalled();
+
+    fireEvent.press(screen.getByText('Save set 2'));
+    expect(toEnd).toHaveBeenCalledTimes(1);
+    toEnd.mockRestore();
   });
 });

@@ -7,8 +7,8 @@
  * only visible difference between online and offline is the per-set sync dot.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { AppState, ScrollView, View } from 'react-native';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, Keyboard, ScrollView, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import type { Exercise, PersonalRecord } from '@volt/api-types';
@@ -28,6 +28,13 @@ import { flushAndReconcile } from '@/features/workout-session/sessionController'
 import { summarise, type SessionSummary } from '@/features/workout-session/summary';
 import { targetFor } from '@/features/workout-session/restTimer';
 import { commitTimings } from '@/features/workout-session/commitTiming';
+
+/**
+ * The latency reading shows in development, and in a production bundle built
+ * for measuring (`EXPO_PUBLIC_MEASURE=1`, scripts/measure-p95.sh) — the D16
+ * number is about the build users run, not the dev bundle's overhead (TODO 2.2).
+ */
+const SHOW_TIMING = __DEV__ || process.env.EXPO_PUBLIC_MEASURE === '1';
 import {
   draftWithSetsFromServer, useCancelSession, useFinishSession, useSession,
 } from '@/features/workout-session/useSession';
@@ -49,6 +56,48 @@ function SyncDot({ state }: { state: DraftSet['syncState'] }) {
     />
   );
 }
+
+/**
+ * One committed set. Memoised: a commit adds a row, and without this every
+ * earlier row re-rendered with it — the logger's cost grew with each set, and
+ * tap → paint with it (TODO 2.1). Set objects are shared between drafts until
+ * they change, so an unchanged row skips its render.
+ */
+const SetRow = memo(function SetRow({ set: s, onDelete }: { set: DraftSet; onDelete: (clientId: string) => void }) {
+  const { c } = useTheme();
+  return (
+    <View
+      accessibilityLabel={
+        `Set ${s.setIndex + 1}${s.setType === 'warmup' ? ', warm-up' : ''}, `
+        + `${s.loadKg ?? '—'} kilograms for ${s.reps ?? '—'} reps`
+      }
+      style={{
+        flexDirection: 'row', alignItems: 'center', gap: space.md,
+        paddingVertical: space.sm, borderBottomWidth: 1, borderColor: c.line,
+        opacity: s.setType === 'warmup' ? 0.6 : 1,
+      }}
+    >
+      <Text variant="caption" tone="ink3" style={{ width: 22 }}>
+        {s.setType === 'warmup' ? 'W' : s.setIndex + 1}
+      </Text>
+      <Text variant="body" style={{ flex: 1, fontFamily: font.dataSemi }}>
+        {s.loadKg ?? '—'} × {s.reps ?? '—'}
+      </Text>
+      <Text variant="caption" tone="ink3">
+        {contribution(s) > 0 ? `${Math.round(contribution(s))} kg` : '—'}
+      </Text>
+      <SyncDot state={s.syncState} />
+      <Pressable
+        onPress={() => onDelete(s.clientId)}
+        accessibilityRole="button"
+        accessibilityLabel={`Delete set ${s.setIndex + 1}`}
+        hitSlop={10}
+      >
+        <Text variant="caption" tone="ink3">✕</Text>
+      </Pressable>
+    </View>
+  );
+});
 
 export default function ActiveSession() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -85,6 +134,19 @@ export default function ActiveSession() {
 
   const exercise = draft?.exercises[activeIdx];
   const catalogEntry = exercise ? byId.get(exercise.exerciseId) : undefined;
+
+  // Each set lands above the entry, so the Save button walks down the screen
+  // one row per set — by set 17 it was below the fold and had to be found
+  // again (G10, seen on the phone and in the p95 run). After a set is added
+  // the list scrolls to keep the entry in reach. Not on switching exercise.
+  const scroller = useRef<ScrollView>(null);
+  const seen = useRef({ id: exercise?.clientId, sets: exercise?.sets.length ?? 0 });
+  const setCount = exercise?.sets.length ?? 0;
+  useEffect(() => {
+    const grew = seen.current.id === exercise?.clientId && setCount > seen.current.sets;
+    seen.current = { id: exercise?.clientId, sets: setCount };
+    if (grew) scroller.current?.scrollToEnd({ animated: true });
+  }, [exercise?.clientId, setCount]);
 
   // AC-04 — fetched as the exercise opens, non-blocking. Entry stays usable
   // whatever this does.
@@ -167,8 +229,12 @@ export default function ActiveSession() {
 
     if (!result.ok) { setError(result.error ?? 'That set could not be saved.'); return; }
     setError(null);
+    // The next set starts prefilled, so the keyboard has nothing left to do.
+    // Left up, a still-focused field brought it back over "Save set" as the
+    // list scrolled (G10, on the phone).
+    Keyboard.dismiss();
     painted();
-    if (__DEV__) setTimeout(() => setTiming(commitTimings.report()), 0);
+    if (SHOW_TIMING) setTimeout(() => setTiming(commitTimings.report()), 0);
 
     const restSeconds = Number(exercise.targetSnapshot?.['rest_seconds'] ?? 0);
     if (restSeconds > 0) setRest({ target: targetFor(new Date(), restSeconds), total: restSeconds });
@@ -213,7 +279,11 @@ export default function ActiveSession() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge, gap: space.lg }}>
+      <ScrollView
+        ref={scroller}
+        testID="session-scroll"
+        contentContainerStyle={{ padding: space.lg, paddingBottom: space.huge, gap: space.lg }}
+      >
         {draft.exercises.length === 0 ? (
           <Card>
             <Text variant="body">Nothing added yet</Text>
@@ -224,7 +294,17 @@ export default function ActiveSession() {
         ) : (
           <>
             {/* Exercise switcher — no trip back to the list to change exercise. */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {/* Android makes a horizontal ScrollView a keyboard stop of its own, and
+                `focusable={false}` does not change that — so it is named, and padded by
+                the focus ring's 2 px + 2 px offset so the ring is not clipped (a11y #17). */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              testID="exercise-switcher"
+              accessibilityLabel="Exercises in this workout"
+              style={{ margin: -4 }}
+              contentContainerStyle={{ padding: 4 }}
+            >
               <View style={{ flexDirection: 'row', gap: space.sm }} accessibilityRole="tablist">
                 {draft.exercises.map((e, i) => (
                   <Pressable
@@ -271,37 +351,7 @@ export default function ActiveSession() {
               <View accessibilityRole="list" testID="today-sets">
                 <Text variant="label" style={{ marginBottom: space.sm }}>Today</Text>
                 {exercise.sets.map((s) => (
-                  <View
-                    key={s.clientId}
-                    accessibilityLabel={
-                      `Set ${s.setIndex + 1}${s.setType === 'warmup' ? ', warm-up' : ''}, `
-                      + `${s.loadKg ?? '—'} kilograms for ${s.reps ?? '—'} reps`
-                    }
-                    style={{
-                      flexDirection: 'row', alignItems: 'center', gap: space.md,
-                      paddingVertical: space.sm, borderBottomWidth: 1, borderColor: c.line,
-                      opacity: s.setType === 'warmup' ? 0.6 : 1,
-                    }}
-                  >
-                    <Text variant="caption" tone="ink3" style={{ width: 22 }}>
-                      {s.setType === 'warmup' ? 'W' : s.setIndex + 1}
-                    </Text>
-                    <Text variant="body" style={{ flex: 1, fontFamily: font.dataSemi }}>
-                      {s.loadKg ?? '—'} × {s.reps ?? '—'}
-                    </Text>
-                    <Text variant="caption" tone="ink3">
-                      {contribution(s) > 0 ? `${Math.round(contribution(s))} kg` : '—'}
-                    </Text>
-                    <SyncDot state={s.syncState} />
-                    <Pressable
-                      onPress={() => deleteSet(s.clientId)}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Delete set ${s.setIndex + 1}`}
-                      hitSlop={10}
-                    >
-                      <Text variant="caption" tone="ink3">✕</Text>
-                    </Pressable>
-                  </View>
+                  <SetRow key={s.clientId} set={s} onDelete={deleteSet} />
                 ))}
                 {exercise.sets.some((s) => s.syncState === 'failed') ? (
                   <Text variant="caption" tone="crit" style={{ marginTop: space.sm }} testID="sync-failed">
@@ -335,7 +385,7 @@ export default function ActiveSession() {
 
         <Button title="Finish workout" onPress={doFinish} testID="finish-workout" />
 
-        {__DEV__ && timing ? (
+        {SHOW_TIMING && timing ? (
           // H4.3 is a number someone has to write down, so it has to be readable
           // from the device that produced it.
           <Pressable

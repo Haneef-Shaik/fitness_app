@@ -19,6 +19,7 @@ from app.api.envelope import ok
 from app.models import SessionStatus, WorkoutSession
 from app.observability.alerts import RULES, evaluate
 from app.observability.metrics import registry
+from app.observability.queue import ai_queue_signals
 from app.schemas.envelope import Envelope
 
 router = APIRouter(prefix="/admin", tags=["meta"])
@@ -43,6 +44,8 @@ async def alerts(user: CurrentUser, db: DbSession):
             WorkoutSession.started_at < cutoff,
         )
     ) or 0)
+
+    snapshot.update(await ai_queue_signals(db))
 
     firing = evaluate(snapshot)
 

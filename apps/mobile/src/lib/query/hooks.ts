@@ -24,6 +24,7 @@ import type {
   Program,
   ProgramIn,
   Adherence,
+  NutritionRange,
   ExerciseProgression,
   Frequency,
   MuscleVolume,
@@ -384,6 +385,15 @@ export function useFrequency(range: RangeQuery = {}) {
 }
 
 /** G-06's meter. `adherence` is null when nothing was planned — not zero. */
+/** H-14 · nutrition over a range. */
+export function useNutritionRange(range: RangeQuery = {}) {
+  return useQuery<NutritionRange>({
+    queryKey: qk.nutritionAnalytics(range),
+    queryFn: () => analyticsApi.nutrition(range),
+    staleTime: staleTimes.analytics,
+  });
+}
+
 export function useAdherence(range: RangeQuery = {}) {
   return useQuery<Adherence>({
     queryKey: qk.analyticsAdherence(range),
@@ -887,6 +897,22 @@ export function useDiscardQueued() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => store.discard(id),
+    onSuccess: () => applyInvalidation(client, 'outbox.changed', {}),
+  });
+}
+
+/** Writes from before local schema v2, which no account can claim (G10). */
+export function useUnattributed() {
+  return useQuery<number>({
+    queryKey: [...qk.outbox(), 'unattributed'],
+    queryFn: () => store.unattributedCount(),
+  });
+}
+
+export function useDiscardUnattributed() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => store.discardUnattributed(),
     onSuccess: () => applyInvalidation(client, 'outbox.changed', {}),
   });
 }

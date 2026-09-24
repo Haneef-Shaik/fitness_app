@@ -3,9 +3,9 @@
  *
  * Two of these make a promise the code has to keep:
  *
- *   B-04 says reminders **do not send yet**, because a toggle that silently
- *        does nothing is worse than one that admits it — the user would
- *        conclude the reminder failed, not that it was never sent.
+ *   B-04's reminders are real local notifications (G10); a refused
+ *        permission leaves the switch off and says so, never a toggle that
+ *        silently does nothing.
  *   B-05 states what it searches, because an empty box that quietly misses
  *        half the app is worse than one that tells you where to look.
  */
@@ -59,6 +59,8 @@ const mocks = {
   series: q({ metric_key: 'waist_cm', unit: 'cm', points: [], change: null, latest: null }),
   photos: q([]),
   dashboard: q({ training: { active_session_id: null } }),
+  programs: q([{ status: 'active', days: [{ scheduled_weekday: 0 }, { scheduled_weekday: 3 }, { scheduled_weekday: null }] }]),
+  checkins: q({ next_due: '2026-09-30', today: '2026-09-24' }),
 };
 
 jest.mock('@/lib/query/hooks', () => ({
@@ -69,6 +71,15 @@ jest.mock('@/lib/query/hooks', () => ({
   useCreateProgressPhoto: () => mutation(),
   useDeleteProgressPhoto: () => mutation(),
   useDashboard: () => mocks.dashboard,
+  usePrograms: () => mocks.programs,
+  useCheckins: () => mocks.checkins,
+}));
+
+let mockPermission: 'granted' | 'denied' = 'granted';
+const mockApply = jest.fn(async (list: unknown[]) => list.length);
+jest.mock('@/features/reminders/schedule', () => ({
+  ensurePermission: jest.fn(async () => mockPermission),
+  applyReminders: (list: unknown[]) => mockApply(list),
 }));
 
 import Customize from '../home/customize';
@@ -132,25 +143,42 @@ describe('B-02 · customising the dashboard', () => {
   });
 });
 
-describe('B-04 · reminders', () => {
-  it('says plainly that nothing sends yet', () => {
-    render(<Notifications />);
-    // A toggle that silently does nothing is worse than one that admits it.
-    expect(screen.getByText('These do not send yet.')).toBeTruthy();
-  });
+describe('B-04 · reminders (G10: they send now)', () => {
+  // They used to be toggles over the words "These do not send yet".
+  beforeEach(() => { mockPermission = 'granted'; delete mockPrefs.reminders; });
 
-  it('starts every reminder off', () => {
+  it('starts every reminder off — nothing is switched on for anyone', () => {
     render(<Notifications />);
-    for (const key of ['workout', 'weigh_in', 'meal_log']) {
+    for (const key of ['workout', 'weigh_in', 'meal_log', 'checkin']) {
       expect(screen.getByTestId(`reminder-${key}`).props.accessibilityLabel).toBe('Off');
     }
   });
 
-  it('remembers a choice on the device', async () => {
+  it('switching one on asks permission, remembers it, and schedules it on the phone', async () => {
+    render(<Notifications />);
+    fireEvent.press(screen.getByTestId('reminder-workout'));
+    await waitFor(() => expect(mockPrefs.reminders).toEqual({ workout: true }));
+    // One per planned program day — Monday and Thursday — and none for the unscheduled one.
+    await waitFor(() => expect(mockApply).toHaveBeenLastCalledWith([
+      expect.objectContaining({ id: 'workout-0' }), expect.objectContaining({ id: 'workout-3' }),
+    ]));
+  });
+
+  it('refused permission leaves it off, and says how to change that', async () => {
+    mockPermission = 'denied';
     render(<Notifications />);
     fireEvent.press(screen.getByTestId('reminder-weigh_in'));
+    await waitFor(() => expect(screen.getByTestId('reminders-denied')).toBeTruthy());
+    expect(mockPrefs.reminders).toBeUndefined();
+    expect(mockApply).not.toHaveBeenCalled();
+  });
 
-    await waitFor(() => expect(mockPrefs.reminders).toEqual({ weigh_in: true }));
+  it('switching one off takes it off the phone', async () => {
+    mockPrefs.reminders = { weigh_in: true };
+    render(<Notifications />);
+    await waitFor(() => expect(screen.getByTestId('reminder-weigh_in').props.accessibilityLabel).toBe('On'));
+    fireEvent.press(screen.getByTestId('reminder-weigh_in'));
+    await waitFor(() => expect(mockApply).toHaveBeenLastCalledWith([]));
   });
 });
 

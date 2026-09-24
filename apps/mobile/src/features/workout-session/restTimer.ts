@@ -40,3 +40,24 @@ export function formatRest(seconds: number): string {
   const s = Math.max(0, Math.round(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
+
+const STEP = 15;
+
+/**
+ * What a screen reader is told: rounded up to the next 15 seconds, in words.
+ * The label used to be the exact second, so the node changed once a second —
+ * uiautomator could never reach idle and TalkBack had a node re-describing
+ * itself continuously (a11y finding #5). The digits on screen still tick.
+ */
+export function restAnnouncement(remaining: number, elapsed: boolean): string {
+  if (elapsed) return 'Rest complete';
+  if (remaining < STEP) return `Less than ${STEP} seconds of rest left`;
+  const total = Math.ceil(remaining / STEP) * STEP;
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  const parts = [
+    m ? `${m} minute${m === 1 ? '' : 's'}` : null,
+    s ? `${s} seconds` : null,
+  ].filter(Boolean);
+  return `${parts.join(' ')} of rest left`;
+}

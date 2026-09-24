@@ -175,6 +175,23 @@ describe('failure handling', () => {
     expect(e!.lastError).toBe('Reps must be at least 1.');
   });
 
+  it('a write refused for want of a session waits for the next sign-in — never a failure (a11y #20)', async () => {
+    // It used to fail with the server's "Log back in to carry on" and then sit
+    // in the Sync Center saying so while the user was plainly signed in.
+    const store = createMemoryStore('user-1');
+    await seed(store, [['k1']]);
+    for (let i = 0; i < 12; i += 1) await store.markRetry(1, '2026-09-22T09:00:00Z', 'x');
+
+    const out = await createOutbox({
+      store, send: async () => ({ ok: false, retryable: true, awaitingSignIn: true, message: 'Waiting for you to sign in.' }),
+      now, random: noJitter, maxAttempts: 8,
+    }).flush();
+
+    expect(out.failed).toBe(0);
+    const [e] = await store.allEntries();
+    expect(e!.state).toBe('pending');
+  });
+
   it('gives up on a server that keeps answering with an error', async () => {
     // A 5xx means the server was REACHED and failed. Retrying that for ever
     // would hide a broken endpoint behind a spinner.

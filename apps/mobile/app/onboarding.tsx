@@ -12,11 +12,11 @@
  * be typed before we know whether they are kg or lb.
  *
  * Saving: the profile is PATCHed as each step is completed (A-07), so leaving
- * half way keeps what was answered. The goal, the baseline check-in and the
- * targets are written once, on "Looks good". Onboarding is only marked
- * complete at the very end.
+ * half way keeps what was answered; the goal is saved when its step is passed.
+ * The baseline check-in and the targets are written once, on "Looks good".
+ * Onboarding is only marked complete at the very end.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Text } from '@/ui';
 import { resetTo } from '@/lib/navigation';
 import { ApiError, goalsApi, profileApi } from '@/lib/api';
@@ -25,7 +25,7 @@ import { useSession } from '@/lib/session';
 import { queueMetric } from '@/features/body/logMetric';
 import { StepFrame } from '@/features/onboarding/ui';
 import {
-  ageOn, answersFrom, baselineMetrics, goalFrom, planFrom, plausibility, profilePatch,
+  ageOn, answersFrom, baselineMetrics, goalAnswers, goalFrom, goalWrite, planFrom, plausibility, profilePatch,
   type Answers,
 } from '@/features/onboarding/answers';
 import {
@@ -72,6 +72,17 @@ export default function Onboarding() {
   const [i, setI] = useState(0);
   // Answers saved on an earlier visit come back (each step is PATCHed as it is done).
   const [a, setA] = useState<Answers>(() => answersFrom(profile, detectedTimezone()));
+  // …and so does the goal, which lives in its own table.
+  useEffect(() => {
+    let live = true;
+    goalsApi.list()
+      .then((goals) => {
+        const g = goals.find((x) => x.status === 'active' && x.metric_key === 'body_weight');
+        if (live && g) setA((prev) => (prev.goal == null ? { ...prev, ...goalAnswers(g, prev.units) } : prev));
+      })
+      .catch(() => { /* nothing to restore; the step asks again */ });
+    return () => { live = false; };
+  }, []);
   const [program, setProgram] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,23 +109,24 @@ export default function Onboarding() {
         carbs_g_target: plan.carbsG, fat_g_target: plan.fatG,
       } as never);
     }
-    const goal = goalFrom(a, today);
-    if (goal) {
-      // Onboarding can be left after this step and started again; the goal it
-      // wrote then is updated, not joined by a second active one.
-      const earlier = (await goalsApi.list()).find((g) =>
-        g.status === 'active' && g.goal_type === goal.goal_type && g.metric_key === goal.metric_key);
-      if (earlier) {
-        await goalsApi.patch(earlier.id, { target_value: goal.target_value, weekly_rate: goal.weekly_rate });
-      } else {
-        await goalsApi.create(goal as never);
-      }
-    }
     // The baseline rides the outbox like any weigh-in: it survives a dropped signal.
     for (const m of baselineMetrics(a)) {
       await queueMetric({ ...m, measured_at: null, notes: 'Starting check-in', client_id: null } as never);
     }
     setWrotePlan(true);
+  };
+
+  /** The goal step's write: create, update, or replace — never a second active goal. */
+  const saveGoal = async () => {
+    const goal = goalFrom(a, today);
+    if (!goal) return;
+    const write = goalWrite(await goalsApi.list(), goal);
+    if (write.kind === 'patch') {
+      await goalsApi.patch(write.id, write.body);
+      return;
+    }
+    if (write.kind === 'replace') await goalsApi.patch(write.pauseId, { status: 'paused' });
+    await goalsApi.create(goal as never);
   };
 
   const summary = (): string[] => {
@@ -163,6 +175,8 @@ export default function Onboarding() {
         }
       } else {
         await profileApi.patch(profilePatch(a) as never);
+        // Saved here, not at the end: leaving onboarding must not lose it.
+        if (step.key === 'goal' && !skip) await saveGoal();
       }
       setWarned(false);
       setI(i + 1);

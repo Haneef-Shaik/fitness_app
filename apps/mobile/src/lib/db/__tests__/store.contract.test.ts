@@ -308,6 +308,34 @@ function contract(name: string, make: () => SessionStore) {
         await expect(store.commit(draft(2))).rejects.toThrow(/signed in/);
       });
     });
+
+    describe('writes from before accounts were separated (local schema v1)', () => {
+      // The v2 migration gave them the empty owner: nothing records whose they
+      // were, so they are never shown or sent as anyone. That made them
+      // invisible and permanent — the Sync Center now counts them and lets the
+      // user throw them away deliberately.
+      const legacy = async (key: string) => {
+        store.setOwner('');            // what the migration stamped on v1 rows
+        await store.enqueue(entry(key));
+        store.setOwner('user-a');
+      };
+
+      it('are counted for whoever is signed in, and are not theirs', async () => {
+        await legacy('old-1');
+        await legacy('old-2');
+        await store.enqueue(entry('mine'));
+        expect(await store.unattributedCount()).toBe(2);
+        expect((await store.allEntries()).map((e) => e.idempotencyKey)).toEqual(['mine']);
+      });
+
+      it('can be discarded — only they, never the account\'s own', async () => {
+        await legacy('old-1');
+        await store.enqueue(entry('mine'));
+        await expect(store.discardUnattributed()).resolves.toBe(1);
+        expect(await store.unattributedCount()).toBe(0);
+        expect((await store.allEntries()).map((e) => e.idempotencyKey)).toEqual(['mine']);
+      });
+    });
   });
 }
 

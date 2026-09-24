@@ -49,6 +49,8 @@ const mocks = {
   retry: mutation(),
   retryAll: mutation(),
   discard: mutation(),
+  unattributed: q(0),
+  discardUnattributed: mutation(),
 };
 
 jest.mock('@/lib/query/hooks', () => ({
@@ -56,6 +58,8 @@ jest.mock('@/lib/query/hooks', () => ({
   useRetryQueued: () => mocks.retry,
   useRetryAllQueued: () => mocks.retryAll,
   useDiscardQueued: () => mocks.discard,
+  useUnattributed: () => mocks.unattributed,
+  useDiscardUnattributed: () => mocks.discardUnattributed,
 }));
 
 import SyncCenter from '../sync/index';
@@ -68,6 +72,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockParams = { entry: '1' };
   mocks.outbox = q([]);
+  mocks.unattributed = q(0);
   mocks.retry = mutation();
   mocks.retryAll = mutation();
   mocks.discard = mutation();
@@ -291,5 +296,26 @@ describe('L-07 · the conflict dialog', () => {
     mocks.outbox = q([]);
     render(<Conflict />);
     expect(screen.getByTestId('conflict-resolved')).toBeTruthy();
+  });
+});
+
+describe('L-02 · writes from before accounts were separated (G10)', () => {
+  // Local schema v2 could not tell whose they were, so they are never sent.
+  // They were also never shown: invisible and permanent. Now they are counted
+  // and can be thrown away — deliberately, never automatically.
+  it('says nothing when there are none', () => {
+    render(<SyncCenter />);
+    expect(screen.queryByTestId('sync-unattributed')).toBeNull();
+  });
+
+  it('counts them, explains why they will not upload, and discards only on confirm', () => {
+    mocks.unattributed = q(3);
+    render(<SyncCenter />);
+    expect(screen.getByTestId('sync-unattributed')).toBeTruthy();
+    expect(screen.getByText(/3 changes from an older version/)).toBeTruthy();
+    fireEvent.press(screen.getByTestId('sync-unattributed-discard'));
+    expect(mocks.discardUnattributed.mutate).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByTestId('sync-unattributed-discard-confirm'));
+    expect(mocks.discardUnattributed.mutate).toHaveBeenCalled();
   });
 });

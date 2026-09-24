@@ -28,7 +28,7 @@ export default function Diary() {
   // Labels come from the category list, never from the slug alone, so a rename
   // in H-16 shows up here without the diary knowing anything about it.
   const categories = useMealCategories();
-  const target = profile.data?.daily_calorie_target ?? null;
+  const profileTarget = profile.data?.daily_calorie_target ?? null;
 
   // The wireframes call this a tab root, and there is no tab bar yet — so
   // `back={false}` made it a dead end: reachable from B-01, with no way home
@@ -46,7 +46,10 @@ export default function Diary() {
         isEmpty={() => false}
         empty={{ title: 'Nothing logged yet' }}
       >
-        {(data) => (
+        {(data) => {
+          // The target in force ON THIS DAY (Q8): a later change does not rewrite it.
+          const target = data.targets !== undefined ? (data.targets?.calories ?? null) : profileTarget;
+          return (
           <View style={{ gap: space.lg }}>
             <Card hero>
               <Pill>{friendlyDate(data.local_date)}</Pill>
@@ -105,6 +108,8 @@ export default function Diary() {
             {/* The rest of the nutrition surface. Kept at the bottom because the
                 day is what this screen is for; everything here is management. */}
             <NavGroup>
+              <NavRow icon="stats-chart-outline" label="Analytics" testID="go-nutrition-analytics"
+                onPress={() => router.push('/nutrition/analytics')} />
               <NavRow icon="book-outline" label="Recipes" testID="go-recipes"
                 onPress={() => router.push('/nutrition/recipes')} />
               <NavRow icon="flame-outline" label="Targets" testID="go-targets"
@@ -119,7 +124,8 @@ export default function Diary() {
               ) : null}
             </NavGroup>
           </View>
-        )}
+          );
+        }}
       </DataBoundary>
     </ScreenScaffold>
   );

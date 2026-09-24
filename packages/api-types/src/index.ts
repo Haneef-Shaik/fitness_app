@@ -138,6 +138,9 @@ export type BodyMetricIn = Schemas['BodyMetricIn'];
 export type BodySeries = Schemas['BodySeriesOut'];
 export type Checkins = Schemas['CheckinsOut'];
 export type Checkin = Schemas['CheckinOut'];
+/** H-14 — nutrition over a range; averages over logged days only. */
+export type NutritionRange = Schemas['NutritionRangeOut'];
+export type NutritionRangeDay = Schemas['NutritionDayOut'];
 export type BodyPoint = Schemas['BodyPointOut'];
 export type ProgressPhoto = Schemas['ProgressPhotoOut'];
 export type ProgressPhotoIn = Schemas['ProgressPhotoIn'];

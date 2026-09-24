@@ -77,7 +77,8 @@ export const invalidationRules: Readonly<Record<MutationKind, Rule>> = {
     // The dashboard carries the macro targets, so changing one has to reach
     // B-01 as well as the profile itself.
     doc: '`PATCH /profile`',
-    keys: () => [qk.profile(), qkPrefix.dashboard()],
+    // The check-in interval is a profile field, so it moves the next check-in.
+    keys: () => [qk.profile(), qkPrefix.dashboard(), qk.bodyCheckins()],
   },
   'goal.changed': {
     doc: 'Create / edit a goal',

@@ -27,7 +27,7 @@ import { SyncShell } from '@/features/sync/SyncBanner';
 import { TabBar } from '@/ui/shell/TabBar';
 import { showsTabBar } from '@/ui/shell/tabs';
 import { BottomInsetHandled } from '@/ui/topInset';
-import { createIdentityHandler } from '@/lib/identity';
+import { createIdentityHandler, dropCachedReads } from '@/lib/identity';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -69,7 +69,7 @@ export default function Layout() {
   const onIdentityChange = useMemo(() => {
     const handle = createIdentityHandler({
       setOwner: (id) => store.setOwner(id),
-      clearCache: () => queryClient.clear(),
+      clearCache: () => dropCachedReads(queryClient),
       releaseWorkout: () => useSessionStore.setState({ draft: null, recoveryCandidate: null }),
       flush: flushAndReconcile,
     });

@@ -57,8 +57,19 @@ const FULL = {
   goals: [{
     id: 'g1', goal_type: 'fat_loss', metric_key: 'body_weight', direction: 'down',
     start_value: 80.0, target_value: 75.0, target_unit: 'kg',
+    start_date: '2026-09-01', target_date: null, weekly_rate: 0.5,
     current_value: 78.4, progress: 0.32, status: 'active',
   }],
+};
+
+const CHECKINS = {
+  today: '2026-09-23', interval_days: 7, next_due: '2026-09-28', overdue: false,
+  baseline: { local_date: '2026-09-01', values: { body_weight: 80, waist_cm: 92 }, since_baseline: {} },
+  checkins: [
+    { local_date: '2026-09-21', values: { body_weight: 78.4, waist_cm: 90 },
+      since_baseline: { body_weight: -1.6, waist_cm: -2 } },
+    { local_date: '2026-09-01', values: { body_weight: 80, waist_cm: 92 }, since_baseline: {} },
+  ],
 };
 
 const EMPTY = {
@@ -94,6 +105,7 @@ const mocks = {
   deleteMetric: mutation(),
   createGoal: mutation(),
   updateGoal: mutation(),
+  checkins: q(CHECKINS),
 };
 
 jest.mock('@/lib/query/hooks', () => ({
@@ -107,6 +119,7 @@ jest.mock('@/lib/query/hooks', () => ({
   useDeleteBodyMetric: () => mocks.deleteMetric,
   useCreateGoal: () => mocks.createGoal,
   useUpdateGoal: () => mocks.updateGoal,
+  useCheckins: () => mocks.checkins,
   useProgressPhotos: () => q([]),
   useCreateProgressPhoto: () => mutation(),
   useDeleteProgressPhoto: () => mutation(),
@@ -367,5 +380,41 @@ describe('J-01 … J-04 · goals', () => {
     render(<GoalDetail />);
     expect(screen.queryByTestId('goal-reached')).toBeNull();
     expect(screen.getByText('32% of the way')).toBeTruthy();
+  });
+});
+
+
+describe('I-01 · the journey and check-ins (G10)', () => {
+  it('shows the weight goal as milestones, the next one named, with a projected date', () => {
+    render(<Progress />);
+    // 80 → 75: milestones at 78.75, 77.5, 76.25, 75. At 78.4, the first is reached.
+    expect(screen.getAllByTestId('milestone-reached')).toHaveLength(1);
+    expect(screen.getAllByTestId('milestone-ahead')).toHaveLength(3);
+    expect(screen.getByTestId('journey-next').props.children).toMatch(/77\.5 kg/);
+    expect(screen.getByTestId('journey-projection').props.children).toMatch(/current pace/);
+  });
+
+  it('says when the next check-in is due, and what changed since the first', () => {
+    render(<Progress />);
+    expect(screen.getByTestId('checkin-next').props.children).toBe('Next check-in: Monday, 28 Sep');
+    const changes = screen.getByTestId('checkin-changes');
+    expect(changes).toBeTruthy();
+    expect(screen.getByText('−1.6 kg')).toBeTruthy();
+    expect(screen.getByText('−2 cm')).toBeTruthy();
+  });
+
+  it('an overdue check-in is marked in words, and the button is the main action', () => {
+    mocks.checkins = q({ ...CHECKINS, overdue: true, next_due: '2026-09-20' });
+    render(<Progress />);
+    expect(screen.getByText('Due')).toBeTruthy();
+    expect(screen.getByTestId('checkin-next').props.children).toBe('Your check-in is due.');
+    mocks.checkins = q(CHECKINS);
+  });
+
+  it('with no goal there is no journey card — and nothing invented', () => {
+    mocks.dashboard = q({ ...FULL, goals: [] });
+    render(<Progress />);
+    expect(screen.queryByTestId('journey')).toBeNull();
+    mocks.dashboard = q(FULL);
   });
 });

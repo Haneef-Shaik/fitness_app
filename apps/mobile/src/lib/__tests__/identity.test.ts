@@ -7,7 +7,9 @@
  * cached read is dropped (docs/03 §6.2), and the in-memory workout is let go
  * WITHOUT deleting it: it belongs to its account and waits for it (K-01).
  */
-import { createIdentityHandler } from '../identity';
+import { QueryClient, QueryObserver } from '@tanstack/react-query';
+import { waitFor } from '@testing-library/react-native';
+import { createIdentityHandler, dropCachedReads } from '../identity';
 
 function setup() {
   const deps = {
@@ -53,4 +55,32 @@ it('the same account reported again changes nothing — no cache wipe mid-use', 
   onChange('acct-a');
   expect(deps.clearCache).not.toHaveBeenCalled();
   expect(deps.releaseWorkout).not.toHaveBeenCalled();
+});
+
+describe('dropCachedReads — what "clear the cache" means with screens on show', () => {
+  // Found in G10 opening /progress directly: the screen's reads 401'd, the
+  // session refreshed and announced the account, and `queryClient.clear()`
+  // removed the queries out from under their mounted observers. The retries
+  // came back 200 and the screen said "Loading…" for ever.
+  it('a mounted read is refetched, not orphaned', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
+    let who = 'a';
+    const observer = new QueryObserver(client, { queryKey: ['me'], queryFn: async () => who });
+    const stop = observer.subscribe(() => {});
+    await waitFor(() => expect(observer.getCurrentResult().data).toBe('a'));
+
+    who = 'b';
+    dropCachedReads(client);
+    await waitFor(() => expect(observer.getCurrentResult().data).toBe('b'));
+    stop();
+    client.clear();
+  });
+
+  it('nothing read under the previous account survives, mounted or not', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
+    client.setQueryData(['inactive'], 'secret');
+    dropCachedReads(client);
+    expect(client.getQueryData(['inactive'])).toBeUndefined();
+    client.clear();
+  });
 });

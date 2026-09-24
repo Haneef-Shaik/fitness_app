@@ -8,6 +8,23 @@
  * is a data-leak bug), and the in-memory workout is released WITHOUT being
  * deleted: it belongs to its account and waits for it (K-01).
  */
+import type { QueryClient } from '@tanstack/react-query';
+
+/**
+ * Drop every cached read without orphaning the screens that are showing them.
+ *
+ * `queryClient.clear()` removes queries from the cache, but a mounted
+ * observer keeps a reference to its removed query and never hears of it
+ * again: opening /progress directly, its reads 401'd, the session refreshed
+ * and announced the account, the cache was cleared under the screen, and it
+ * said "Loading…" for ever (G10). Reads nobody is watching are removed;
+ * mounted ones are reset — their data dropped — and fetched afresh.
+ */
+export function dropCachedReads(client: QueryClient): void {
+  client.removeQueries({ type: 'inactive' });
+  void client.resetQueries({ type: 'active' }).catch(() => { /* each screen shows its own error */ });
+}
+
 export interface IdentityDeps {
   setOwner: (accountId: string | null) => void;
   clearCache: () => void;

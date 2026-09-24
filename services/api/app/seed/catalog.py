@@ -75,10 +75,43 @@ EXERCISES: list[tuple[str, Equipment, str, list[str], list[str], list[str]]] = [
     ("Plank", Equipment.bodyweight, "anti-extension", ["abs"], ["obliques"], []),
     ("Hanging Leg Raise", Equipment.bodyweight, "hip flexion", ["abs"], ["obliques"], ["leg raise"]),
     ("Cable Woodchop", Equipment.cable, "rotation", ["obliques"], ["abs"], ["woodchop"]),
+    # --- added for the starter-program library (G10): every exercise a
+    #     well-known program names has to exist here, or the program can't be
+    #     copied (test_program_templates.py checks each one).
+    ("Power Clean", Equipment.barbell, "olympic pull", ["hamstrings", "glutes", "quads"], ["mid-back", "front-delts"], ["clean", "hang clean"]),
+    ("Push Press", Equipment.barbell, "vertical push", ["front-delts"], ["triceps", "quads"], []),
+    ("Barbell Shrug", Equipment.barbell, "scapular elevation", ["mid-back"], ["forearms"], ["shrug"]),
+    ("Skull Crusher", Equipment.barbell, "elbow extension", ["triceps"], [], ["lying triceps extension"]),
+    ("Preacher Curl", Equipment.barbell, "elbow flexion", ["biceps"], [], ["ez bar preacher curl"]),
+    ("Hip Thrust", Equipment.barbell, "hinge", ["glutes"], ["hamstrings"], ["barbell hip thrust"]),
+    ("Goblet Squat", Equipment.dumbbell, "squat", ["quads", "glutes"], ["core"], []),
+    ("Dumbbell Row", Equipment.dumbbell, "horizontal pull", ["lats", "mid-back"], ["biceps", "rear-delts"], ["one-arm row", "db row"]),
+    ("Dumbbell Shoulder Press", Equipment.dumbbell, "vertical push", ["front-delts"], ["triceps", "side-delts"], ["db shoulder press", "seated db press"]),
+    ("Arnold Press", Equipment.dumbbell, "vertical push", ["front-delts", "side-delts"], ["triceps"], []),
+    ("Dumbbell Romanian Deadlift", Equipment.dumbbell, "hinge", ["hamstrings", "glutes"], ["lower-back"], ["db rdl"]),
+    ("Dumbbell Walking Lunge", Equipment.dumbbell, "lunge", ["quads", "glutes"], ["hamstrings"], ["lunge", "walking lunge"]),
+    ("Dumbbell Curl", Equipment.dumbbell, "elbow flexion", ["biceps"], ["forearms"], ["db curl"]),
+    ("Dumbbell Fly", Equipment.dumbbell, "horizontal adduction", ["chest"], [], ["db fly", "db flye"]),
+    ("Reverse Dumbbell Fly", Equipment.dumbbell, "horizontal abduction", ["rear-delts"], ["mid-back"], ["rear delt fly"]),
+    ("Leg Extension", Equipment.machine, "knee extension", ["quads"], [], []),
+    ("Seated Calf Raise", Equipment.machine, "plantar flexion", ["calves"], [], []),
+    ("Cable Crunch", Equipment.cable, "spinal flexion", ["abs"], [], []),
+    ("Ab Wheel Rollout", Equipment.other, "anti-extension", ["abs"], ["obliques"], ["ab wheel"]),
+    ("Chin-up", Equipment.bodyweight, "vertical pull", ["lats", "biceps"], ["mid-back"], ["chinup"]),
+    ("Dip", Equipment.bodyweight, "vertical push", ["triceps", "chest"], ["front-delts"], ["dips", "parallel bar dip"]),
+    ("Inverted Row", Equipment.bodyweight, "horizontal pull", ["mid-back", "lats"], ["biceps", "rear-delts"], ["australian pull-up", "body row"]),
+    ("Pike Push-up", Equipment.bodyweight, "vertical push", ["front-delts"], ["triceps"], []),
+    ("Bodyweight Squat", Equipment.bodyweight, "squat", ["quads", "glutes"], ["hamstrings"], ["air squat"]),
+    ("Pistol Squat", Equipment.bodyweight, "squat", ["quads", "glutes"], ["core"], ["single-leg squat"]),
+    ("Glute Bridge", Equipment.bodyweight, "hinge", ["glutes"], ["hamstrings"], []),
+    ("Back Extension", Equipment.bodyweight, "hinge", ["lower-back"], ["glutes", "hamstrings"], ["hyperextension"]),
+    ("Lying Leg Raise", Equipment.bodyweight, "hip flexion", ["abs"], [], []),
+    ("Side Plank", Equipment.bodyweight, "anti-lateral flexion", ["obliques"], ["abs"], []),
+    ("Hollow Body Hold", Equipment.bodyweight, "anti-extension", ["abs"], [], ["hollow hold"]),
 ]
 
 # Exercises measured by time rather than reps — the logger renders fields from these flags.
-TIMED = {"Plank"}
+TIMED = {"Plank", "Side Plank", "Hollow Body Hold"}
 
 
 async def seed_catalog(db: AsyncSession) -> dict[str, int]:

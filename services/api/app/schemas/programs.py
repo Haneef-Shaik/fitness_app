@@ -79,18 +79,42 @@ class ProgramOut(BaseModel):
     days: list[PlanDayOut] = []
 
 
+class TemplateExerciseOut(BaseModel):
+    name: str
+    sets: int
+    reps_min: int | None
+    reps_max: int | None
+    duration_seconds: int | None
+    rest_seconds: int
+
+
 class TemplateDayOut(BaseModel):
     name: str
     scheduled_weekday: int | None
-    exercises: list[str]
+    notes: str | None = None
+    exercises: list[TemplateExerciseOut]
 
 
 class ProgramTemplateOut(BaseModel):
-    """A starter program (C-01, C-04). Not a program anyone owns: starting one
-    copies it into the user's own programs."""
+    """A starter program (C-01, C-04, A-09). Not a program anyone owns:
+    starting one copies it into the user's own programs.
+
+    Listed best-first for the signed-in user; `fits` is false only when it
+    needs equipment they said they do not have, and `reasons` says why it was
+    ranked where it is.
+    """
     key: str
     name: str
     summary: str
-    level: str
+    level: Literal["beginner", "intermediate", "advanced"]
+    focus: Literal["strength", "hypertrophy", "general"]
+    equipment: Literal["full_gym", "home_gym", "dumbbells", "bodyweight"]
+    session_minutes: int
     days_per_week: int
+    schedule: str
+    progression: str
+    based_on: str | None
     days: list[TemplateDayOut]
+    fits: bool = True
+    recommended: bool = False
+    reasons: list[str] = []

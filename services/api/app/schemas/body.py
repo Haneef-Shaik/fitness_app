@@ -162,3 +162,23 @@ class ProgressPhotoOut(BaseModel):
     local_date: date
     pose: str
     notes: str | None = None
+
+
+class CheckinOut(BaseModel):
+    """Everything measured on one local day, read together."""
+    local_date: date
+    #: metric_key → canonical value (the day's latest reading of each).
+    values: dict[str, float]
+    #: metric_key → change since the baseline, for metrics the baseline has.
+    since_baseline: dict[str, float] = {}
+
+
+class CheckinsOut(BaseModel):
+    """Check-ins as milestones (G10). The first one is the baseline."""
+    today: date
+    interval_days: int
+    next_due: date
+    overdue: bool
+    baseline: CheckinOut | None
+    #: Newest first.
+    checkins: list[CheckinOut]

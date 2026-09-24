@@ -57,7 +57,7 @@ import type {
   TextAnalysisIn,
   HistoryItem,
   PreviousOccurrence,
-  SessionComparison, ProgramTemplate } from '@volt/api-types';
+  SessionComparison, ProgramTemplate, Checkins } from '@volt/api-types';
 import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
@@ -204,12 +204,15 @@ export function usePrograms() {
   });
 }
 
-/** C-01 / C-04: the starter programs. Static on the server, so cached long. */
+/**
+ * C-01 / C-04 / A-09: the starter programs, ranked for this user. The ranking
+ * follows the profile (experience, days, equipment), so this is NOT cached
+ * forever — a changed profile has to be able to re-rank it.
+ */
 export function useProgramTemplates() {
   return useQuery<ProgramTemplate[]>({
     queryKey: qk.programTemplates(),
     queryFn: () => programsApi.templates(),
-    staleTime: Infinity,
   });
 }
 
@@ -783,6 +786,14 @@ export function useDeleteBodyMetric() {
   return useMutation({
     mutationFn: (id: string) => bodyApi.deleteMetric(id),
     onSuccess: () => applyInvalidation(client, 'bodyMetric.changed', {}),
+  });
+}
+
+/** Check-ins as milestones: each day's weight and measurements, and when the next is due. */
+export function useCheckins() {
+  return useQuery<Checkins>({
+    queryKey: qk.bodyCheckins(),
+    queryFn: () => bodyApi.checkins(),
   });
 }
 

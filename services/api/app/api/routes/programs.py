@@ -11,10 +11,14 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import CurrentUser, DbSession, authorize
 from app.api.envelope import ok
 from app.core.errors import Conflict, NotFound, ValidationFailed
+from app.domain.programs import TrainingProfile, rank_templates
 from app.models import (
     Exercise,
+    FitnessGoal,
+    GoalStatus,
     PlanExercise,
     ProgramStatus,
+    UserProfile,
     WorkoutPlanDay,
     WorkoutProgram,
     WorkoutSession,
@@ -31,6 +35,7 @@ from app.schemas.programs import (
     ProgramPatch,
     ProgramTemplateOut,
     TemplateDayOut,
+    TemplateExerciseOut,
 )
 from app.seed.program_templates import BY_KEY, TEMPLATES
 
@@ -288,16 +293,48 @@ async def set_day_exercises(
 
 
 @router.get("/program-templates", response_model=Envelope[list[ProgramTemplateOut]])
-async def list_program_templates(user: CurrentUser):
-    """C-01 "Browse starter programs" and C-04 "Start from a template"."""
+async def list_program_templates(user: CurrentUser, db: DbSession):
+    """The starter-program library, best first for this user (A-09).
+
+    Ranked from what onboarding collected — experience, days a week, equipment,
+    session length — and the active goal. With none of it answered, the order
+    is simply easiest first.
+    """
+    profile = await db.scalar(select(UserProfile).where(UserProfile.user_id == user.id))
+    goal = await db.scalar(
+        select(FitnessGoal)
+        .where(FitnessGoal.user_id == user.id, FitnessGoal.status == GoalStatus.active)
+        .order_by(FitnessGoal.created_at.desc()).limit(1)
+    )
+    who = TrainingProfile(
+        experience=profile.training_experience if profile else None,
+        days_per_week=profile.training_days_per_week if profile else None,
+        equipment=profile.equipment if profile else None,
+        session_minutes=profile.session_minutes if profile else None,
+        goal=goal.goal_type.value if goal is not None else None,
+    )
+    ranked = rank_templates(TEMPLATES, who)
+    answered = any(v is not None for v in (who.experience, who.days_per_week, who.equipment, who.goal))
     return ok([
         ProgramTemplateOut(
-            key=t.key, name=t.name, summary=t.summary, level=t.level,
-            days_per_week=len(t.days),
-            days=[TemplateDayOut(name=d.name, scheduled_weekday=d.weekday,
-                                 exercises=[e.name for e in d.exercises]) for d in t.days],
+            key=r.template.key, name=r.template.name, summary=r.template.summary,
+            level=r.template.level, focus=r.template.focus, equipment=r.template.equipment,
+            session_minutes=r.template.session_minutes, days_per_week=r.template.per_week,
+            schedule=r.template.schedule, progression=r.template.progression,
+            based_on=r.template.based_on,
+            days=[TemplateDayOut(
+                name=d.name, scheduled_weekday=d.weekday, notes=d.notes,
+                exercises=[TemplateExerciseOut(
+                    name=e.name, sets=e.sets, reps_min=e.reps_min, reps_max=e.reps_max,
+                    duration_seconds=e.duration_seconds, rest_seconds=e.rest_seconds,
+                ) for e in d.exercises],
+            ) for d in r.template.days],
+            fits=r.fits,
+            # Only a real answer earns the word "recommended".
+            recommended=answered and i == 0 and r.fits,
+            reasons=list(r.reasons),
         ).model_dump(mode="json")
-        for t in TEMPLATES
+        for i, r in enumerate(ranked)
     ])
 
 
@@ -320,12 +357,17 @@ async def start_program_template(key: str, user: CurrentUser, db: DbSession):
         # half-built program is worse than a clear failure.
         raise ValidationFailed(f"Starter program references unknown exercises: {sorted(missing)}")
 
-    program = WorkoutProgram(user_id=user.id, name=tpl.name, description=tpl.summary)
+    program = WorkoutProgram(
+        user_id=user.id, name=tpl.name,
+        # The schedule and progression travel with the copy: they are how the
+        # program is meant to be run, and the plan rows alone cannot say it.
+        description=f"{tpl.summary} {tpl.schedule}. {tpl.progression}"[:500],
+    )
     db.add(program)
     await db.flush()
     for i, d in enumerate(tpl.days):
         day = WorkoutPlanDay(program_id=program.id, day_index=i, name=d.name,
-                             scheduled_weekday=d.weekday)
+                             scheduled_weekday=d.weekday, notes=d.notes)
         db.add(day)
         await db.flush()
         for j, e in enumerate(d.exercises):

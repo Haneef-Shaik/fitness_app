@@ -38,7 +38,7 @@ async def test_lists_the_starter_programs(auth_client):
     assert [r["key"] for r in rows] == [t.key for t in TEMPLATES]
     first = rows[0]
     assert first["name"] and first["summary"]
-    assert first["days_per_week"] == len(TEMPLATES[0].days)
+    assert first["days_per_week"] == TEMPLATES[0].per_week
     assert [d["name"] for d in first["days"]] == [d.name for d in TEMPLATES[0].days]
 
 
@@ -76,3 +76,31 @@ async def test_unknown_template_is_404(auth_client):
 
 async def test_requires_a_user(client):
     assert (await client.get("/v1/program-templates")).status_code == 401
+
+
+async def test_the_library_comes_back_ranked_for_this_user(auth_client):
+    await auth_client.patch("/v1/profile", json={
+        "training_experience": "beginner", "training_days_per_week": 3,
+        "equipment": "dumbbells", "session_minutes": 45,
+    })
+    rows = (await auth_client.get("/v1/program-templates")).json()["data"]
+    assert rows[0]["key"] == "dumbbell-full-body"
+    assert rows[0]["recommended"] is True and rows[0]["fits"] is True
+    assert rows[0]["reasons"]
+    # A barbell program is still listed, but says why it does not fit.
+    stronglifts = next(r for r in rows if r["key"] == "stronglifts-5x5")
+    assert stronglifts["fits"] is False and stronglifts["reasons"] == ["Needs a full gym"]
+
+
+async def test_nothing_is_called_recommended_before_anything_is_answered(auth_client):
+    rows = (await auth_client.get("/v1/program-templates")).json()["data"]
+    assert not any(r["recommended"] for r in rows)
+
+
+async def test_the_copy_keeps_how_to_run_it(auth_client):
+    p = (await auth_client.post("/v1/program-templates/531-bbb/start")).json()["data"]
+    assert "training max" in p["description"]
+    assert p["days"][0]["notes"] and "5/3/1" in p["days"][0]["notes"]
+    # The main lift appears twice: the wave, then 5x10.
+    names = [e["exercise_name"] for e in p["days"][0]["exercises"]]
+    assert names.count("Overhead Press") == 2

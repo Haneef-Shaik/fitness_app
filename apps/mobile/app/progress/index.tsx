@@ -16,12 +16,15 @@ import { NavGroup, NavRow } from '@/ui/NavRow';
 import { Line } from '@/ui/charts';
 import { GoalRow } from '../home';
 import { delta, sinceLabel, weight } from '@/features/body/format';
-import { useBodySeries, useDashboard } from '@/lib/query/hooks';
+import { useBodySeries, useCheckins, useDashboard } from '@/lib/query/hooks';
+import { JourneyCard } from '@/features/body/JourneyCard';
+import { CheckinCard } from '@/features/body/CheckinCard';
 import { space } from '@/theme';
 
 export default function Progress() {
   const board = useDashboard();
   const series = useBodySeries('body_weight');
+  const checkins = useCheckins();
 
   // A tab root (00 §4): reached from the tab bar, so it has no back arrow.
   // Before the tab bar existed (G10) that made it a dead end.
@@ -30,11 +33,18 @@ export default function Progress() {
       root
       title="Progress"
       action={{ label: '+ Log', onPress: () => router.push('/progress/log') }}
-      onRefresh={() => { void board.refetch(); void series.refetch(); }}
+      onRefresh={() => { void board.refetch(); void series.refetch(); void checkins.refetch(); }}
     >
       <DataBoundary query={board} isEmpty={() => false} empty={{ title: 'Nothing yet' }}>
-        {(data) => (
+        {(data) => {
+          // The journey follows the active weight goal; other goals keep their rows below.
+          const weightGoal = (data.goals ?? []).find(
+            (g) => g.metric_key === 'body_weight' && g.status === 'active' && g.direction !== 'hold',
+          );
+          return (
           <View style={{ gap: space.lg }}>
+            {weightGoal ? <JourneyCard goal={weightGoal} today={data.local_date} /> : null}
+            {checkins.data ? <CheckinCard data={checkins.data} /> : null}
             <Card>
               <Text variant="label">Weight</Text>
               {data.body.latest ? (
@@ -140,7 +150,8 @@ export default function Progress() {
                 onPress={() => router.push('/progress/photos')} />
             </NavGroup>
           </View>
-        )}
+          );
+        }}
       </DataBoundary>
     </ScreenScaffold>
   );

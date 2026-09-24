@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import uuid
 from collections import OrderedDict
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Header, Query
@@ -29,6 +29,8 @@ from app.schemas.body import (
     BodyMetricOut,
     BodyPointOut,
     BodySeriesOut,
+    CheckinOut,
+    CheckinsOut,
     ProgressPhotoIn,
     ProgressPhotoOut,
 )
@@ -42,7 +44,20 @@ router = APIRouter(tags=["body"])
 MOVING_AVERAGE_DAYS = 7
 
 #: Which canonical unit each kind of measurement is stored in.
-CANONICAL_UNIT = {"body_weight": "kg", "waist_cm": "cm", "body_fat_pct": "%"}
+CANONICAL_UNIT = {"body_weight": "kg", "body_fat_pct": "%"}
+
+
+def canonical_unit(metric_key: str) -> str:
+    """A measurement's unit is in its key: `*_cm` is centimetres, `*_pct` a
+    percentage. Only three keys used to be mapped, so every other measurement
+    — chest, hips, arms — was labelled "kg" (found in G10)."""
+    if metric_key in CANONICAL_UNIT:
+        return CANONICAL_UNIT[metric_key]
+    if metric_key.endswith("_cm"):
+        return "cm"
+    if metric_key.endswith("_pct"):
+        return "%"
+    return "kg"
 
 
 def _to_canonical(value: float, unit: str) -> tuple[float, str]:
@@ -148,6 +163,47 @@ async def delete_body_metric(metric_id: uuid.UUID, user: CurrentUser, db: DbSess
     return ok(out)
 
 
+@router.get("/body/checkins", response_model=Envelope[CheckinsOut])
+async def body_checkins(user: CurrentUser, db: DbSession):
+    """Check-ins: each day's weight and measurements, with change since the
+    first (the baseline onboarding records), and when the next is due.
+
+    "Today" is the profile's day (I7); the next check-in is one interval after
+    the last one — or today, if there has never been one.
+    """
+    profile = await db.scalar(select(UserProfile).where(UserProfile.user_id == user.id))
+    tz = profile.timezone if profile else "UTC"
+    interval = profile.checkin_interval_days if profile else 7
+    today = to_local_date(datetime.now(UTC), tz)
+
+    rows = (await db.scalars(
+        select(BodyMetric).where(BodyMetric.user_id == user.id)
+        .order_by(BodyMetric.local_date, BodyMetric.measured_at)
+    )).all()
+
+    by_day: OrderedDict[date, dict[str, float]] = OrderedDict()
+    for r in rows:                                   # oldest first; a later reading
+        by_day.setdefault(r.local_date, {})[r.metric_key] = float(r.value)   # of a day wins
+
+    days = list(by_day.items())
+    baseline_values = days[0][1] if days else {}
+
+    def checkin(day: date, values: dict[str, float]) -> CheckinOut:
+        return CheckinOut(
+            local_date=day, values=values,
+            since_baseline={k: round(v - baseline_values[k], 2)
+                            for k, v in values.items() if k in baseline_values},
+        )
+
+    last = days[-1][0] if days else None
+    next_due = last + timedelta(days=interval) if last else today
+    return ok(CheckinsOut(
+        today=today, interval_days=interval, next_due=next_due, overdue=next_due < today,
+        baseline=CheckinOut(local_date=days[0][0], values=baseline_values) if days else None,
+        checkins=[checkin(d, v) for d, v in reversed(days)][:52],
+    ).model_dump(mode="json"))
+
+
 @router.get("/analytics/body", response_model=Envelope[BodySeriesOut])
 async def body_series(
     user: CurrentUser,
@@ -187,7 +243,7 @@ async def body_series(
 
     return ok(BodySeriesOut(
         metric_key=metric_key,
-        unit=CANONICAL_UNIT.get(metric_key, "kg"),
+        unit=canonical_unit(metric_key),
         points=points,
         # None, never 0: a range with nothing in it has no change (I13).
         change=(values[-1] - values[0]) if len(values) >= 2 else None,

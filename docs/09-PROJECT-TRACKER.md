@@ -23,7 +23,7 @@
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo app → FastAPI → PostgreSQL — the acceptance suite green **on a phone** (SM-E546B, Expo Go) and dry-run on a **release APK** in the Android emulator |
-| **Version control** | git · `COMMIT_TBD` the release gate (G10) — **not yet pushed** (no GitHub credentials on the build machine) |
+| **Version control** | git · `84d2e4c` the release gate (G10) — **not yet pushed** (no GitHub credentials on the build machine) |
 | **CI** | GitHub Actions — **5 jobs** on every push (TS domain, Python, API-type drift gate, mobile tests, contract) · nightly **acceptance suite on a release APK** in an emulator (`e2e.yml`, dry-run locally 25 Sep) |
 
 ```
@@ -512,7 +512,7 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
 
 ---
 
-### Handoff — G10 · Release gate            closed 25 Sep · `COMMIT_TBD`
+### Handoff — G10 · Release gate            closed 25 Sep · `84d2e4c`
 
 **Outcome claimed.** The product is observable, accessible, fast on a mid-tier Android, and a user
 can take their data and leave — each with evidence on the phone, not an opinion. **M8 closes; 9 of 9.**

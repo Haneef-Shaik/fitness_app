@@ -62,6 +62,7 @@ export default function Login() {
             <TextInput
               value={email} onChangeText={setEmail}
               placeholder="you@example.com" placeholderTextColor={c.ink3}
+              accessibilityLabel="Email" testID="login-email"
               autoCapitalize="none" autoCorrect={false} keyboardType="email-address"
               textContentType="emailAddress" autoComplete="email"
               style={[input, { borderColor: errors.email ? c.crit : c.line }]}
@@ -72,6 +73,7 @@ export default function Login() {
             <TextInput
               value={password} onChangeText={setPassword}
               placeholder="••••••••••" placeholderTextColor={c.ink3}
+              accessibilityLabel="Password"
               secureTextEntry autoCapitalize="none" textContentType="password" autoComplete="password"
               // The keyboard's Go logs in: no reaching past the keyboard for the button.
               returnKeyType="go" onSubmitEditing={() => { if (!busy) void submit(); }}

@@ -151,7 +151,14 @@ export function Field({
   const { c } = useTheme();
   return (
     <View style={{ marginBottom: 14 }}>
-      <Text variant="caption" style={{ color: c.ink3, fontFamily: font.uiSemi, marginBottom: 6 }}>
+      {/* Hidden from the reader: the field inside carries the same name as its
+          hint (ui/TextInput), and reading both says it twice (a11y #1). */}
+      <Text
+        variant="caption"
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+        style={{ color: c.ink3, fontFamily: font.uiSemi, marginBottom: 6 }}
+      >
         {label}
       </Text>
       {children}
@@ -188,10 +195,19 @@ export function Meter({ value, max = 1, over }: { value: number; max?: number; o
   );
 }
 
-export function Stat({ value, label }: { value: string; label: string }) {
+/**
+ * A figure over its name. One screen-reader stop, name first: TalkBack read
+ * "15:50" and then "Duration" as two (G10). `spoken` is for a figure that
+ * reads badly aloud — a clock time says "fifteen fifty", not a duration.
+ */
+export function Stat({ value, label, spoken }: { value: string; label: string; spoken?: string }) {
   const { c } = useTheme();
   return (
-    <View style={{ flex: 1, alignItems: 'center', paddingVertical: 14, backgroundColor: c.surface }}>
+    <View
+      accessible
+      accessibilityLabel={`${label}, ${spoken ?? value}`}
+      style={{ flex: 1, alignItems: 'center', paddingVertical: 14, backgroundColor: c.surface }}
+    >
       <Text variant="stat">{value}</Text>
       <Text variant="label" style={{ marginTop: 5 }}>{label}</Text>
     </View>

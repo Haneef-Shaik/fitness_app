@@ -34,7 +34,7 @@ export default function QuickAdd() {
     label: string, value: string, onChange: (v: string) => void, numeric = false,
   ) => (
     <View style={{ flex: 1 }}>
-      <Text variant="label" style={{ marginBottom: space.sm }}>{label}</Text>
+      <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -60,7 +60,7 @@ export default function QuickAdd() {
         </View>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Meal</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Meal</Text>
           <FilterChips
             options={options}
             selected={[mealType]}

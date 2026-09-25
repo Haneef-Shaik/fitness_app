@@ -21,4 +21,5 @@ it('writes a hold in seconds, and a long one in minutes', () => {
 it('writes open-ended reps as 5+, and bare sets when nothing more is given — never "null"', () => {
   expect(prescription(e({ sets: 1, reps_min: 5, reps_max: null }))).toBe('1 × 5+');
   expect(prescription(e({ sets: 2 }))).toBe('2 sets');
+  expect(prescription(e({ sets: 1 }))).toBe('1 set');
 });

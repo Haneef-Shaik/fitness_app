@@ -30,7 +30,7 @@ export default function NewFood() {
 
   const field = (key: string, label: string) => (
     <View style={{ flex: 1 }}>
-      <Text variant="label" style={{ marginBottom: space.sm }}>{label}</Text>
+      <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>{label}</Text>
       <TextInput
         value={values[key] ?? ''}
         onChangeText={(v) => setValues((s) => ({ ...s, [key]: v }))}
@@ -50,7 +50,7 @@ export default function NewFood() {
     <ScreenScaffold title="New food">
       <View style={{ gap: space.lg }}>
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Name</Text>
+          <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Name</Text>
           <TextInput
             value={name}
             onChangeText={setName}

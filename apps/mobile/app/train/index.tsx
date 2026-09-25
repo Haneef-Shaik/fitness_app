@@ -143,7 +143,7 @@ export default function TrainHub() {
         </NavGroup>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Recent sessions</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Recent sessions</Text>
           {recent.length === 0 ? (
             <Text variant="body" tone="ink3" testID="train-no-history">Your sessions will show up here.</Text>
           ) : (

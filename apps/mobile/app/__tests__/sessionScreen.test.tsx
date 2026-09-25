@@ -7,6 +7,7 @@
  * sessionController.test.ts, where the logic moved.
  */
 import React from 'react';
+import { AccessibilityInfo } from 'react-native';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import ActiveSession from '../session/[id]';
 import { useSessionStore, configurePersistence } from '@/features/workout-session/store/sessionStore';
@@ -16,6 +17,8 @@ const TRACKS = { load: true, reps: true, duration: false, distance: false };
 
 const mockFinish = jest.fn();
 const mockCancel = jest.fn();
+const mockServerSession = jest.fn((_id: string): unknown => undefined);
+const mockFromServer = jest.fn();
 
 jest.mock('expo-router', () => ({
   router: { replace: jest.fn(), push: jest.fn(), back: jest.fn() },
@@ -31,10 +34,13 @@ jest.mock('@/lib/query/hooks', () => ({
 }));
 
 jest.mock('@/features/workout-session/useSession', () => ({
-  useSession: () => ({ data: undefined, isPending: false, isError: false, error: null, refetch: jest.fn() }),
+  useSession: (id: string) => ({
+    data: id ? mockServerSession(id) : undefined,
+    isPending: false, isError: false, error: null, refetch: jest.fn(),
+  }),
   useFinishSession: () => mockFinish,
   useCancelSession: () => mockCancel,
-  draftWithSetsFromServer: jest.fn(),
+  draftWithSetsFromServer: (s: unknown) => mockFromServer(s),
 }));
 
 jest.mock('@/features/workout-session/sessionController', () => ({
@@ -60,6 +66,7 @@ function seed(setCount: number) {
 
 beforeEach(async () => {
   jest.clearAllMocks();
+  mockServerSession.mockImplementation(() => undefined);
   const store = createMemoryStore('user-1');
   await store.open();
   configurePersistence({ store });
@@ -103,6 +110,33 @@ describe('E-08 is computed from the draft as it was at finish', () => {
   });
 });
 
+describe('a finished workout stays finished', () => {
+  it('does not adopt the completed session back as an open draft', async () => {
+    // G10's TalkBack session: finishing cleared the draft while the summary
+    // was up, the screen fetched its session — now COMPLETED — and adopted it
+    // as open. The active-session bar then offered to resume a finished workout.
+    seed(3);
+    mockServerSession.mockImplementation((id) => ({ id, status: 'completed', exercises: [] }));
+
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('finish-workout'));
+    await waitFor(() => expect(screen.getByTestId('finish-summary')).toBeTruthy());
+
+    expect(mockFromServer).not.toHaveBeenCalled();
+    expect(useSessionStore.getState().draft).toBeNull();
+  });
+
+  it('still adopts an open session this phone has no draft for', () => {
+    // Resume from another device, a deep link or a reload.
+    mockServerSession.mockImplementation((id) => ({ id, status: 'in_progress', exercises: [] }));
+    mockFromServer.mockReturnValue(null);
+
+    render(<ActiveSession />);
+
+    expect(mockFromServer).toHaveBeenCalledWith(expect.objectContaining({ status: 'in_progress' }));
+  });
+});
+
 describe('the session screen', () => {
   it('says so plainly when there is no workout in progress', () => {
     render(<ActiveSession />);
@@ -127,10 +161,23 @@ describe('the session screen', () => {
     expect(scroller.props.contentContainerStyle).toMatchObject({ padding: 4 });
   });
 
-  it('labels each set row for a screen reader', () => {
+  it('reads each set row as ONE stop, sync state included (TalkBack session)', () => {
+    // Labelled but not a group, the row was read and then every child again:
+    // six swipes per set. The figures are one accessible element now.
     seed(1);
     render(<ActiveSession />);
-    expect(screen.getByLabelText('Set 1, 80 kilograms for 8 reps')).toBeTruthy();
+    const row = screen.getByLabelText('Set 1, 80 kilograms for 8 reps. Waiting to sync');
+    expect(row.props.accessible).toBe(true);
+    // Delete stays its own stop, outside the group.
+    expect(screen.getByLabelText('Delete set 1')).toBeTruthy();
+  });
+
+  it('says a set was saved — the new row and the renumbered button are silent', () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => {});
+    seed(1);
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByText('Save set 2'));
+    expect(announce).toHaveBeenCalledWith('Set 2 saved: 80 kilograms for 8 reps');
   });
 
   it('deletes a set and re-densifies what is left', () => {

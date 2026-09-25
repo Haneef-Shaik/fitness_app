@@ -21,9 +21,19 @@ import { useSessionStore } from './store/sessionStore';
  */
 let instance: ReturnType<typeof createOutbox> | null = null;
 
+/**
+ * Who hears about a delivered write. Set once by the app shell, which owns the
+ * query client; this module stays free of it.
+ */
+let delivered: ((entry: OutboxEntry) => void) | null = null;
+export function onDelivered(listener: ((entry: OutboxEntry) => void) | null): void {
+  delivered = listener;
+}
+
 function build() {
   return createOutbox({
   store,
+  onSent: (entry) => delivered?.(entry),
   send: async (entry: OutboxEntry): Promise<SendResult> => {
     try {
       await api.send(

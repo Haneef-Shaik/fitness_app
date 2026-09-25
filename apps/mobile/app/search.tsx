@@ -57,7 +57,7 @@ export default function Search() {
 
         {exerciseRows.length > 0 ? (
           <View>
-            <Text variant="label" style={{ marginBottom: space.sm }}>Exercises</Text>
+            <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Exercises</Text>
             {exerciseRows.map((row) => (
               <Pressable
                 key={String(row.id)}
@@ -76,7 +76,7 @@ export default function Search() {
 
         {foodRows.length > 0 ? (
           <View>
-            <Text variant="label" style={{ marginBottom: space.sm }}>Foods</Text>
+            <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Foods</Text>
             {foodRows.map((row) => (
               <Pressable
                 key={String(row.id)}

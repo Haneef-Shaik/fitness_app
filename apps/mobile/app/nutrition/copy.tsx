@@ -57,7 +57,7 @@ export default function Copy() {
         </Card>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Copy to</Text>
+          <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Copy to</Text>
           <TextInput
             value={toDate}
             onChangeText={setToDate}
@@ -92,7 +92,7 @@ export default function Copy() {
 
         {copyingOneMeal ? (
           <View>
-            <Text variant="label" style={{ marginBottom: space.sm }}>Add to</Text>
+            <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Add to</Text>
             <Choice
               testID="copy-meal-type"
               value={mealType}

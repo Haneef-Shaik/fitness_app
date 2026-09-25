@@ -5,6 +5,7 @@ import {
   applyInvalidation,
   invalidationFor,
   invalidationRules,
+  kindForDelivery,
   type MutationKind,
 } from '../invalidation';
 import { qk } from '../queryKeys';
@@ -188,5 +189,18 @@ describe('history is session-derived, so it goes stale when sessions change', ()
     const after = prefixes('session.lifecycleChanged');
     expect(after).toContain('history');
     expect(after).toContain('previous-occurrence');
+  });
+});
+
+describe('kindForDelivery — what a LANDED queued write moves', () => {
+  it('maps every queued path to the reads it changes', () => {
+    expect(kindForDelivery('/meals')).toBe('meal.changed');
+    expect(kindForDelivery('/recipes/8f2c1a/log')).toBe('meal.changed');
+    expect(kindForDelivery('/body-metrics')).toBe('bodyMetric.changed');
+  });
+
+  it('leaves sets to the draft, which is authoritative in-session (I10)', () => {
+    expect(kindForDelivery('/session-exercises/se1/sets')).toBeNull();
+    expect(kindForDelivery('/recipes/8f2c1a')).toBeNull();
   });
 });

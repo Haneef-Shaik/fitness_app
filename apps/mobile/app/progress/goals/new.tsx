@@ -54,7 +54,7 @@ export default function NewGoal() {
 
   const field = (label: string, value: string, onChange: (v: string) => void, testID: string) => (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>{label}</Text>
+      <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -74,7 +74,7 @@ export default function NewGoal() {
     <ScreenScaffold title="Set a goal">
       <View style={{ gap: space.lg }}>
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>What are you after</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>What are you after</Text>
           <Choice testID="goal-type" value={goalType} onChange={setGoalType} options={TYPES} />
         </View>
 

@@ -8,7 +8,7 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, Keyboard, ScrollView, View } from 'react-native';
+import { AccessibilityInfo, AppState, Keyboard, ScrollView, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import type { Exercise, PersonalRecord } from '@volt/api-types';
@@ -26,6 +26,7 @@ import { FinishSummary } from '@/features/workout-session/components/FinishSumma
 import { ExercisePicker } from '@/features/exercises/ExercisePicker';
 import { flushAndReconcile } from '@/features/workout-session/sessionController';
 import { summarise, type SessionSummary } from '@/features/workout-session/summary';
+import { savedAnnouncement, setRowLabel, syncWords } from '@/features/workout-session/a11y';
 import { targetFor } from '@/features/workout-session/restTimer';
 import { commitTimings } from '@/features/workout-session/commitTiming';
 
@@ -39,6 +40,7 @@ import {
   draftWithSetsFromServer, useCancelSession, useFinishSession, useSession,
 } from '@/features/workout-session/useSession';
 import { contribution } from '@/features/workout-session/summary';
+import { count } from '@/features/nutrition/format';
 
 const EMPTY: SetEntryValue = {
   reps: null, loadKg: null, durationSeconds: null, distanceM: null, setType: 'working',
@@ -47,11 +49,9 @@ const EMPTY: SetEntryValue = {
 function SyncDot({ state }: { state: DraftSet['syncState'] }) {
   const { c } = useTheme();
   const colour = state === 'synced' ? c.good : state === 'failed' ? c.crit : c.ink3;
-  const label = state === 'synced' ? 'Synced'
-    : state === 'failed' ? 'Not uploaded' : 'Waiting to sync';
   return (
     <View
-      accessibilityLabel={label}
+      accessibilityLabel={syncWords(state)}
       style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colour }}
     />
   );
@@ -62,31 +62,38 @@ function SyncDot({ state }: { state: DraftSet['syncState'] }) {
  * earlier row re-rendered with it — the logger's cost grew with each set, and
  * tap → paint with it (TODO 2.1). Set objects are shared between drafts until
  * they change, so an unchanged row skips its render.
+ *
+ * The figures are ONE screen-reader stop and Delete is another. The row used to
+ * carry a label without being a group, so TalkBack read the label and then
+ * every child again — "Set 1, 80 kilograms for 8 reps", "1", "80 × 8",
+ * "640 kg", "Synced", "Delete set 1": six swipes a set (G10 TalkBack session).
  */
 const SetRow = memo(function SetRow({ set: s, onDelete }: { set: DraftSet; onDelete: (clientId: string) => void }) {
   const { c } = useTheme();
   return (
     <View
-      accessibilityLabel={
-        `Set ${s.setIndex + 1}${s.setType === 'warmup' ? ', warm-up' : ''}, `
-        + `${s.loadKg ?? '—'} kilograms for ${s.reps ?? '—'} reps`
-      }
       style={{
         flexDirection: 'row', alignItems: 'center', gap: space.md,
         paddingVertical: space.sm, borderBottomWidth: 1, borderColor: c.line,
         opacity: s.setType === 'warmup' ? 0.6 : 1,
       }}
     >
-      <Text variant="caption" tone="ink3" style={{ width: 22 }}>
-        {s.setType === 'warmup' ? 'W' : s.setIndex + 1}
-      </Text>
-      <Text variant="body" style={{ flex: 1, fontFamily: font.dataSemi }}>
-        {s.loadKg ?? '—'} × {s.reps ?? '—'}
-      </Text>
-      <Text variant="caption" tone="ink3">
-        {contribution(s) > 0 ? `${Math.round(contribution(s))} kg` : '—'}
-      </Text>
-      <SyncDot state={s.syncState} />
+      <View
+        accessible
+        accessibilityLabel={setRowLabel(s)}
+        style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.md }}
+      >
+        <Text variant="caption" tone="ink3" style={{ width: 22 }}>
+          {s.setType === 'warmup' ? 'W' : s.setIndex + 1}
+        </Text>
+        <Text variant="body" style={{ flex: 1, fontFamily: font.dataSemi }}>
+          {s.loadKg ?? '—'} × {s.reps ?? '—'}
+        </Text>
+        <Text variant="caption" tone="ink3">
+          {contribution(s) > 0 ? `${Math.round(contribution(s))} kg` : '—'}
+        </Text>
+        <SyncDot state={s.syncState} />
+      </View>
       <Pressable
         onPress={() => onDelete(s.clientId)}
         accessibilityRole="button"
@@ -155,9 +162,14 @@ export default function ActiveSession() {
   // Adopt the server's session when there is no local draft for it — resume from
   // E-01, a deep link, or a reload. Without this a resumed workout shows nothing
   // logged, which reads as lost work.
-  const server = useSession(draft?.sessionId === id ? '' : id);
+  //
+  // Only an OPEN session is adopted. Finishing clears the draft while this
+  // screen stays up for the summary, so the fetch below ran and adopted the
+  // just-completed workout back as open: the active-session bar said "Workout
+  // in progress … Resume" for a finished workout (G10, TalkBack session).
+  const server = useSession(finished || draft?.sessionId === id ? '' : id);
   useEffect(() => {
-    if (!server.data) return;
+    if (!server.data || server.data.status !== 'in_progress') return;
     if (draft?.sessionId === server.data.id) return;
     adopt(draftWithSetsFromServer(server.data));
   }, [server.data, draft?.sessionId, adopt]);
@@ -234,6 +246,10 @@ export default function ActiveSession() {
     // list scrolled (G10, on the phone).
     Keyboard.dismiss();
     painted();
+    // Said out loud: the row appears and the button renumbers, and TalkBack
+    // reads neither — saving a set was silent (G10 TalkBack session). After
+    // `painted()`, so it is not inside the measured tap → paint span.
+    AccessibilityInfo.announceForAccessibility(savedAnnouncement(exercise.sets.length + 1, value));
     if (SHOW_TIMING) setTimeout(() => setTiming(commitTimings.report()), 0);
 
     const restSeconds = Number(exercise.targetSnapshot?.['rest_seconds'] ?? 0);
@@ -265,7 +281,7 @@ export default function ActiveSession() {
           </Text>
           <Text variant="caption" tone="ink3">
             {draft.exercises.length
-              ? `${activeIdx + 1} of ${draft.exercises.length} · ${countSets(draft)} sets`
+              ? `${activeIdx + 1} of ${draft.exercises.length} · ${count(countSets(draft), 'set')}`
               : 'No exercises yet'}
           </Text>
         </View>
@@ -312,7 +328,7 @@ export default function ActiveSession() {
                     onPress={() => setActiveIdx(i)}
                     accessibilityRole="tab"
                     accessibilityState={{ selected: i === activeIdx }}
-                    accessibilityLabel={`${e.exerciseName ?? 'Exercise'}, ${e.sets.length} sets`}
+                    accessibilityLabel={`${e.exerciseName ?? 'Exercise'}, ${count(e.sets.length, 'set')}`}
                     style={{
                       paddingHorizontal: space.md, minHeight: 40, justifyContent: 'center',
                       borderRadius: radius.pill, borderWidth: 1,
@@ -349,7 +365,7 @@ export default function ActiveSession() {
 
             {exercise && exercise.sets.length > 0 ? (
               <View accessibilityRole="list" testID="today-sets">
-                <Text variant="label" style={{ marginBottom: space.sm }}>Today</Text>
+                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Today</Text>
                 {exercise.sets.map((s) => (
                   <SetRow key={s.clientId} set={s} onDelete={deleteSet} />
                 ))}

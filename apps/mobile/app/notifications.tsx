@@ -12,6 +12,7 @@
  */
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
+import Constants from 'expo-constants';
 import { Button, Card, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { getPref, setPref } from '@/lib/prefs';
@@ -19,6 +20,12 @@ import { plannedReminders, type ReminderKey } from '@/features/reminders/plan';
 import { REMINDERS_PREF, useReminderContext } from '@/features/reminders/useReminderContext';
 import { applyReminders, ensurePermission } from '@/features/reminders/schedule';
 import { space } from '@/theme';
+
+/** Whose notification permission it is: Expo Go's in development, the app's own in a build. */
+// 'storeClient' is ExecutionEnvironment.StoreClient; the string survives a mocked module.
+const APP_NAME = Constants?.executionEnvironment === 'storeClient'
+  ? 'Expo Go'
+  : (Constants?.expoConfig?.name ?? 'Volt');
 
 const REMINDERS: readonly { key: ReminderKey; label: string; detail: string }[] = [
   { key: 'workout', label: 'Workout reminder', detail: '5 pm on the days your program plans one' },
@@ -63,7 +70,7 @@ export default function Notifications() {
           <Card testID="reminders-denied">
             <Text variant="body">Notifications are off for this app.</Text>
             <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-              Turn them on in your phone&apos;s Settings → Apps → Expo Go → Notifications, then try again.
+              Turn them on in your phone&apos;s Settings → Apps → {APP_NAME} → Notifications, then try again.
             </Text>
           </Card>
         ) : null}
@@ -76,11 +83,16 @@ export default function Notifications() {
                 <Text variant="body">{reminder.label}</Text>
                 <Text variant="caption" tone="ink3">{reminder.detail}</Text>
               </View>
+              {/* A named switch, not a bare "Off, Button": TalkBack read the
+                  toggle with no word of which reminder it was (G10 session). */}
               <Button
                 title={on[reminder.key] ? 'On' : 'Off'}
                 kind={on[reminder.key] ? 'primary' : 'ghost'}
                 size="sm"
                 testID={`reminder-${reminder.key}`}
+                accessibilityRole="switch"
+                accessibilityLabel={reminder.label}
+                accessibilityState={{ checked: Boolean(on[reminder.key]) }}
                 onPress={() => { void toggle(reminder.key); }}
               />
             </View>

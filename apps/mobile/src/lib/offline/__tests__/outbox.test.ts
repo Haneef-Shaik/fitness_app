@@ -279,3 +279,33 @@ describe('status — what the Sync Center shows', () => {
     expect(status.failed[0]!.lastError).toBe('nope');
   });
 });
+
+describe('onSent — reads move when a write lands, not when it is queued', () => {
+  // G10's TalkBack session: a meal was queued, the diary refetched at once —
+  // before the outbox had sent it — and kept saying "Nothing logged today"
+  // with the meal on the server. Nothing re-read the diary after delivery.
+  it('reports each delivered entry, and only delivered ones', async () => {
+    const store = createMemoryStore('user-1');
+    await seed(store, [['k1', 'a'], ['k2', 'b'], ['k3', 'c']]);
+    const onSent = jest.fn();
+    const send = jest.fn(async (e: { idempotencyKey: string }) =>
+      (e.idempotencyKey === 'k1' ? ok() : e.idempotencyKey === 'k2' ? offline() : rejected('no')));
+
+    await createOutbox({ store, send, now, random: noJitter, onSent }).flush();
+
+    expect(onSent).toHaveBeenCalledTimes(1);
+    expect(onSent.mock.calls[0][0]).toMatchObject({ idempotencyKey: 'k1' });
+  });
+
+  it('a throwing listener does not turn a delivered write into a failure', async () => {
+    const store = createMemoryStore('user-1');
+    await seed(store, [['k1'], ['k2']]);
+    const out = await createOutbox({
+      store, now, random: noJitter, send: async () => ok(),
+      onSent: () => { throw new Error('listener broke'); },
+    }).flush();
+
+    expect(out.sent).toBe(2);
+    expect((await store.allEntries()).every((e) => e.state === 'sent')).toBe(true);
+  });
+});

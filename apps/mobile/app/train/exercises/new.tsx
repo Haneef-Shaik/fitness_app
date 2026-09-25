@@ -121,7 +121,7 @@ export default function NewExercise() {
         ) : null}
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Equipment</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Equipment</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
             {EQUIPMENT.map((e) => chip(e, equipment === e, () => setEquipment(e)))}
           </View>
@@ -146,7 +146,7 @@ export default function NewExercise() {
         </View>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>What to track</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>What to track</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }} testID="tracks-chips">
             {(['load', 'reps', 'duration', 'distance'] as const).map((k) =>
               chip(k, tracks[k], () => setTracks((t) => ({ ...t, [k]: !t[k] }))),

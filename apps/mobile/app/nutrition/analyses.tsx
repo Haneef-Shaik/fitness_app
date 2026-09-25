@@ -17,6 +17,7 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useAnalyses, useDeleteAnalysisImages } from '@/lib/query/hooks';
 import { space } from '@/theme';
+import { count } from '@/features/nutrition/format';
 
 export default function Analyses() {
   const query = useAnalyses();
@@ -94,7 +95,7 @@ function Row({ analysis }: { analysis: FoodAnalysis }) {
       accessibilityRole="button"
       accessibilityLabel={
         `${analysis.input_type === 'image' ? 'Photo' : 'Text'} analysis, `
-        + `${items.length} foods, ${saved ? 'saved' : 'not saved'}`
+        + `${count(items.length, 'food')}, ${saved ? 'saved' : 'not saved'}`
       }
       testID={`analysis-row-${analysis.id}`}
     >

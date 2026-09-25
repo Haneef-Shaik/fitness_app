@@ -18,6 +18,7 @@ import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { formatDuration, formatVolume, relativeDay } from '@/features/history/format';
 import { useSession } from '@/features/workout-session/useSession';
 import { space } from '@/theme';
+import { count } from '@/features/nutrition/format';
 
 export default function SessionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -69,7 +70,7 @@ function ExerciseBlock({ se }: { se: SessionExercise }) {
   const sets = se.sets ?? [];
   return (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>
+      <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
         {se.exercise_name ?? 'Exercise'}
       </Text>
       <Card>
@@ -85,7 +86,7 @@ function ExerciseBlock({ se }: { se: SessionExercise }) {
 
 function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
   const load = set.load_kg === null || set.load_kg === undefined ? null : `${set.load_kg} kg`;
-  const reps = set.reps === null || set.reps === undefined ? null : `${set.reps} reps`;
+  const reps = set.reps === null || set.reps === undefined ? null : count(set.reps, 'rep');
   const detail = [load, reps].filter(Boolean).join(' × ') || '—';
   return (
     <View

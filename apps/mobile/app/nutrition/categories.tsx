@@ -73,7 +73,7 @@ export default function Categories() {
             ) : null}
 
             <Card>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Add a category</Text>
+              <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Add a category</Text>
               <TextInput
                 value={newName}
                 onChangeText={setNewName}

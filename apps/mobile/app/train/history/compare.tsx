@@ -17,6 +17,7 @@ import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { formatDuration, formatVolume } from '@/features/history/format';
 import { useSessionComparison } from '@/lib/query/hooks';
 import { space } from '@/theme';
+import { count } from '@/features/nutrition/format';
 
 export default function Compare() {
   const { sessions } = useLocalSearchParams<{ sessions: string }>();
@@ -65,7 +66,7 @@ export default function Compare() {
 function ExerciseComparison({ row }: { row: ComparisonRow }) {
   return (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>
+      <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
         {row.exercise_name ?? 'Exercise'}
       </Text>
       <Card>
@@ -91,7 +92,7 @@ function Cell({ cell }: { cell: ComparisonCell }) {
           ? 'not performed'
           : cell.best_set?.load_kg
             ? `best ${cell.best_set.load_kg} × ${cell.best_set.reps ?? '—'}`
-            : `${cell.set_count ?? 0} sets`}
+            : count(cell.set_count ?? 0, 'set')}
       </Text>
     </View>
   );

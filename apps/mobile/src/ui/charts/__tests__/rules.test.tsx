@@ -86,5 +86,14 @@ describe('Meter', () => {
     render(<Meter value={null} label="Adherence" empty="No plan yet" />);
     expect(screen.getByText('No plan yet')).toBeTruthy();
     expect(screen.queryByTestId('meter-fill')).toBeNull();
+    expect(screen.getByLabelText('Adherence, No plan yet')).toBeTruthy();
+  });
+
+  it('is one screen-reader stop that says both the label and the figure', () => {
+    // TalkBack read the label, the percentage and the track as three stops.
+    render(<Meter value={0.42} label="2,340 left" testID="m" />);
+    const meter = screen.getByTestId('m');
+    expect(meter.props.accessible).toBe(true);
+    expect(meter.props.accessibilityLabel).toBe('2,340 left, 42 percent');
   });
 });

@@ -18,6 +18,15 @@ export function grams(v: number | null | undefined): string {
   return Number.isInteger(rounded) ? `${rounded} g` : `${rounded.toFixed(1)} g`;
 }
 
+/**
+ * A macro as one sentence for a screen reader: "Protein, 42 g of 176 g".
+ * Name and figure used to be separate stops laid out in columns, so TalkBack
+ * read three names and then three figures (G10 TalkBack session).
+ */
+export function macroLabel(name: string, value: number | null | undefined, target?: number | null): string {
+  return `${name}, ${grams(value)}${target ? ` of ${target} g` : ''}`;
+}
+
 /** "200 g" / "1 slice (32 g)" — the quantity as a person would say it. */
 export function portion(
   quantityGrams: number | null | undefined,

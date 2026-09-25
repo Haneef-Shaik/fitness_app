@@ -49,7 +49,7 @@ export default function AdherenceScreen() {
 
               {dots.length > 0 ? (
                 <View>
-                  <Text variant="label" style={{ marginBottom: space.sm }}>By week</Text>
+                  <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>By week</Text>
                   <Card>
                     <DotStrip testID="adherence-weeks" dots={dots} />
                   </Card>

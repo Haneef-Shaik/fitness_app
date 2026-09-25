@@ -102,7 +102,7 @@ export default function WeightTrend() {
             </Card>
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Every entry</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Every entry</Text>
               {(entries.data ?? []).map((row) => (
                 <Card key={String(row.id)} style={{ marginBottom: 8 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>

@@ -16,6 +16,7 @@ import type { PersonalRecord } from '@volt/api-types';
 import { Button, Card, Pill, Stat, StatRow, Text } from '@/ui';
 import { font, space } from '@/theme';
 import { formatRest } from '../restTimer';
+import { exerciseSummaryLabel, spokenDuration } from '../a11y';
 import type { SessionSummary } from '../summary';
 
 export interface FinishSummaryProps {
@@ -32,7 +33,11 @@ export function FinishSummary({ summary, records = [], pending = 0, onDone }: Fi
   return (
     <View style={{ gap: space.lg }} testID="finish-summary">
       <StatRow>
-        <Stat value={formatRest(summary.durationSeconds)} label="Duration" />
+        <Stat
+          value={formatRest(summary.durationSeconds)}
+          spoken={spokenDuration(summary.durationSeconds)}
+          label="Duration"
+        />
         <Stat value={String(summary.setCount)} label="Sets" />
         <Stat value={kg(summary.totalVolumeKg)} label="Volume" />
       </StatRow>
@@ -62,9 +67,16 @@ export function FinishSummary({ summary, records = [], pending = 0, onDone }: Fi
       ) : null}
 
       <View>
-        <Text variant="label" style={{ marginBottom: space.sm }}>What you did</Text>
+        <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
+          What you did
+        </Text>
         {summary.exercises.map((e) => (
-          <Card key={e.clientId} style={{ marginBottom: 8 }}>
+          <Card
+            key={e.clientId}
+            style={{ marginBottom: 8 }}
+            accessible
+            accessibilityLabel={exerciseSummaryLabel(e.name, e.volumeKg, e.setCount, e.bestE1rmKg)}
+          >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text variant="body" numberOfLines={1} style={{ flex: 1 }}>{e.name ?? 'Exercise'}</Text>
               <Text variant="body" style={{ fontFamily: font.dataSemi }}>{kg(e.volumeKg)}</Text>

@@ -52,7 +52,7 @@ export default function HistoryCalendar() {
           <ScrollView contentContainerStyle={{ padding: space.lg, gap: space.lg }}>
             {byMonth.map(([month, days]) => (
               <View key={month} testID={`month-${month}`}>
-                <Text variant="label" style={{ marginBottom: space.sm }}>{month}</Text>
+                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>{month}</Text>
                 <Card>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                     {daysOf(month).map((day) => {

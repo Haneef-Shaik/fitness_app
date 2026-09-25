@@ -111,7 +111,7 @@ export default function PlanDayEditor() {
         {() => (
           <View style={{ gap: space.lg }}>
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Day name</Text>
+              <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Day name</Text>
               <TextInput
                 value={name}
                 onChangeText={setName}
@@ -126,7 +126,7 @@ export default function PlanDayEditor() {
             </View>
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Scheduled</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Scheduled</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: 'row', gap: space.sm }}>
                   {[null, 0, 1, 2, 3, 4, 5, 6].map((w) => {
@@ -218,7 +218,7 @@ export default function PlanDayEditor() {
               /* The live set-count-per-muscle summary. Same weighting as G-02
                  (primary ×1, secondary ×0.5, D7) so planning and analytics agree. */
               <View testID="muscle-summary">
-                <Text variant="label" style={{ marginBottom: space.sm }}>Sets per muscle</Text>
+                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Sets per muscle</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
                   {counts.map((m) => (
                     <Pill key={m.slug}>{`${m.name} ${m.sets}`}</Pill>

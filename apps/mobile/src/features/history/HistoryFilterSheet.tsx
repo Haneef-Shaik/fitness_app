@@ -91,7 +91,7 @@ export function HistoryFilterSheet({
         keyboardShouldPersistTaps="handled"
       >
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Muscle group</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Muscle group</Text>
           <FilterChips
             options={(groups.data ?? []).map((g) => ({ value: g.slug, label: g.name }))}
             selected={muscle ? [muscle] : []}
@@ -102,7 +102,7 @@ export function HistoryFilterSheet({
         </View>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>When</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>When</Text>
           <FilterChips
             options={RANGES.map((r) => ({ value: r.id, label: r.label }))}
             selected={[range]}

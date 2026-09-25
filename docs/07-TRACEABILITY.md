@@ -130,7 +130,7 @@ blocked, but each should be confirmed before M5.
 
 | # | Question | Blocks | Working default |
 |---|----------|--------|-----------------|
-| Q1 | Nutrition database provider | H-04 coverage, resolution quality, K-10 attribution | Resolver interface + a seeded internal catalog |
+| Q1 | Nutrition database provider | — | **Closed 25 Sep (owner): the internal catalog for v1**; H-17 barcode out of v1 |
 | Q2 | Web, mobile, or both at MVP | Client strategy | **Closed — D1.** React Native (Expo), iOS + Android; web deferred to Phase 2 |
 | Q3 | Definition of a "max reps" PR | G-04, E-11 | **Closed — D11.** Most reps in a single working set, any load |
 | Q4 | Warm-ups in volume | G-02 | Excluded, user-toggleable (D6) |
@@ -138,4 +138,4 @@ blocked, but each should be confirmed before M5.
 | Q6 | Paid tier | K-11 | None at MVP |
 | Q7 | Auto-confirm AI above a confidence threshold | H-08, K-08 | **No** — always explicit (BRD §12.7) |
 | Q8 | Target history versioning | H-01 past days, G-06 | Not versioned at MVP; past days render consumed-only when the target changed after them |
-| Q9 | Age policy / minimum age | A-07 | 13+, needs legal confirmation |
+| Q9 | Age policy / minimum age | — | **Closed 25 Sep (owner): 16 and over**, enforced by the server and A-07 |

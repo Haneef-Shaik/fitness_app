@@ -404,7 +404,7 @@ Matches BRD §24's recommended build order.
 
 | # | Question | Blocks | Default if unanswered |
 |---|----------|--------|-----------------------|
-| Q1 | Which nutrition database provider? | H-04 coverage, food resolution quality | Build the resolver interface; seed a small internal catalog |
+| Q1 | Which nutrition database provider? | H-04 coverage, food resolution quality | **Closed 25 Sep by the owner** — the internal catalog for v1; barcode lookup (H-17) out of v1 ([charter §9](08-PROJECT-CHARTER.md#9-open-decisions-blocking-progress)) |
 | Q2 | Web-only, mobile-only or both at MVP? | Client strategy | **Closed by D1** — React Native (Expo), iOS + Android; web deferred |
 | Q3 | Is "max_reps" a PR at any load, or at a fixed load? | G-04, E-11 | **Closed by D11** — most reps in a single working set, any load |
 | Q4 | Should warm-ups count toward volume? | G-02 | D6: excluded, user-toggleable |

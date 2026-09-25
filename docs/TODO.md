@@ -1,125 +1,45 @@
-# TODO — active work
+# TODO — after the release gate
 
-**Goal:** G10 · Hardening — make it shippable →
-[contract](prompts/G10.md) · [tracker](09-PROJECT-TRACKER.md) · [charter](08-PROJECT-CHARTER.md)
-
-> This file holds **only the work in flight**. Milestone status lives in the tracker — it is not
-> repeated here, because a status maintained in two places drifts.
-
-**Where G10 stands (23 Sep).** Everything below the line is done and evidenced in
-[nfr-evidence.md](nfr-evidence.md) and [a11y-audit.md](a11y-audit.md). **G10 is not closed**: the
-one release-gate line still open needs a person holding the phone.
+**G10 is closed** (25 Sep 2026): the release gate's four lines in [charter §4](08-PROJECT-CHARTER.md#4-definition-of-done)
+are ticked, each with its evidence, and **H10.1** is recorded in the
+[handoff ledger](10-EXECUTION-GOALS.md#3--the-handoff-ledger). Milestone status lives in the
+[tracker](09-PROJECT-TRACKER.md); this file holds only what is left.
 
 ---
 
-## UI shell rework — 23 Sep, from the owner's review on the phone
+## 1 · Needs the owner
 
-Done, tested (789 client / 473 API), checked by eye on the phone:
+- [ ] **Push `main`.** The build machine has no GitHub credentials, so every G10 commit — including
+      the CI fixes for the red runs of `9781d3c` and `0a85d25` — exists only locally. Then watch the
+      five CI jobs and trigger `e2e.yml` once (`workflow_dispatch`): its first GitHub run is its first
+      real test. It passed as a dry run on the local emulator.
 
-- [x] **Bottom tab bar** (00 §4, D2): Home · Train · ⊕ · Nutrition · Progress; hidden on
-      sign-in, onboarding and full-screen tasks. Switching tab resets the history
-- [x] **Train hub (C-01)**: today's plan day, empty workout, programs / library / history /
-      analytics / records, recent sessions
-- [x] **Starter programs**: three templates (`GET /v1/program-templates`, `POST …/{key}/start`),
-      offered wherever a new account used to see an empty list
-- [x] **Settings (K-01)**: the avatar opens it; **sign-out asks first** and says what happens to an
-      unfinished workout and unsent changes. The avatar used to *be* sign-out — one tap, no warning
-- [x] **Back no longer lands on "Create account"**: every crossing of the auth boundary resets history
-- [x] **One account's data never shows in another**: the on-device workout and upload queue are
-      stamped with their account (local schema v2); the query cache clears on every identity change
-      (docs/03 §6.2 required it; nothing did it)
-- [x] Tab-root headers (friendly date, bell, avatar), chevron back button, padded buttons, list rows
-      instead of button walls on Home / Nutrition / Progress, pull-to-refresh on tab roots
+## 2 · Before a store listing — not in G10's charter
 
-Not done:
+The release gate measured an installed release APK, but not a store build:
 
-- [ ] **The device E2E suite has not been re-run** on these changes. Its prelude signs out whoever is
-      signed in, and the only phone is the owner's — it needs their go-ahead, or a second device
-- [ ] The **active-session bar** (00 §4 ④) is still unbuilt; Train and Home show "Resume" instead
-- [ ] **Profile editing** (name, height, birth date) — K-01 shows the email only
-- [ ] Data on the phone from before local schema v2 cannot be attributed to an account: queued
-      writes are kept but never shown or sent (safer than sending them as the wrong person), and an
-      unfinished workout from before the upgrade is **dropped** by the migration
+- [ ] A hosted API over **HTTPS** (the APK talks HTTP to a laptop on the LAN)
+- [ ] A **release keystore** (the APK is signed with the generated project's debug key)
+- [ ] `usesCleartextTraffic` off — `scripts/build-release-apk.sh` turns it on for dev builds only
 
-## Onboarding, check-ins and the program library — 23 Sep, from the owner's review
+## 3 · Dated
 
-Done and tested (836 client / 513 API / 131 domain). Checked by eye in the web build (390 × 844,
-dark) against a throwaway local account. **Not yet checked on the phone.**
-
-- [x] **Onboarding asks what a target depends on** (9 steps): units, name / sex / birth date /
-      height / weight, activity, goal + target weight + pace (with a projected date), experience /
-      days / session length / equipment, a first check-in (weight + six measurements), then the
-      target **with its working shown** (maintenance, deficit, the formula). It replaced a target
-      computed from a hard-coded BMR of 1,680
-- [x] Leaving onboarding half way and coming back **keeps the answers** (they were saved but not
-      shown); running it again after "Looks good" **updates the goal instead of adding a second one**
-- [x] **Check-ins as milestones**: Progress shows the goal as a journey (start → now → target,
-      markers every quarter, next milestone, projected date) and a check-in card (next due, change
-      since the first, recent); a check-in screen takes weight + measurements together
-- [x] **14 well-known programs**, fully set up (StrongLifts-style 5×5, Starting Strength-style 3×5,
-      GZCLP, PPL ×2, PHUL, Texas Method, 5/3/1 BBB, Arnold split, upper/lower, dumbbell-only,
-      bodyweight…) with sets × reps, schedule and progression; ranked per user with reasons.
-      Someone with a full gym is no longer steered to the dumbbell or bodyweight routines
-- [x] Opening a screen straight from a link could hang on "Loading…" for ever: the identity change
-      cleared the cache under the mounted screen. Now mounted reads are reset and refetched
-
-Not done:
-
-- [ ] Walk the new onboarding and Progress **on the phone** (needs the owner, or a second account on
-      their go-ahead)
-- [ ] Web only: after "Create account" the web build lands on the welcome screen (reload continues
-      into onboarding). The phone does not do this; web is a development surface
-- [ ] The goal and pace are not saved until "Looks good", so leaving before that re-asks them
-- [ ] Home's body card does not show goal progress yet — the journey lives on Progress
-
-## 0 · 🔴 The screen-reader session — blocks the release
-
-- [ ] **0.1** A TalkBack session on the phone: log a workout (start → load → reps → save ×3 →
-      finish → summary) and read the diary. Record what TalkBack **says**, not what the tree
-      contains — the tree is already read (see the audit's last table). TalkBack cannot be driven
-      from a host: its shortcuts and gestures ignore injected input (tried 23 Sep)
-- [ ] **0.2** While doing it, settle finding 5: does the rest timer's per-second re-render make
-      TalkBack re-announce?
-- [ ] **0.3** Then close G10: tracker handoff, charter §4, **H10.1**, commit
-
-## 1 · Dated accessibility findings ([audit](a11y-audit.md))
-
-- [ ] **#5** rest timer churns the tree every second — *2026-10-15*
-- [ ] **#18** one dropped `Save set 2` tap in four AC-02 runs — reproduce — *2026-10-15*
-- [ ] **#17** the logger's exercise-tab scroller is a nameless Tab stop; it clips the focus ring — *2026-10-31*
-- [ ] **#20** "Log back in to carry on" shown while signed in — *2026-10-31*
 - [ ] **#15b** Shift+Tab cannot enter a text field (RN 0.76) — arrives with the Expo SDK that
-      carries [react-native#48547](https://github.com/react/react-native/pull/48547) — *2026-12-15*
+      carries [react-native#48547](https://github.com/react/react-native/pull/48547) — *2026-12-15*.
+      The owner kept the date rather than upgrade the SDK inside the release gate. Not a trap: Tab
+      forward always leaves.
+- [ ] **#28** With TalkBack's *Speak text formatting* on, every text is followed by its size and
+      colour spans — re-test on that same SDK upgrade — *2026-12-15*
 
-## 2 · Performance
+## Decided, and out of v1
 
-- [ ] **2.1** tap → set p95 is **296.5 ms** (G4: 396.4 ms) against D16's 100 ms — faster, not
-      fixed. Fix the list, or re-argue the budget; a budget nobody meets is not a budget
-- [ ] **2.2** Cold start and p95 are **`__DEV__` numbers** (DR4: no release build on this machine).
-      The release figures are unmeasured
+- **H-17 barcode lookup** and branded products — Q1 was answered *internal catalog for v1*.
 
-## 3 · Carried, not started in G10
+## Known limits, accepted
 
-- [ ] **3.1** AC-08/09/10 on a device — needs the AI worker running against the phone
-- [ ] **3.2** `.github/workflows/e2e.yml` has **never executed** (since G4)
-- [ ] **3.3** AI worker signals: queue depth and time in `processing` (outcomes and durations are
-      exported; a stuck queue is not yet visible)
-- [ ] **3.4** The E2E seed never removes programs AC-01 creates — flows now scroll past them, but
-      the list grows every run
-
-## Carried forward from G9 (unchanged)
-
-- H-14 nutrition analytics unbuilt · no profile screen (`birth_date`, `sex`, `height_cm`) ·
-  I-01's projection unbuilt · reminders do not send · **Q1** (nutrition provider) and **Q8**
-  (versioned targets) still open
-
----
-
-## Done in G10 — evidence lives elsewhere
-
-Observability + one alert fired · export and delete, asserted per domain and per table · L-02 and
-L-07, exercised on the phone · offline: banner reachable, saves no longer wait on the network,
-writes never exhaust while offline · keyboard-only diary pass and keyboard-only logging on the
-phone · focus ring built · text fields keyboard-reachable · contrast pinned in both themes · the
-food catalog seeded in real databases · p95, cold start and bundle measured on the mid-tier phone ·
-the full acceptance suite green on hardware.
+- A workout left unfinished on a phone **before local schema v2** is dropped by the migration.
+  Queued writes from then are kept but belong to no account: Sync Center shows them under
+  **Unattributed** and lets you discard them; they are never sent as whoever is signed in.
+- Web is a development surface, not part of the release gate.
+- The TalkBack pass was driven by keyboard (Alt+arrows), not by touch gestures — same traversal and
+  speech, but touch exploration was not exercised ([how, and why](measurements/talkback-session.md)).

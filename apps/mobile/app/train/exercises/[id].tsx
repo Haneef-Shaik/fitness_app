@@ -71,7 +71,7 @@ export default function ExerciseDetail() {
                 </StatRow>
 
                 <View>
-                  <Text variant="label" style={{ marginBottom: space.sm }}>Estimated 1RM</Text>
+                  <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Estimated 1RM</Text>
                   {series.length === 0 ? (
                     <Well><Text variant="caption" tone="ink3">
                       No estimate yet — it needs a completed working set with load and reps.
@@ -108,7 +108,7 @@ export default function ExerciseDetail() {
             )}
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Recent sessions</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Recent sessions</Text>
               <DataBoundary
                 query={history}
                 empty={{ title: 'No sessions yet', body: "This will fill in once you've trained it." }}

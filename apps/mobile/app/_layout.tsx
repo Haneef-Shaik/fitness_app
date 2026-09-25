@@ -19,7 +19,7 @@ import { SessionProvider } from '@/lib/session';
 import { createQueryClient } from '@/lib/query/client';
 import { STORE_KIND, store } from '@/lib/db';
 import { configurePersistence } from '@/features/workout-session/store/sessionStore';
-import { flushAndReconcile } from '@/features/workout-session/sessionController';
+import { flushAndReconcile, onDelivered } from '@/features/workout-session/sessionController';
 import { AuthGate } from '@/lib/AuthGate';
 import { startOutboxPump } from '@/lib/offline/pump';
 import { RecoveryGate } from '@/features/workout-session/RecoveryGate';
@@ -30,6 +30,7 @@ import { ReminderSync } from '@/features/reminders/useReminderSync';
 import { showsTabBar } from '@/ui/shell/tabs';
 import { BottomInsetHandled } from '@/ui/topInset';
 import { createIdentityHandler, dropCachedReads } from '@/lib/identity';
+import { applyInvalidation, kindForDelivery } from '@/lib/query/invalidation';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -112,6 +113,16 @@ export default function Layout() {
   // stranded by an unreachable server stayed stranded while the phone sat on a
   // bench — measured at 90 s with the server back up and nothing moving.
   useEffect(() => startOutboxPump({ flush: flushAndReconcile }), []);
+
+  // A queued meal or weigh-in moves the screens that show it when it LANDS —
+  // not when it was queued, which refetched before it arrived (G10).
+  useEffect(() => {
+    onDelivered((entry) => {
+      const kind = kindForDelivery(entry.path);
+      if (kind) void applyInvalidation(queryClient, kind, {});
+    });
+    return () => onDelivered(null);
+  }, []);
 
   useEffect(() => { if (loaded) SplashScreen.hideAsync().catch(() => {}); }, [loaded]);
   if (!loaded) return null;

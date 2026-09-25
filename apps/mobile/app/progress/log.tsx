@@ -45,7 +45,7 @@ export default function LogMetric() {
     <ScreenScaffold title="Log a measurement">
       <View style={{ gap: space.lg }}>
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>What</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>What</Text>
           <Choice
             testID="metric-key"
             value={metricKey}
@@ -55,7 +55,7 @@ export default function LogMetric() {
         </View>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>
+          <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>
             Value ({unit})
           </Text>
           <TextInput

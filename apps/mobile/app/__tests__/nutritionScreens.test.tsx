@@ -12,6 +12,7 @@
  */
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { ScrollView } from 'react-native';
 
 const mockPush = jest.fn();
 const mockReplace = jest.fn();
@@ -222,6 +223,20 @@ describe('H-03 / H-04 · finding a food', () => {
   it('lists what it found', () => {
     render(<AddFood />);
     expect(screen.getByText('Oats')).toBeTruthy();
+  });
+
+  it('keeps every mode reachable however long the catalog is (G10)', () => {
+    // Describe and Photograph sat BELOW the food list on a screen that did not
+    // scroll: with the seeded catalog, a phone could not reach either one.
+    const many = Array.from({ length: 30 }, (_, i) => ({ ...OATS, id: `f${i}`, name: `Food ${i}` }));
+    mocks.foods = q({ data: many, meta: { filtered: false } });
+    const { UNSAFE_getByType } = render(<AddFood />);
+    expect(UNSAFE_getByType(ScrollView)).toBeTruthy();
+
+    const order = screen.toJSON() ? JSON.stringify(screen.toJSON()) : '';
+    expect(order.indexOf('go-photo')).toBeGreaterThan(-1);
+    expect(order.indexOf('go-photo')).toBeLessThan(order.indexOf('Food 0'));
+    expect(order.indexOf('go-describe')).toBeLessThan(order.indexOf('Food 0'));
   });
 });
 

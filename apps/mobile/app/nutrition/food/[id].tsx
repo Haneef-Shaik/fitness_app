@@ -74,7 +74,7 @@ export default function FoodDetail() {
             </Card>
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Amount (g)</Text>
+              <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Amount (g)</Text>
               <TextInput
                 value={amount}
                 onChangeText={setAmount}
@@ -112,7 +112,7 @@ export default function FoodDetail() {
             </Card>
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Meal</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Meal</Text>
               <FilterChips
                 options={options}
                 selected={[mealType]}

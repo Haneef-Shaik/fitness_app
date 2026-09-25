@@ -6,12 +6,13 @@
  * ../restTimer.ts. Backgrounding is the normal case here: the user puts the
  * phone down between sets.
  */
-import React, { useEffect, useState } from 'react';
-import { AppState, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, AppState, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
 import { formatRest, readTimer, restAnnouncement } from '../restTimer';
+import { spokenDuration } from '../a11y';
 
 export interface RestTimerProps {
   targetIso: string;
@@ -35,6 +36,16 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
   }, [targetIso]);
 
   const { remaining, elapsed, progress } = readTimer(targetIso, totalSeconds, now);
+
+  // The end of a rest is the one moment worth interrupting for. The label
+  // changes too, but TalkBack only speaks a label that has its focus — and
+  // between sets focus sits on "Save set", so the rest ended in silence
+  // (G10 session). Announced once, on the transition.
+  const wasElapsed = useRef(elapsed);
+  useEffect(() => {
+    if (elapsed && !wasElapsed.current) AccessibilityInfo.announceForAccessibility('Rest complete');
+    wasElapsed.current = elapsed;
+  }, [elapsed]);
 
   return (
     <View
@@ -64,7 +75,16 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
         {(['-15', '+15'] as const).map((label) => (
           <Pressable
             key={label}
-            onPress={() => onAdjust(label === '+15' ? 15 : -15)}
+            onPress={() => {
+              const delta = label === '+15' ? 15 : -15;
+              onAdjust(delta);
+              // The change is otherwise silent: focus stays on this button and
+              // the timer's own label is only read when it has focus (G10).
+              const next = Math.max(0, remaining + delta);
+              AccessibilityInfo.announceForAccessibility(
+                next > 0 ? `${spokenDuration(next)} of rest left` : 'Rest complete',
+              );
+            }}
             accessibilityRole="button"
             accessibilityLabel={`${label === '+15' ? 'Add' : 'Remove'} 15 seconds`}
             hitSlop={8}

@@ -51,7 +51,10 @@ const STEP = 15;
  */
 export function restAnnouncement(remaining: number, elapsed: boolean): string {
   if (elapsed) return 'Rest complete';
-  if (remaining < STEP) return `Less than ${STEP} seconds of rest left`;
+  // `<=`, not `<`: at exactly 15 the ceiling below says "15 seconds" for one
+  // second and then this line takes over — TalkBack spoke the two ~3 s apart
+  // (G10 session). The last step is one announcement, not two.
+  if (remaining <= STEP) return `${STEP} seconds or less of rest left`;
   const total = Math.ceil(remaining / STEP) * STEP;
   const m = Math.floor(total / 60);
   const s = total % 60;

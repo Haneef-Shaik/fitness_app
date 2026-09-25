@@ -266,6 +266,17 @@ export function invalidationFor(
 }
 
 /** Applies one rule to the cache. The only place invalidation is performed. */
+/**
+ * Which reads a queued write moves once it has LANDED (see outbox `onSent`).
+ * Sets are absent on purpose: the local draft is authoritative in-session (I10)
+ * and `flushAndReconcile` already marks them.
+ */
+export function kindForDelivery(path: string): MutationKind | null {
+  if (path === '/meals' || /^\/recipes\/[^/]+\/log$/.test(path)) return 'meal.changed';
+  if (path === '/body-metrics') return 'bodyMetric.changed';
+  return null;
+}
+
 export async function applyInvalidation(
   client: QueryClient,
   kind: MutationKind,

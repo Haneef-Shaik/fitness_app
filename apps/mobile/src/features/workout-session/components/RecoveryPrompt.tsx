@@ -12,7 +12,8 @@ import { Button, Text, Well } from '@/ui';
 import { Sheet } from '@/ui/Sheet';
 import { space } from '@/theme';
 import { countSets, type SessionDraft } from '../store/types';
-import { formatRest } from '../restTimer';
+import { startedAgo } from '../a11y';
+import { count } from '@/features/nutrition/format';
 
 export interface RecoveryPromptProps {
   visible: boolean;
@@ -43,7 +44,7 @@ export function RecoveryPrompt({
         <Text variant="body" tone="ink2" testID="recovery-what">
           {draft.exercises.length} {draft.exercises.length === 1 ? 'exercise' : 'exercises'}
           {' · '}{sets} {sets === 1 ? 'set' : 'sets'}
-          {' · '}{formatRest(ageSeconds)} ago
+          {' · '}{startedAgo(ageSeconds)}
         </Text>
 
         {stale ? (
@@ -60,7 +61,7 @@ export function RecoveryPrompt({
         {conflicting ? (
           <Well testID="recovery-conflict">
             <Text variant="caption" tone="ink3">
-              Another workout was found on your account with {countSets(conflicting)} sets.
+              Another workout was found on your account with {count(countSets(conflicting), 'set')}.
               Whichever you do not keep stays available to discard — neither is deleted.
             </Text>
           </Well>

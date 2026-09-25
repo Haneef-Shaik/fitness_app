@@ -12,6 +12,7 @@ import { api, ApiError } from '@/lib/api';
 import { space, useTheme } from '@/theme';
 import { useActiveSession, useStartSession } from '@/features/workout-session/useSession';
 import { countSets } from '@/features/workout-session/store/types';
+import { count } from '@/features/nutrition/format';
 
 export default function StartWorkout() {
   const { c } = useTheme();
@@ -60,7 +61,7 @@ export default function StartWorkout() {
       key={d.id}
       onPress={() => begin({ plan_day_id: d.id })}
       accessibilityRole="button"
-      accessibilityLabel={`Start ${d.name}, ${d.exercises?.length ?? 0} exercises`}
+      accessibilityLabel={`Start ${d.name}, ${count(d.exercises?.length ?? 0, 'exercise')}`}
       style={{
         flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 56,
         paddingVertical: space.md, borderBottomWidth: 1, borderColor: c.line,
@@ -69,7 +70,7 @@ export default function StartWorkout() {
       <View style={{ flex: 1 }}>
         <Text variant="body" numberOfLines={1}>{d.name}</Text>
         <Text variant="caption" tone="ink3">
-          {program.name} · {d.exercises?.length ?? 0} exercises
+          {program.name} · {count(d.exercises?.length ?? 0, 'exercise')}
         </Text>
       </View>
       <Text variant="body" tone="ink3">›</Text>
@@ -90,7 +91,7 @@ export default function StartWorkout() {
         />
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>From a program</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>From a program</Text>
           <DataBoundary
             query={programs}
             empty={{

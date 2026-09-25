@@ -150,8 +150,16 @@ describe('B-04 · reminders (G10: they send now)', () => {
   it('starts every reminder off — nothing is switched on for anyone', () => {
     render(<Notifications />);
     for (const key of ['workout', 'weigh_in', 'meal_log', 'checkin']) {
-      expect(screen.getByTestId(`reminder-${key}`).props.accessibilityLabel).toBe('Off');
+      expect(screen.getByTestId(`reminder-${key}`).props.accessibilityState).toMatchObject({ checked: false });
     }
+  });
+
+  it('each toggle is a switch named for its reminder — not a bare "Off, Button"', () => {
+    // G10 TalkBack session: the toggle said only its state.
+    render(<Notifications />);
+    const toggle = screen.getByTestId('reminder-workout');
+    expect(toggle.props.accessibilityRole).toBe('switch');
+    expect(toggle.props.accessibilityLabel).toBe('Workout reminder');
   });
 
   it('switching one on asks permission, remembers it, and schedules it on the phone', async () => {
@@ -176,7 +184,7 @@ describe('B-04 · reminders (G10: they send now)', () => {
   it('switching one off takes it off the phone', async () => {
     mockPrefs.reminders = { weigh_in: true };
     render(<Notifications />);
-    await waitFor(() => expect(screen.getByTestId('reminder-weigh_in').props.accessibilityLabel).toBe('On'));
+    await waitFor(() => expect(screen.getByTestId('reminder-weigh_in').props.accessibilityState).toMatchObject({ checked: true }));
     fireEvent.press(screen.getByTestId('reminder-weigh_in'));
     await waitFor(() => expect(mockApply).toHaveBeenLastCalledWith([]));
   });

@@ -16,7 +16,7 @@ import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { Meter } from '@/ui/charts';
-import { grams, kcal, mealTypeLabel, count } from '@/features/nutrition/format';
+import { grams, kcal, macroLabel, mealTypeLabel, count } from '@/features/nutrition/format';
 import { useMealCategories, useNutritionDay, useProfile } from '@/lib/query/hooks';
 import { NavGroup, NavRow } from '@/ui/NavRow';
 import { friendlyDate } from '@/features/dashboard/date';
@@ -53,7 +53,11 @@ export default function Diary() {
           <View style={{ gap: space.lg }}>
             <Card hero>
               <Pill>{friendlyDate(data.local_date)}</Pill>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
+              <View
+                accessible
+                accessibilityLabel={`${kcal(data.calories)} kilocalories eaten`}
+                style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 8 }}
+              >
                 <Text variant="display" style={{ fontSize: 34 }}>{kcal(data.calories)}</Text>
                 <Text variant="caption" tone="ink3">kcal</Text>
               </View>
@@ -133,7 +137,7 @@ export default function Diary() {
 
 function Macro({ label, value }: { label: string; value: number }) {
   return (
-    <View>
+    <View accessible accessibilityLabel={macroLabel(label, value)}>
       <Text variant="label" tone="ink3">{label}</Text>
       <Text variant="body">{grams(value)}</Text>
     </View>

@@ -98,7 +98,7 @@ export default function Photo() {
 
         {uris.length > 0 ? (
           <View>
-            <Text variant="label" style={{ marginBottom: space.sm }}>
+            <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
               {uris.length} photo{uris.length === 1 ? '' : 's'} added
             </Text>
             <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>

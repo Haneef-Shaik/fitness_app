@@ -43,6 +43,13 @@ export interface OutboxDeps {
   random?: () => number;
   /** Stop after this many terminal-ish attempts even if the server keeps 5xx-ing. */
   maxAttempts?: number;
+  /**
+   * Told once per write that LANDED. A screen that invalidated its reads when
+   * it queued the write refetched before the write arrived — G10's TalkBack
+   * session logged a banana and the diary kept saying "Nothing logged today"
+   * with the meal on the server. Reads move when the write lands, here.
+   */
+  onSent?: (entry: OutboxEntry) => void;
 }
 
 export interface FlushOutcome {
@@ -89,6 +96,8 @@ export function createOutbox(deps: OutboxDeps) {
       if (result.ok) {
         await deps.store.markSent(entry.id);
         outcome.sent += 1;
+        // A listener's failure is not a failed write: the entry has landed.
+        try { deps.onSent?.(entry); } catch { /* reads refresh on their own later */ }
         continue;
       }
 

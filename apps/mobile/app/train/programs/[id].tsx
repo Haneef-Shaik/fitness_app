@@ -9,6 +9,7 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useAddPlanDay, useProgram } from '@/lib/query/hooks';
 import { space, useTheme } from '@/theme';
+import { count } from '@/features/nutrition/format';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -47,7 +48,7 @@ export default function ProgramDetail() {
       <Pressable
         onPress={() => router.push(`/train/plan-days/${d.id}?programId=${id}`)}
         accessibilityRole="button"
-        accessibilityLabel={`${d.name}, ${d.exercises?.length ?? 0} exercises, edit`}
+        accessibilityLabel={`${d.name}, ${count(d.exercises?.length ?? 0, 'exercise')}, edit`}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
           <Text variant="body" style={{ flex: 1 }} numberOfLines={1}>{d.name}</Text>
@@ -56,7 +57,7 @@ export default function ProgramDetail() {
         <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
           {d.scheduled_weekday !== null && d.scheduled_weekday !== undefined
             ? `${WEEKDAYS[d.scheduled_weekday]} · ` : ''}
-          {d.exercises?.length ?? 0} exercises
+          {count(d.exercises?.length ?? 0, 'exercise')}
         </Text>
       </Pressable>
 

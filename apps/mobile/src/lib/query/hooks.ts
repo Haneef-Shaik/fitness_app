@@ -456,8 +456,10 @@ export function useFoods(q?: string) {
  * **AC-07** — logs a meal and moves today's totals.
  *
  * Goes through the OUTBOX, not a direct POST: a meal logged on the train is
- * still a meal. The diary is invalidated on success so the server's numbers
- * replace the optimistic ones as soon as the queue drains.
+ * still a meal. What moves the diary is the outbox DELIVERING it (`onSent` →
+ * `kindForDelivery`, wired in app/_layout): invalidating here alone refetched
+ * before the meal had landed, and the diary kept "Nothing logged today" with
+ * the meal on the server (G10 TalkBack session).
  */
 export function useLogMeal() {
   const client = useQueryClient();

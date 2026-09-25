@@ -50,7 +50,7 @@ export default function NewRecipe() {
     <ScreenScaffold title="New recipe">
       <View style={{ gap: space.lg }}>
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Name</Text>
+          <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Name</Text>
           {input({
             value: name, onChangeText: setName, testID: 'recipe-name',
             accessibilityLabel: 'Recipe name', placeholder: 'Morning oats',
@@ -58,7 +58,7 @@ export default function NewRecipe() {
         </View>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>
+          <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>
             Servings this makes
           </Text>
           {input({
@@ -98,7 +98,7 @@ export default function NewRecipe() {
         ) : null}
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Add an ingredient</Text>
+          <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Add an ingredient</Text>
           {input({
             value: query, onChangeText: setQuery, testID: 'recipe-food-search',
             accessibilityLabel: 'Search foods', placeholder: 'Search foods',

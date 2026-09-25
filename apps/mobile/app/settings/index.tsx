@@ -69,7 +69,7 @@ export default function Settings() {
         </View>
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Settings</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Settings</Text>
           <NavGroup>
             <NavRow icon="person-outline" label="Your details" testID="go-profile-details"
               onPress={() => router.push('/settings/profile')} />

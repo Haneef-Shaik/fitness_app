@@ -63,6 +63,7 @@ export default function Register() {
             <TextInput
               value={email} onChangeText={setEmail}
               placeholder="you@example.com" placeholderTextColor={c.ink3}
+              accessibilityLabel="Email" testID="register-email"
               autoCapitalize="none" autoCorrect={false} keyboardType="email-address"
               textContentType="emailAddress" autoComplete="email"
               style={[input, { borderColor: errors.email ? c.crit : c.line }]}
@@ -73,6 +74,7 @@ export default function Register() {
             <TextInput
               value={password} onChangeText={setPassword}
               placeholder="••••••••••" placeholderTextColor={c.ink3}
+              accessibilityLabel="Password" testID="register-password"
               secureTextEntry autoCapitalize="none" textContentType="newPassword" autoComplete="password-new"
               style={[input, { borderColor: errors.password ? c.crit : c.line }]}
             />

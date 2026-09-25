@@ -39,8 +39,8 @@ export default function AddFood() {
   };
 
   return (
-    <ScreenScaffold title="Add food" scroll={false}>
-      <View style={{ flex: 1, padding: space.lg, gap: space.base }}>
+    <ScreenScaffold title="Add food">
+      <View style={{ padding: space.lg, gap: space.base }}>
         <TextInput
           value={query}
           onChangeText={setQuery}
@@ -72,6 +72,29 @@ export default function AddFood() {
           />
         </View>
 
+        {/* The AI modes sit with the other modes, above the list. Below it
+            they were off screen once the catalog was seeded — and the screen
+            did not scroll, so on a phone they could not be reached at all
+            (G10, writing the AC-09 flow). */}
+        <View style={{ flexDirection: 'row', gap: space.sm }}>
+          <Button
+            title="Describe it"
+            kind="ghost"
+            size="sm"
+            style={{ flex: 1 }}
+            testID="go-describe"
+            onPress={() => router.push('/nutrition/describe')}
+          />
+          <Button
+            title="Photograph it"
+            kind="ghost"
+            size="sm"
+            style={{ flex: 1 }}
+            testID="go-photo"
+            onPress={() => router.push('/nutrition/photo')}
+          />
+        </View>
+
         <DataBoundary
           query={boundaryQuery}
           empty={{
@@ -95,24 +118,6 @@ export default function AddFood() {
           )}
         </DataBoundary>
 
-        <View style={{ flexDirection: 'row', gap: space.sm }}>
-          <Button
-            title="Describe it"
-            kind="ghost"
-            size="sm"
-            style={{ flex: 1 }}
-            testID="go-describe"
-            onPress={() => router.push('/nutrition/describe')}
-          />
-          <Button
-            title="Photograph it"
-            kind="ghost"
-            size="sm"
-            style={{ flex: 1 }}
-            testID="go-photo"
-            onPress={() => router.push('/nutrition/photo')}
-          />
-        </View>
       </View>
     </ScreenScaffold>
   );

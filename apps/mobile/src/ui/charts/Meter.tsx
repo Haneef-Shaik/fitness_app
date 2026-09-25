@@ -23,12 +23,19 @@ const FILL = { dark: '#3987E5', light: '#2A78D6' } as const;
 export function Meter({ value, label, empty = 'Not enough to measure', testID }: MeterProps) {
   const { c, scheme } = useTheme();
 
+  const pct = value === null ? null : Math.round(value * 100);
+  // One stop. The label, the percentage and the track were three, the last
+  // repeating the first two (G10 TalkBack: "2,340 left", "0%", "2,340 left, 0 percent").
   return (
-    <View testID={testID}>
+    <View
+      testID={testID}
+      accessible
+      accessibilityLabel={pct === null ? `${label}, ${empty}` : `${label}, ${pct} percent`}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
         <Text variant="label" style={{ flex: 1 }}>{label}</Text>
         {value !== null ? (
-          <Text variant="stat">{Math.round(value * 100)}%</Text>
+          <Text variant="stat">{pct}%</Text>
         ) : null}
       </View>
 
@@ -36,7 +43,6 @@ export function Meter({ value, label, empty = 'Not enough to measure', testID }:
         <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>{empty}</Text>
       ) : (
         <View
-          accessibilityLabel={`${label}, ${Math.round(value * 100)} percent`}
           style={{
             height: 10, borderRadius: radius.pill, backgroundColor: c.sunken,
             marginTop: space.sm, overflow: 'hidden',

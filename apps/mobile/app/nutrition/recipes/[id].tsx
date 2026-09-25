@@ -94,7 +94,7 @@ export default function RecipeDetail() {
               </Card>
 
               <View>
-                <Text variant="label" style={{ marginBottom: space.sm }}>Log to</Text>
+                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Log to</Text>
                 <Choice
                   testID="recipe-meal-type"
                   value={mealType}
@@ -104,7 +104,7 @@ export default function RecipeDetail() {
               </View>
 
               <View>
-                <Text variant="label" style={{ marginBottom: space.sm }}>Servings</Text>
+                <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>Servings</Text>
                 <TextInput
                   value={servings}
                   onChangeText={setServings}
@@ -132,7 +132,7 @@ export default function RecipeDetail() {
               />
 
               <Card>
-                <Text variant="label" style={{ marginBottom: space.sm }}>
+                <Text variant="label" accessibilityElementsHidden importantForAccessibility="no" style={{ marginBottom: space.sm }}>
                   Servings this batch makes
                 </Text>
                 <TextInput

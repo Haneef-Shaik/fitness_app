@@ -117,7 +117,7 @@ export default function Progress() {
             </Card>
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Goals</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Goals</Text>
               {(data.goals ?? []).length === 0 ? (
                 <Card>
                   <Text variant="body" testID="goals-empty">

@@ -16,7 +16,7 @@ function duration(seconds: number): string {
 
 export function prescription(e: Prescribed): string {
   if (e.duration_seconds != null) return `${e.sets} × ${duration(e.duration_seconds)}`;
-  if (e.reps_min == null) return `${e.sets} sets`;
+  if (e.reps_min == null) return `${e.sets} set${e.sets === 1 ? '' : 's'}`;
   if (e.reps_max == null) return `${e.sets} × ${e.reps_min}+`;
   if (e.reps_max === e.reps_min) return `${e.sets} × ${e.reps_min}`;
   return `${e.sets} × ${e.reps_min}–${e.reps_max}`;

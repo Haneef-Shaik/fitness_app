@@ -34,7 +34,7 @@ export default function AnalyticsOverview() {
         >
           {(data) => (
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>Volume · 12 weeks</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Volume · 12 weeks</Text>
               <Card>
                 <Column
                   testID="overview-volume"

@@ -63,7 +63,14 @@ describe('what a screen reader is told (a11y #5)', () => {
     expect(restAnnouncement(180, false)).toBe('3 minutes of rest left');
     expect(restAnnouncement(83, false)).toBe('1 minute 30 seconds of rest left');
     expect(restAnnouncement(45, false)).toBe('45 seconds of rest left');
-    expect(restAnnouncement(10, false)).toBe('Less than 15 seconds of rest left');
+    expect(restAnnouncement(10, false)).toBe('15 seconds or less of rest left');
+  });
+
+  it('speaks the last step once, not "15 seconds" and then "less than 15" a second later', () => {
+    // TalkBack, G10: the 15 s label lived for exactly one second before the
+    // next one replaced it, so the reader said both, back to back.
+    expect(restAnnouncement(15, false)).toBe(restAnnouncement(14, false));
+    expect(restAnnouncement(16, false)).toBe('30 seconds of rest left');
   });
 
   it('is the same for every second inside one step', () => {

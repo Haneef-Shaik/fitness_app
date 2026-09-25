@@ -26,7 +26,7 @@ import { Button, Card, Meter, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { useTheme, space, font } from '@/theme';
 import { useDashboard } from '@/lib/query/hooks';
-import { grams, kcal } from '@/features/nutrition/format';
+import { grams, kcal, macroLabel, count } from '@/features/nutrition/format';
 import {
   DEFAULT_LAYOUT, loadDashboardLayout, type DashboardLayout,
 } from '@/features/dashboard/layout';
@@ -113,7 +113,7 @@ function TrainingSection({ card }: { card: TrainingCard }) {
 
   return (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>
+      <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
         Training
       </Text>
       <Card hero>
@@ -143,7 +143,12 @@ function TrainingSection({ card }: { card: TrainingCard }) {
           </>
         ) : (
           <>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+            {/* One stop, not "0" then "kg today" (G10 TalkBack session). */}
+            <View
+              accessible
+              accessibilityLabel={`${kcal(card.volume_today_kg)} kilograms lifted today`}
+              style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}
+            >
               <Text variant="display" style={{ fontSize: 30 }} testID="training-volume">
                 {kcal(card.volume_today_kg)}
               </Text>
@@ -157,7 +162,7 @@ function TrainingSection({ card }: { card: TrainingCard }) {
             {card.last_session ? (
               <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
                 Last: {card.last_session.local_date} ·{' '}
-                {card.last_session.set_count} sets
+                {count(card.last_session.set_count, 'set')}
               </Text>
             ) : null}
             <Button
@@ -181,13 +186,17 @@ function NutritionSection({ card }: { card: NutritionCard }) {
 
   return (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>
+      <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
         Nutrition
       </Text>
       <Card hero>
         {target !== null ? (
           <>
-            <View style={{ alignItems: 'center' }}>
+            <View
+              accessible
+              accessibilityLabel={`${kcal(remaining)} kilocalories left, ${kcal(card.calories)} of ${kcal(target)} eaten`}
+              style={{ alignItems: 'center' }}
+            >
               <Text variant="hero" style={{ fontSize: 48 }} testID="kcal-remaining">
                 {kcal(remaining)}
               </Text>
@@ -254,8 +263,10 @@ function NutritionSection({ card }: { card: NutritionCard }) {
 function Macro({
   label, value, target,
 }: { label: string; value: number; target?: number | null }) {
+  // Each macro is one stop. Three name-over-value columns were read across —
+  // "Protein", "Carbs", "Fat", then three bare figures (G10 TalkBack session).
   return (
-    <View>
+    <View accessible accessibilityLabel={macroLabel(label, value, target)}>
       <Text variant="label" tone="ink3">{label}</Text>
       <Text variant="body">
         {grams(value)}{target ? ` / ${target} g` : ''}
@@ -272,13 +283,17 @@ function BodySection({ card, goal, today }: { card: BodyCard; goal?: GoalCard; t
   const line = goal ? journeyLine(goal, today) : null;
   return (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>
+      <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
         Body
       </Text>
       <Card>
         {card.latest ? (
           <>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+            <View
+              accessible
+              accessibilityLabel={`${card.latest.value.toFixed(1)} ${card.unit}`}
+              style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}
+            >
               <Text variant="display" style={{ fontSize: 28 }} testID="body-latest">
                 {card.latest.value.toFixed(1)}
               </Text>
@@ -323,7 +338,7 @@ function BodySection({ card, goal, today }: { card: BodyCard; goal?: GoalCard; t
 function GoalsSection({ goals }: { goals: readonly GoalCard[] }) {
   return (
     <View>
-      <Text variant="label" style={{ marginBottom: space.sm }}>
+      <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
         Goals
       </Text>
       {goals.length === 0 ? (

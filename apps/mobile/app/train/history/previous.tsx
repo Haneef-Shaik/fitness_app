@@ -73,7 +73,7 @@ export default function PreviousOccurrence() {
             </Card>
 
             <View>
-              <Text variant="label" style={{ marginBottom: space.sm }}>In that session</Text>
+              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>In that session</Text>
               <Card>
                 {found.exercise_names.length === 0 ? (
                   <Text variant="caption" tone="ink3">No exercises recorded</Text>

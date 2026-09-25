@@ -11,7 +11,7 @@ import type { SessionStore } from '../../../lib/db/types';
 import { configurePersistence, useSessionStore } from '../store/sessionStore';
 // Static, not dynamic: jest hoists the mocks above this anyway, and a dynamic
 // import needs --experimental-vm-modules under this runner.
-import { flushAndReconcile, outbox } from '../sessionController';
+import { flushAndReconcile, onDelivered, outbox } from '../sessionController';
 
 const TRACKS = { load: true, reps: true, duration: false, distance: false };
 
@@ -162,5 +162,42 @@ describe('what the sync dot says', () => {
 
   it('does nothing at all when there is no draft', async () => {
     await expect(flushAndReconcile()).resolves.toBeUndefined();
+  });
+});
+
+describe('delivery reaches the app shell', () => {
+  afterEach(() => onDelivered(null));
+
+  it('tells the listener about each write that landed — the real sender, not a stub', async () => {
+    const heard: string[] = [];
+    onDelivered((e) => heard.push(e.path));
+    await mockStore.commit(
+      { revision: 1, updatedAt: '2026-09-22T10:00:00Z', json: '{}' },
+      {
+        aggregateId: 'meal:m1', method: 'POST', path: '/meals', body: '{}',
+        idempotencyKey: 'meal-1', nextAttemptAt: '2026-09-22T09:00:00Z',
+      },
+    );
+
+    await flushAndReconcile();
+
+    expect(heard).toEqual(['/meals']);
+  });
+
+  it('is silent for a write that did not land', async () => {
+    const heard: string[] = [];
+    onDelivered((e) => heard.push(e.path));
+    mockSendResults.set('meal-2', { ok: false, retryable: true, unreachable: true });
+    await mockStore.commit(
+      { revision: 1, updatedAt: '2026-09-22T10:00:00Z', json: '{}' },
+      {
+        aggregateId: 'meal:m2', method: 'POST', path: '/meals', body: '{}',
+        idempotencyKey: 'meal-2', nextAttemptAt: '2026-09-22T09:00:00Z',
+      },
+    );
+
+    await flushAndReconcile();
+
+    expect(heard).toEqual([]);
   });
 });

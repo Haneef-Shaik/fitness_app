@@ -75,7 +75,7 @@ export default function Describe() {
         ) : null}
 
         <View>
-          <Text variant="label" style={{ marginBottom: space.sm }}>Try</Text>
+          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Try</Text>
           <View style={{ gap: space.sm }}>
             {EXAMPLES.map((example) => (
               <Button

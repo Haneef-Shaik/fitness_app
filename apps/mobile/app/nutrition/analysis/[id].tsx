@@ -133,7 +133,7 @@ export default function AnalysisReview() {
               {analysis.items.length > 0 ? (
                 <>
                   <View>
-                    <Text variant="label" style={{ marginBottom: space.sm }}>Add to</Text>
+                    <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Add to</Text>
                     <Choice
                       testID="analysis-meal-type"
                       value={mealType}

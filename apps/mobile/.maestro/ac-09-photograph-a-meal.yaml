@@ -1,0 +1,91 @@
+# AC-09 · "Food-image input produces editable candidates with estimated nutrition."
+#
+# Maestro cannot hand the CAMERA a picture, but H-09 also takes one from the
+# phone's library — the same upload, the same analysis. scripts/e2e.sh pushes
+# fixtures/meal.jpg into Pictures/VoltE2E and has the media store index it
+# first, so it is the newest photo the picker shows. `assert_ac.py ac-09` then
+# asks the server whether the analysis is structured and the photo is stored
+# with it.
+#
+# Needs the AI worker running (scripts/e2e.sh starts one); the stub provider
+# answers deterministically, so no key and no cost.
+appId: host.exp.exponent
+name: AC-09 photograph a meal
+env:
+  EMAIL: demo@volt.app
+  PASSWORD: voltdemo1234
+  HOST: 192.168.1.3:8081
+---
+- runFlow:
+    file: sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+
+- tapOn:
+    id: "tab-nutrition"
+- tapOn: "\\+ Food"
+- tapOn:
+    id: "go-photo"
+- assertVisible: "Photograph your meal"
+- tapOn:
+    id: "photo-library"
+
+# The system photo picker. It opens on ALL of the phone's photos, which on this
+# phone are someone's own — so never "the newest photo": go to the VoltE2E
+# album e2e.sh fills, which holds only the fixture.
+# The picker names its album tab "Collections" on this phone and "Albums" on
+# an older Photo Picker (the CI emulator); the phone also nests device albums
+# under "From this device".
+- extendedWaitUntil:
+    visible: "Collections|Albums"
+    timeout: 15000
+- tapOn: "Collections|Albums"
+- runFlow:
+    when:
+      visible: "From this device"
+    commands:
+      - tapOn: "From this device"
+# The older picker lists no device folders at all ("No albums"). Only there —
+# a clean emulator, where the fixture is the only photo — take it from Photos.
+# A phone always has albums, so on a phone a missing VoltE2E album FAILS here
+# rather than picking one of the owner's own photos.
+- evalScript: ${output.noAlbums = false}
+- runFlow:
+    when:
+      visible: "No albums"
+    commands:
+      - evalScript: ${output.noAlbums = true}
+      - tapOn: "Photos"
+- runFlow:
+    when:
+      true: ${!output.noAlbums}
+    commands:
+      - tapOn: "VoltE2E"
+- tapOn:
+    text: "Photo taken on.*"
+    index: 0
+# Multiple selection is on (up to three photos), so the picker waits for Add.
+- tapOn: "(Add|Done|Select).*"
+
+- extendedWaitUntil:
+    visible: "1 photo added"
+    timeout: 20000
+- tapOn:
+    id: "photo-analyse"
+
+# The worker picks the job up within its poll interval; the screen polls too.
+# The stub sees a curry and a raita; what matters is that each comes back as
+# fields a person can change, with estimated nutrition.
+- extendedWaitUntil:
+    visible: "Chicken curry, Amount \\(g\\)"
+    timeout: 60000
+- assertVisible: "Chicken curry, kcal"
+- assertVisible: "Raita, Amount \\(g\\)"
+# Save sits below the candidates; reaching it is part of "editable".
+- scrollUntilVisible:
+    element:
+      id: "analysis-save"
+    direction: DOWN
+    timeout: 15000

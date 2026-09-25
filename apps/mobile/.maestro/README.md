@@ -36,11 +36,28 @@ Maestro by hand you have to.
 | `ac-01-build-chest-workout` | A program persists with ≥2 prescribed exercises | **AC-01** |
 | `ac-02-record-every-set` | Every set recorded, loads and reps match, indices dense | **AC-02** |
 | `ac-04-previous-performance` | Last time's sets are on screen **before any input** | **AC-04** |
+| `ac-05-previous-occurrence` | The previous chest session, reached without a date | **AC-05** |
+| `ac-07-log-a-meal` | A manual meal moves today's totals, on the profile's day | **AC-07** |
+| `ac-08-describe-a-meal` | A description comes back as editable candidates | **AC-08** |
+| `ac-09-photograph-a-meal` | A photo (from the `VoltE2E` album, never the owner's own) does too | **AC-09** |
+| `ac-10-correct-and-confirm` | A corrected candidate is confirmed; the AI's original is kept | **AC-10** |
+| `ac-11-dashboard-shows-everything` | One dashboard call carries all three domains | **AC-11** |
 | `offline-1-log-online` | One set with the server reachable, for contrast | |
 | `offline-2-queue-and-relaunch` | Queues with the server gone; draft survives a force-quit | **I10 / H3.3** |
 | `offline-3-drain` | The queue drains unattended, with no duplicates | **I8** |
-| `measure-commit-p95` | Not a criterion — the H4.3 measurement | **D16** |
+| `measure-*` | Not criteria — the H4.3 / release measurements | **D16** |
 | `sign-in` | Prelude. Not run on its own | |
+
+**Which app.** Every flow takes `APP_ID`: `host.exp.exponent` (the default —
+Expo Go, loading the bundle from Metro over the LAN) or `com.volt.app` (an
+installed build: CI's release APK, `scripts/build-release-apk.sh`).
+`sign-in.yaml` launches whichever it is given; `sign-in-release.yaml` is only
+that with `com.volt.app` filled in.
+
+```bash
+bash scripts/e2e.sh                                   # the phone, through Expo Go
+APP_ID=com.volt.app DEVICE=emulator-5554 bash scripts/e2e.sh   # an installed release APK
+```
 
 They are **ordered**: AC-04 reads the session AC-02 completes, and the three
 offline flows are one scenario with the API taken away in the middle.

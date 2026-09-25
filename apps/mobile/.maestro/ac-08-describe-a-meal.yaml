@@ -42,5 +42,9 @@ env:
 # Editable: every candidate has its own fields.
 - assertVisible: "3 rotis, Amount \\(g\\)"
 - assertVisible: "2 eggs, kcal"
-- assertVisible:
-    id: "analysis-save"
+# Save sits below the candidates; reaching it is part of "editable".
+- scrollUntilVisible:
+    element:
+      id: "analysis-save"
+    direction: DOWN
+    timeout: 15000

@@ -46,6 +46,13 @@ emulator_serial() {
   adb devices | awk '/^emulator-/ { print $1; exit }'
 }
 
+# EVERY adb call here goes to the emulator, never to "whichever device is
+# attached". With a phone plugged in and the emulator not (yet) online, a bare
+# `adb` is the PHONE — and G10 found this script had switched a real phone's
+# animations off and wired its ports while the emulator failed to boot. `-e`
+# refuses to run rather than pick the wrong device.
+eadb() { adb -e "$@"; }
+
 create_avd() {
   if avdmanager list avd 2>/dev/null | grep -q "Name: $AVD"; then
     tune_avd
@@ -91,9 +98,9 @@ PY
 wire_ports() {
   # Both directions of the same idea: the app reaches the host's Metro and the
   # host's API through the emulator's own localhost.
-  adb reverse tcp:8081 tcp:8081 >/dev/null 2>&1 && ok "Metro reachable at localhost:8081" \
+  eadb reverse tcp:8081 tcp:8081 >/dev/null 2>&1 && ok "Metro reachable at localhost:8081" \
     || no "could not reverse 8081"
-  adb reverse tcp:8000 tcp:8000 >/dev/null 2>&1 && ok "API reachable at localhost:8000" \
+  eadb reverse tcp:8000 tcp:8000 >/dev/null 2>&1 && ok "API reachable at localhost:8000" \
     || no "could not reverse 8000"
 }
 
@@ -102,7 +109,7 @@ calm_animations() {
   # "it was there a moment ago". Safe here in a way it would not be on someone's
   # phone — this device exists only to be driven.
   for s in window_animation_scale transition_animation_scale animator_duration_scale; do
-    adb shell settings put global "$s" 0 >/dev/null 2>&1
+    eadb shell settings put global "$s" 0 >/dev/null 2>&1
   done
   ok "animations off (Maestro reads a settled hierarchy)"
 }
@@ -131,14 +138,14 @@ start() {
       "${window[@]}" </dev/null >/tmp/volt-emulator.log 2>&1 &
     info "log: /tmp/volt-emulator.log"
 
-    adb wait-for-device
+    eadb wait-for-device
     printf '    booting'
     for _ in $(seq 1 120); do
-      [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && break
+      [ "$(eadb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] && break
       printf '.'; sleep 2
     done
     printf '\n'
-    [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] \
+    [ "$(eadb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ] \
       && ok "booted: $(emulator_serial)" || { no "did not finish booting"; exit 1; }
   fi
 
@@ -159,13 +166,13 @@ status() {
   bold "Status"
   local serial; serial=$(emulator_serial)
   if [ -n "$serial" ]; then
-    ok "emulator: $serial (Android $(adb shell getprop ro.build.version.release 2>/dev/null | tr -d '\r'))"
+    ok "emulator: $serial (Android $(eadb shell getprop ro.build.version.release 2>/dev/null | tr -d '\r'))"
   else
     no "no emulator running"
   fi
-  adb reverse --list 2>/dev/null | grep -q 8081 && ok "8081 reversed" || no "8081 not reversed"
-  adb reverse --list 2>/dev/null | grep -q 8000 && ok "8000 reversed" || no "8000 not reversed"
-  if adb shell pm list packages 2>/dev/null | grep -q host.exp.exponent; then
+  eadb reverse --list 2>/dev/null | grep -q 8081 && ok "8081 reversed" || no "8081 not reversed"
+  eadb reverse --list 2>/dev/null | grep -q 8000 && ok "8000 reversed" || no "8000 not reversed"
+  if eadb shell pm list packages 2>/dev/null | grep -q host.exp.exponent; then
     ok "Expo Go installed"
   else
     no "Expo Go not installed"

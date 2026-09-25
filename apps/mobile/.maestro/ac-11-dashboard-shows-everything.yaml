@@ -25,6 +25,13 @@ env:
     id: "tab-progress"
 - assertVisible: "Progress"
 
+# Scrolled to: on a wider screen (the CI emulator) the journey and check-in
+# cards push it below the fold.
+- scrollUntilVisible:
+    element:
+      id: "log-today"
+    direction: DOWN
+    timeout: 20000
 - tapOn:
     id: "log-today"
 - assertVisible: "Log a measurement"

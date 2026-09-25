@@ -15,21 +15,37 @@ env:
   PASSWORD: voltdemo1234
   HOST: 192.168.1.3:8081
 ---
+# Which app: -e APP_ID=com.volt.app for an installed build, Expo Go when unset.
+# Resolved here rather than defaulted under `env:` — Maestro lets a flow's own
+# env default override a value given with -e.
+- evalScript: "${output.app = (typeof APP_ID === 'undefined' || !APP_ID) ? 'host.exp.exponent' : APP_ID}"
 # launchApp opens Expo Go's OWN home screen, not the project. The deep link is
 # what loads Volt — the same URL a developer types into Expo Go by hand.
 # Stop first: a previous flow may have left the app deep in a stack, and
 # openLink alone resumes it there rather than at the root.
-- stopApp
+- stopApp: ${output.app}
 # Expo Go FIRST, then the link. Sent to a cold process, the link sometimes
 # reaches Expo Go's launcher activity, which finishes itself without opening
 # the project — the phone lands on its home screen and every step after this
 # fails. Seen twice in one G10 run (`wm_finish_activity … LauncherActivity,
 # app-request` in the event log, no ExperienceActivity). A running process
 # takes the link reliably.
-- launchApp:
-    appId: host.exp.exponent
-    stopApp: false
-- openLink: exp://${HOST}
+- runFlow:
+    when:
+      true: ${output.app == 'host.exp.exponent'}
+    commands:
+      - launchApp:
+          appId: host.exp.exponent
+          stopApp: false
+      - openLink: exp://${HOST}
+# An installed build is its own app: launch it, fresh.
+- runFlow:
+    when:
+      true: ${output.app != 'host.exp.exponent'}
+    commands:
+      - launchApp:
+          appId: ${output.app}
+          stopApp: true
 - waitForAnimationToEnd:
     timeout: 40000
 
@@ -90,10 +106,14 @@ env:
       visible: "I already have one"
     commands:
       - tapOn: "I already have one"
-      - tapOn: "you@example.com"
+      # By id: the placeholder is drawn over the field, not in the tree —
+      # the field's hint is its name, "Email" (ui/TextInput, TalkBack pass).
+      - tapOn:
+          id: "login-email"
       - inputText: ${EMAIL}
       - hideKeyboard
-      - tapOn: "••••••••••"
+      - tapOn:
+          id: "login-password"
       - inputText: ${PASSWORD}
       # The keyboard's Go submits. `hideKeyboard` is a Back press on Android
       # when the keyboard is already down, and here it once walked back to the

@@ -7,22 +7,37 @@ name: Offline 2 - queue, force-quit, relaunch
 env:
   HOST: 192.168.1.3:8081
 ---
+# Which app: -e APP_ID=com.volt.app for an installed build, Expo Go when unset.
+# Resolved here rather than defaulted under `env:` — Maestro lets a flow's own
+# env default override a value given with -e.
+- evalScript: "${output.app = (typeof APP_ID === 'undefined' || !APP_ID) ? 'host.exp.exponent' : APP_ID}"
 # I10 — these commit instantly even though nothing can be sent.
 - tapOn: "Save set 2"
-- assertVisible: "Set 2, 80 kilograms for 8 reps"
+- assertVisible: "Set 2, 80 kilograms for 8 reps\\..*"
 - tapOn: "Save set 3"
-- assertVisible: "Set 3, 80 kilograms for 8 reps"
+- assertVisible: "Set 3, 80 kilograms for 8 reps\\..*"
 
 # And they say so honestly. This is the assertion airplane mode never made.
 - extendedWaitUntil:
     visible:
-      text: "Waiting to sync"
+      text: ".*Waiting to sync"
       index: 0
     timeout: 20000
 
 # Force-quit. Not "background it" — the process goes.
-- stopApp
-- openLink: exp://${HOST}
+- stopApp: ${output.app}
+- runFlow:
+    when:
+      true: ${output.app == 'host.exp.exponent'}
+    commands:
+      - openLink: exp://${HOST}
+- runFlow:
+    when:
+      true: ${output.app != 'host.exp.exponent'}
+    commands:
+      - launchApp:
+          appId: ${output.app}
+          stopApp: false
 - waitForAnimationToEnd:
     timeout: 40000
 
@@ -34,7 +49,7 @@ env:
     visible: "You left a workout open"
     timeout: 60000
 - tapOn: "Resume"
-- assertVisible: "Set 3, 80 kilograms for 8 reps"
+- assertVisible: "Set 3, 80 kilograms for 8 reps\\..*"
 - assertVisible:
-    text: "Waiting to sync"
+    text: ".*Waiting to sync"
     index: 0

@@ -56,24 +56,24 @@ env:
 - tapOn: "Save set 1"
 
 # Committed instantly: the row is present before any network round trip (I10).
-- assertVisible: "Set 1, 80 kilograms for 8 reps"
+- assertVisible: "Set 1, 80 kilograms for 8 reps\\..*"
 - assertVisible: "Save set 2"
 
 - tapOn: "Save set 2"
-- assertVisible: "Set 2, 80 kilograms for 8 reps"
+- assertVisible: "Set 2, 80 kilograms for 8 reps\\..*"
 
 - tapOn: "Save set 3"
-- assertVisible: "Set 3, 80 kilograms for 8 reps"
+- assertVisible: "Set 3, 80 kilograms for 8 reps\\..*"
 
 # All three uploaded. extendedWaitUntil, not assertVisible, because this waits
 # on a round trip rather than on a render — and index 2 only exists once the
 # THIRD row has synced, which is precisely the one the outbox used to strand.
 - extendedWaitUntil:
     visible:
-      text: "Synced"
-      index: 2
+      # The row reads its sync state as part of one sentence (TalkBack pass).
+      text: "Set 3, 80 kilograms for 8 reps\\. Synced"
     timeout: 20000
-- assertNotVisible: "Waiting to sync"
+- assertNotVisible: ".*Waiting to sync.*"
 
 # Scroll to it: the entry form and the buttons sit BELOW the rows they add to,
 # so Finish walks off the bottom as sets accumulate. Three sets is already

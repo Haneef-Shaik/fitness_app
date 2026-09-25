@@ -61,9 +61,8 @@ env:
 
 # One set while the server IS reachable, so the contrast with part 2 is real.
 - tapOn: "Save set 1"
-- assertVisible: "Set 1, 80 kilograms for 8 reps"
+- assertVisible: "Set 1, 80 kilograms for 8 reps\\..*"
 - extendedWaitUntil:
     visible:
-      text: "Synced"
-      index: 0
+      text: "Set 1, 80 kilograms for 8 reps\\. Synced"
     timeout: 20000

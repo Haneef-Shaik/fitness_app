@@ -23,7 +23,15 @@ BASE="http://127.0.0.1:$PORT/v1"
 #: which is four times the 0.1% threshold and nowhere near the 0.5% general one.
 COMMITS="${VOLT_ALERT_COMMITS:-250}"
 
-cleanup() { [[ -n "${API_PID:-}" ]] && kill "$API_PID" 2>/dev/null || true; }
+cleanup() {
+  # Close the session this run opened: left open, every run adds one to the
+  # abandoned_sessions alert it is not testing.
+  if [[ -n "${SESSION:-}" && -n "${TOKEN:-}" ]]; then
+    curl -sS -o /dev/null -X POST "$BASE/workout-sessions/$SESSION/cancel" \
+      -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' -d '{}' || true
+  fi
+  [[ -n "${API_PID:-}" ]] && kill "$API_PID" 2>/dev/null || true
+}
 trap cleanup EXIT
 
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
@@ -57,9 +65,13 @@ say "One bad commit, with almost no traffic behind it"
 curl -sS -o /dev/null -X POST "$BASE/session-exercises/$SE/sets" "${AUTH[@]}" \
   -H "Idempotency-Key: $(python3 -c 'import uuid;print(uuid.uuid4())')" \
   -d '{"set_type":"working","load_kg":60,"reps":0,"completed":true}'
-FIRING=$(curl -sS "$BASE/admin/alerts" "${AUTH[@]}" | jsonq 'len(d["data"]["firing"])')
-[[ "$FIRING" == "0" ]] || die "an alert fired on a sample of one — the minimum sample is not working"
-ok "nothing fired: 1 failure out of 1 is 100% and means nothing"
+# The rule under test, specifically. Other rules read the database as it is —
+# `abandoned_sessions` fires on a dev database full of open test sessions, and
+# rightly (G10 found this check failing on exactly that).
+FIRING=$(curl -sS "$BASE/admin/alerts" "${AUTH[@]}" \
+  | jsonq '"yes" if any(a["name"] == "set_commit_failures" for a in d["data"]["firing"]) else "no"')
+[[ "$FIRING" == "no" ]] || die "set_commit_failures fired on a sample of one — the minimum sample is not working"
+ok "set_commit_failures silent: 1 failure out of 1 is 100% and means nothing"
 
 say "Now $COMMITS real commits, so the rate means something"
 for i in $(seq 1 "$COMMITS"); do

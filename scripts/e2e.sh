@@ -44,12 +44,16 @@ MAESTRO_DEVICE_ARGS=()
 # Detected rather than configured, because getting it wrong produces a blank app
 # and no useful error.
 LAN=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo 127.0.0.1)
-if [ -z "${HOST:-}" ] && adb devices 2>/dev/null | grep -q '^emulator-'; then
+if [ -z "${HOST:-}" ] && [[ "$DEVICE" == emulator-* ]]; then
   HOST="localhost:8081"
 else
   HOST="${HOST:-$LAN:8081}"
 fi
 EMAIL="${EMAIL:-demo@volt.app}"
+# Which app the flows drive. Expo Go (the default) loads the bundle from Metro
+# over the LAN; an installed build — CI's release APK — is launched directly:
+#   APP_ID=com.volt.app bash scripts/e2e.sh
+APP_ID="${APP_ID:-host.exp.exponent}"
 PASSWORD="${PASSWORD:-voltdemo1234}"
 FLOWS=apps/mobile/.maestro
 
@@ -106,14 +110,16 @@ api_start() {
 # generic "Something went wrong", which says nothing about a missing route to
 # the bundler. Re-adding an existing rule is a no-op, so this is free.
 rewire() {
-  adb devices 2>/dev/null | grep -q '^emulator-' || return 0
-  adb reverse tcp:8081 tcp:8081 >/dev/null 2>&1
-  adb reverse tcp:8000 tcp:8000 >/dev/null 2>&1
+  # Only when the device under test IS an emulator, and only on it: with a
+  # phone attached as well, a bare `adb` is ambiguous (G10).
+  case "$DEVICE" in emulator-*) ;; *) return 0 ;; esac
+  adb -s "$DEVICE" reverse tcp:8081 tcp:8081 >/dev/null 2>&1
+  adb -s "$DEVICE" reverse tcp:8000 tcp:8000 >/dev/null 2>&1
 }
 
 flow() {
   rewire
-  maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$1"
+  maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" -e "APP_ID=$APP_ID" "$FLOWS/$1"
 }
 
 run_one() {
@@ -128,7 +134,7 @@ run_one() {
   seed
   rewire
   wait_for_idle_phone "$DEVICE"
-  if ! maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" "$FLOWS/$flow"; then
+  if ! maestro "${MAESTRO_DEVICE_ARGS[@]}" test -e "EMAIL=$EMAIL" -e "PASSWORD=$PASSWORD" -e "HOST=$HOST" -e "APP_ID=$APP_ID" "$FLOWS/$flow"; then
     fail "$id — the flow did not complete"
     failures=$((failures + 1))
     return
@@ -140,6 +146,23 @@ run_one() {
     return
   fi
   pass "$id proven on the device AND in the database"
+}
+
+FIXTURE_DIR=/sdcard/Pictures/VoltE2E
+FIXTURE=$FIXTURE_DIR/volt-e2e-meal.jpg
+push_fixture() {
+  adb -s "$DEVICE" shell mkdir -p "$FIXTURE_DIR"
+  adb -s "$DEVICE" push "$FLOWS/fixtures/meal.jpg" "$FIXTURE" >/dev/null
+  adb -s "$DEVICE" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+    -d "file://$FIXTURE" >/dev/null
+  # The Photo Picker keeps its own copy of the media store and syncs it on its
+  # own schedule; opened too soon it shows "No albums" (seen on the emulator).
+  sleep 10
+}
+drop_fixture() {
+  adb -s "$DEVICE" shell content delete --uri content://media/external/images/media \
+    --where "_display_name=\'volt-e2e-meal.jpg\'" >/dev/null 2>&1
+  adb -s "$DEVICE" shell rm -rf "$FIXTURE_DIR"
 }
 
 bold "Seeding the known state"
@@ -180,6 +203,14 @@ if [ "$WANT" = all ] || [ "$WANT" = ac-08 ] || [ "$WANT" = ac-10 ]; then
   fi
   if [ "$WANT" = all ] || [ "$WANT" = ac-10 ]; then
     run_one ac-10 ac-10-correct-and-confirm.yaml
+  fi
+  if [ "$WANT" = all ] || [ "$WANT" = ac-09 ]; then
+    # The camera cannot be handed a picture, but the library can: the fixture
+    # goes into its own album, indexed by the media store, and the flow picks
+    # it from there — never from the phone owner's own photos. Removed after.
+    push_fixture
+    run_one ac-09 ac-09-photograph-a-meal.yaml
+    drop_fixture
   fi
   pkill -f "app.worker" 2>/dev/null
 fi

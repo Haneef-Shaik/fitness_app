@@ -103,6 +103,13 @@ it('the target is computed from the answers — not a constant', async () => {
   expect(kcal).toBeLessThan(2400);
 });
 
+it('reads each target as one sentence, not a figure and then its unit (G10 phone walk)', async () => {
+  await answerThroughMeasurements();
+  expect(screen.getByLabelText(/^Estimated: [\d,]+ kilocalories a day$/)).toBeTruthy();
+  expect(screen.getByLabelText(/^To maintain, [\d,]+$/)).toBeTruthy();
+  expect(screen.getByLabelText(/^Protein, \d+ grams, \d+ percent$/)).toBeTruthy();
+});
+
 it('saves the profile step by step, with the training answers', async () => {
   await answerThroughMeasurements();
   const last = mockPatch.mock.calls.at(-1)![0];

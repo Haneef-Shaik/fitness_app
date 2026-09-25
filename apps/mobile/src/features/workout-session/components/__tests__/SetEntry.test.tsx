@@ -3,7 +3,7 @@
  * `tracks_*`, so a plank never gets a load field in either the plan or the log.
  */
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import type { Exercise } from '@volt/api-types';
 import { LOGGER_TARGET, SetEntry, type SetEntryValue } from '../SetEntry';
 
@@ -212,6 +212,57 @@ describe('typing into the numeric fields (G10, found on a device)', () => {
       fireEvent.changeText(screen.getByTestId('entry-load-input'), next);
       expect(screen.getByTestId('entry-load-input').props.value).toBe(next);
     }
+  });
+
+  it('a LAGGING parent echo never rewrites newer typing (800 for 80, again)', () => {
+    // The emulator run of the release APK logged "800 × 86" (G10, 25 Sep): the
+    // parent's echo of an EARLIER keystroke ("8") arrived after the next one
+    // ("80") and was taken for a change from elsewhere — the field reset to
+    // "8" under the keyboard and the next key landed on top. A device's
+    // reducer can lag a keystroke; this parent lags on purpose.
+    const pending: SetEntryValue[] = [];
+    let flush: () => void = () => {};
+    function Lagging() {
+      const [value, setValue] = React.useState<SetEntryValue>(entry());
+      flush = () => { const v = pending.shift(); if (v) setValue(v); };
+      return (
+        <SetEntry exercise={ex()} value={value} onChange={(v) => { pending.push(v); }} onCommit={jest.fn()} />
+      );
+    }
+    render(<Lagging />);
+    const field = () => screen.getByTestId('entry-load-input');
+
+    fireEvent.changeText(field(), '');
+    fireEvent.changeText(field(), '8');
+    fireEvent.changeText(field(), '80');
+    // Now the echoes arrive, late, one by one.
+    act(() => flush());           // null (the erase)
+    expect(field().props.value).toBe('80');
+    act(() => flush());           // 8 — stale: the user has typed "80" since
+    expect(field().props.value).toBe('80');
+    act(() => flush());           // 80
+    expect(field().props.value).toBe('80');
+  });
+
+  it('focusing a field selects its value, so typing replaces it (G10, emulator)', () => {
+    // Tapping the middle of a centred "80" put the caret between 8 and 0:
+    // backspace removed the 8 and typing "80" gave "800" (and "8" before a
+    // "6" gave "86"). A person tapping the field got the same.
+    show(ex(), entry());
+    expect(screen.getByTestId('entry-load-input').props.selectTextOnFocus).toBe(true);
+    expect(screen.getByTestId('entry-reps-input').props.selectTextOnFocus).toBe(true);
+  });
+
+  it('a change from elsewhere still wins after typing (a repeated set)', () => {
+    function Live({ external }: { external: number | null }) {
+      const [value, setValue] = React.useState<SetEntryValue>(entry());
+      React.useEffect(() => { if (external !== null) setValue((v) => ({ ...v, loadKg: external })); }, [external]);
+      return <SetEntry exercise={ex()} value={value} onChange={setValue} onCommit={jest.fn()} />;
+    }
+    const { rerender } = render(<Live external={null} />);
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '82.5');
+    rerender(<Live external={100} />);
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('100');
   });
 });
 

@@ -75,6 +75,14 @@ describe('the projection', () => {
     expect(j.pace).toBe('off-track');
   });
 
+  it('no change at all is steady, not "moving away" (G10, seen on the phone)', () => {
+    // Start 78.4, a month later still 78.4: the card said "Moving away from
+    // the target lately" about a weight that had not moved.
+    const j = goalJourney({ ...goal, current: goal.start, today: '2026-09-29' });
+    expect(j.pace).toBe('steady');
+    expect(j.projectedDate).toBeNull();
+  });
+
   it('no pace chosen and no data: no date rather than an invented one', () => {
     const j = goalJourney({ ...goal, weeklyRate: null, current: null, today: '2026-09-02' });
     expect(j.projectedDate).toBeNull();

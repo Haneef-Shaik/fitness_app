@@ -32,7 +32,8 @@ export interface Journey {
   /** 0..1, or null when there is no check-in to measure — null is not zero. */
   progress: number | null;
   remaining: number | null;
-  pace: 'planned' | 'actual' | 'off-track' | 'unknown';
+  /** `steady`: a week or more with no change at all — not the same as going the wrong way. */
+  pace: 'planned' | 'actual' | 'steady' | 'off-track' | 'unknown';
   actualWeeklyRate: number | null;
   projectedDate: string | null;
 }
@@ -71,6 +72,10 @@ export function goalJourney(g: JourneyInput): Journey {
 
   if (g.current != null && weeks >= 1) {
     const rate = moved / weeks;
+    if (rate === 0 && !done) {
+      return { milestones, next, done, progress, remaining, pace: 'steady',
+               actualWeeklyRate: 0, projectedDate: null };
+    }
     if (rate <= 0) {
       return { milestones, next, done, progress, remaining, pace: 'off-track',
                actualWeeklyRate: round(rate), projectedDate: null };

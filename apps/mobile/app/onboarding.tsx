@@ -45,8 +45,11 @@ const STEPS: readonly { key: string; title: string; subtitle?: string; skippable
   { key: 'done', title: "You're all set", skippable: false },
 ];
 
-/** A-07: under 13, stop and explain. `[ASSUMPTION — confirm legal position]` */
-const MIN_AGE = 13;
+/**
+ * A-07: under 16, stop and explain. Q9, decided by the owner 25 Sep 2026 — the
+ * server holds the same rule (`app/domain/age.py`) whatever this screen does.
+ */
+const MIN_AGE = 16;
 
 function detectedTimezone(): string {
   try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; }

@@ -127,7 +127,10 @@ async def validation_handler(request: Request, exc: RequestValidationError):
     fields: dict[str, str] = {}
     for err in exc.errors():
         loc = [str(p) for p in err["loc"] if p not in ("body", "query", "path")]
-        fields[".".join(loc) or "body"] = err["msg"]
+        # A validator's own sentence, not Pydantic's "Value error, " wrapper:
+        # these reach the person filling in the form.
+        msg = err["msg"]
+        fields[".".join(loc) or "body"] = msg.removeprefix("Value error, ")
     return fail(
         "VALIDATION_FAILED", "Some details need fixing.",
         status_code=422, request_id=_rid(request), fields=fields,

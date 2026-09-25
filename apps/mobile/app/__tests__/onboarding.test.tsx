@@ -168,12 +168,12 @@ it('an unusual value is questioned once, then allowed', async () => {
   expect(mockPatch.mock.calls.length).toBe(before + 1);   // advanced
 });
 
-it('stops someone under 13 (A-07)', async () => {
+it('stops someone under 16 (A-07, Q9)', async () => {
   render(<Onboarding />);
   await cont();
-  const year = String(new Date().getUTCFullYear() - 10);
+  const year = String(new Date().getUTCFullYear() - 15);
   type('about-dob-d', '1'); type('about-dob-m', '1'); type('about-dob-y', year);
-  await waitFor(() => expect(screen.getByText(/aged 13 and over/)).toBeTruthy());
+  await waitFor(() => expect(screen.getByText(/aged 16 and over/)).toBeTruthy());
   expect(screen.getByTestId('onboarding-continue').props.accessibilityState.disabled).toBe(true);
 });
 

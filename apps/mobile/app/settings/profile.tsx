@@ -49,7 +49,11 @@ export default function ProfileDetails() {
       await refreshProfile();
       router.back();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "That didn't save. Check your connection and try again.");
+      // A refused field says why (e.g. A-07's age rule) rather than the
+      // envelope's generic "Some details need fixing."
+      setError(e instanceof ApiError
+        ? (Object.values(e.fields)[0] ?? e.message)
+        : "That didn't save. Check your connection and try again.");
     } finally {
       setBusy(false);
     }

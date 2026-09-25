@@ -88,3 +88,42 @@ async def test_cannot_read_another_users_goal(client, auth_client):
     r = await auth_client.get(f"/v1/goals/{goal_id}", headers={"authorization": f"Bearer {token}"})
     assert r.status_code == 403
     assert r.json()["error"]["code"] == "FORBIDDEN"
+
+
+# ── A-07 / Q9: 16 and over, held by the server ─────────────────────────────
+def _years_ago(years: int, days: int = 0):
+    from datetime import timedelta
+
+    from app.domain.age import today_anywhere
+    t = today_anywhere()
+    try:
+        d = t.replace(year=t.year - years)
+    except ValueError:                      # 29 Feb in a non-leap year
+        d = t.replace(year=t.year - years, day=28)
+    return (d + timedelta(days=days)).isoformat()
+
+
+async def test_under_16_is_refused_whatever_the_client_does(auth_client):
+    # The client stops this at onboarding; a client is not a boundary.
+    r = await auth_client.patch("/v1/profile", json={"birth_date": _years_ago(16, days=1)})
+    assert r.status_code == 422
+    assert r.json()["error"]["fields"]["birth_date"] == "Volt is for people aged 16 and over."
+
+
+async def test_16_today_is_allowed(auth_client):
+    r = await auth_client.patch("/v1/profile", json={"birth_date": _years_ago(16)})
+    assert r.status_code == 200
+
+
+async def test_a_future_birth_date_is_refused(auth_client):
+    r = await auth_client.patch("/v1/profile", json={"birth_date": _years_ago(0, days=2)})
+    assert r.status_code == 422
+
+
+def test_age_counts_whole_years_like_a_birthday():
+    from datetime import date
+
+    from app.domain.age import age_on
+    assert age_on(date(2010, 9, 25), date(2026, 9, 25)) == 16
+    assert age_on(date(2010, 9, 26), date(2026, 9, 25)) == 15
+    assert age_on(date(2008, 2, 29), date(2026, 2, 28)) == 17

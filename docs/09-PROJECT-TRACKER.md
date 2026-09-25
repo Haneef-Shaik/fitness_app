@@ -224,7 +224,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
 | 1 | **Push `main`** and watch CI and the first `e2e.yml` run | The CI fixes and the release-APK acceptance job exist only locally — this machine has no GitHub credentials | a green CI on GitHub |
-| 2 | A store build: hosted API over HTTPS, a release keystore, cleartext off | Outside G10's charter definition of a release; the APK the gate measured is debug-signed and talks HTTP to a laptop | a store listing |
+| 2 | **Host the API over HTTPS** and generate the real upload key, then `STORE=1 scripts/build-release-apk.sh` | Store signing and cleartext-off are built and verified on the APK (25 Sep, throwaway key); what is left is the owner's host and key | a store listing |
 | 3 | Expo SDK upgrade carrying react-native#48547 — then re-test **#15b** and **#28** | Both dated **2026-12-15** | — |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
@@ -555,9 +555,9 @@ can take their data and leave — each with evidence on the phone, not an opinio
   job run only once the owner pushes. The workflow's first GitHub run is still its first real test.
 - **#15b** Shift+Tab into a text field, and **#28** formatting speech — both wait for the Expo SDK
   upgrade that carries react-native#48547, **dated 2026-12-15** (owner: keep the date).
-- **Not a store build.** The release APK is signed with the debug key and allows cleartext HTTP to a
-  laptop API. Production hosting, HTTPS and a release keystore were never in the charter's release
-  definition; they are the next step before a store listing.
+- **No hosted API.** The measured APK talks HTTP to a laptop. A store build is now a mode of the
+  build script — upload-key signing (`plugins/withReleaseSigning.js`) and no cleartext, both checked
+  on the APK — but the HTTPS host and the real key are the owner's to choose and hold.
 
 **Traps hit.**
 

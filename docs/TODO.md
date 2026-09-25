@@ -16,11 +16,20 @@ are ticked, each with its evidence, and **H10.1** is recorded in the
 
 ## 2 · Before a store listing — not in G10's charter
 
-The release gate measured an installed release APK, but not a store build:
+The release gate measured an installed release APK built for a laptop API. A **store build** now
+exists as a mode of the same script, checked on the APK it produces:
 
-- [ ] A hosted API over **HTTPS** (the APK talks HTTP to a laptop on the LAN)
-- [ ] A **release keystore** (the APK is signed with the generated project's debug key)
-- [ ] `usesCleartextTraffic` off — `scripts/build-release-apk.sh` turns it on for dev builds only
+- [x] A **release keystore** — `plugins/withReleaseSigning.js` signs release builds with the upload
+      key named by `VOLT_UPLOAD_STORE_FILE` / `…_PASSWORD` / `VOLT_UPLOAD_KEY_ALIAS` / `…_PASSWORD`,
+      never kept in the repo. Verified 25 Sep with a throwaway key: `apksigner` reports the upload
+      certificate, and the build refuses the debug key
+- [x] `usesCleartextTraffic` off — `STORE=1 bash scripts/build-release-apk.sh` regenerates the
+      native project, skips the dev cleartext patch and fails if `aapt2` finds it in the APK; it
+      refuses an `http://` API URL outright
+- [ ] **A hosted API over HTTPS**, and the real upload key — the owner's: choosing a host and
+      generating the key (keep it out of the repo and back it up; a lost upload key means a reset
+      request to the store). Then: `STORE=1 API_URL=https://… VOLT_UPLOAD_…=… bash
+      scripts/build-release-apk.sh`
 
 ## 3 · Dated
 

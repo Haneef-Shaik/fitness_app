@@ -7,10 +7,16 @@
 #   API_URL=http://localhost:8000    bash scripts/build-release-apk.sh   # an emulator (adb reverse)
 #   FRESH=1 … bash scripts/build-release-apk.sh                          # re-run expo prebuild
 #
+#   STORE=1 API_URL=https://api.example.com \
+#   VOLT_UPLOAD_STORE_FILE=/abs/upload.jks VOLT_UPLOAD_STORE_PASSWORD=… \
+#   VOLT_UPLOAD_KEY_ALIAS=… VOLT_UPLOAD_KEY_PASSWORD=… bash scripts/build-release-apk.sh
+#       a STORE build: HTTPS only, no cleartext, signed with the upload key
+#       (plugins/withReleaseSigning.js), and checked for all three afterwards.
+#
 # Output: apps/mobile/android/app/build/outputs/apk/release/app-release.apk
 #
-# NOT a store build. Two things differ, both because the API here is plain HTTP
-# on a developer machine:
+# Without STORE=1 it is NOT a store build. Two things differ, both because the
+# API here is plain HTTP on a developer machine:
 #   - the manifest allows cleartext traffic (a store build talks HTTPS);
 #   - it is signed with the debug key the generated project ships with.
 # EXPO_PUBLIC_MEASURE is left unset: the latency overlay stays out.
@@ -23,6 +29,16 @@ export JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 [ -d "$JAVA_HOME" ] && export PATH="$JAVA_HOME/bin:$PATH"
 
+STORE="${STORE:-0}"
+if [ "$STORE" = 1 ]; then
+  case "$API_URL" in https://*) ;; *) echo "STORE=1 needs an https:// API_URL" >&2; exit 1 ;; esac
+  for v in VOLT_UPLOAD_STORE_FILE VOLT_UPLOAD_STORE_PASSWORD VOLT_UPLOAD_KEY_ALIAS VOLT_UPLOAD_KEY_PASSWORD; do
+    [ -n "${!v:-}" ] || { echo "STORE=1 needs $v" >&2; exit 1; }
+  done
+  [ -f "$VOLT_UPLOAD_STORE_FILE" ] || { echo "no keystore at $VOLT_UPLOAD_STORE_FILE" >&2; exit 1; }
+  FRESH=1   # a dev build's cleartext patch must not survive into a store build
+fi
+
 if [ "${FRESH:-0}" = 1 ] || [ ! -d android ]; then
   npx expo prebuild --platform android --no-install --clean
 fi
@@ -31,7 +47,7 @@ fi
 # manifest; without it a release build's every request fails, and the app shows
 # a network error that has nothing to do with the network.
 MANIFEST=android/app/src/main/AndroidManifest.xml
-if ! grep -q 'usesCleartextTraffic' "$MANIFEST"; then
+if [ "$STORE" != 1 ] && ! grep -q 'usesCleartextTraffic' "$MANIFEST"; then
   sed -i.bak 's/<application /<application android:usesCleartextTraffic="true" /' "$MANIFEST"
   rm -f "$MANIFEST.bak"
 fi
@@ -54,4 +70,15 @@ fi
 
 cd android
 EXPO_PUBLIC_API_URL="$API_URL" ./gradlew assembleRelease --no-daemon -q
+APK=app/build/outputs/apk/release/app-release.apk
+if [ "$STORE" = 1 ]; then
+  # Checked, not assumed: the three things that make it a store build.
+  BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+  "$BT/aapt2" dump xmltree --file AndroidManifest.xml "$APK" | grep -q usesCleartextTraffic \
+    && { echo "✗ the store APK allows cleartext traffic" >&2; exit 1; }
+  "$BT/apksigner" verify --print-certs "$APK" | grep -q "CN=Android Debug" \
+    && { echo "✗ the store APK is signed with the debug key" >&2; exit 1; }
+  echo "✓ store build: HTTPS API, no cleartext, signed with the upload key"
+  "$BT/apksigner" verify --print-certs "$APK" | grep "certificate DN"
+fi
 echo "built: apps/mobile/android/app/build/outputs/apk/release/app-release.apk (API $API_URL)"

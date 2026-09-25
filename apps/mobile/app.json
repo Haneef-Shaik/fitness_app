@@ -35,7 +35,8 @@
           "photosPermission": "Volt uses your photos to estimate what is in a meal you have already eaten.",
           "cameraPermission": "Volt uses the camera to photograph a meal so it can estimate the nutrition."
         }
-      ]
+      ],
+      "./plugins/withReleaseSigning"
     ],
     "experiments": {
       "typedRoutes": true

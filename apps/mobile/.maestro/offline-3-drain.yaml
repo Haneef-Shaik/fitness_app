@@ -6,10 +6,9 @@ name: Offline 3 - the queue drains
 # gone. No tap triggers this: the outbox drains on its own.
 - extendedWaitUntil:
     visible:
-      text: "Synced"
-      index: 2
+      text: "Set 3, 80 kilograms for 8 reps\\. Synced"
     timeout: 90000
-- assertNotVisible: "Waiting to sync"
+- assertNotVisible: ".*Waiting to sync.*"
 
 - scrollUntilVisible:
     element:

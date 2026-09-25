@@ -1,13 +1,14 @@
 name: Acceptance (E2E)
 
-# Not on every push: this job boots Postgres, the API, Metro and an Android
-# emulator, and builds a debug APK. It is slow by nature, so it runs nightly and
+# Not on every push: this job boots Postgres, the API and an Android emulator,
+# and builds a release APK. It is slow by nature, so it runs nightly and
 # on demand, and the fast CI in ci.yml stays the gate for a pull request.
 #
-# ⚠️ STATUS: written in G4, NEVER EXECUTED. The acceptance criteria it drives were
-# proven on a physical phone (see docs/09-PROJECT-TRACKER.md, H4.2) — not here.
-# The first run of this workflow is its first test, and it should be expected to
-# need a round of fixing. Do not read a missing run as a passing one.
+# G10 (owner's decision, 25 Sep): CI drives a RELEASE APK, the same build the
+# budgets were measured on, with the same flows the phone runs — APP_ID picks
+# the installed app instead of Expo Go. It was dry-run on the local emulator
+# (docs/09 changelog, 25 Sep); its first run on GitHub is still its first real
+# test. Do not read a missing run as a passing one.
 on:
   workflow_dispatch:
   schedule:
@@ -15,7 +16,7 @@ on:
 
 jobs:
   acceptance:
-    name: AC-01, AC-02, AC-04 and the offline flow
+    name: Acceptance suite on a release APK
     runs-on: ubuntu-latest
     timeout-minutes: 60
     services:
@@ -61,16 +62,15 @@ jobs:
         working-directory: services/api
         run: uv run python scripts/seed_demo.py
 
-      # A debug APK rather than Expo Go: Expo Go pins its own SDK version and
-      # would have to match this project's, which is exactly the coupling DR4
-      # was raised about. A local build keeps it out of CI.
-      - name: Build a debug APK
-        working-directory: apps/mobile
+      # A release APK rather than Expo Go: Expo Go pins its own SDK version and
+      # would have to match this project's (the coupling DR4 was about), and
+      # the release build is the one the budgets were measured on. The API is
+      # reached as the emulator's localhost:8000, which e2e.sh `adb reverse`s.
+      - name: Build the release APK
         env:
-          EXPO_PUBLIC_API_URL: http://10.0.2.2:8000
-        run: |
-          npx expo prebuild --platform android --no-install
-          cd android && ./gradlew assembleDebug --no-daemon
+          API_URL: http://localhost:8000
+          FRESH: "1"
+        run: bash scripts/build-release-apk.sh
 
       - name: Enable KVM
         run: |
@@ -91,8 +91,8 @@ jobs:
           target: google_apis
           # 10.0.2.2 is the host as seen from inside the emulator.
           script: |
-            adb install -r apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
-            bash scripts/e2e.sh
+            adb install -r apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+            APP_ID=com.volt.app bash scripts/e2e.sh
 
       - name: Keep the failure artifacts
         if: failure()

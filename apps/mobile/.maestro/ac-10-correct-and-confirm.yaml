@@ -19,7 +19,13 @@ env:
       PASSWORD: ${PASSWORD}
       HOST: ${HOST}
 
-# The stub proposes 200 g for "2 eggs"; say it was 150.
+# The stub proposes 200 g for "2 eggs"; say it was 150. AC-08 ends scrolled
+# down to Save, so come back up to the field first.
+- scrollUntilVisible:
+    element:
+      text: "2 eggs, Amount \\(g\\)"
+    direction: UP
+    timeout: 10000
 - tapOn: "2 eggs, Amount \\(g\\)"
 - eraseText
 - inputText: "150"

@@ -74,10 +74,16 @@ Applied at three levels. A thing is not done until its level passes.
 - [ ] The tracker is updated with what actually shipped, including what was cut
 
 ### A release is done when
-- [ ] All twelve acceptance criteria pass
-- [ ] NFR budgets in [PRD §9](01-PRD.md#9-non-functional-requirements-brd-19) are measured, not assumed
-- [ ] Accessibility pass: keyboard-only logging, screen-reader pass on diary and logger
-- [ ] Data deletion and export work end-to-end
+*Ticked 25 Sep 2026 (G10), each with its evidence.*
+- [x] All twelve acceptance criteria pass — 12 of 12 by test; every flow (AC-01/02/04/05/07/08/09/10/11
+      and offline) green on the phone and on a release APK ([tracker](09-PROJECT-TRACKER.md#quality-snapshot))
+- [x] NFR budgets in [PRD §9](01-PRD.md#9-non-functional-requirements-brd-19) are measured, not assumed —
+      [nfr-evidence.md](nfr-evidence.md): tap → set p95 67.4 ms, cold start 1.02 s on a release APK; one
+      alert deliberately fired
+- [x] Accessibility pass: keyboard-only logging, screen-reader pass on diary and logger —
+      [a11y-audit.md](a11y-audit.md), [TalkBack session](measurements/talkback-session.md)
+- [x] Data deletion and export work end-to-end — per domain and per table, G8's analysis rows included
+      (`test_account.py`)
 
 ## 5. Working agreements
 
@@ -158,8 +164,8 @@ Each has a working default so nothing is stalled, but each should be confirmed.
 
 | # | Question | Blocks | Working default |
 |---|----------|--------|-----------------|
-| Q1 | Nutrition database provider | **No longer blocks M5** (closed for the core by the resolver, 23 Sep). Still blocks **food coverage** — barcode lookup (H-17), branded products, and the licensing/attribution requirement that comes with a third-party catalog | Resolver interface + seeded internal catalog of **22 foods**. `FoodResolver` is a Protocol with `InternalCatalogResolver` behind it and a test double beside it; `_resolver()` in `app/api/routes/nutrition.py` is the **only** place a concrete resolver is named, so answering Q1 is one function, not a rewrite |
+| Q1 | ~~Nutrition database provider~~ **Closed 25 Sep (G10) by the owner: the internal catalog for v1** | — | Volt v1 ships on the `FoodResolver` interface and the seeded internal catalog; the catalog grows by seed, not by a third-party feed. **Barcode lookup (H-17) and branded products are out of v1**, and with them any licensing or attribution work. A provider later is still one function (`_resolver()` in `app/api/routes/nutrition.py`) |
 | Q3 | Is "max reps" a PR at any load? | M4 | Most reps in a single working set, any load |
 | Q5 | ~~Which weigh-in is canonical when there are several in a day?~~ **Closed 23 Sep (G9)** | — | **The first of the day**, implemented and asserted: `body_metrics` has no unique constraint per day (a second weigh-in really happened), and the *read* takes the earliest `measured_at` — earliest measured, not earliest written |
 | Q8 | ~~Are calorie targets versioned over time?~~ **Closed 24 Sep (G10)** | — | **Yes — as H-15 already promised** ("your past days keep the numbers they had"). `calorie_targets` holds one row per day the targets changed (the profile keeps the current ones, so every existing reader is unchanged); a day is judged against the latest row on or before it. H-01 reads the day's own target, H-14 judges each day against its own. Existing users were backfilled with their current targets from their profile's creation date |
-| Q9 | Minimum age / legal position | A-07 | 13+, needs legal confirmation |
+| Q9 | ~~Minimum age / legal position~~ **Closed 25 Sep (G10) by the owner: 16 and over** | — | Enforced by the **server** (`app/domain/age.py`, `ProfilePatch`: a birth date under 16 is a 422 with the reason) and by onboarding (A-07 stops and explains). 16 is the highest EU age of digital consent, so no country needs a parental-consent flow Volt does not have |

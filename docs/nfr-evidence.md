@@ -20,7 +20,7 @@ and this table is the place they are not allowed.
 | **Observability** | Monitor API latency, failed writes, AI latency, model and resolution failures | `/metrics` exports RED by route template, set commits, AI outcomes and durations, and food-resolution outcomes. Every row of the [02 §9](02-SYSTEM-ARCHITECTURE.md) alert table is a **rule that is evaluated**, not a document — `GET /v1/admin/alerts`. **One was deliberately fired**: see below | **verified, by firing one** |
 | **Data quality** | Confidence + correction paths | Confidence is on the H-08 card with the required sentence ("how sure we are we spotted the food — not how accurate the calories are"). **Q7 → no**: nothing is ever auto-confirmed, at any threshold, asserted twice. **AC-10** asserts byte-identity of the raw analysis after a correction | AC-10 + `test_ai_nutrition.py` |
 | **Extensibility** | New exercise types, nutrition fields, measurements, analytics | `meal_type` is a slug with a user-owned category table (D21); `body_metrics.metric_key` is open; B-02's dashboard is a section registry; the food resolver and the AI gateway are both Protocols with a swappable implementation | D21, D23, D26, D29 |
-| **Accessibility** | WCAG 2.2 AA `[ASSUMPTION]` | [a11y-audit.md](a11y-audit.md): **keyboard-only diary pass and keyboard-only logging done on the phone** (a food added and a set of 82.5 kg × 8 saved with keys alone, both confirmed on the server); both themes; contrast of every text tone pinned at 4.5:1 by a test. **22 findings: 16 fixed, 1 fixed forward with the backward half dated, 4 dated, 1 accepted.** The **TalkBack session is not done** — it needs a person on the phone | **OPEN — screen reader** |
+| **Accessibility** | WCAG 2.2 AA `[ASSUMPTION]` | [a11y-audit.md](a11y-audit.md): keyboard-only diary and logging on the phone; both themes; every text tone pinned at 4.5:1 by a test; and the **TalkBack session** — a workout logged start to summary and the diary read with TalkBack speaking, twice (before and after its fixes), recorded utterance by utterance in [talkback-session.md](measurements/talkback-session.md). **37 findings: 34 fixed (#15 with its Shift+Tab half dated 2026-12-15), 1 closed as not reproduced, 1 dated (2026-12-15), 1 accepted** | **verified on a device, with a screen reader** |
 | **Security** | Encryption, private storage, per-user authz, deletion | Refresh tokens in the keychain (D10); uploads are HMAC-signed over key+type+size+owner and **EXIF-stripped server-side** (G8); every route authorises by owner, with "another user cannot…" tests across every domain; **account deletion removes every row and every file**, asserted table by table from the schema's own list | `test_account.py` + `test_uploads.py` |
 
 ## Performance on the mid-tier Android, next to G4
@@ -43,3 +43,26 @@ on equal terms. **The release figures are the ones the budgets are judged on**:
 a release APK was built on this machine after all (`assembleRelease`, see
 [release-build.md](measurements/release-build.md)), and on it both budgets are
 met — p95 67.4 ms against 100 ms, cold start 1.02 s against 2.5 s.
+
+## The alert, deliberately fired — `scripts/trigger-alert.sh`, 25 Sep
+
+Re-run for the release gate against a fresh API process on the dev database:
+
+```
+One bad commit, with almost no traffic behind it
+  ✓ set_commit_failures silent: 1 failure out of 1 is 100% and means nothing
+Now 250 real commits, so the rate means something
+  ✓ 250 committed
+What is firing
+  set commits: 251 total, 1 failed
+  FIRING  set_commit_failures: 0.40% (threshold 0.10%)
+  FIRING  abandoned_sessions: 4 (threshold 1)
+```
+
+`set_commit_failures` — the tightest rule in the [02 §9](02-SYSTEM-ARCHITECTURE.md) table — fired
+only once there was enough traffic for its rate to mean something (the 200-commit minimum
+sample), and stayed silent on a sample of one. `abandoned_sessions` fired too, and correctly: the
+dev database held four sessions open for over a day, left by earlier runs of this very script,
+which never closed the session it opened. The script now cancels it, and its sample-of-one check
+asks about the rule under test rather than about every rule (it had failed on exactly this).
+

@@ -100,9 +100,9 @@ did not happen, whatever the tracker says.
 | **H3.2** | Outbox | FIFO per aggregate, idempotent replay, terminal 4xx surfaced — **reused by G7/G9** | G3 | ✅ 22 Sep |
 | **H3.3** | Recovery protocol | Local draft vs `GET /workout-sessions/active` reconciled deterministically | G3 | ✅ 22 Sep — **kill-and-relaunch verified on a device** (G4): three sets logged with the API unreachable, app force-quit, relaunched, draft restored from SQLite with its two queued sets still pending, then drained with no duplicate `client_id` |
 | **H3.4** | Session mutation endpoints | `PATCH|DELETE /session-exercises/{id}`, reorder, `PATCH /workout-sessions/{id}` | G3 | ✅ 22 Sep |
-| **H4.1** | E2E suite | AC-01, AC-02, AC-04 and the offline flow, each asserted against the **API** as well as the screen | G4 | ⚠️ 22 Sep — **all four pass on a physical device** via `scripts/e2e.sh`. **The CI job has never executed**: `.github/workflows/e2e.yml` runs nightly/on demand and builds a debug APK, so the flows' `appId` and `openLink` launch still need parametrising. Do not read a missing run as a passing one |
+| **H4.1** | E2E suite | AC-01, AC-02, AC-04 and the offline flow, each asserted against the **API** as well as the screen | G4 | ✅ 25 Sep (G10) — grown to **every flow** (AC-01/02/04/05/07/08/09/10/11 + offline), all green on the phone; every flow takes `APP_ID`, and `e2e.yml` now drives a **release APK** — dry-run on the local emulator, green. Its first GitHub run waits on a push |
 | **H4.2** | Device-verified build | Runs on a physical phone over LAN; DR4 closed | G4 | ✅ 22 Sep — **Samsung SM-E546B, Android 16**, Expo Go over LAN. `hostUri` derivation confirmed executing (laptop `192.168.1.3`, phone `192.168.1.4`); `[db] open (sqlite) journal_mode=wal`. **DR4 resolved.** Its one remaining edge: offline **plus** relaunch is not expressible in Expo Go, since the bundle reloads from Metro |
-| **H4.3** | Measured p95 | tap → set rendered, on hardware, with the number written down | G4 | ⚠️ 23 Sep — **measured and MISSED**: p95 **396.4 ms** over 99 commits, **118.7 ms** over 9, against 100 ms (D16). A baseline near 110 ms plus growth with list length. `__DEV__` build. The number exists and the budget is unchanged — [write-up](measurements/commit-p95.md) |
+| **H4.3** | Measured p95 | tap → set rendered, on hardware, with the number written down | G4 | ✅ 24 Sep (G10) — **met on a release APK: p95 67.4 ms** (p50 54.7, n=99) against 100 ms. G4's 396.4 ms stands as the `__DEV__` reading it was — [release-build](measurements/release-build.md) |
 | **H5.1** | Cursor pagination convention | One shape for every list endpoint after this | G5 | ✅ 23 Sep — keyset over `(started_at, id)`, opaque base64, declared as `CursorEnvelope`/`CursorMeta` so it reaches OpenAPI. `has_more` is counted (one row past the page), not inferred. Mutation-checked: dropping the `id` tiebreaker, and inferring `has_more` from a full page, each fail a named test |
 | **H5.2** | Session comparison primitive | Reused by G6's charts | G5 | ✅ 23 Sep — `GET /history/compare`, 2–3 sessions aligned by exercise. Every number defers to `app.domain.training` (a SQL `SUM` here would be a second definition of volume and AC-06 needs one). A missing cell is **null, never 0** |
 | **H6.1** | Chart kit | Series palette, axis, tooltip, empty state — obeys [05 §3](05-DESIGN-SYSTEM.md) | G6 | ✅ 23 Sep — `src/ui/charts/`: Column, HorizontalBar, Line, Heatmap, Meter, DotStrip, StatTile, Legend. The rules live in `series.ts` (fixed order, unassignable spacer, six-series ceiling) and `delta.ts` (a regression is never red), both mutation-checked; components apply them rather than re-deciding them. Rendered and asserted in **both themes** |
@@ -112,7 +112,7 @@ did not happen, whatever the tracker says.
 | **H8.1** | Append-only analysis tables | The raw AI result is never mutated by a correction | G8 | ✅ 23 Sep — **enforced by the database**, not by discipline: migration `m6` installs a trigger that rejects every `UPDATE` and `DELETE` on `food_analysis_items`, and a second that freezes `food_analyses`' request columns always and its model-output columns once the analysis has ended. **AC-10 asserts byte-identity** — a SHA-256 over every column of every item row, built from the table's own column list so a column added later is included automatically. Mutation-checked clause by clause: removing any one of the eight immutability conditions fails a named test. A code-level grep guard sits beside it so the mistake fails in CI as well as at runtime |
 | **H8.2** | AI gateway | Strict JSON schema, timeout, containment — **training never depends on it** | G8 | ✅ 23 Sep — `AIGateway` is a Protocol with `StubGateway` (the default — the suite never makes a network call) and `AnthropicGateway` behind it. Every call has a timeout; a response that is not the versioned schema is refused rather than partially parsed, with **one** reprompt and then a terminal `ai_invalid_output`. The worker is a **separate process** over a Postgres `SKIP LOCKED` queue. **I14 verified with two real processes and a genuinely unreachable provider** — `scripts/verify-containment.sh`: the analysis failed `ai_unavailable`, the worker stayed up, and a whole workout plus history, analytics and a manual meal all worked throughout |
 | **H9.1** | `GET /dashboard` | One call, one local date, three domains | G9 | ✅ 23 Sep — **B-01 measured at 2 requests before and 1 after**, asserted in `app/__tests__/dashboardRequests.test.tsx` so a future fan-out fails the build. The two it replaced (`/goals` + `/profile`) were rendering *placeholder* nutrition and no training or body data at all; a fan-out that actually showed all three domains would have been 6. The local date is resolved server-side and the client sends none — proved by two profiles 25 hours apart (Kiritimati and Niue) whose dashboards are on different days at every instant. Every domain renders its own empty state; a brand-new user's dashboard is three empty cards and four ways out, not a 404 |
-| **H10.1** | Release gate | Observability, a11y, perf, export/delete all evidenced | G10 | ⬜ |
+| **H10.1** | Release gate | Observability, a11y, perf, export/delete all evidenced | G10 | ✅ 25 Sep — [nfr-evidence](nfr-evidence.md): every PRD §9 NFR with a number, a recording or a named test. `set_commit_failures` fired deliberately (0.40% vs 0.10%). TalkBack session on the SM-E546B, 37 findings (34 fixed). Release APK: p95 67.4 ms, cold start 1.02 s. The acceptance suite green on the phone and on a release APK |
 
 ---
 
@@ -190,7 +190,7 @@ logger is written, not after.
 | Screens built | **6 of 103** |
 | Client test coverage | **0%** |
 | Server test coverage | 133 tests, not yet gated at a percentage |
-| Decisions blocked on the user | **Q1** nutrition provider (gates G7, G8 — ~40% of screens) · **Q9** minimum age (gates A-07 copy) |
+| Decisions blocked on the user | ~~**Q1** nutrition provider · **Q9** minimum age~~ — both answered 25 Sep (charter §9) |
 
 ---
 
@@ -835,7 +835,8 @@ the same class of mistake — a vacuous test, a lucky migration, a spec that out
 
 ## 8 · Answering the two blocked questions
 
-Neither blocks the next four goals, but both should be answered before **G7** starts.
+**Both answered by the owner on 25 Sep (G10):** Q1 — the internal catalog for v1, barcode
+lookup out of v1; Q9 — 16 and over, enforced by the server. The table is kept as it was asked.
 
 | # | Question | Blocks | What a decision unlocks | Interim position |
 |---|----------|--------|------------------------|------------------|

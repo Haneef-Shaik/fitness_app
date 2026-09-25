@@ -311,7 +311,7 @@ Six steps. Progress is saved per step, so abandoning and returning resumes in pl
 - An implausible value (height 300 cm, weight 500 kg) → a soft warning, "That looks unusual — is it
   right?", with a confirm. **Never a hard block** — outliers exist.
 - Timezone detection fails → default UTC, with the field visibly highlighted as needing attention.
-- Age under 13 → stop, explain the policy, offer account deletion. `[ASSUMPTION — confirm legal position]`
+- Age under **16** → stop, explain the policy, offer account deletion. **Q9 closed 25 Sep by the owner** — the server refuses a younger birth date too (`app/domain/age.py`).
 
 **a11y.** Each step is an `h1` change announced on navigation. The progress indicator has
 `accessibilityLabel="Step 3 of 6"`. Segmented controls use `accessibilityRole="radiogroup"`.

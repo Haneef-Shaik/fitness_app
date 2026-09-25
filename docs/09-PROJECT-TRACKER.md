@@ -1,7 +1,7 @@
 # Project Tracker
 ## Volt — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-23 (G9 closed — the dashboard) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-25 (G10 closed — the release gate) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -15,16 +15,16 @@
 
 | | |
 |---|---|
-| **Milestones complete** | M0, M1, M2, M3, M4, M5, M6, **M7** — **8 of 9** |
-| **Tests passing** | **1,162** — 110 TS domain, 431 Python *(3 skipped)*, **621 client** |
+| **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
+| **Tests passing** | **1,622** — 132 TS domain, 539 Python *(3 skipped)*, **951 client** |
 | **API endpoints live** | **97** operations across **73** paths, all with declared response shapes (D17) |
 | **App screens built** | **54** of 103 designed |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
-| **Running** | Expo app → FastAPI → PostgreSQL, verified end-to-end in a browser |
-| **Version control** | git, 41 commits · `3de5c0e` the dashboard (G9) |
-| **CI** | GitHub Actions — **5 jobs**: TS domain, Python, API-type drift gate, mobile tests, contract |
+| **Running** | Expo app → FastAPI → PostgreSQL — the acceptance suite green **on a phone** (SM-E546B, Expo Go) and dry-run on a **release APK** in the Android emulator |
+| **Version control** | git · `COMMIT_TBD` the release gate (G10) — **not yet pushed** (no GitHub credentials on the build machine) |
+| **CI** | GitHub Actions — **5 jobs** on every push (TS domain, Python, API-type drift gate, mobile tests, contract) · nightly **acceptance suite on a release APK** in an emulator (`e2e.yml`, dry-run locally 25 Sep) |
 
 ```
 M0 ████████████ done      specs, design system, 103 screens
@@ -35,7 +35,7 @@ M4 ████████████ done      training analytics
 M5 ████████████ done      nutrition core
 M6 ████████████ done      AI nutrition
 M7 ████████████ done      body & dashboard
-M8 ░░░░░░░░░░░░           hardening
+M8 ████████████ done      hardening — the release gate (G10)
 ```
 
 ---
@@ -46,13 +46,13 @@ M8 ░░░░░░░░░░░░           hardening
 |---|-----------|----------------|--------|
 | M0 | Specs & design system | Every screen specified; design system validated | 🟢 |
 | M1 | Foundations | Sign up → onboarding → dashboard, real DB | 🟢 |
-| M2 | Training core | [AC-01, AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) | 🟡 |
-| M3 | Retrieval | AC-03, AC-04, AC-05, AC-12 | ⚪ |
-| M4 | Training analytics | AC-06 | ⚪ |
+| M2 | Training core | [AC-01, AC-02](07-TRACEABILITY.md#2-acceptance-criteria--verification) | 🟢 |
+| M3 | Retrieval | AC-03, AC-04, AC-05, AC-12 | 🟢 |
+| M4 | Training analytics | AC-06 | 🟢 |
 | M5 | Nutrition core | AC-07 | 🟢 |
 | M6 | AI nutrition | AC-08, AC-09, AC-10 | 🟢 |
 | M7 | Progress & dashboard | AC-11 | 🟢 |
-| M8 | Hardening | NFR sign-off | ⚪ |
+| M8 | Hardening | NFR sign-off | 🟢 |
 
 ---
 
@@ -113,11 +113,10 @@ M8 ░░░░░░░░░░░░           hardening
 - [x] `ruff` clean and enforced in CI
 - [ ] OpenAPI → TypeScript codegen checked in *(deferred to M2, when the surface grows)*
 
-## M2 · Training core 🟡  ← in progress
+## M2 · Training core 🟢
 
 **Exit:** AC-01 (build a Chest workout) and AC-02 (record every set).
-The whole server half is done and verified against a running instance; the logger
-client is what remains.
+Server and client both done — the client in G3, proven on a phone in G4 (see their handoffs).
 
 ### Data model 🟢
 - [x] Models: `exercises`, `muscle_groups`, `exercise_muscles`, `workout_programs`, `workout_plan_days`, `plan_exercises`
@@ -146,25 +145,25 @@ client is what remains.
 - [x] Volume record is the best **single session**, not a lifetime total
 - [x] 8 mutation checks — each guard proved to fail a named test when removed
 
-### Client ⚪
-- [ ] Screens: D-01, D-02, D-03, C-02…C-07, E-01, E-02, **E-03**, E-04, E-08
-- [ ] Local-first set commits: Zustand draft + persisted store
-- [ ] Write outbox with idempotent replay
-- [ ] E-10 session recovery
+### Client 🟢 *(G3, G4)*
+- [x] Screens: D-01, D-02, D-03, C-02…C-07, E-01, E-02, **E-03**, E-04, E-08
+- [x] Local-first set commits: draft store persisted in `expo-sqlite` (D14, D19)
+- [x] Write outbox with idempotent replay (H3.2)
+- [x] E-10 session recovery (H3.3) — G10: only a session still open on the server is offered
 
-## M3 · Retrieval ⚪
-- [ ] `GET /history/workouts` with filters, cursor pagination
-- [ ] `GET /history/previous-occurrence` — the muscle-group resolution rule
-- [ ] `GET /history/compare`
-- [ ] Screens: F-01…F-07
-- [ ] AC-03 timezone test matrix · AC-05 previous chest day
+## M3 · Retrieval 🟢 *(G5)*
+- [x] `GET /history/workouts` with filters, cursor pagination
+- [x] `GET /history/previous-occurrence` — the muscle-group resolution rule
+- [x] `GET /history/compare`
+- [x] Screens: F-01…F-07
+- [x] AC-03 timezone test matrix · AC-05 previous chest day (AC-05 also on the phone, G10)
 - [x] AC-12 plan edits leave history alone — the plan day is rewritten mid-session and
       the snapshot is asserted unchanged *(`test_sessions.py`, mutation-checked)*
 
-## M4 · Training analytics ⚪
-- [ ] `/analytics/workouts`, `/muscle-volume`, `/exercises/{id}`, `/personal-records`, `/frequency`, `/adherence`
+## M4 · Training analytics 🟢 *(G6)*
+- [x] `/analytics/workouts`, `/muscle-volume`, `/exercises/{id}`, `/personal-records`, `/frequency`, `/adherence`
 - [x] PR recomputation on retroactive edit *(full re-scan — a PR can be demoted)* — landed early with M2's finish transaction
-- [ ] Screens: G-01…G-07 with charts
+- [x] Screens: G-01…G-07 with charts
 
 ## M5 · Nutrition core 🟢
 - [x] Models: `foods`, `meals`, `meal_items` **with denormalised macro columns** ([02 §4.2](02-SYSTEM-ARCHITECTURE.md)),
@@ -203,15 +202,16 @@ client is what remains.
       meal and weigh-in onto the day it now falls on. The M2 model comment had claimed
       this since before it was true
 
-## M8 · Hardening 🟡  ← G10, one line open
+## M8 · Hardening 🟢  *(G10 — the release gate)*
 - [x] Offline outbox end-to-end, L-02 sync centre, L-07 conflict — exercised on the phone; three
       offline defects fixed ([nfr-evidence](nfr-evidence.md))
 - [x] Observability: RED metrics, the alert table in [02 §9](02-SYSTEM-ARCHITECTURE.md) —
       `set_commit_failures` deliberately fired (0.40% vs 0.10%)
-- [ ] Accessibility audit — **keyboard-only logging ✅ and keyboard diary ✅ on the phone; the
-      TalkBack session is not done** (needs a person; [audit](a11y-audit.md))
-- [x] Performance budgets measured on a mid-tier Android — p95 **296.5 ms** (G4 396.4), cold start
-      **5.97 s** dev upper bound, bundle **4.33 MiB**
+- [x] Accessibility audit — keyboard-only logging and diary, both themes, contrast, and the
+      **TalkBack session** (25 Sep, two runs — [record](measurements/talkback-session.md)): 37 findings,
+      34 fixed, 1 not reproduced, 1 dated, 1 accepted ([audit](a11y-audit.md))
+- [x] Performance budgets measured on a mid-tier Android — **release APK**: tap → set p95 **67.4 ms**
+      (G4 dev 396.4 ms), cold start median **1.02 s**, bundle **4.33 MiB** ([release-build](measurements/release-build.md))
 - [x] Account export and deletion end-to-end — per domain, per table
 
 ---
@@ -223,7 +223,9 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **G10 — the TalkBack session** | Everything else in G10 is done and evidenced; the screen-reader pass on diary and logger needs a person with the phone ([TODO §0](TODO.md)) | NFR sign-off · release |
+| 1 | **Push `main`** and watch CI and the first `e2e.yml` run | The CI fixes and the release-APK acceptance job exist only locally — this machine has no GitHub credentials | a green CI on GitHub |
+| 2 | A store build: hosted API over HTTPS, a release keystore, cleartext off | Outside G10's charter definition of a release; the APK the gate measured is debug-signed and talks HTTP to a laptop | a store listing |
+| 3 | Expo SDK upgrade carrying react-native#48547 — then re-test **#15b** and **#28** | Both dated **2026-12-15** | — |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
@@ -236,29 +238,26 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 *Cleared 23 Sep: **G7** — nutrition core: foods, meals, the diary, categories, recipes, copying, targets. **AC-07**. Q1 worked around, not answered.*
 *Cleared 23 Sep: **G8** — AI nutrition: append-only analyses, a Postgres-queued worker, a contained gateway, signed uploads. **AC-08, AC-09, AC-10** — 11 of 12.*
 *Cleared 23 Sep: **G9** — body metrics, goals, progress photos and a single-call dashboard. **AC-11 — 12 of 12**. T4 implemented; Q5 closed.*
+*Cleared 25 Sep: **G10** — the release gate: TalkBack session, NFR evidence, release-APK budgets, the suite on a phone and a release APK. **M8 — 9 of 9.** Q1, Q9 answered.*
 
 ## Blocked
 
-| Item | Blocked by | Owner |
-|------|-----------|-------|
-| Food coverage, H-17 barcode | Q1 nutrition provider undecided — **narrowed twice**: M5 shipped without it on a 22-food internal catalog, and M6's AI path resolves through the same interface. What is still blocked is coverage: an AI estimate can only match what the catalog contains, and everything else stays unresolved with the model's own macros | User |
-| Device verification | No Xcode locally — needs Expo Go on a real phone. The runner is now chosen (**Maestro**, D15) but not installed | User |
-| Age policy on A-07 | Q9 legal position | User |
+Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJECT-CHARTER.md#9-open-decisions-blocking-progress)); device verification has been routine since G4.
 
 ## Quality snapshot
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **1,162** — 621 client, 431 API (+3 skipped), 110 domain | grows with each milestone |
+| Tests passing | **1,622** — 951 client, 539 API (+3 skipped), 132 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **431** | every endpoint, happy + failure |
+| API integration tests | **539** | every endpoint, happy + failure |
 | Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
 | Migrations | **7** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, M5 nutrition, M6 AI analyses, **M7 body metrics, daily summaries and progress photos** | kept reversible — M5, M6 and M7 each round-tripped upgrade → downgrade → re-upgrade before they shipped |
 | Mutation checks | **96** verified catches — **G9 added 17**: the canonical weigh-in in both directions, ordering by written rather than measured, unit conversion skipped, the local date taken from the device clock, four write paths that forget to invalidate a summary, the timezone re-bucket and its cache clear, an unconfirmed item reaching the dashboard's calories, progress clamped, progress reported as zero when unmeasured, a borrowed baseline, a naive streak, and six on the screens. **Three survived and each exposed a real gap**: the timezone test was time-of-day dependent (two profiles **25 hours apart** always differ, one profile only sometimes does); a summary column nothing read could not have its invalidation tested, so the body card now reads it; and `invalidate_all` on a timezone change was unjustified until T4 was actually implemented | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | **enforced**, and **ratcheted in G9** to **65/60/60/66** (from G8's 62/56/57/63). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **68.4%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **65.25%** statements / **66.59%** lines. The gate caught G9 mid-goal: the screens landed before their tests and the functions threshold failed, which is the ratchet working | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **12 of 12** — AC-01 … AC-12, all proven. **On hardware (G10): AC-01, 02, 04, 05, 07, 11 and the offline flow**, each asserted on the screen *and* in the database, suite green on the SM-E546B. AC-03, 06, 08, 09, 10 and 12 still rest on API and client tests | 12 of 12 ✅ |
-| tap → set rendered | **p95 296.5 ms** over 99 commits (G10; G4 was 396.4 ms) — Samsung SM-E546B, Android 16, `__DEV__` build. [G10](measurements/commit-p95-g10.md) · [G4](measurements/commit-p95.md) | p95 < 100 ms (D16) — **still MISSED**, not regressed |
+| Acceptance criteria passing | **12 of 12**. **On the phone (G10, 25 Sep): every flow — AC-01, 02, 04, 05, 07, 08, 09, 10, 11 and the offline flow**, each asserted on the screen *and* in the database (Expo Go, SM-E546B). The same flows on an installed **release APK** in the emulator: **all ten green in one clean run** (25 Sep, after finding 37). AC-03, 06 and 12 rest on API tests by nature (timezone matrices, analytics agreement, plan-edit snapshots) | 12 of 12 ✅ |
+| tap → set rendered | **p95 67.4 ms** on a release APK (p50 54.7, n=99) — Samsung SM-E546B, Android 16 · dev build 296.5 ms (G4 dev 396.4 ms). [release-build](measurements/release-build.md) | p95 < 100 ms (D16) — **MET** |
 
 ## Changelog
 
@@ -290,6 +289,11 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 | 22 Sep | **G4 in progress, blocked on hardware.** AC-04's previous-performance strip built (G3 never had it), Maestro 2.10.0 installed with 4 flows, latency harness added. Client tests 251 → 297 |
 | 22 Sep | `forceExit` **removed** from the Jest config — carried since G1, and dropping Zustand in G3 took the cause with it. Verified over three clean runs |
 | 22 Sep | Two more bugs closed by covering the untested layer: the sync-dot reconciliation, and `session.tsx` leaving an email on screen after a failed profile fetch |
+| 25 Sep | **G10 closed — the release gate.** A **TalkBack session** on the phone, driven through a uinput virtual keyboard and read off TalkBack's speech card, found twelve defects the accessibility tree could not show — no text field said its name, a set row took six swipes, saving a set was silent — all fixed and re-verified in a second run ([record](measurements/talkback-session.md)). The device runs found three more. **37 a11y findings: 34 fixed, 1 not reproduced, 1 dated, 1 accepted** |
+| 25 Sep | **A finished workout came back as open** — the session screen re-adopted it after Finish, and every launch then offered to resume it. **The diary missed a queued meal** — reads now move when the outbox *delivers* a write. **Add food did not scroll**, cutting off both AI entry points. All three found on the phone, all fixed with failing-first tests |
+| 25 Sep | **Every acceptance flow green on the phone**, AC-09 with its first flow (a fixture photo from its own album, never the owner's). `e2e.yml` now drives a **release APK** (owner's decision); flows take `APP_ID`; dry-run on the emulator, where it found finding 37 — a caret, not a race |
+| 25 Sep | **Q1** — internal catalog for v1, barcode lookup out · **Q9** — 16 and over, held by the server. Both the owner's decisions |
+| 24 Sep | **Both performance budgets met on a release APK** — tap → set p95 **67.4 ms**, cold start **1.02 s** — and CI's red runs of `9781d3c`/`0a85d25` fixed (Node types, query-layer coverage, migration lint, stale API types) |
 | 23 Sep | **G9 — the dashboard.** `body_metrics`, `daily_summaries`, `progress_photos` (migration `m7`), `GET /analytics/body` and **`GET /dashboard`** — one call, one server-resolved local date, three domains. Screens **I-01…I-06, J-01…J-04, B-02…B-05**, and B-01 rebuilt on it: **2 requests → 1**, measured. **AC-11 proven — 12 of 12**. API tests 361 → 431, client 545 → 621, domain 91 → 110. Q5 closed, edge case T4 implemented |
 | 23 Sep | **G8 — AI nutrition.** `food_analyses` / `food_analysis_items` **append-only at the database level**, a Postgres `SKIP LOCKED` queue with the worker in its own process, an `AIGateway` Protocol (stub by default, Anthropic behind a key), signed uploads with EXIF stripped twice, and screens **H-06…H-09, H-18**. **AC-08, AC-09 and AC-10 proven — 11 of 12**. API tests 293 → 361, client 502 → 545. Migration `m6` |
 | 23 Sep | **G7 — nutrition core.** `foods`, `meals`, `meal_items`, `meal_categories`, `recipes`, migration `2fb1377688cf`. Endpoints `/foods`, `/meals`, `/meal-items`, `/recipes`, `/meal-categories`, `/nutrition/day` and the two copy routes. Screens **H-01…H-05, H-10…H-13, H-15, H-16**. **AC-07 proven — 8 of 12**. API tests 241 → 293, client 414 → 502, domain 59 → 91. Q1 **not** answered; the resolver made it optional |
@@ -505,6 +509,68 @@ Coverage: **63.7%** statements, **68.9%** lines. `src/lib/query` **97%**, `DataB
   time, so under Jest it is already `undefined` and no assignment can reach the branch. Confirmed by
   reading the babel output. Documented in `api.ts` and left explicitly untested rather than covered
   by a test that proves nothing.
+
+---
+
+### Handoff — G10 · Release gate            closed 25 Sep · `COMMIT_TBD`
+
+**Outcome claimed.** The product is observable, accessible, fast on a mid-tier Android, and a user
+can take their data and leave — each with evidence on the phone, not an opinion. **M8 closes; 9 of 9.**
+
+**Inherited and used.** Everything. Debt cleared from prior "Left undone" lines:
+
+| From | Debt | Now |
+|------|------|-----|
+| G4 | `e2e.yml` builds a debug APK its flows cannot drive | CI builds a **release APK** (`scripts/build-release-apk.sh`); every flow takes `APP_ID`; dry-run on the local emulator — owner's decision, 25 Sep |
+| G4 | p95 tap → set **missed** (396.4 ms, dev) | **67.4 ms** on a release APK (budget 100 ms); cold start **1.02 s** (budget 2.5 s) |
+| G7 / G9 | **Q1** provider, **Q9** age | Both **answered by the owner** 25 Sep: internal catalog for v1; 16 and over, enforced by the server |
+| G9 | AC-07 … AC-11 never run on hardware | **All ten flows green on the phone** (AC-01/02/04/05/07/08/09/10/11 + offline); AC-09 got its first flow |
+| G9 | H-14 analytics, I-01 projection, a profile screen, reminders that send | Built in G10 and walked on the phone |
+
+**Produced.**
+
+| ID | Artefact | Claim | Evidence |
+|----|----------|-------|----------|
+| H10.1 | Release gate | Observability, a11y, perf, export/delete all evidenced | [nfr-evidence.md](nfr-evidence.md) — one row per PRD §9 NFR, each a number, a recording or a named test |
+
+**Verified.**
+
+- **Alert deliberately triggered:** `set_commit_failures` — 251 commits, 1 failed, **0.40% against
+  0.10%**; silent on a sample of one (25 Sep re-run, [nfr-evidence](nfr-evidence.md#the-alert-deliberately-fired--scriptstrigger-alertsh-25-sep)).
+  `abandoned_sessions` fired alongside it, on real open sessions.
+- **A11y:** a **TalkBack session** on the SM-E546B — a workout logged start → summary and the diary
+  read, twice ([record](measurements/talkback-session.md)), driven through a uinput virtual keyboard
+  because `adb shell input` never reaches TalkBack. Keyboard-only diary and logging. **37 findings:
+  34 fixed, 1 closed as not reproduced, 1 dated, 1 accepted** ([audit](a11y-audit.md)).
+- **Performance on the SM-E546B (Galaxy M54 5G, Exynos 1380), release APK:** tap → set p95
+  **67.4 ms** (G4: 396.4 ms, dev), cold start median **1.02 s**, bundle **4.33 MiB**.
+- **Export:** every domain, asserted per domain · **Delete:** every table queried for the user's id
+  afterwards, **including G8's append-only analysis rows**, and every uploaded file.
+- **E2E:** the phone run of the full suite (Expo Go) green — AC-10 on a re-run after a flow fix —
+  and AC-02 four more times in a row for #18.
+
+**Left undone, and why.**
+
+- **Nothing pushed.** This machine has no GitHub credentials; the CI fixes and the release-APK E2E
+  job run only once the owner pushes. The workflow's first GitHub run is still its first real test.
+- **#15b** Shift+Tab into a text field, and **#28** formatting speech — both wait for the Expo SDK
+  upgrade that carries react-native#48547, **dated 2026-12-15** (owner: keep the date).
+- **Not a store build.** The release APK is signed with the debug key and allows cleartext HTTP to a
+  laptop API. Production hosting, HTTPS and a release keystore were never in the charter's release
+  definition; they are the next step before a store listing.
+
+**Traps hit.**
+
+- **The tree was not the screen reader.** Finding 1 was "fixed" in G10 against the accessibility
+  tree; TalkBack showed no field's name was ever spoken (#24). The gate's own rule — *the a11y pass is
+  a thing you do* — was the only reason it surfaced.
+- **"Cannot be driven from a host"** was a statement about `adb shell input`, not about TalkBack.
+- **A script that edits whatever device answers.** `emulator.sh` used bare `adb`; with the emulator
+  failing to boot it switched the owner's phone's animations off. Restored, and every call pinned.
+- **Maestro's flow `env:` beats `-e`.** An `APP_ID` default in the flow silently overrode the
+  command line; the value is resolved at run time instead.
+- **A diagnostic check that asked the wrong question.** `trigger-alert.sh` refused to run because
+  *any* alert fired, and one legitimately was — on sessions the script itself had left open.
 
 ---
 

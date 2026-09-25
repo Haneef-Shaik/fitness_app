@@ -72,3 +72,15 @@ it('a failed save says so and stays on the screen', async () => {
   expect(screen.getByTestId('profile-error')).toBeTruthy();
   expect(mockBack).not.toHaveBeenCalled();
 });
+
+it('a refused field says why — the server holds the age rule (A-07, Q9)', async () => {
+  const { ApiError } = jest.requireActual('@/lib/api');
+  mockPatch.mockRejectedValueOnce(new ApiError(
+    'VALIDATION_FAILED', 'Some details need fixing.', 422,
+    { birth_date: 'Volt is for people aged 16 and over.' },
+  ));
+  render(<ProfileDetails />);
+  await save();
+  expect(screen.getByTestId('profile-error').props.children).toBe('Volt is for people aged 16 and over.');
+  expect(mockBack).not.toHaveBeenCalled();
+});

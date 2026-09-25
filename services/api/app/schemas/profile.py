@@ -3,7 +3,9 @@ from __future__ import annotations
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.domain.age import MIN_AGE_YEARS, age_on, today_anywhere
 
 
 class ProfileOut(BaseModel):
@@ -49,3 +51,17 @@ class ProfilePatch(BaseModel):
     session_minutes: int | None = Field(default=None, ge=15, le=240)
     equipment: Literal["full_gym", "home_gym", "dumbbells", "bodyweight"] | None = None
     checkin_interval_days: int | None = Field(default=None, ge=1, le=31)
+
+    @field_validator("birth_date")
+    @classmethod
+    def _old_enough(cls, v: date | None) -> date | None:
+        # A-07 / Q9: the client stops a younger person at onboarding, but the
+        # rule belongs to the server — a client is not a boundary.
+        if v is None:
+            return v
+        today = today_anywhere()
+        if v > today:
+            raise ValueError("Birth date is in the future.")
+        if age_on(v, today) < MIN_AGE_YEARS:
+            raise ValueError(f"Volt is for people aged {MIN_AGE_YEARS} and over.")
+        return v

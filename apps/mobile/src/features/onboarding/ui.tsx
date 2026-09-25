@@ -119,7 +119,8 @@ export function NumberField({ label, value, onChange, unit, testID, placeholder,
   return (
     <View style={{ gap: 6, flex }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.xs }}>
-        <Text variant="caption" tone="ink3">{label}</Text>
+        {/* The field below says this itself, as its hint (ui/TextInput, a11y #24). */}
+        <Text variant="caption" tone="ink3" accessibilityElementsHidden importantForAccessibility="no">{label}</Text>
         {hint ? (
           <Text variant="caption" tone="ink3" numberOfLines={1} testID={testID ? `${testID}-hint` : undefined}>{hint}</Text>
         ) : null}
@@ -138,7 +139,7 @@ export function NumberField({ label, value, onChange, unit, testID, placeholder,
           testID={testID}
           style={{ flex: 1, color: c.ink, fontSize: 18, fontFamily: font.data }}
         />
-        {unit ? <Text variant="body" tone="ink3">{unit}</Text> : null}
+        {unit ? <Text variant="body" tone="ink3" accessibilityElementsHidden importantForAccessibility="no">{unit}</Text> : null}
       </View>
     </View>
   );
@@ -151,7 +152,7 @@ export function TextField({ label, value, onChange, testID, placeholder }: {
   const { c } = useTheme();
   return (
     <View style={{ gap: 6 }}>
-      <Text variant="caption" tone="ink3">{label}</Text>
+      <Text variant="caption" tone="ink3" accessibilityElementsHidden importantForAccessibility="no">{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChange}

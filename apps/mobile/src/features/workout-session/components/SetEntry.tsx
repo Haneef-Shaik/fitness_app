@@ -90,10 +90,23 @@ function Stepper({
   //: doing so makes the very next render look like the parent changed the
   //: value, and the field resets itself to what it just told the parent.
   const lastProp = useRef(value);
+  //: Values this field has sent up and whose echo has not come back yet. A
+  //: device's reducer can lag a keystroke: the echo of "8" can arrive after
+  //: "80" was typed, and taken for a change from elsewhere it reset the field
+  //: under the keyboard — "800 × 86" on the emulator's release build (G10).
+  const sent = useRef<(number | null)[]>([]);
 
   useEffect(() => {
     if (lastProp.current === value) return;
     lastProp.current = value;
+    // An echo of our own typing is not a change from elsewhere: drop it and
+    // everything sent before it, and leave the text alone.
+    const echo = sent.current.indexOf(value);
+    if (echo !== -1) {
+      sent.current = sent.current.slice(echo + 1);
+      return;
+    }
+    sent.current = [];
     // Only adopt the prop when it disagrees with what is on screen, so a
     // partially typed "8." is never replaced by "8" mid-keystroke.
     if (parseEntry(text) !== value) setText(toText(value, format));
@@ -149,12 +162,18 @@ function Stepper({
           testID={`${testID}-input`}
           accessibilityLabel={label}
           keyboardType="decimal-pad"
+          // Tapping a centred "80" put the caret between 8 and 0, so the
+          // next keys made "800" (G10, found by the emulator run). Selected
+          // on focus, what is typed replaces the value, as a logger expects.
+          selectTextOnFocus
           value={text}
           placeholder="—"
           placeholderTextColor={c.ink3}
           onChangeText={(next) => {
             setText(next);
-            onChange(parseEntry(next));
+            const parsed = parseEntry(next);
+            sent.current = [...sent.current, parsed].slice(-16);
+            onChange(parsed);
           }}
           style={{
             flex: 1, minHeight: LOGGER_TARGET, textAlign: 'center',

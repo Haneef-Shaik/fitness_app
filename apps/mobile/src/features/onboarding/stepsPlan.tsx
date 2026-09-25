@@ -29,7 +29,7 @@ export function TargetsStep({ plan }: { plan: EnergyPlan | null }) {
   const macro = (label: string, grams: number, kcalPerG: number) => {
     const pct = Math.round((grams * kcalPerG * 100) / plan.calories);
     return (
-      <View key={label} style={{ gap: 4 }}>
+      <View key={label} style={{ gap: 4 }} accessible accessibilityLabel={`${label}, ${grams} grams, ${pct} percent`}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Text variant="body">{label}</Text>
           <Text variant="body" tone="ink2">{grams} g · {pct}%</Text>
@@ -45,7 +45,11 @@ export function TargetsStep({ plan }: { plan: EnergyPlan | null }) {
       {/* ✦ and a dashed border: this is an estimate (00 §3.7), not a measurement. */}
       <View style={{ borderWidth: 1.5, borderStyle: 'dashed', borderColor: c.line2, borderRadius: radius.card, padding: space.lg, gap: space.base }}>
         <Text variant="caption" tone="ink3">✦ Estimated from your answers</Text>
-        <View style={{ alignItems: 'center' }}>
+        <View
+          style={{ alignItems: 'center' }}
+          accessible
+          accessibilityLabel={`Estimated: ${fmt(plan.calories)} kilocalories a day`}
+        >
           <Text variant="hero" style={{ fontSize: 44 }} testID="targets-kcal">{fmt(plan.calories)}</Text>
           <Text variant="caption" tone="ink3">kcal a day</Text>
         </View>
@@ -85,7 +89,7 @@ export function TargetsStep({ plan }: { plan: EnergyPlan | null }) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <View style={{ flex: 1, alignItems: 'center', gap: 2 }}>
+    <View style={{ flex: 1, alignItems: 'center', gap: 2 }} accessible accessibilityLabel={`${label}, ${value}`}>
       <Text variant="caption" tone="ink3">{label}</Text>
       <Text variant="body" style={{ fontFamily: font.dataSemi }}>{value}</Text>
     </View>

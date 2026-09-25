@@ -58,6 +58,7 @@ export function JourneyCard({ goal, today }: { goal: GoalCard; today: string }) 
       : 'Log a weigh-in to start the journey';
 
   const projection = j.done ? null
+    : j.pace === 'steady' ? 'Holding steady so far — no change yet; the trend over weeks is what counts.'
     : j.pace === 'off-track' ? 'Moving away from the target lately — nothing to panic about; the trend over weeks is what counts.'
     : j.projectedDate ? `${j.pace === 'actual' ? 'At your current pace' : 'At your planned pace'} you'll reach ${kg(goal.target_value)} around ${shortDate(j.projectedDate, today)}.`
     : null;

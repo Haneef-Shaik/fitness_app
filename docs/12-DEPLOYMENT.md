@@ -474,9 +474,12 @@ The drill signs in as that account — never as a real user.
    `DATABASE_URL='…?ssl=require' uv run alembic current` (from `services/api`) → the head revision.
 5. **Check the data:** the two queries from step 1. The difference from what you recorded is your
    recovery point — at most a day on daily backups, minutes with PITR.
-6. **Check it end to end:** run the API locally against the restored database
-   (`DATABASE_URL=… STORAGE_BACKEND=local uv run uvicorn app.main:app`), sign in as the drill
-   account (`POST /v1/auth/login`), and read `/v1/history/workouts`: the drill workout is there.
+6. **Check it end to end:** the sign-ins live in the database, so they come back with it. Run the
+   API locally against the restored project (`DATABASE_URL=… SUPABASE_URL=https://<new-ref>.supabase.co
+   SUPABASE_SECRET_KEY=… STORAGE_BACKEND=local uv run uvicorn app.main:app`), sign in as the drill
+   account against the same project (`SUPABASE_URL=… SUPABASE_PUBLISHABLE_KEY=… python3
+   scripts/supabase_signin.py restore-drill@… '<password>'` prints a token), and read
+   `/v1/history/workouts` with it: the drill workout is there.
 7. **Write it down** in `docs/measurements/restore-drill-<date>.md`: backup time, restore duration,
    data age, and anything that surprised you.
 8. **Delete the scratch project.**

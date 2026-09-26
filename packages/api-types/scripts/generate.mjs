@@ -4,10 +4,10 @@
  * One command, used identically by a developer and by CI, so the drift gate
  * checks the same thing a developer would produce:
  *
- *     pnpm --filter @volt/api-types generate
+ *     pnpm --filter @fitlog/api-types generate
  *
  * It boots the API itself on a scratch port, waits for the document, writes the
- * types and stops the server. Set VOLT_OPENAPI_URL to generate from a server
+ * types and stops the server. Set FITLOG_OPENAPI_URL to generate from a server
  * that is already running instead.
  */
 import { spawn, spawnSync } from 'node:child_process';
@@ -18,8 +18,8 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, '../../..');
 const OUT = resolve(here, '../src/schema.d.ts');
-const PORT = Number(process.env.VOLT_OPENAPI_PORT ?? 8077);
-const EXTERNAL = process.env.VOLT_OPENAPI_URL;
+const PORT = Number(process.env.FITLOG_OPENAPI_PORT ?? 8077);
+const EXTERNAL = process.env.FITLOG_OPENAPI_URL;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -67,7 +67,7 @@ async function main() {
       ' * GENERATED FILE — DO NOT EDIT.\n' +
       ' *\n' +
       ' * Produced from the API\'s OpenAPI document by:\n' +
-      ' *   pnpm --filter @volt/api-types generate\n' +
+      ' *   pnpm --filter @fitlog/api-types generate\n' +
       ' *\n' +
       ' * CI regenerates this and fails the build if it differs (D3b). A hand-edit here\n' +
       ' * is drift with extra steps: change the Pydantic schema instead.\n' +

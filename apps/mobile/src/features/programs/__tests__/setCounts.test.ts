@@ -4,7 +4,7 @@
  * I4/D7 — primary ×1.0, secondary ×0.5. It must be the SAME weighting G-02's
  * analytics use, or the plan editor promises a balance the reports then deny.
  */
-import type { Exercise, PlanExerciseIn } from '@volt/api-types';
+import type { Exercise, PlanExerciseIn } from '@fitlog/api-types';
 import { muscleSetCounts } from '../setCounts';
 
 const bench = {

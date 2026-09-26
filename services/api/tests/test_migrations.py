@@ -51,7 +51,7 @@ async def test_downgrade_then_upgrade_round_trips():
     """
     base = get_settings().test_database_url
     admin_url = base.rsplit("/", 1)[0] + "/postgres"
-    scratch_name = "volt_test_migrations"
+    scratch_name = "fitlog_test_migrations"
     scratch_url = base.rsplit("/", 1)[0] + f"/{scratch_name}"
 
     admin = create_async_engine(admin_url, isolation_level="AUTOCOMMIT")

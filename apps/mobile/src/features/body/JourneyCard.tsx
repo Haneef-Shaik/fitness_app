@@ -9,8 +9,8 @@
  */
 import React from 'react';
 import { View } from 'react-native';
-import type { GoalCard } from '@volt/api-types';
-import { goalJourney } from '@volt/domain';
+import type { GoalCard } from '@fitlog/api-types';
+import { goalJourney } from '@fitlog/domain';
 import { Card, Text } from '@/ui';
 import { shortDate } from '@/features/dashboard/date';
 import { font, space, useTheme } from '@/theme';

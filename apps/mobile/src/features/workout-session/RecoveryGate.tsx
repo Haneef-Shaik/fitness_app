@@ -13,7 +13,7 @@ import { useSessionStore } from './store/sessionStore';
 import type { SessionDraft } from './store/types';
 import { draftWithSetsFromServer } from './useSession';
 import { RecoveryPrompt } from './components/RecoveryPrompt';
-import type { WorkoutSession } from '@volt/api-types';
+import type { WorkoutSession } from '@fitlog/api-types';
 
 /** True when the server says this session is finished, cancelled or gone. */
 async function closedOnServer(sessionId: string): Promise<boolean> {

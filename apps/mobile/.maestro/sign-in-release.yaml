@@ -1,15 +1,15 @@
-# Prelude for an installed RELEASE build (`com.volt.app`): sign-in.yaml with the
+# Prelude for an installed RELEASE build (`com.fitlog.app`): sign-in.yaml with the
 # app chosen for it. One sign-in, so the two cannot drift — they had, by 108
 # lines, before G10 folded them together.
-appId: com.volt.app
+appId: com.fitlog.app
 name: Sign in (release build)
 env:
-  EMAIL: demo@volt.app
-  PASSWORD: voltdemo1234
+  EMAIL: demo@fitlog.app
+  PASSWORD: fitlogdemo1234
 ---
 - runFlow:
     file: sign-in.yaml
     env:
       EMAIL: ${EMAIL}
       PASSWORD: ${PASSWORD}
-      APP_ID: com.volt.app
+      APP_ID: com.fitlog.app

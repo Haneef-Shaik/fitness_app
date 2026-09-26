@@ -54,9 +54,9 @@ class TestRED:
         body = (await auth_client.get("/metrics")).text
 
         # Rate, errors and duration — the three, on a route that was really hit.
-        assert _metric(body, "volt_http_requests_total",
+        assert _metric(body, "fitlog_http_requests_total",
                        route="/v1/exercises", method="GET", status="2xx") >= 1
-        assert _metric(body, "volt_http_request_duration_seconds_count",
+        assert _metric(body, "fitlog_http_request_duration_seconds_count",
                        route="/v1/exercises", method="GET") >= 1
 
     async def test_the_route_label_is_the_TEMPLATE_not_the_path(self, auth_client):
@@ -73,7 +73,7 @@ class TestRED:
         await auth_client.get(f"/v1/goals/{goal['id']}")
 
         body = (await auth_client.get("/metrics")).text
-        assert _metric(body, "volt_http_requests_total",
+        assert _metric(body, "fitlog_http_requests_total",
                        route="/v1/goals/{goal_id}", method="GET", status="2xx") >= 1
         assert str(goal["id"]) not in body
 
@@ -83,7 +83,7 @@ class TestRED:
         body = (await auth_client.get("/metrics")).text
         # A 404 is the API working. Counting it as an error is how a dashboard
         # cries wolf until nobody looks at it.
-        assert _metric(body, "volt_http_requests_total",
+        assert _metric(body, "fitlog_http_requests_total",
                        route="/v1/goals/{goal_id}", method="GET", status="4xx") >= 1
 
     async def test_set_commits_are_counted_separately(self, auth_client):
@@ -101,7 +101,7 @@ class TestRED:
             headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
 
         body = (await auth_client.get("/metrics")).text
-        assert _metric(body, "volt_set_commits_total", outcome="ok") >= 1
+        assert _metric(body, "fitlog_set_commits_total", outcome="ok") >= 1
 
     async def test_a_failed_set_commit_is_counted_as_one(self, auth_client):
         exercises = _data(await auth_client.get("/v1/exercises", params={"limit": 1}))
@@ -119,7 +119,7 @@ class TestRED:
         assert r.status_code == 422
 
         body = (await auth_client.get("/metrics")).text
-        assert _metric(body, "volt_set_commits_total", outcome="failed") >= 1
+        assert _metric(body, "fitlog_set_commits_total", outcome="failed") >= 1
 
     async def test_ai_analyses_are_counted_by_outcome(self, auth_client, worker, gateway):
         from app.ai.gateway import AIUnavailable
@@ -134,16 +134,16 @@ class TestRED:
         await worker.drain()
 
         body = (await auth_client.get("/metrics")).text
-        assert _metric(body, "volt_ai_analyses_total", outcome="completed") >= 1
-        assert _metric(body, "volt_ai_analyses_total", outcome="failed") >= 1
-        assert _metric(body, "volt_ai_analysis_duration_seconds_count") >= 1
+        assert _metric(body, "fitlog_ai_analyses_total", outcome="completed") >= 1
+        assert _metric(body, "fitlog_ai_analyses_total", outcome="failed") >= 1
+        assert _metric(body, "fitlog_ai_analysis_duration_seconds_count") >= 1
 
     async def test_metrics_do_not_require_a_token(self, client):
         # A scraper is not a user. Requiring a bearer token here is how metrics
         # end up not being collected.
         r = await client.get("/metrics")
         assert r.status_code == 200
-        assert "volt_http_requests_total" in r.text
+        assert "fitlog_http_requests_total" in r.text
 
     async def test_every_response_carries_a_request_id(self, auth_client):
         r = await auth_client.get("/v1/exercises", params={"limit": 1})
@@ -241,10 +241,10 @@ class TestTheAIQueue:
         _data(await auth_client.post("/v1/food-analysis/text", json={"text": "1 roti"}), 202)
 
         body = (await auth_client.get("/metrics")).text
-        assert _metric(body, "volt_ai_queue_depth", status="pending") == 2
-        assert _metric(body, "volt_ai_queue_depth", status="processing") == 0
-        assert "volt_ai_queue_oldest_pending_seconds" in body
-        assert "volt_ai_queue_oldest_processing_seconds" in body
+        assert _metric(body, "fitlog_ai_queue_depth", status="pending") == 2
+        assert _metric(body, "fitlog_ai_queue_depth", status="processing") == 0
+        assert "fitlog_ai_queue_oldest_pending_seconds" in body
+        assert "fitlog_ai_queue_oldest_processing_seconds" in body
 
     async def test_a_job_stuck_in_processing_fires_an_alert(self, auth_client, db):
         from datetime import UTC, datetime, timedelta

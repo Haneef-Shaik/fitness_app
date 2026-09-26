@@ -1,7 +1,7 @@
 /** D-02 · Exercise Detail — PRs, e1RM trend, recent sessions, never-performed. */
 import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
-import type { ExerciseHistoryEntry } from '@volt/api-types';
+import type { ExerciseHistoryEntry } from '@fitlog/api-types';
 import { Button, Card, Pill, Stat, StatRow, Text, Well } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

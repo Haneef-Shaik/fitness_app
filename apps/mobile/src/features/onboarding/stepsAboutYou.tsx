@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { View } from 'react-native';
-import { goalJourney } from '@volt/domain';
+import { goalJourney } from '@fitlog/domain';
 import { Text } from '@/ui';
 import { shortDate } from '@/features/dashboard/date';
 import { space } from '@/theme';

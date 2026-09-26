@@ -208,7 +208,7 @@ export default function Onboarding() {
       canContinue={!tooYoung}
       busy={busy}
       notices={[
-        ...(tooYoung ? [`Volt is for people aged ${MIN_AGE} and over.`] : []),
+        ...(tooYoung ? [`FitLog is for people aged ${MIN_AGE} and over.`] : []),
         ...(warned ? [...warnings, "If that's right, tap Continue again."] : []),
         ...(error ? [error] : []),
       ]}

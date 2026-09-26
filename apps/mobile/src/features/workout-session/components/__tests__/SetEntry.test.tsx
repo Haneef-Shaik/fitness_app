@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
-import type { Exercise } from '@volt/api-types';
+import type { Exercise } from '@fitlog/api-types';
 import { LOGGER_TARGET, SetEntry, type SetEntryValue } from '../SetEntry';
 
 const EMPTY: SetEntryValue = {

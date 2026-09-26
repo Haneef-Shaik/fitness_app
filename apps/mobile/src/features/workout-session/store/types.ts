@@ -8,7 +8,7 @@
  * Canonical units throughout (**I6**): `loadKg` is kilograms whatever the user
  * typed; `loadUnitEntered` records what they typed so the UI can show it back.
  */
-import type { SetType } from '@volt/domain';
+import type { SetType } from '@fitlog/domain';
 
 export type SyncState = 'pending' | 'syncing' | 'synced' | 'failed';
 

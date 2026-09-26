@@ -7,7 +7,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ProgramTemplate } from '@volt/api-types';
+import type { ProgramTemplate } from '@fitlog/api-types';
 import { Pill, Text } from '@/ui';
 import { Pressable } from '@/ui/Pressable';
 import { count } from '@/features/nutrition/format';

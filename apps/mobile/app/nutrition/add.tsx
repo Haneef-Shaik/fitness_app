@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
-import type { Food } from '@volt/api-types';
+import type { Food } from '@fitlog/api-types';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

@@ -2,7 +2,7 @@
 
 Q9 was decided by the owner on 25 Sep 2026: **16 and over**. The app keeps body
 weight, measurements and progress photos, and 16 is the highest age of digital
-consent in the EU, so no country's users need a parental-consent flow Volt does
+consent in the EU, so no country's users need a parental-consent flow FitLog does
 not have. The client stops a younger person at onboarding; this is the rule the
 server holds everyone to, whatever the client does.
 """

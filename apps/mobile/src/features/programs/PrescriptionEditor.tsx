@@ -12,7 +12,7 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
-import type { Exercise, PlanExerciseIn } from '@volt/api-types';
+import type { Exercise, PlanExerciseIn } from '@fitlog/api-types';
 import { Button, Text } from '../../ui';
 import { Sheet } from '../../ui/Sheet';
 import { radius, space, useTheme } from '../../theme';

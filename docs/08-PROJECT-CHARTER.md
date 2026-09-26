@@ -1,5 +1,5 @@
 # Project Charter
-## Volt — Fitness & Nutrition Tracking Platform
+## FitLog — Fitness & Nutrition Tracking Platform
 
 | Field | Value |
 |-------|-------|
@@ -24,7 +24,7 @@ The questions that actually drive training decisions therefore go unanswered —
 on my last chest day, am I eating enough protein on training days, is my weight responding to
 the target I set six weeks ago.*
 
-Existing apps optimise for **capture** and neglect **retrieval**. Volt optimises for both:
+Existing apps optimise for **capture** and neglect **retrieval**. FitLog optimises for both:
 capture fast enough to happen between sets, and a data model structured enough that six months
 of it answers analytical questions without reprocessing.
 
@@ -164,8 +164,8 @@ Each has a working default so nothing is stalled, but each should be confirmed.
 
 | # | Question | Blocks | Working default |
 |---|----------|--------|-----------------|
-| Q1 | ~~Nutrition database provider~~ **Closed 25 Sep (G10) by the owner: the internal catalog for v1** | — | Volt v1 ships on the `FoodResolver` interface and the seeded internal catalog; the catalog grows by seed, not by a third-party feed. **Barcode lookup (H-17) and branded products are out of v1**, and with them any licensing or attribution work. A provider later is still one function (`_resolver()` in `app/api/routes/nutrition.py`) |
+| Q1 | ~~Nutrition database provider~~ **Closed 25 Sep (G10) by the owner: the internal catalog for v1** | — | FitLog v1 ships on the `FoodResolver` interface and the seeded internal catalog; the catalog grows by seed, not by a third-party feed. **Barcode lookup (H-17) and branded products are out of v1**, and with them any licensing or attribution work. A provider later is still one function (`_resolver()` in `app/api/routes/nutrition.py`) |
 | Q3 | Is "max reps" a PR at any load? | M4 | Most reps in a single working set, any load |
 | Q5 | ~~Which weigh-in is canonical when there are several in a day?~~ **Closed 23 Sep (G9)** | — | **The first of the day**, implemented and asserted: `body_metrics` has no unique constraint per day (a second weigh-in really happened), and the *read* takes the earliest `measured_at` — earliest measured, not earliest written |
 | Q8 | ~~Are calorie targets versioned over time?~~ **Closed 24 Sep (G10)** | — | **Yes — as H-15 already promised** ("your past days keep the numbers they had"). `calorie_targets` holds one row per day the targets changed (the profile keeps the current ones, so every existing reader is unchanged); a day is judged against the latest row on or before it. H-01 reads the day's own target, H-14 judges each day against its own. Existing users were backfilled with their current targets from their profile's creation date |
-| Q9 | ~~Minimum age / legal position~~ **Closed 25 Sep (G10) by the owner: 16 and over** | — | Enforced by the **server** (`app/domain/age.py`, `ProfilePatch`: a birth date under 16 is a 422 with the reason) and by onboarding (A-07 stops and explains). 16 is the highest EU age of digital consent, so no country needs a parental-consent flow Volt does not have |
+| Q9 | ~~Minimum age / legal position~~ **Closed 25 Sep (G10) by the owner: 16 and over** | — | Enforced by the **server** (`app/domain/age.py`, `ProfilePatch`: a birth date under 16 is a 422 with the reason) and by onboarding (A-07 stops and explains). 16 is the highest EU age of digital consent, so no country needs a parental-consent flow FitLog does not have |

@@ -9,8 +9,8 @@
 appId: host.exp.exponent
 name: AC-11 the dashboard shows all three domains
 env:
-  EMAIL: demo@volt.app
-  PASSWORD: voltdemo1234
+  EMAIL: demo@fitlog.app
+  PASSWORD: fitlogdemo1234
   HOST: 192.168.1.3:8081
 ---
 - runFlow:

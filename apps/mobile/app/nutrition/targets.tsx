@@ -12,7 +12,7 @@
  * date and a sex; when they are missing the screen names what it is missing and
  * falls back to a rougher weight-and-activity figure rather than inventing one.
  *
- * All the arithmetic lives in `@volt/domain` — the interlock that keeps three
+ * All the arithmetic lives in `@fitlog/domain` — the interlock that keeps three
  * percentages summing to exactly 100 is the one place in G7 where a rounding
  * slip is invisible, so it is tested there rather than eyeballed here.
  */
@@ -25,7 +25,7 @@ import {
   PRESET_SPLITS, bmrMifflinStJeor, caloriesNotice, fallbackMaintenance,
   macroGrams, proteinNotice, rebalanceSplit, splitFromGrams, splitTotal,
   targetCalories, tdee, ACTIVITY_MULTIPLIER,
-} from '@volt/domain';
+} from '@fitlog/domain';
 import { Button, Card, Pill, Text, Well } from '@/ui';
 import { Choice } from '@/ui/Choice';
 import { DataBoundary } from '@/ui/DataBoundary';
@@ -180,10 +180,10 @@ export default function Targets() {
                       color: c.ink, backgroundColor: c.sunken,
                     }}
                   />
-                  {/* Volt does not track bodyweight yet, so the calculator asks
+                  {/* FitLog does not track bodyweight yet, so the calculator asks
                       rather than pretending to know. */}
                   <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-                    Used for this calculation only — Volt does not log your weight yet.
+                    Used for this calculation only — FitLog does not log your weight yet.
                   </Text>
                 </View>
 
@@ -302,7 +302,7 @@ export default function Targets() {
             <Card>
               {/* Deliberately narrower than the wireframe's wording. Targets are
                   not versioned (charter Q1's neighbour, **Q8**, still open), so
-                  Volt cannot honestly claim a past day keeps the target it had
+                  FitLog cannot honestly claim a past day keeps the target it had
                   — it has no record of what that was. What it CAN say, and what
                   is true, is that nothing about what you ate is rewritten. */}
               <Text variant="caption" tone="ink3">

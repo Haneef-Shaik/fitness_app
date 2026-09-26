@@ -11,7 +11,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState, Keyboard, ScrollView, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
-import type { Exercise, PersonalRecord } from '@volt/api-types';
+import type { Exercise, PersonalRecord } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { useExercises, usePreviousPerformance } from '@/lib/query/hooks';
 import { uuid } from '@/lib/uuid';

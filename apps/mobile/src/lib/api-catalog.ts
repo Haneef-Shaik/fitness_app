@@ -3,7 +3,7 @@
  *
  * Kept out of api.ts so that file stays the transport — envelope unwrapping, the
  * 401 refresh and host derivation — and this one stays the surface. Every shape
- * comes from @volt/api-types; nothing here is hand-typed (D3b).
+ * comes from @fitlog/api-types; nothing here is hand-typed (D3b).
  */
 import type {
   Exercise,
@@ -18,7 +18,7 @@ import type {
   PlanExerciseIn,
   Program,
   ProgramIn,
-  ProgramPatch, ProgramTemplate } from '@volt/api-types';
+  ProgramPatch, ProgramTemplate } from '@fitlog/api-types';
 import { api } from './api';
 
 export interface ExerciseQuery {

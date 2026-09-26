@@ -6,10 +6,10 @@
  * config read from the environment and uses it when — and only when — the key
  * is given:
  *
- *   VOLT_UPLOAD_STORE_FILE      absolute path to the upload keystore
- *   VOLT_UPLOAD_STORE_PASSWORD
- *   VOLT_UPLOAD_KEY_ALIAS
- *   VOLT_UPLOAD_KEY_PASSWORD
+ *   FITLOG_UPLOAD_STORE_FILE      absolute path to the upload keystore
+ *   FITLOG_UPLOAD_STORE_PASSWORD
+ *   FITLOG_UPLOAD_KEY_ALIAS
+ *   FITLOG_UPLOAD_KEY_PASSWORD
  *
  * The key and its passwords never enter the repo. Without them a release build
  * still builds, debug-signed, as the G10 measurement builds were.
@@ -17,15 +17,15 @@
  */
 const { withAppBuildGradle } = require('expo/config-plugins');
 
-const MARK = "System.getenv('VOLT_UPLOAD_STORE_FILE')";
+const MARK = "System.getenv('FITLOG_UPLOAD_STORE_FILE')";
 
 const RELEASE_CONFIG = `
         release {
             if (${MARK}) {
                 storeFile file(${MARK})
-                storePassword System.getenv('VOLT_UPLOAD_STORE_PASSWORD')
-                keyAlias System.getenv('VOLT_UPLOAD_KEY_ALIAS')
-                keyPassword System.getenv('VOLT_UPLOAD_KEY_PASSWORD')
+                storePassword System.getenv('FITLOG_UPLOAD_STORE_PASSWORD')
+                keyAlias System.getenv('FITLOG_UPLOAD_KEY_ALIAS')
+                keyPassword System.getenv('FITLOG_UPLOAD_KEY_PASSWORD')
             }
         }`;
 

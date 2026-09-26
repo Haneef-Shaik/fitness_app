@@ -1,7 +1,7 @@
 /**
  * Analytics endpoints (G6) — G-01 … G-07.
  *
- * A surface, not transport. Every shape comes from @volt/api-types; nothing
+ * A surface, not transport. Every shape comes from @fitlog/api-types; nothing
  * here is hand-typed (D3b), and nothing here computes a number — the server
  * already deferred all of them to the domain, which is what AC-06 rests on.
  */
@@ -13,7 +13,7 @@ import type {
   NutritionRange,
   PersonalRecordRow,
   WorkoutAnalytics,
-} from '@volt/api-types';
+} from '@fitlog/api-types';
 import { api } from './api';
 
 export interface RangeQuery {

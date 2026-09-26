@@ -7,11 +7,11 @@
 appId: host.exp.exponent
 name: AC-05 previous occurrence
 env:
-  EMAIL: demo@volt.app
-  PASSWORD: voltdemo1234
+  EMAIL: demo@fitlog.app
+  PASSWORD: fitlogdemo1234
   HOST: 192.168.1.3:8081
 ---
-# Which app: -e APP_ID=com.volt.app for an installed build, Expo Go when unset.
+# Which app: -e APP_ID=com.fitlog.app for an installed build, Expo Go when unset.
 # Resolved here rather than defaulted under `env:` — Maestro lets a flow's own
 # env default override a value given with -e.
 - evalScript: "${output.app = (typeof APP_ID === 'undefined' || !APP_ID) ? 'host.exp.exponent' : APP_ID}"
@@ -48,12 +48,12 @@ env:
       true: ${output.app == 'host.exp.exponent'}
     commands:
       - openLink: exp://${HOST}/--/train/history/previous?muscle=chest
-# An installed build answers its own scheme (app.json: "scheme": "volt").
+# An installed build answers its own scheme (app.json: "scheme": "fitlog").
 - runFlow:
     when:
       true: ${output.app != 'host.exp.exponent'}
     commands:
-      - openLink: volt://train/history/previous?muscle=chest
+      - openLink: fitlog://train/history/previous?muscle=chest
 - extendedWaitUntil:
     visible:
       id: "previous-occurrence"

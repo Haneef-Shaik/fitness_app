@@ -30,8 +30,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@volt/domain$': '<rootDir>/../../packages/domain/src/index.ts',
-    '^@volt/api-types$': '<rootDir>/../../packages/api-types/src/index.ts',
+    '^@fitlog/domain$': '<rootDir>/../../packages/domain/src/index.ts',
+    '^@fitlog/api-types$': '<rootDir>/../../packages/api-types/src/index.ts',
   },
   // `forceExit` was carried here from G1 to G3 and is GONE as of G4.
   //

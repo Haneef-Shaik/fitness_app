@@ -13,7 +13,7 @@ import * as SQLite from 'expo-sqlite';
 import { MIGRATIONS } from './schema';
 import type { DraftRecord, NewOutboxEntry, OutboxEntry, SessionStore } from './types';
 
-export const DATABASE_NAME = 'volt.db';
+export const DATABASE_NAME = 'fitlog.db';
 
 interface OutboxRow {
   id: number; aggregate_id: string; method: string; path: string; body: string;

@@ -44,7 +44,7 @@ from app.observability.metrics import registry
 from app.storage.base import ObjectStore
 from app.storage.provider import get_store
 
-log = logging.getLogger("volt.worker")
+log = logging.getLogger("fitlog.worker")
 
 #: How long a job may sit locked before another worker may take it. A worker
 #: that is killed mid-job must not strand the work forever.

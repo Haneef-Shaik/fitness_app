@@ -1,4 +1,4 @@
-# Volt — Fitness & Nutrition Tracking Platform
+# FitLog — Fitness & Nutrition Tracking Platform
 
 | | |
 |---|---|
@@ -33,7 +33,7 @@ watching their session summary change after it syncs.
 
 ```bash
 pnpm install            # TypeScript workspace
-pnpm --filter @volt/domain test
+pnpm --filter @fitlog/domain test
 
 cd services/api && uv sync && uv run pytest
 ```

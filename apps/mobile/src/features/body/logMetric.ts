@@ -12,7 +12,7 @@
  * **I8** — the idempotency key is generated once and replayed unchanged, so a
  * flaky connection cannot produce two weigh-ins and a phantom gain.
  */
-import type { BodyMetricIn } from '@volt/api-types';
+import type { BodyMetricIn } from '@fitlog/api-types';
 import { store } from '../../lib/db';
 import { uuid } from '../../lib/uuid';
 

@@ -12,7 +12,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
-import type { WorkoutSession } from '@volt/api-types';
+import type { WorkoutSession } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { NavGroup, NavRow } from '@/ui/NavRow';
 import { Pressable } from '@/ui/Pressable';

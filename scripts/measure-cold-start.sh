@@ -53,7 +53,7 @@ trial() {
 }
 
 printf '\n\033[1mSetup: sign in and clear any local draft\033[0m\n'
-maestro --device "$DEVICE" test -e "HOST=$HOST" -e EMAIL=demo@volt.app -e PASSWORD=voltdemo1234 \
+maestro --device "$DEVICE" test -e "HOST=$HOST" -e EMAIL=demo@fitlog.app -e PASSWORD=fitlogdemo1234 \
   apps/mobile/.maestro/sign-in.yaml >/dev/null 2>&1 || {
   printf '\033[31m✗ setup sign-in did not reach the dashboard\033[0m\n'; exit 1;
 }

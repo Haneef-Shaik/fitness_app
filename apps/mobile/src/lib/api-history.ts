@@ -3,13 +3,13 @@
  *
  * Separate from api-catalog.ts for the same reason that one is separate from
  * api.ts: this file is a surface, not transport. Every shape comes from
- * @volt/api-types; nothing here is hand-typed (D3b).
+ * @fitlog/api-types; nothing here is hand-typed (D3b).
  */
 import type {
   HistoryItem,
   PreviousOccurrence,
   SessionComparison,
-} from '@volt/api-types';
+} from '@fitlog/api-types';
 import { api, type Page } from './api';
 
 export interface HistoryQuery {

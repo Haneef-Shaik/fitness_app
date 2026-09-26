@@ -9,7 +9,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { View, type TextInputProps } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
-import type { Food } from '@volt/api-types';
+import type { Food } from '@fitlog/api-types';
 import { Button, Card, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { grams, kcal } from '@/features/nutrition/format';

@@ -20,7 +20,7 @@ The release gate measured an installed release APK built for a laptop API. A **s
 exists as a mode of the same script, checked on the APK it produces:
 
 - [x] A **release keystore** — `plugins/withReleaseSigning.js` signs release builds with the upload
-      key named by `VOLT_UPLOAD_STORE_FILE` / `…_PASSWORD` / `VOLT_UPLOAD_KEY_ALIAS` / `…_PASSWORD`,
+      key named by `FITLOG_UPLOAD_STORE_FILE` / `…_PASSWORD` / `FITLOG_UPLOAD_KEY_ALIAS` / `…_PASSWORD`,
       never kept in the repo. Verified 25 Sep with a throwaway key: `apksigner` reports the upload
       certificate, and the build refuses the debug key
 - [x] `usesCleartextTraffic` off — `STORE=1 bash scripts/build-release-apk.sh` regenerates the
@@ -28,7 +28,7 @@ exists as a mode of the same script, checked on the APK it produces:
       refuses an `http://` API URL outright
 - [ ] **A hosted API over HTTPS**, and the real upload key — the owner's: choosing a host and
       generating the key (keep it out of the repo and back it up; a lost upload key means a reset
-      request to the store). Then: `STORE=1 API_URL=https://… VOLT_UPLOAD_…=… bash
+      request to the store). Then: `STORE=1 API_URL=https://… FITLOG_UPLOAD_…=… bash
       scripts/build-release-apk.sh`
 
 ## 3 · Dated

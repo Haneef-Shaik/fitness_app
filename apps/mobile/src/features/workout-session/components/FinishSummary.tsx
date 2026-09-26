@@ -12,7 +12,7 @@
  */
 import React from 'react';
 import { View } from 'react-native';
-import type { PersonalRecord } from '@volt/api-types';
+import type { PersonalRecord } from '@fitlog/api-types';
 import { Button, Card, Pill, Stat, StatRow, Text } from '@/ui';
 import { font, space } from '@/theme';
 import { formatRest } from '../restTimer';

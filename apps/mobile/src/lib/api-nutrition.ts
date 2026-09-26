@@ -1,7 +1,7 @@
 /**
  * Nutrition endpoints (G7) — H-01 … H-16.
  *
- * A surface, not transport. Every shape comes from @volt/api-types (D3b), and
+ * A surface, not transport. Every shape comes from @fitlog/api-types (D3b), and
  * nothing here computes a macro: a food is per 100 g, an item is absolute, and
  * the server does the one conversion between them so the snapshot can never
  * disagree with its source.
@@ -10,7 +10,7 @@ import type {
   CategoryOrderIn, DayCopyIn, Food, FoodIn, FoodPatch, Meal, MealCategory,
   MealCategoryIn, MealCategoryPatch, MealCopyIn, MealIn, MealItem, MealItemPatch,
   NutritionDay, Recipe, RecipeIn, RecipeLogIn, RecipePatch,
-} from '@volt/api-types';
+} from '@fitlog/api-types';
 import { api, type Page } from './api';
 
 function qs(params: Readonly<Record<string, unknown>>): string {

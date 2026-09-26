@@ -15,7 +15,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
-import type { FoodAnalysisItem } from '@volt/api-types';
+import type { FoodAnalysisItem } from '@fitlog/api-types';
 import { Pill, Text } from '@/ui';
 import { grams, kcal } from './format';
 import { radius, space, useTheme } from '@/theme';

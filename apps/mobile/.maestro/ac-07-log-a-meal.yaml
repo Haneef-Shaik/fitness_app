@@ -11,8 +11,8 @@
 appId: host.exp.exponent
 name: AC-07 log a meal and watch the day move
 env:
-  EMAIL: demo@volt.app
-  PASSWORD: voltdemo1234
+  EMAIL: demo@fitlog.app
+  PASSWORD: fitlogdemo1234
   HOST: 192.168.1.3:8081
 ---
 - runFlow:

@@ -1,7 +1,7 @@
 /* ============================================================================
-   VOLT — shared design-file shell
-   A domain file declares:  window.VOLT = { title, intro, screens:[{id,name,route,html}] }
-   then calls VoltShell.mount().
+   FITLOG — shared design-file shell
+   A domain file declares:  window.FITLOG = { title, intro, screens:[{id,name,route,html}] }
+   then calls FitLogShell.mount().
    ========================================================================== */
 (function(){
 "use strict";
@@ -68,15 +68,15 @@ function nav(o){
     ${o.right?`<div class="right">${o.right}</div>`:''}</div>`;
 }
 
-const VoltShell = {
+const FitLogShell = {
   I, statusbar, homebar, tabbar, nav,
   phone: inner => `<div class="phone">${statusbar}${inner}${homebar}</div>`,
 
   mount(){
-    const V = window.VOLT;
+    const V = window.FITLOG;
     let active = V.screens[0].id;
 
-    const phone = VoltShell.phone;
+    const phone = FitLogShell.phone;
     const byId  = id => V.screens.find(s=>s.id===id);
 
     function board(){
@@ -123,5 +123,5 @@ const VoltShell = {
     syncLbl(); board();
   }
 };
-window.VoltShell = VoltShell;
+window.FitLogShell = FitLogShell;
 })();

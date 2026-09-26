@@ -1,5 +1,5 @@
 # Project Tracker
-## Volt — Fitness & Nutrition Tracking Platform
+## FitLog — Fitness & Nutrition Tracking Platform
 
 **Last updated:** 2026-09-25 (G10 closed — the release gate) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
@@ -450,15 +450,15 @@ hand-typed response shape, no per-screen loading state, no untested shared compo
 | H1.1 | `packages/api-types` | Client and server cannot silently disagree | Deleted `ProfileOut.week_starts_on`; `week_starts_on: number` vanished from the generated types and the gate exited 1. Restored, green. 67 schema types, 23 response payloads |
 | H1.2 | `queryKeys.ts` + `invalidation.ts` | One key and one documented invalidator per read | Tests assert code ↔ docs/03 §6.2 match **both ways**. Mutations caught: program→sessions fails the AC-12 test; `refetch: true` on a set fails the I10 test; a drifted doc citation fails both agreement tests |
 | H1.3 | `DataBoundary` | No screen re-implements the five states | 17 tests, 100% statements. Collapsing filtered-empty into empty fails 3 named tests; swapping error/loading precedence fails 1 |
-| H1.4 | `jest-expo` harness + ratchet | Untested shared code fails CI | `pnpm --filter @volt/mobile test:ci` → 69 tests, gate enforced. Two CI jobs added (types, mobile) |
+| H1.4 | `jest-expo` harness + ratchet | Untested shared code fails CI | `pnpm --filter @fitlog/mobile test:ci` → 69 tests, gate enforced. Two CI jobs added (types, mobile) |
 
 **Verified.**
 
 ```
-pnpm --filter @volt/domain test      ->  48 passed
+pnpm --filter @fitlog/domain test      ->  48 passed
 uv run pytest -q (services/api)      -> 133 passed, 3 skipped   (unchanged by D17)
-pnpm --filter @volt/mobile test:ci   ->  69 passed, gate exit 0
-pnpm --filter @volt/mobile typecheck ->  clean
+pnpm --filter @fitlog/mobile test:ci   ->  69 passed, gate exit 0
+pnpm --filter @fitlog/mobile typecheck ->  clean
 generate + git diff --exit-code      ->  types in sync
 B-01 driven in a real browser against the live API: register -> onboarding ->
   dashboard; DataBoundary rendered the empty state, "Set a goal" ran the mutation,
@@ -784,7 +784,7 @@ enum untenable) and **D22** (a recipe is a plan; logging it snapshots).
   (G9's); H-17 is P2 and depends on Q1
 - **No hardware flow for AC-07.** `scripts/e2e.sh` still covers AC-01/02/04/05 only. The claim rests
   on API and client tests
-- **Q8 is open and now user-visible.** Targets are not versioned, so Volt has no record of what a
+- **Q8 is open and now user-visible.** Targets are not versioned, so FitLog has no record of what a
   past day's target was. H-15 therefore says only that nothing already logged is rewritten —
   deliberately narrower than the wireframe's "past days keep the numbers they had", which the schema
   cannot support
@@ -1000,11 +1000,11 @@ a multi-day program with prescriptions, entirely on a phone screen. **AC-01 is r
 **Verified.**
 
 ```
-pnpm --filter @volt/domain test      ->  48 passed
+pnpm --filter @fitlog/domain test      ->  48 passed
 uv run pytest -q   (services/api)    -> 150 passed, 3 skipped   (was 136)
 uv run ruff check . / alembic check  -> clean / no new operations
-pnpm --filter @volt/mobile test:ci   -> 125 passed (was 69), gate exit 0
-pnpm --filter @volt/mobile typecheck -> clean
+pnpm --filter @fitlog/mobile test:ci   -> 125 passed (was 69), gate exit 0
+pnpm --filter @fitlog/mobile typecheck -> clean
 generate + git diff --exit-code      -> types in sync
 ```
 
@@ -1086,7 +1086,7 @@ network, keep logging with the server unreachable, and finish with numbers the s
 ```
 uv run pytest -q        -> 164 passed, 3 skipped   (was 150)
 ruff / alembic check    -> clean / no new operations
-pnpm --filter @volt/mobile test:ci -> 251 passed   (was 125), gate exit 0
+pnpm --filter @fitlog/mobile test:ci -> 251 passed   (was 125), gate exit 0
 typecheck, drift gate, G0 spec gate -> all clean
 ```
 

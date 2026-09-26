@@ -57,19 +57,19 @@ maestro --device "$DEVICE" test "$FLOWS/sign-in-release.yaml" >/dev/null 2>&1 ||
 
 printf '\n\033[1mCold start → dashboard, %s trials\033[0m\n' "$TRIALS"
 # Read from the platform log, not a test driver: process start (ActivityManager's
-# "Start proc") to the app's own VOLT_DASHBOARD_READY line, both stamped by
+# "Start proc") to the app's own FITLOG_DASHBOARD_READY line, both stamped by
 # logcat. A first attempt timed it with Maestro and read ~6 s for a build whose
 # first frame was under 1 s — the driver's own launch and polling were most of it.
 SAMPLES=(); FRAMES=()
 for i in $(seq 1 "$TRIALS"); do
   wait_for_idle_phone "$DEVICE"
-  adb -s "$DEVICE" shell am force-stop com.volt.app
+  adb -s "$DEVICE" shell am force-stop com.fitlog.app
   sleep 2
   adb -s "$DEVICE" logcat -c >/dev/null 2>&1
-  frame=$(adb -s "$DEVICE" shell am start -W -n com.volt.app/.MainActivity 2>/dev/null | awk -F': ' '/TotalTime/{print $2}' | tr -d '\r')
+  frame=$(adb -s "$DEVICE" shell am start -W -n com.fitlog.app/.MainActivity 2>/dev/null | awk -F': ' '/TotalTime/{print $2}' | tr -d '\r')
   ms=""
   for _ in $(seq 1 60); do
-    if adb -s "$DEVICE" logcat -d 2>/dev/null | grep -q "VOLT_DASHBOARD_READY"; then
+    if adb -s "$DEVICE" logcat -d 2>/dev/null | grep -q "FITLOG_DASHBOARD_READY"; then
       ms=$(adb -s "$DEVICE" logcat -d -v epoch 2>/dev/null | python3 -c '
 import re, sys
 start = ready = None
@@ -77,9 +77,9 @@ for line in sys.stdin:
     parts = line.split()
     if not parts:
         continue
-    if start is None and re.search(r"Start proc \d+:com\.volt\.app/", line):
+    if start is None and re.search(r"Start proc \d+:com\.fitlog\.app/", line):
         start = float(parts[0])
-    if ready is None and "VOLT_DASHBOARD_READY" in line:
+    if ready is None and "FITLOG_DASHBOARD_READY" in line:
         ready = float(parts[0])
 print(round((ready - start) * 1000) if start and ready else "")')
       break
@@ -151,7 +151,7 @@ reading line is compiled in (\`EXPO_PUBLIC_MEASURE=1\`). None of these is on the
 measured paths.
 
 **What the spans cover.** Cold start: from the process starting (logcat's
-\`Start proc\`) to the app logging \`VOLT_DASHBOARD_READY\` — the moment the
+\`Start proc\`) to the app logging \`FITLOG_DASHBOARD_READY\` — the moment the
 dashboard has its data, including its one API call over Wi-Fi — both stamped
 by logcat. *First frame* is \`am start -W\`'s TotalTime.
 tap → set: \`performance.now()\` at the top of the tap handler to a frame after

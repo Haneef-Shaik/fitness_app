@@ -11,7 +11,7 @@
  */
 import type {
   BodyMetric, BodyMetricIn, BodySeries, Checkins, Dashboard, ProgressPhoto, ProgressPhotoIn,
-} from '@volt/api-types';
+} from '@fitlog/api-types';
 import { api } from './api';
 
 function qs(params: Readonly<Record<string, unknown>>): string {

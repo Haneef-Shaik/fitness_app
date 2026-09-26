@@ -923,7 +923,7 @@ wheels = [
 ]
 
 [[package]]
-name = "volt-api"
+name = "fitlog-api"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

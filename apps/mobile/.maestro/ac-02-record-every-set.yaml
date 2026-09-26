@@ -4,11 +4,11 @@
 appId: host.exp.exponent
 name: AC-02 record every set
 env:
-  EMAIL: demo@volt.app
-  PASSWORD: voltdemo1234
+  EMAIL: demo@fitlog.app
+  PASSWORD: fitlogdemo1234
   HOST: 192.168.1.3:8081
 ---
-# Navigate by tapping, not by a volt:// deep link: inside Expo Go the custom
+# Navigate by tapping, not by a fitlog:// deep link: inside Expo Go the custom
 # scheme belongs to Expo Go, not to this app.
 - runFlow:
     file: sign-in.yaml

@@ -10,7 +10,7 @@
  */
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import type { ComparisonCell, ComparisonRow } from '@volt/api-types';
+import type { ComparisonCell, ComparisonRow } from '@fitlog/api-types';
 import { Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

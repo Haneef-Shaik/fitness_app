@@ -7,7 +7,7 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
-import type { MealItem } from '@volt/api-types';
+import type { MealItem } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

@@ -1,4 +1,4 @@
-import type { Exercise } from '@volt/api-types';
+import type { Exercise } from '@fitlog/api-types';
 
 /** "chest · triceps" — primary muscles first, as the wireframes show them. */
 export function muscleSummary(ex: Pick<Exercise, 'muscles'>): string {

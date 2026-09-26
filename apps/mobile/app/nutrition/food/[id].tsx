@@ -13,7 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
-import { scaleToGrams } from '@volt/domain';
+import { scaleToGrams } from '@fitlog/domain';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

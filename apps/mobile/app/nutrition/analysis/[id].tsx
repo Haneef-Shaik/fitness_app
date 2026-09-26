@@ -19,7 +19,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import type { ConfirmItemIn, FoodAnalysis } from '@volt/api-types';
+import type { ConfirmItemIn, FoodAnalysis } from '@fitlog/api-types';
 import { Button, Card, Text } from '@/ui';
 import { Choice } from '@/ui/Choice';
 import { DataBoundary } from '@/ui/DataBoundary';

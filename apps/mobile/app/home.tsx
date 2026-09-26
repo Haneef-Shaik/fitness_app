@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
-import type { BodyCard, GoalCard, NutritionCard, TrainingCard } from '@volt/api-types';
+import type { BodyCard, GoalCard, NutritionCard, TrainingCard } from '@fitlog/api-types';
 import { Button, Card, Meter, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { useTheme, space, font } from '@/theme';
@@ -52,7 +52,7 @@ export default function Home() {
   useEffect(() => {
     if (board.data && process.env.EXPO_PUBLIC_MEASURE === '1' && !reported) {
       reported = true;
-      console.info('VOLT_DASHBOARD_READY');
+      console.info('FITLOG_DASHBOARD_READY');
     }
   }, [board.data]);
 

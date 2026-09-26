@@ -1,13 +1,13 @@
 # Cold start of the RELEASE build (TODO 2.2): force-stop, launch the installed
 # app, and stop the clock when the dashboard's date is on screen. Same marker
 # as measure-cold-start.yaml, so the two numbers are comparable.
-appId: com.volt.app
+appId: com.fitlog.app
 name: Measure cold start (release build)
 ---
 - stopApp
 - evalScript: ${output.t0 = Date.now()}
 - launchApp:
-    appId: com.volt.app
+    appId: com.fitlog.app
     stopApp: true
 - extendedWaitUntil:
     visible:

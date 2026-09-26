@@ -11,7 +11,7 @@
  * commit path *can* await, it will.
  */
 import { createStore } from '../../../lib/store/createStore';
-import { validateSet } from '@volt/domain';
+import { validateSet } from '@fitlog/domain';
 import type { NewOutboxEntry, SessionStore } from '../../../lib/db/types';
 import {
   addExercise, appendSet, deleteSet, editSet, mergeRecovered, patchExercise,

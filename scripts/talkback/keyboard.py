@@ -53,7 +53,7 @@ def serve():
         p.stdin.write(json.dumps(obj) + "\n")
         p.stdin.flush()
 
-    put({"id": 1, "command": "register", "name": "Volt a11y keyboard", "vid": 6353,
+    put({"id": 1, "command": "register", "name": "FitLog a11y keyboard", "vid": 6353,
          "pid": 43981, "bus": "usb",
          "configuration": [{"type": 100, "data": [1]},
                            {"type": 101, "data": sorted(set(KEYS.values()))}]})

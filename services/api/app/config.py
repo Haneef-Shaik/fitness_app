@@ -6,8 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    database_url: str = "postgresql+asyncpg://volt:volt@localhost:5432/volt"
-    test_database_url: str = "postgresql+asyncpg://volt:volt@localhost:5433/volt_test"
+    database_url: str = "postgresql+asyncpg://fitlog:fitlog@localhost:5432/fitlog"
+    test_database_url: str = "postgresql+asyncpg://fitlog:fitlog@localhost:5433/fitlog_test"
 
     # Secrets never have a usable default in production; startup validates this.
     jwt_secret: str = "dev-only-change-me"

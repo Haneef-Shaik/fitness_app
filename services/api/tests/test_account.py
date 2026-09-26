@@ -228,7 +228,7 @@ class TestExport:
         archive = _data(await auth_client.get("/v1/account/export"))
         # An archive with no version is an archive nobody can write an importer
         # for later.
-        assert archive["format"] == "volt.export.v1"
+        assert archive["format"] == "fitlog.export.v1"
         assert archive["exported_at"]
 
     async def test_it_carries_no_other_users_data(self, auth_client, client):

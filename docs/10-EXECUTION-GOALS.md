@@ -1,5 +1,5 @@
 # Execution Goals
-## Volt — the handoff chain from here to release
+## FitLog — the handoff chain from here to release
 
 **Last updated:** 2026-09-22 (G3 closed) · **Head:** `60b0bd4` · **Status of record:** [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)
 
@@ -92,7 +92,7 @@ did not happen, whatever the tracker says.
 | **H1.1** | `packages/api-types` | Client types are **generated** from the server's OpenAPI and drift-gated in CI | G1 | ✅ 22 Sep |
 | **H1.2** | `queryKeys.ts` + `invalidation.ts` | Every cached read has one key and one documented invalidator, and a test asserts code and docs/03 §6.2 agree both ways | G1 | ✅ 22 Sep |
 | **H1.3** | `DataBoundary` | Loading / empty / **filtered-empty** / error / offline are one component, not per-screen improvisation | G1 | ✅ 22 Sep |
-| **H1.4** | Mobile test harness | `pnpm --filter @volt/mobile test:ci` runs 69 tests and gates coverage | G1 | ✅ 22 Sep |
+| **H1.4** | Mobile test harness | `pnpm --filter @fitlog/mobile test:ci` runs 69 tests and gates coverage | G1 | ✅ 22 Sep |
 | **H2.1** | Screen kit | `VirtualList`, `FilterChips`, `ScreenScaffold`, `Sheet` | G2 | ✅ 22 Sep |
 | **H2.2** | `ExercisePicker` | **Controlled** multi-select the logger reuses for add/swap; `max={1}` is swap | G2 | ✅ 22 Sep |
 | **H2.3** | `/exercises/{id}/history`, `/stats` | The two endpoints D-02 needs now exist, with 15 tests | G2 | ✅ 22 Sep |
@@ -346,7 +346,7 @@ pure and already exist — `src/lib/api.ts` envelope unwrapping, 401 refresh, LA
 so the first client tests cover the code most likely to break silently.
 
 **Done when.**
-- [ ] `pnpm --filter @volt/mobile test` runs and passes in CI
+- [ ] `pnpm --filter @fitlog/mobile test` runs and passes in CI
 - [ ] Deleting a field from a Pydantic schema makes the **types job fail**, and you have seen it fail
 - [ ] `DataBoundary` has a test per state, including filtered-empty ≠ empty
 - [ ] One existing screen (B-01) is migrated onto the query layer, proving the substrate on real code
@@ -375,7 +375,7 @@ a multi-day program with prescriptions — **AC-01 becomes reachable**.
 
 **Inherits.** `H1.1` types · `H1.2` keys · `H1.3` boundary · `H1.4` harness.
 
-**Entry gate.** `pnpm --filter @volt/mobile test` passes, and B-01 renders through the query layer.
+**Entry gate.** `pnpm --filter @fitlog/mobile test` passes, and B-01 renders through the query layer.
 
 **Do.** [TODO §5](TODO.md) — **D-01, D-02, D-03, C-02, C-03, C-05, C-06, C-07** (8 screens), plus the
 **server pre-step**.
@@ -461,7 +461,7 @@ server's `densify_set_indices` already exists as the reference behaviour; the cl
 
 *The commit path is the product.* From `docs/03` §5.2, and it is non-negotiable:
 ```
-tap ✓ → validate locally (@volt/domain setValidity)   ~0 ms
+tap ✓ → validate locally (@fitlog/domain setValidity)   ~0 ms
       → reducer returns a NEW draft, UI updates        ~0 ms   ← the user is already done
       → write draft to SQLite                          ~2 ms
       → enqueue POST /session-exercises/:id/sets with Idempotency-Key = set.clientId

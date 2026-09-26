@@ -44,8 +44,9 @@ an account, a decision, money or a device.
 
 - [ ] **iOS**: the first build (EAS), then prove D14 on an iPhone (kill mid-set, reopen) and a
       VoiceOver pass.
-- [ ] **Tap-to-set p95 on SDK 57** — re-run `scripts/measure-p95.sh` on the phone; G10 measured
-      67.4 ms on SDK 52.
+- [x] **Tap-to-set p95 on SDK 57** — **80.7 ms** on the phone (26 Sep, release APK, n=99; cold
+      start 956 ms). The first reading was **164.6 ms, over budget**: G11's set editing had
+      re-rendered every row on every commit. Fixed, with a test that fails if it comes back.
 - [x] **#15b** Shift+Tab into a text field — **fixed and verified** (26 Sep) on the emulator's
       hardware keyboard: RN 0.86 lets a field take focus itself, so the old focus bridge was
       removed (it had become a second, invisible stop going backwards). Sign-in and the logger's

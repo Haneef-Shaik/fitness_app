@@ -84,8 +84,22 @@ if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
 fi
 
 cd android
+# The JS bundle is where EXPO_PUBLIC_* values are inlined, and Gradle does not
+# count environment variables as inputs: without this, a build with a new
+# API_URL (or EXPO_PUBLIC_MEASURE) reused the last bundle and produced an APK
+# that said one API and called another (found measuring on a phone, 26 Sep).
+rm -rf app/build/generated/assets/react app/build/generated/sourcemaps/react \
+  app/build/intermediates/sourcemaps/react
 EXPO_PUBLIC_API_URL="$API_URL" ./gradlew assembleRelease --no-daemon -q
 APK=app/build/outputs/apk/release/app-release.apk
+# Checked, not assumed: the address the app will call is the one asked for.
+# Host and port, not the whole URL: Hermes packs its string table with shared
+# prefixes, so the scheme may be stored run into the string before it.
+# -c, not -q: under pipefail, -q's early exit kills unzip with SIGPIPE and the
+# pipeline fails even when the address is there.
+HOST_PORT="${API_URL#*://}"; HOST_PORT="${HOST_PORT%%/*}"
+unzip -p "$APK" assets/index.android.bundle | LC_ALL=C grep -a -c -F "$HOST_PORT" >/dev/null \
+  || { echo "✗ the APK's bundle does not call $HOST_PORT — a stale bundle?" >&2; exit 1; }
 if [ "$STORE" = 1 ]; then
   # Checked, not assumed: the three things that make it a store build.
   BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)

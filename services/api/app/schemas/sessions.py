@@ -78,6 +78,9 @@ class SetOut(BaseModel):
 class SessionExerciseIn(BaseModel):
     exercise_id: uuid.UUID
     position: int | None = None      # None = append
+    # Chosen by the phone when the exercise is added offline, so the sets queued
+    # behind it can already name it. A replay with the same id is a no-op.
+    id: uuid.UUID | None = None
 
 
 class SessionExercisePatch(BaseModel):
@@ -86,6 +89,7 @@ class SessionExercisePatch(BaseModel):
 
     notes: str | None = Field(default=None, max_length=2000)
     skipped: bool | None = None
+    superset_group: int | None = Field(default=None, ge=1, le=9)
 
 
 class SessionPatch(BaseModel):
@@ -100,6 +104,7 @@ class SessionExerciseOut(BaseModel):
     order_index: int
     notes: str | None
     skipped: bool
+    superset_group: int | None = None
     target_snapshot: dict | None
     sets: list[SetOut] = []
 

@@ -15,10 +15,11 @@ import { validateSet } from '@fitlog/domain';
 import type { NewOutboxEntry, SessionStore } from '../../../lib/db/types';
 import {
   addExercise, appendSet, deleteSet, editSet, mergeRecovered, patchExercise,
-  prefillFrom, removeExercise, reorderExercises, setNotes, setSyncState, startDraft,
+  prefillFrom, removeExercise, reorderExercises, setNotes, setSyncState, startDraft, swapExercise,
   type NewExercise, type NewSet, type StartDraftInput,
 } from './reducers';
 import type { DraftSet, SessionDraft, SyncState } from './types';
+import { uuid } from '../../../lib/uuid';
 
 export interface CommitResult {
   ok: boolean;
@@ -66,6 +67,20 @@ function persist(draft: SessionDraft, entry?: NewOutboxEntry): void {
     .catch((e) => p.onPersistError?.(e));
 }
 
+/**
+ * Several writes that must land in THIS order: each is committed only after
+ * the one before it is in the queue, so their queue positions cannot swap.
+ */
+function persistInOrder(draft: SessionDraft, entries: readonly (NewOutboxEntry | undefined)[]): void {
+  const p = persistence;
+  if (!p) return;
+  const row = () => ({ revision: draft.revision, updatedAt: new Date().toISOString(), json: JSON.stringify(draft) });
+  void entries
+    .reduce<Promise<void>>((chain, entry) => chain.then(() => p.store.commit(row(), entry)), Promise.resolve())
+    .then(() => { p.onPersisted?.(); })
+    .catch((e) => p.onPersistError?.(e));
+}
+
 function setEntry(draft: SessionDraft, exerciseClientId: string, set: DraftSet): NewOutboxEntry | undefined {
   const exercise = draft.exercises.find((e) => e.clientId === exerciseClientId);
   if (!exercise?.sessionExerciseId) return undefined; // still local; enqueued on adoption
@@ -82,6 +97,7 @@ function setEntry(draft: SessionDraft, exerciseClientId: string, set: DraftSet):
       distance_m: set.distanceM,
       rpe: set.rpe,
       rir: set.rir,
+      note: set.note ?? null,
       load_unit_entered: set.loadUnitEntered,
       completed: set.completed,
       performed_at: set.performedAt,
@@ -90,6 +106,48 @@ function setEntry(draft: SessionDraft, exerciseClientId: string, set: DraftSet):
     idempotencyKey: set.clientId,
     nextAttemptAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Any other mid-session change, queued behind the sets of the same session.
+ *
+ * FIFO per aggregate is what makes these safe offline: a delete can never
+ * overtake the create it undoes, and a set can never overtake the exercise it
+ * belongs to. Each gets a fresh key — two edits are two writes, and the second
+ * must not overwrite the first while the first is still queued.
+ */
+function changeEntry(
+  draft: SessionDraft, method: 'POST' | 'PATCH' | 'PUT' | 'DELETE', path: string, body: unknown,
+): NewOutboxEntry {
+  return {
+    aggregateId: draft.sessionId,
+    method,
+    path,
+    body: JSON.stringify(body),
+    idempotencyKey: uuid(),
+    nextAttemptAt: new Date().toISOString(),
+  };
+}
+
+/** The whole order, by server ids — the server refuses a partial list. */
+function orderEntry(draft: SessionDraft): NewOutboxEntry | undefined {
+  const ids = draft.exercises.map((e) => e.sessionExerciseId);
+  if (ids.some((id) => !id)) return undefined;
+  return changeEntry(draft, 'PUT', `/workout-sessions/${draft.sessionId}/exercises/order`, ids);
+}
+
+/** The server's names for the draft's fields — only what the patch touched. */
+function setPatchBody(patch: Partial<DraftSet>): Record<string, unknown> {
+  const names: Partial<Record<keyof DraftSet, string>> = {
+    setType: 'set_type', reps: 'reps', loadKg: 'load_kg', durationSeconds: 'duration_seconds',
+    distanceM: 'distance_m', rpe: 'rpe', rir: 'rir', note: 'note', completed: 'completed',
+  };
+  const body: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(patch)) {
+    const name = names[key as keyof DraftSet];
+    if (name) body[name] = value;
+  }
+  return body;
 }
 
 export interface SessionState {
@@ -111,6 +169,8 @@ export interface SessionState {
   addExercise(input: NewExercise): void;
   removeExercise(exerciseClientId: string): void;
   reorderExercises(orderedClientIds: readonly string[]): void;
+  /** E-05 — only an exercise with nothing logged; returns whether it swapped. */
+  swapExercise(exerciseClientId: string, input: NewExercise): boolean;
   patchExercise(exerciseClientId: string, patch: Parameters<typeof patchExercise>[2]): void;
   setNotes(notes: string | null): void;
 
@@ -165,15 +225,26 @@ export const useSessionStore = createStore<SessionState>((set, get) => ({
   },
 
   editSet(setClientId, patch) {
-    const next = editSet(get().draft!, setClientId, patch);
+    const current = get().draft!;
+    const next = editSet(current, setClientId, patch);
+    if (next === current) return;
     set({ draft: next });
-    persist(next);
+    const body = setPatchBody(patch);
+    persist(next, Object.keys(body).length
+      ? changeEntry(next, 'PATCH', `/workout-sessions/${next.sessionId}/sets/by-client/${setClientId}`, body)
+      : undefined);
   },
 
   deleteSet(setClientId) {
-    const next = deleteSet(get().draft!, setClientId);
+    const current = get().draft!;
+    const next = deleteSet(current, setClientId);
+    if (next === current) return;
     set({ draft: next });
-    persist(next);
+    // The ✕ used to stop here: the row left the screen, the set stayed on the
+    // server, and the finished workout counted it.
+    persist(next, changeEntry(
+      next, 'DELETE', `/workout-sessions/${next.sessionId}/sets/by-client/${setClientId}`, {},
+    ));
   },
 
   markSync(setClientId, state, error = null) {
@@ -184,33 +255,77 @@ export const useSessionStore = createStore<SessionState>((set, get) => ({
   },
 
   addExercise(input) {
-    const next = addExercise(get().draft!, input);
+    // The phone names the session exercise itself, so the sets logged against it
+    // can be queued at once, offline, without waiting for a server id. Before
+    // G11 they waited for an id that never came, and never left the phone.
+    const sessionExerciseId = input.sessionExerciseId ?? input.clientId;
+    const next = addExercise(get().draft!, { ...input, sessionExerciseId });
     set({ draft: next });
-    persist(next);
+    persist(next, input.sessionExerciseId ? undefined : changeEntry(
+      next, 'POST', `/workout-sessions/${next.sessionId}/exercises`,
+      { exercise_id: input.exerciseId, id: sessionExerciseId },
+    ));
   },
 
   removeExercise(exerciseClientId) {
-    const next = removeExercise(get().draft!, exerciseClientId);
+    const current = get().draft!;
+    const gone = current.exercises.find((e) => e.clientId === exerciseClientId);
+    const next = removeExercise(current, exerciseClientId);
+    if (next === current) return;
     set({ draft: next });
-    persist(next);
+    persist(next, gone?.sessionExerciseId
+      ? changeEntry(next, 'DELETE', `/session-exercises/${gone.sessionExerciseId}`, {})
+      : undefined);
   },
 
   reorderExercises(orderedClientIds) {
-    const next = reorderExercises(get().draft!, orderedClientIds);
+    const current = get().draft!;
+    const next = reorderExercises(current, orderedClientIds);
+    if (next === current) return;
     set({ draft: next });
-    persist(next);
+    persist(next, orderEntry(next));
+  },
+
+  swapExercise(exerciseClientId, input) {
+    const current = get().draft!;
+    const old = current.exercises.find((e) => e.clientId === exerciseClientId);
+    const sessionExerciseId = input.sessionExerciseId ?? input.clientId;
+    const next = swapExercise(current, exerciseClientId, { ...input, sessionExerciseId });
+    if (next === current) return false;
+    set({ draft: next });
+    // Three writes, in order, behind everything else this session queued: the
+    // new exercise, the old one gone, and the order that puts the new one in
+    // the old one's place (the server appends).
+    persistInOrder(next, [
+      changeEntry(next, 'POST', `/workout-sessions/${next.sessionId}/exercises`,
+        { exercise_id: input.exerciseId, id: sessionExerciseId }),
+      old?.sessionExerciseId
+        ? changeEntry(next, 'DELETE', `/session-exercises/${old.sessionExerciseId}`, {})
+        : undefined,
+      orderEntry(next),
+    ]);
+    return true;
   },
 
   patchExercise(exerciseClientId, patch) {
-    const next = patchExercise(get().draft!, exerciseClientId, patch);
+    const current = get().draft!;
+    const next = patchExercise(current, exerciseClientId, patch);
+    if (next === current) return;
     set({ draft: next });
-    persist(next);
+    const target = next.exercises.find((e) => e.clientId === exerciseClientId);
+    const body: Record<string, unknown> = {};
+    if ('notes' in patch) body.notes = patch.notes;
+    if ('skipped' in patch) body.skipped = patch.skipped;
+    if ('supersetGroup' in patch) body.superset_group = patch.supersetGroup;
+    persist(next, target?.sessionExerciseId && Object.keys(body).length
+      ? changeEntry(next, 'PATCH', `/session-exercises/${target.sessionExerciseId}`, body)
+      : undefined);
   },
 
   setNotes(notes) {
     const next = setNotes(get().draft!, notes);
     set({ draft: next });
-    persist(next);
+    persist(next, changeEntry(next, 'PATCH', `/workout-sessions/${next.sessionId}`, { notes }));
   },
 
   prefill(exerciseClientId) {

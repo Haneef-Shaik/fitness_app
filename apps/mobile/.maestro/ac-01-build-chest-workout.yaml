@@ -48,11 +48,16 @@ env:
 # NO SEARCH, deliberately. Typing raises the IME, and on Android every way of
 # dismissing it — hideKeyboard, pressKey back, even scrollUntilVisible's gesture
 # — sends a back key that hits the RN Modal's onRequestClose and closes the
-# SHEET. The unfiltered list already shows both chest exercises, so the flow
-# never opens the keyboard at all.
+# SHEET, so the flow never opens the keyboard at all.
 # By index, not by name: the sheet shows only the first handful of rows on a
 # phone, so naming a specific exercise couples the flow to catalog ordering.
-- assertVisible: "Barbell Bench Press, barbell"
+# (It did, until G11 grew the catalog to 297 and Barbell Bench Press left the
+# first screen.) So the flow narrows to Chest with the muscle chip — no
+# keyboard — and takes the first two rows: a Chest day built of chest lifts,
+# which is what AC-01 says, whatever the alphabet puts first.
+- tapOn:
+    id: "picker-muscle-chips-chest"
+- assertVisible: ".*, (barbell|dumbbell|cable|machine|bodyweight|band|kettlebell|other)"
 - tapOn:
     text: ".*, (barbell|dumbbell|cable|machine|bodyweight|band|kettlebell|other)"
     index: 0

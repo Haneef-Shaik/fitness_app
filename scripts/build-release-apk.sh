@@ -14,12 +14,23 @@
 #       (plugins/withReleaseSigning.js), and checked for all three afterwards.
 #
 # Output: apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+#         …/bundle/release/app-release.aab as well with STORE=1 — Google Play
+#         takes only App Bundles for new apps; the APK is what gets checked
+#         (same manifest, same signing config) and what E2E installs.
+#
+#   FITLOG_VERSION=1.0.0 FITLOG_BUILD_NUMBER=12   the store numbers (app.config.js)
 #
 # Without STORE=1 it is NOT a store build. Two things differ, both because the
 # API here is plain HTTP on a developer machine:
 #   - the manifest allows cleartext traffic (a store build talks HTTPS);
 #   - it is signed with the debug key the generated project ships with.
 # EXPO_PUBLIC_MEASURE is left unset: the latency overlay stays out.
+#
+# Crash reporting (docs/12 §8): EXPO_PUBLIC_SENTRY_DSN is inlined into the
+# bundle when set, and without it the app sends nothing. The Sentry config
+# plugin uploads source maps on every release build and FAILS the build when it
+# cannot, so the upload runs only when SENTRY_AUTH_TOKEN (with SENTRY_ORG and
+# SENTRY_PROJECT) is present — a laptop or CI without Sentry still builds.
 set -euo pipefail
 cd "$(dirname "$0")/../apps/mobile"
 
@@ -68,6 +79,10 @@ if [ ! -f "$LOGO" ]; then
 XML
 fi
 
+if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
+  export SENTRY_DISABLE_AUTO_UPLOAD="${SENTRY_DISABLE_AUTO_UPLOAD:-true}"
+fi
+
 cd android
 EXPO_PUBLIC_API_URL="$API_URL" ./gradlew assembleRelease --no-daemon -q
 APK=app/build/outputs/apk/release/app-release.apk
@@ -80,5 +95,14 @@ if [ "$STORE" = 1 ]; then
     && { echo "✗ the store APK is signed with the debug key" >&2; exit 1; }
   echo "✓ store build: HTTPS API, no cleartext, signed with the upload key"
   "$BT/apksigner" verify --print-certs "$APK" | grep "certificate DN"
+
+  # The bundle Play actually receives, from the same prebuild and signing config.
+  EXPO_PUBLIC_API_URL="$API_URL" ./gradlew bundleRelease --no-daemon -q
+  AAB=app/build/outputs/bundle/release/app-release.aab
+  "$JAVA_HOME/bin/jarsigner" -verify -certs "$AAB" >/dev/null \
+    || { echo "✗ the bundle is not signed" >&2; exit 1; }
+  "$JAVA_HOME/bin/jarsigner" -verify -verbose -certs "$AAB" | grep -q "CN=Android Debug" \
+    && { echo "✗ the bundle is signed with the debug key" >&2; exit 1; }
+  echo "✓ bundle: apps/mobile/android/$AAB — upload this one to Play"
 fi
 echo "built: apps/mobile/android/app/build/outputs/apk/release/app-release.apk (API $API_URL)"

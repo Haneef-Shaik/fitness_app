@@ -35,6 +35,15 @@ describe('what a queued write is', () => {
     expect(describePath(entry({ path: '/recipes/r1/log' }))).toBe('Recipe');
   });
 
+  it('names the logger\'s other mid-session writes (G11)', () => {
+    const by = '/workout-sessions/s1/sets/by-client/c1';
+    expect(describePath(entry({ path: by, method: 'DELETE' }))).toBe('Set removal');
+    expect(describePath(entry({ path: by, method: 'PATCH' }))).toBe('Set change');
+    expect(describePath(entry({ path: '/workout-sessions/s1/exercises' }))).toBe('Exercise');
+    expect(describePath(entry({ path: '/session-exercises/se1', method: 'PATCH' }))).toBe('Exercise note');
+    expect(describePath(entry({ path: '/workout-sessions/s1', method: 'PATCH' }))).toBe('Workout note');
+  });
+
   it('summarises a set as the thing the user actually did', () => {
     expect(summarise(entry())).toEqual({ title: 'Set', detail: '60 kg × 8' });
   });

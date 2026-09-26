@@ -1,0 +1,120 @@
+name: Deploy
+
+# After CI is green on main: build the image ONCE, push it to GHCR, then release
+# it to staging and — behind the `production` environment's required reviewer —
+# to production. The same image digest goes to both; production never runs a
+# build staging did not (docs/12-DEPLOYMENT.md §6).
+#
+# Each environment's release is `deploy-environment.yml`: migrate (the release
+# step, 02 §11), point the environment's tag at the image, call the host's
+# deploy hook, and wait for /health to report the new release.
+#
+# **Without secrets this builds the image and stops.** A fork, or this repository
+# before the owner creates the environments, gets a green run that deployed
+# nothing and says so — never a red one.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Commit or branch to deploy — an older SHA is a rollback (docs/12 §13)"
+        required: false
+        default: main
+      migrate:
+        # Forward-only (02 §11): an older build does not know the newer schema's
+        # revision, so `alembic upgrade head` would fail. Expand/contract is what
+        # lets it run on that schema anyway.
+        description: "Run migrations first. Untick for a rollback to an older build."
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read
+
+# One release at a time, and never cancelled halfway: a migration interrupted
+# by a newer push is worse than a queued deploy.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  image:
+    name: Build and push the image
+    # Only a GREEN CI run of a PUSH to main in THIS repository. A pull request's
+    # CI run also completes, and its code must never run with deploy secrets.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+      sha: ${{ steps.meta.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The commit CI tested — not whatever main is by the time this runs.
+          ref: ${{ github.event.workflow_run.head_sha || inputs.ref }}
+
+      - id: meta
+        name: Name the image
+        run: |
+          # GHCR wants lowercase; a GitHub owner name need not be.
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/fitlog-api" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: services/api
+          push: true
+          # Baked in as APP_RELEASE: every crash report and /health name it.
+          build-args: GIT_SHA=${{ steps.meta.outputs.sha }}
+          tags: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  staging:
+    needs: image
+    uses: ./.github/workflows/deploy-environment.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      environment: staging
+      image: ${{ needs.image.outputs.image }}
+      sha: ${{ needs.image.outputs.sha }}
+      migrate: ${{ github.event_name != 'workflow_dispatch' || inputs.migrate }}
+    secrets: inherit
+
+  production:
+    # After staging has migrated and is answering with this release. The
+    # `production` environment's required reviewer is the gate (docs/12 §6).
+    needs: [image, staging]
+    uses: ./.github/workflows/deploy-environment.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      environment: production
+      image: ${{ needs.image.outputs.image }}
+      sha: ${{ needs.image.outputs.sha }}
+      migrate: ${{ github.event_name != 'workflow_dispatch' || inputs.migrate }}
+    secrets: inherit

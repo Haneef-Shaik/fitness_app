@@ -89,6 +89,10 @@ class PlanExercise(Base, TimestampMixin):
     target_duration_seconds: Mapped[int | None] = mapped_column()
     target_distance_m: Mapped[float | None] = mapped_column(Numeric(10, 2))
     rest_seconds: Mapped[int | None] = mapped_column()
+    # E-13 — exercises of one day sharing a number are a superset (or a circuit,
+    # with three or more). The logger alternates between them and rests after
+    # the round, not after each exercise.
+    superset_group: Mapped[int | None] = mapped_column()
 
     plan_day: Mapped[WorkoutPlanDay] = relationship(back_populates="exercises")
 

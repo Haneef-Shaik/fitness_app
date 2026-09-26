@@ -16,6 +16,7 @@ import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Button, Card, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { AiDegradedNotice } from '@/features/status/ServiceNotices';
 import { useAnalyseText, useAnalysisQuota } from '@/lib/query/hooks';
 import { radius, space, useTheme } from '@/theme';
 
@@ -42,6 +43,7 @@ export default function Describe() {
   return (
     <ScreenScaffold title="Describe your meal">
       <View style={{ gap: space.lg }}>
+        <AiDegradedNotice />
         <TextInput
           value={text}
           onChangeText={setText}

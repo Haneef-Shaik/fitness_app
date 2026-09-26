@@ -18,11 +18,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import uuid
+from collections.abc import Callable
 from datetime import UTC, datetime
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app import healthcheck
 from app.ai.gateway import (
     AIGateway,
     AIInvalidOutput,
@@ -31,6 +33,7 @@ from app.ai.gateway import (
 )
 from app.ai.provider import get_gateway
 from app.config import get_settings
+from app.db_engine import build_engine
 from app.food.internal import InternalCatalogResolver
 from app.food.ladder import resolve_detected_name
 from app.models import (
@@ -39,7 +42,10 @@ from app.models import (
     AnalysisStatus,
     FoodAnalysis,
     FoodAnalysisItem,
+    PushToken,
 )
+from app.notify.push import PushMessage, PushSender, get_push_sender
+from app.observability.crash_reporting import init_crash_reporting
 from app.observability.metrics import registry
 from app.storage.base import ObjectStore
 from app.storage.provider import get_store
@@ -60,8 +66,10 @@ class AnalysisWorker:
         gateway: AIGateway | None = None,
         store: ObjectStore | None = None,
         low_confidence_threshold: float | None = None,
+        push: PushSender | None = None,
     ) -> None:
         self._sessions = session_factory
+        self._push = push or get_push_sender()
         self._gateway = gateway or get_gateway()
         self._store = store or get_store()
         self._threshold = (
@@ -72,10 +80,26 @@ class AnalysisWorker:
 
     # ------------------------------------------------------------- the loop
 
-    async def run_forever(self, poll_seconds: float | None = None) -> None:
+    async def run_forever(
+        self,
+        poll_seconds: float | None = None,
+        *,
+        heartbeat: Callable[[], None] | None = None,
+    ) -> None:
+        """`heartbeat` is called on every turn, idle or not — the container's
+        HEALTHCHECK reads it, because the worker serves no `/health`."""
         delay = poll_seconds or get_settings().worker_poll_seconds
         log.info("analysis worker started, polling every %.1fs", delay)
         while True:
+            if heartbeat is not None:
+                try:
+                    heartbeat()
+                except OSError as exc:
+                    # Its own guard: a full /tmp costs the health signal, and
+                    # must never cost the jobs. A warning, not an error: the
+                    # stale heartbeat already marks the container unhealthy,
+                    # and an error every poll would flood the crash reports.
+                    log.warning("worker heartbeat failed: %s", exc)
             try:
                 did_work = await self.run_once()
             except Exception:  # a worker that dies is worse than one that logs
@@ -112,7 +136,38 @@ class AnalysisWorker:
         async with self._sessions() as session:
             await self._process(session, analysis_id)
             await session.commit()
+
+        # After the commit, so the analysis a notification opens is the finished one.
+        try:
+            await self._notify(analysis_id)
+        except Exception:  # a courtesy must never become a failed job
+            log.exception("analysis %s: notification failed", analysis_id)
         return True
+
+    async def _notify(self, analysis_id: uuid.UUID) -> None:
+        """A PHOTO's estimate is announced; a text one is back before anyone
+        leaves the screen, and a notification for it would only be noise."""
+        async with self._sessions() as session:
+            analysis = await session.get(FoodAnalysis, analysis_id)
+            if analysis is None or analysis.input_type != AnalysisInputType.image:
+                return
+            tokens = (await session.scalars(
+                select(PushToken.token).where(PushToken.user_id == analysis.user_id)
+            )).all()
+            if not tokens:
+                return
+            done = analysis.status == AnalysisStatus.completed
+            messages = [PushMessage(
+                token=t,
+                title="Your meal estimate is ready" if done else "Couldn't estimate that meal",
+                body=("Review it and confirm before it counts." if done
+                      else "Add it by hand, or try another photo."),
+                data={"type": "analysis", "analysis_id": str(analysis_id)},
+            ) for t in tokens]
+            dead = await self._push.send(messages)
+            if dead:
+                await session.execute(delete(PushToken).where(PushToken.token.in_(dead)))
+                await session.commit()
 
     # ------------------------------------------------------------- claiming
 
@@ -253,7 +308,9 @@ class AnalysisWorker:
 
 
 def _session_factory() -> async_sessionmaker[AsyncSession]:
-    engine = create_async_engine(get_settings().database_url, pool_pre_ping=True)
+    # The API's builder, not a copy of it: a pooler setting only the API had
+    # would be a worker that fails on the hosted database and nowhere else.
+    engine = build_engine(get_settings())
     return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
@@ -261,7 +318,13 @@ async def main() -> None:
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s"
     )
-    await AnalysisWorker(_session_factory()).run_forever()
+    # Validated before anything else, as the API does at import: a worker with
+    # a bad configuration should fail to start, not fail every job.
+    settings = get_settings()
+    # Its own client, tagged "worker": `log.exception` in the loop becomes a
+    # report, an expected AI failure (a warning) does not.
+    init_crash_reporting(settings, process="worker")
+    await AnalysisWorker(_session_factory()).run_forever(heartbeat=healthcheck.beat)
 
 
 if __name__ == "__main__":

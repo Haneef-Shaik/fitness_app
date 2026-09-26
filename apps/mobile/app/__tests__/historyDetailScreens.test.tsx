@@ -76,6 +76,27 @@ describe('F-03 · session detail', () => {
     expect(screen.getByText('Skipped')).toBeTruthy();
     expect(screen.getByText('No sets recorded')).toBeTruthy();
   });
+
+  it('shows what E-06 and E-07 recorded: type, effort and every note (G11)', () => {
+    mockSession.data = {
+      id: 's1', local_date: '2026-09-18', total_volume_kg: 480, duration_seconds: 3720,
+      notes: 'Felt strong',
+      exercises: [{
+        id: 'se1', exercise_name: 'Barbell Bench Press', order_index: 0, notes: 'Seat on 4',
+        sets: [
+          { id: 'x1', set_type: 'drop', load_kg: 60, reps: 8, rpe: 8, rir: 2, note: 'Grip went', is_pr: false },
+        ],
+      }],
+    };
+
+    render(<SessionDetail />);
+
+    expect(screen.getByText('Felt strong')).toBeTruthy();
+    expect(screen.getByText('✎ Seat on 4')).toBeTruthy();
+    expect(screen.getByText('drop')).toBeTruthy();
+    expect(screen.getByText('RPE 8 · RIR 2')).toBeTruthy();
+    expect(screen.getByText('Grip went')).toBeTruthy();
+  });
 });
 
 describe('F-06 · comparison', () => {

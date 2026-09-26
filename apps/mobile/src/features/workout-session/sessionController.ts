@@ -83,15 +83,36 @@ export async function flushAndReconcile(): Promise<void> {
 
   const entries = await store.allEntries();
   const byKey = new Map(entries.map((e) => [e.idempotencyKey, e]));
+  // A set's edits travel as their own writes, keyed apart from the set. The dot
+  // is about the set as the user sees it, so an edit still queued is Waiting
+  // even though the original values landed long ago.
+  const editsOf = (clientId: string) =>
+    entries.filter((e) => e.method === 'PATCH' && e.path.endsWith(`/sets/by-client/${clientId}`));
 
   const mark = useSessionStore.getState().markSync;
   for (const exercise of draft.exercises) {
     for (const s of exercise.sets) {
-      const entry = byKey.get(s.clientId);
-      if (!entry) continue;                        // never enqueued (still local)
-      if (entry.state === 'sent') mark(s.clientId, 'synced');
-      else if (entry.state === 'failed') mark(s.clientId, 'failed', entry.lastError);
+      const create = byKey.get(s.clientId);
+      if (!create) continue;                       // never enqueued (still local)
+      const writes = [create, ...editsOf(s.clientId)];
+      const failed = writes.find((e) => e.state === 'failed');
+      if (failed) mark(s.clientId, 'failed', failed.lastError);
+      else if (writes.every((e) => e.state === 'sent')) mark(s.clientId, 'synced');
       else mark(s.clientId, 'pending');            // queued, waiting on a network
     }
   }
+}
+
+/**
+ * How many of a session's writes are still waiting to land, after one more try.
+ *
+ * Finishing is the moment the server closes the workout, and a closed workout
+ * refuses sets. Finishing with one still queued lost it — so E-02 asks this
+ * first. A write that failed for good is not counted: it will never land, and
+ * the Sync Center is where the user settles it.
+ */
+export async function unsentFor(aggregateId: string): Promise<number> {
+  await outbox.flush();
+  const entries = await store.allEntries();
+  return entries.filter((e) => e.aggregateId === aggregateId && e.state === 'pending').length;
 }

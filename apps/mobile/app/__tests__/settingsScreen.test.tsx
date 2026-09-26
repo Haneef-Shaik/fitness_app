@@ -7,7 +7,7 @@
  * behind a confirmation that says what happens to unfinished work (K-01).
  */
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
@@ -16,12 +16,21 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockSignOut = jest.fn(async () => {});
+const mockAccount = { emailVerified: null as boolean | null };
 jest.mock('@/lib/session', () => ({
   useSession: () => ({
     email: 'haneef@example.com',
     profile: { display_name: 'Haneef A', timezone: 'Asia/Kolkata' },
     signOut: mockSignOut,
+    emailVerified: mockAccount.emailVerified,
+    refreshAccount: jest.fn(async () => {}),
   }),
+}));
+
+const mockResend = jest.fn(async (): Promise<unknown> => ({ sent: true, email_verified: false }));
+jest.mock('@/lib/api-account', () => ({
+  ...jest.requireActual('@/lib/api-account'),
+  accountApi: { resendVerification: () => mockResend() },
 }));
 
 let mockDraft: unknown = null;
@@ -35,7 +44,12 @@ jest.mock('@/lib/db', () => ({
 
 import Settings from '../settings/index';
 
-beforeEach(() => { jest.clearAllMocks(); mockDraft = null; mockEntries = []; });
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockDraft = null;
+  mockEntries = [];
+  mockAccount.emailVerified = null;
+});
 
 it('shows whose account this is', () => {
   render(<Settings />);
@@ -54,6 +68,46 @@ it('links to the settings that exist', () => {
   expect(mockPush).toHaveBeenLastCalledWith('/home/customize');
   fireEvent.press(screen.getByLabelText('Notifications and reminders'));
   expect(mockPush).toHaveBeenLastCalledWith('/notifications');
+  fireEvent.press(screen.getByLabelText('Account and security'));
+  expect(mockPush).toHaveBeenLastCalledWith('/settings/security');
+});
+
+describe('an unverified email (A-06)', () => {
+  it('is mentioned, unobtrusively, with a way to resend — and blocks nothing', async () => {
+    mockAccount.emailVerified = false;
+    render(<Settings />);
+
+    expect(screen.getByText('Verify your email')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByLabelText('Resend link')); });
+    expect(mockResend).toHaveBeenCalledTimes(1);
+    // Everything else on the screen is still there.
+    expect(screen.getByLabelText('Your details')).toBeTruthy();
+  });
+
+  it('opens A-06 from its words, where a code can be pasted', () => {
+    mockAccount.emailVerified = false;
+    render(<Settings />);
+    fireEvent.press(screen.getByLabelText('Verify your email'));
+    expect(mockPush).toHaveBeenLastCalledWith('/verify-email');
+  });
+
+  it('says what the resend did, in words', async () => {
+    mockAccount.emailVerified = false;
+    render(<Settings />);
+    await act(async () => { fireEvent.press(screen.getByLabelText('Resend link')); });
+    expect(screen.getByText(/Sent\. Check haneef@example\.com/)).toBeTruthy();
+  });
+
+  it('is not mentioned once verified, or before the server has said', () => {
+    mockAccount.emailVerified = true;
+    const verified = render(<Settings />);
+    expect(screen.queryByText('Verify your email')).toBeNull();
+    verified.unmount();
+
+    mockAccount.emailVerified = null;
+    render(<Settings />);
+    expect(screen.queryByText('Verify your email')).toBeNull();
+  });
 });
 
 it('sign-out asks first, and only signs out on confirm', async () => {

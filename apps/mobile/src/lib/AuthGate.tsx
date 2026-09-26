@@ -24,8 +24,14 @@ import { useSession } from './session';
  * `/login` and throws them back to `/welcome`. On a fast device the restore
  * wins the race and nothing looks wrong; on a slower one the button appears
  * dead. Found on an emulator, which lost the race every time.
+ *
+ * A-05 and A-06 are here because their links arrive signed out: a reset is for
+ * someone who cannot sign in, and a verification link is often opened on a
+ * phone that is not signed in to that account.
  */
-const PUBLIC_ROUTES = ['/welcome', '/login', '/register'];
+const PUBLIC_ROUTES = [
+  '/welcome', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email',
+];
 
 export function AuthGate() {
   const { status } = useSession();

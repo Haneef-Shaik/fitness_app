@@ -20,6 +20,7 @@ from sqlalchemy import select
 
 from app.api.deps import CurrentUser, DbSession
 from app.api.envelope import ok
+from app.config import get_settings
 from app.core.errors import Forbidden, NotFound, ValidationFailed
 from app.domain.dates import to_local_date
 from app.domain.units import in_to_cm, lb_to_kg
@@ -37,6 +38,7 @@ from app.schemas.body import (
 from app.schemas.envelope import Envelope
 from app.services import summaries
 from app.storage.provider import get_store
+from app.storage.signing import is_own_key
 
 router = APIRouter(tags=["body"])
 
@@ -258,9 +260,15 @@ def _trailing_mean(values: list[float], index: int) -> float:
 
 # ------------------------------------------------------- I-05 · photographs
 
-def _photo_out(row: ProgressPhoto) -> dict:
+def _photo_out(row: ProgressPhoto, *, with_url: bool = True) -> dict:
+    # Signed per response, after the owner check the query already made: a URL
+    # is only ever issued to the person the photo belongs to (BRD §18).
+    url = (
+        get_store().read_url(row.image_key, get_settings().upload_url_ttl_seconds)
+        if with_url else None
+    )
     return ProgressPhotoOut(
-        id=row.id, image_key=row.image_key, taken_at=row.taken_at,
+        id=row.id, image_key=row.image_key, image_url=url, taken_at=row.taken_at,
         local_date=row.local_date, pose=row.pose, notes=row.notes,
     ).model_dump(mode="json")
 
@@ -288,7 +296,7 @@ async def create_progress_photo(
         if existing is not None:
             return ok(_photo_out(existing), status_code=201)
 
-    if not body.image_key.startswith(f"uploads/{user.id}/"):
+    if not is_own_key(body.image_key, user.id):
         raise Forbidden("That image is not yours.")
     if not await get_store().exists(body.image_key):
         raise ValidationFailed("That image was never uploaded.",
@@ -335,7 +343,7 @@ async def delete_progress_photo(photo_id: uuid.UUID, user: CurrentUser, db: DbSe
     if row is None:
         raise NotFound("That photo no longer exists.")
 
-    out = _photo_out(row)
+    out = _photo_out(row, with_url=False)
     await get_store().delete(row.image_key)
     await db.delete(row)
     await db.flush()

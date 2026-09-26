@@ -90,6 +90,14 @@ env:
     commands:
       - tapOn:
           id: "open-settings"
+      # K-02 added a row to Settings and A-06 a "Verify your email" row above
+      # it for an unverified account, so on a small screen Sign out can start
+      # below the fold.
+      - scrollUntilVisible:
+          element:
+            id: "sign-out"
+          direction: DOWN
+          timeout: 10000
       - tapOn:
           id: "sign-out"
       - tapOn: "Yes, sign out"

@@ -1,0 +1,3777 @@
+{
+ "foods": [
+  {
+   "aliases": [
+    "dal",
+    "daal",
+    "dhal",
+    "lentil dal"
+   ],
+   "calories": 145,
+   "carbs_g": 19.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.3,
+   "fiber_g": 7.5,
+   "name": "Dal (lentil curry)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     240
+    ]
+   ],
+   "protein_g": 8.6,
+   "ref": "fitlog-in:dal",
+   "saturated_fat_g": 2.5,
+   "sodium_mg": 309,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707427 (Dal)",
+   "sugar_g": 1.7,
+   "weight": 60
+  },
+  {
+   "aliases": [],
+   "calories": 111,
+   "carbs_g": 12.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.7,
+   "fiber_g": 3.4,
+   "name": "Lentil curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     240
+    ]
+   ],
+   "protein_g": 3.7,
+   "ref": "fitlog-in:lentil-curry",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 383,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707431 (Lentil curry)",
+   "sugar_g": 3.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "nan",
+    "plain naan",
+    "garlic naan",
+    "tandoori naan"
+   ],
+   "calories": 311,
+   "carbs_g": 50.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.3,
+   "fiber_g": 5.2,
+   "name": "Naan",
+   "portions": [
+    [
+     "1 medium naan",
+     90
+    ],
+    [
+     "1 piece (1/4 of 10 in naan)",
+     44
+    ],
+    [
+     "1 large naan (10 in)",
+     177
+    ]
+   ],
+   "protein_g": 11.1,
+   "ref": "fitlog-in:naan",
+   "saturated_fat_g": 3.2,
+   "sodium_mg": 508,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707613 (Bread, naan)",
+   "sugar_g": 3.7,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "paratha",
+    "parantha",
+    "plain paratha",
+    "lachha paratha"
+   ],
+   "calories": 326,
+   "carbs_g": 45.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 13.2,
+   "fiber_g": 9.6,
+   "name": "Paratha (plain)",
+   "portions": [
+    [
+     "1 paratha",
+     70
+    ]
+   ],
+   "protein_g": 6.4,
+   "ref": "fitlog-in:paratha",
+   "saturated_fat_g": 5.8,
+   "sodium_mg": 452,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707715 (Bread, paratha)",
+   "sugar_g": 4.2,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "poori",
+    "puris"
+   ],
+   "calories": 409,
+   "carbs_g": 39.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 24.9,
+   "fiber_g": 3.5,
+   "name": "Puri",
+   "portions": [
+    [
+     "1 puri",
+     36
+    ]
+   ],
+   "protein_g": 6.8,
+   "ref": "fitlog-in:puri",
+   "saturated_fat_g": 3.3,
+   "sodium_mg": 170,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707714 (Bread, puri)",
+   "sugar_g": 0.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "biryani",
+    "biriyani",
+    "chicken biriyani",
+    "murgh biryani"
+   ],
+   "calories": 104,
+   "carbs_g": 13.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.4,
+   "fiber_g": 1.1,
+   "name": "Chicken biryani",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 cup",
+     196
+    ]
+   ],
+   "protein_g": 7.2,
+   "ref": "fitlog-in:chicken-biryani",
+   "saturated_fat_g": 0.9,
+   "sodium_mg": 161,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2706538 (Biryani with chicken)",
+   "sugar_g": 1.9,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "meat biryani",
+    "gosht biryani",
+    "lamb biryani"
+   ],
+   "calories": 145,
+   "carbs_g": 12.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.8,
+   "fiber_g": 1.0,
+   "name": "Mutton biryani",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 cup",
+     196
+    ]
+   ],
+   "protein_g": 8.5,
+   "ref": "fitlog-in:mutton-biryani",
+   "saturated_fat_g": 3.0,
+   "sodium_mg": 98,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2706490 (Biryani with meat). FNDDS describes it as biryani with meat",
+   "sugar_g": 1.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "veg biryani",
+    "veg biriyani"
+   ],
+   "calories": 109,
+   "carbs_g": 17.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.2,
+   "fiber_g": 1.2,
+   "name": "Vegetable biryani",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 cup",
+     172
+    ]
+   ],
+   "protein_g": 1.9,
+   "ref": "fitlog-in:veg-biryani",
+   "saturated_fat_g": 1.7,
+   "sodium_mg": 177,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708985 (Biryani with vegetables)",
+   "sugar_g": 1.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "idly",
+    "idlis"
+   ],
+   "calories": 128,
+   "carbs_g": 25.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 0.3,
+   "fiber_g": 5.8,
+   "name": "Idli",
+   "portions": [
+    [
+     "1 idli",
+     38
+    ]
+   ],
+   "protein_g": 6.4,
+   "ref": "fitlog-in:idli",
+   "saturated_fat_g": 0.1,
+   "sodium_mg": 252,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708346 (Idli)",
+   "sugar_g": 1.9,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "dosa",
+    "sada dosa",
+    "dosai"
+   ],
+   "calories": 210,
+   "carbs_g": 37.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.0,
+   "fiber_g": 1.8,
+   "name": "Plain dosa",
+   "portions": [
+    [
+     "1 medium dosa",
+     80
+    ],
+    [
+     "1 small dosa",
+     35
+    ],
+    [
+     "1 large dosa",
+     155
+    ]
+   ],
+   "protein_g": 5.7,
+   "ref": "fitlog-in:plain-dosa",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 309,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708347 (Dosa, plain)",
+   "sugar_g": 0.3,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "dosa with potato filling"
+   ],
+   "calories": 184,
+   "carbs_g": 30.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.3,
+   "fiber_g": 2.2,
+   "name": "Masala dosa",
+   "portions": [
+    [
+     "1 medium masala dosa",
+     267
+    ],
+    [
+     "1 small masala dosa",
+     113
+    ]
+   ],
+   "protein_g": 5.5,
+   "ref": "fitlog-in:masala-dosa",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 330,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709129 (Dosa, with filling)",
+   "sugar_g": 1.1,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "aloo samosa",
+    "samosas",
+    "singara"
+   ],
+   "calories": 310,
+   "carbs_g": 33.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 17.5,
+   "fiber_g": 1.8,
+   "name": "Samosa",
+   "portions": [
+    [
+     "1 samosa",
+     100
+    ],
+    [
+     "1 small samosa",
+     25
+    ]
+   ],
+   "protein_g": 5.1,
+   "ref": "fitlog-in:samosa",
+   "saturated_fat_g": 4.4,
+   "sodium_mg": 388,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708730 (Samosa)",
+   "sugar_g": 1.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "saag paneer"
+   ],
+   "calories": 101,
+   "carbs_g": 4.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.0,
+   "fiber_g": 0.9,
+   "name": "Palak paneer",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     200
+    ]
+   ],
+   "protein_g": 5.4,
+   "ref": "fitlog-in:palak-paneer",
+   "saturated_fat_g": 1.8,
+   "sodium_mg": 242,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709631 (Palak Paneer)",
+   "sugar_g": 1.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "murgh curry",
+    "chicken gravy",
+    "chicken masala curry"
+   ],
+   "calories": 107,
+   "carbs_g": 6.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.5,
+   "fiber_g": 1.4,
+   "name": "Chicken curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     240
+    ]
+   ],
+   "protein_g": 6.5,
+   "ref": "fitlog-in:chicken-curry",
+   "saturated_fat_g": 1.6,
+   "sodium_mg": 376,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2706437 (Chicken curry)",
+   "sugar_g": 2.6,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "chicken curry rice"
+   ],
+   "calories": 116,
+   "carbs_g": 15.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.0,
+   "fiber_g": 1.0,
+   "name": "Chicken curry with rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ]
+   ],
+   "protein_g": 5.0,
+   "ref": "fitlog-in:chicken-curry-rice",
+   "saturated_fat_g": 1.0,
+   "sodium_mg": 324,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2706438 (Chicken curry with rice)",
+   "sugar_g": 1.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "machli curry",
+    "meen curry",
+    "macher jhol"
+   ],
+   "calories": 93,
+   "carbs_g": 6.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.4,
+   "fiber_g": 1.4,
+   "name": "Fish curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     240
+    ]
+   ],
+   "protein_g": 4.9,
+   "ref": "fitlog-in:fish-curry",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 351,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2706460 (Fish curry)",
+   "sugar_g": 2.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "mixed vegetable curry",
+    "veg curry",
+    "sabzi",
+    "subzi"
+   ],
+   "calories": 86,
+   "carbs_g": 8.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.3,
+   "fiber_g": 1.8,
+   "name": "Vegetable curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     240
+    ]
+   ],
+   "protein_g": 1.6,
+   "ref": "fitlog-in:veg-curry",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 388,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2710067 (Vegetable curry)",
+   "sugar_g": 3.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "pakoda",
+    "bhajiya",
+    "bhaji",
+    "onion pakora",
+    "pakodi"
+   ],
+   "calories": 125,
+   "carbs_g": 16.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.8,
+   "fiber_g": 3.2,
+   "name": "Pakora",
+   "portions": [
+    [
+     "1 pakora",
+     12
+    ],
+    [
+     "1 plate (6 pieces)",
+     72
+    ]
+   ],
+   "protein_g": 4.9,
+   "ref": "fitlog-in:pakora",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 380,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2710066 (Pakora)",
+   "sugar_g": 3.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "mango chutney",
+    "saunth"
+   ],
+   "calories": 246,
+   "carbs_g": 60.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 0.1,
+   "fiber_g": 1.0,
+   "name": "Sweet chutney",
+   "portions": [
+    [
+     "1 tbsp",
+     15.0
+    ]
+   ],
+   "protein_g": 0.3,
+   "ref": "fitlog-in:sweet-chutney",
+   "saturated_fat_g": 0.0,
+   "sodium_mg": 802,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709309 (Chutney). a sweet fruit chutney",
+   "sugar_g": 42.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "rava upma",
+    "uppittu"
+   ],
+   "calories": 87,
+   "carbs_g": 13.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.6,
+   "fiber_g": 1.3,
+   "name": "Upma",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     170
+    ]
+   ],
+   "protein_g": 2.0,
+   "ref": "fitlog-in:upma",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 98,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709128 (Upma)",
+   "sugar_g": 1.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "sambhar"
+   ],
+   "calories": 86,
+   "carbs_g": 11.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.7,
+   "fiber_g": 4.0,
+   "name": "Sambar",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     248
+    ]
+   ],
+   "protein_g": 4.3,
+   "ref": "fitlog-in:sambar",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 207,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707430 (Sambar, vegetable stew)",
+   "sugar_g": 2.0,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "channa saag",
+    "chole saag"
+   ],
+   "calories": 89,
+   "carbs_g": 8.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.3,
+   "fiber_g": 3.0,
+   "name": "Chana saag",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     245
+    ]
+   ],
+   "protein_g": 4.1,
+   "ref": "fitlog-in:chana-saag",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 270,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709632 (Channa Saag)",
+   "sugar_g": 1.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "vada",
+    "vadai",
+    "urad vada",
+    "uzhunnu vada"
+   ],
+   "calories": 266,
+   "carbs_g": 33.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 9.7,
+   "fiber_g": 5.8,
+   "name": "Medu vada",
+   "portions": [
+    [
+     "1 vada",
+     30
+    ]
+   ],
+   "protein_g": 12.8,
+   "ref": "fitlog-in:medu-vada",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 315,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709130 (Vada)",
+   "sugar_g": 1.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "papadum",
+    "poppadom",
+    "appalam",
+    "papad"
+   ],
+   "calories": 371,
+   "carbs_g": 59.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.2,
+   "fiber_g": 18.6,
+   "name": "Papad (roasted)",
+   "portions": [
+    [
+     "1 papad",
+     9
+    ]
+   ],
+   "protein_g": 25.6,
+   "ref": "fitlog-in:papad",
+   "saturated_fat_g": 1.1,
+   "sodium_mg": 1745,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2707429 (Papad, grilled or broiled)",
+   "sugar_g": 0.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "burfi",
+    "milk barfi"
+   ],
+   "calories": 284,
+   "carbs_g": 40.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 11.4,
+   "fiber_g": 0.4,
+   "name": "Barfi",
+   "portions": [
+    [
+     "1 piece",
+     45
+    ],
+    [
+     "1 small piece",
+     25
+    ]
+   ],
+   "protein_g": 5.4,
+   "ref": "fitlog-in:barfi",
+   "saturated_fat_g": 6.1,
+   "sodium_mg": 71,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2705700 (Barfi or Burfi, Indian dessert)",
+   "sugar_g": 37.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "laddu",
+    "laddoo"
+   ],
+   "calories": 411,
+   "carbs_g": 46.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 22.2,
+   "fiber_g": 4.0,
+   "name": "Ladoo",
+   "portions": [
+    [
+     "1 ladoo",
+     60
+    ],
+    [
+     "1 small ladoo",
+     30
+    ]
+   ],
+   "protein_g": 6.9,
+   "ref": "fitlog-in:ladoo",
+   "saturated_fat_g": 11.4,
+   "sodium_mg": 140,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2710351 (Ladoo, round ball)",
+   "sugar_g": 29.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "chai",
+    "tea with milk",
+    "masala chai",
+    "cutting chai",
+    "milk tea"
+   ],
+   "calories": 51,
+   "carbs_g": 8.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 1.1,
+   "fiber_g": 0.1,
+   "name": "Chai (milk tea, sweetened)",
+   "portions": [
+    [
+     "1 cup (chai cup)",
+     150.0
+    ],
+    [
+     "1 mug",
+     240
+    ]
+   ],
+   "protein_g": 1.6,
+   "ref": "fitlog-in:milk-tea",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 20,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2710506 (Tea, hot, with milk). FNDDS values include sugar",
+   "sugar_g": 8.7,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "khichri",
+    "kitchari",
+    "dal khichdi"
+   ],
+   "calories": 150,
+   "carbs_g": 21.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.8,
+   "fiber_g": 4.1,
+   "name": "Khichdi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     207
+    ]
+   ],
+   "protein_g": 5.5,
+   "ref": "fitlog-in:khichdi",
+   "saturated_fat_g": 0.7,
+   "sodium_mg": 189,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2709029 (Rice, white, with lentils, NS as to fat). FNDDS describes it as white rice with lentils",
+   "sugar_g": 1.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "curd",
+    "dahi",
+    "plain curd",
+    "doi"
+   ],
+   "calories": 78,
+   "carbs_g": 5.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.5,
+   "fiber_g": 0.0,
+   "name": "Curd (dahi), whole milk",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     100.0
+    ],
+    [
+     "1 cup",
+     245
+    ]
+   ],
+   "protein_g": 3.8,
+   "ref": "fitlog-in:curd",
+   "saturated_fat_g": 2.3,
+   "sodium_mg": 42,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2705418 (Yogurt, whole milk, plain)",
+   "sugar_g": 4.1,
+   "weight": 60
+  },
+  {
+   "aliases": [
+    "fried rice",
+    "vegetable fried rice"
+   ],
+   "calories": 174,
+   "carbs_g": 32.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.2,
+   "fiber_g": 1.1,
+   "name": "Veg fried rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 cup",
+     166
+    ]
+   ],
+   "protein_g": 3.8,
+   "ref": "fitlog-in:veg-fried-rice",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 361,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708951 (Rice, fried, meatless)",
+   "sugar_g": 0.6,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 173,
+   "carbs_g": 27.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.7,
+   "fiber_g": 0.9,
+   "name": "Chicken fried rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 cup",
+     198
+    ]
+   ],
+   "protein_g": 7.3,
+   "ref": "fitlog-in:chicken-fried-rice",
+   "saturated_fat_g": 0.7,
+   "sodium_mg": 359,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708953 (Rice, fried, with chicken)",
+   "sugar_g": 0.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "hakka noodles",
+    "veg noodles",
+    "veg chowmein"
+   ],
+   "calories": 121,
+   "carbs_g": 20.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.4,
+   "fiber_g": 1.3,
+   "name": "Veg hakka noodles",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ]
+   ],
+   "protein_g": 4.8,
+   "ref": "fitlog-in:hakka-noodles",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 430,
+   "source_note": "USDA FNDDS 2021-2023, FDC 2708799 (Lo mein, meatless). FNDDS describes it as meatless lo mein",
+   "sugar_g": 2.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "pav",
+    "ladi pav",
+    "pao"
+   ],
+   "calories": 310,
+   "carbs_g": 52.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.5,
+   "fiber_g": 2.0,
+   "name": "Pav (bread roll)",
+   "portions": [
+    [
+     "1 pav",
+     35
+    ]
+   ],
+   "protein_g": 10.9,
+   "ref": "fitlog-in:pav",
+   "saturated_fat_g": 1.4,
+   "sodium_mg": 467,
+   "source_note": "USDA SR Legacy, FDC 172793 (Rolls, dinner, plain, commercially prepared (includes brown-and-serve)). SR describes it as a plain dinner roll",
+   "sugar_g": 5.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "phulka",
+    "fulka",
+    "plain roti"
+   ],
+   "calories": 252,
+   "carbs_g": 53.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 1.9,
+   "fiber_g": 7.9,
+   "name": "Phulka (roti, no ghee)",
+   "portions": [
+    [
+     "1 phulka",
+     30
+    ],
+    [
+     "1 roti",
+     40
+    ]
+   ],
+   "protein_g": 9.8,
+   "ref": "fitlog-in:phulka",
+   "saturated_fat_g": 0.3,
+   "sodium_mg": 1,
+   "source_note": "Calculated by FitLog (recipe 'phulka') from USDA SR Legacy values: atta 100 g, water 65 g; cooked weight 135 g",
+   "sugar_g": 0.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "ghee roti",
+    "chapati with ghee",
+    "tawa roti"
+   ],
+   "calories": 297,
+   "carbs_g": 49.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 8.6,
+   "fiber_g": 7.4,
+   "name": "Roti with ghee",
+   "portions": [
+    [
+     "1 roti",
+     42
+    ]
+   ],
+   "protein_g": 9.1,
+   "ref": "fitlog-in:ghee-roti",
+   "saturated_fat_g": 4.4,
+   "sodium_mg": 1,
+   "source_note": "Calculated by FitLog (recipe 'ghee-roti') from USDA SR Legacy values: atta 100 g, water 65 g, ghee 10 g; cooked weight 145 g",
+   "sugar_g": 0.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "potato paratha",
+    "aloo parantha"
+   ],
+   "calories": 202,
+   "carbs_g": 35.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.4,
+   "fiber_g": 4.7,
+   "name": "Aloo paratha",
+   "portions": [
+    [
+     "1 paratha",
+     110
+    ]
+   ],
+   "protein_g": 5.5,
+   "ref": "fitlog-in:aloo-paratha",
+   "saturated_fat_g": 2.8,
+   "sodium_mg": 349,
+   "source_note": "Calculated by FitLog (recipe 'aloo-paratha') from USDA SR Legacy values: atta 200 g, water 130 g, potato boiled 250 g, onion 20 g, green chilli 5 g, salt 5 g, ghee 25 g; cooked weight 560 g",
+   "sugar_g": 0.7,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "cauliflower paratha",
+    "gobhi paratha"
+   ],
+   "calories": 188,
+   "carbs_g": 30.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.0,
+   "fiber_g": 5.0,
+   "name": "Gobi paratha",
+   "portions": [
+    [
+     "1 paratha",
+     110
+    ]
+   ],
+   "protein_g": 6.0,
+   "ref": "fitlog-in:gobi-paratha",
+   "saturated_fat_g": 3.2,
+   "sodium_mg": 393,
+   "source_note": "Calculated by FitLog (recipe 'gobi-paratha') from USDA SR Legacy values: atta 200 g, water 130 g, cauliflower 200 g, green chilli 5 g, salt 5 g, ghee 25 g; cooked weight 510 g",
+   "sugar_g": 1.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "paneer parantha"
+   ],
+   "calories": 276,
+   "carbs_g": 30.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 13.3,
+   "fiber_g": 4.4,
+   "name": "Paneer paratha",
+   "portions": [
+    [
+     "1 paratha",
+     110
+    ]
+   ],
+   "protein_g": 11.5,
+   "ref": "fitlog-in:paneer-paratha",
+   "saturated_fat_g": 7.3,
+   "sodium_mg": 311,
+   "source_note": "Calculated by FitLog (recipe 'paneer-paratha') from USDA SR Legacy values: atta 200 g, water 130 g, paneer 150 g, onion 30 g, salt 4 g, ghee 25 g; cooked weight 500 g",
+   "sugar_g": 0.9,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 306,
+   "carbs_g": 50.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 8.0,
+   "fiber_g": 1.7,
+   "name": "Butter naan",
+   "portions": [
+    [
+     "1 naan",
+     100
+    ]
+   ],
+   "protein_g": 7.3,
+   "ref": "fitlog-in:butter-naan",
+   "saturated_fat_g": 3.4,
+   "sodium_mg": 432,
+   "source_note": "Calculated by FitLog (recipe 'butter-naan') from USDA SR Legacy values: maida 250 g, curd 60 g, milk 40 g, water 80 g, oil 10 g, sugar 5 g, salt 4 g, butter 20 g; cooked weight 400 g",
+   "sugar_g": 2.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "bhature",
+    "batura"
+   ],
+   "calories": 372,
+   "carbs_g": 52.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 14.4,
+   "fiber_g": 1.8,
+   "name": "Bhatura",
+   "portions": [
+    [
+     "1 bhatura",
+     70
+    ]
+   ],
+   "protein_g": 7.4,
+   "ref": "fitlog-in:bhatura",
+   "saturated_fat_g": 1.8,
+   "sodium_mg": 316,
+   "source_note": "Calculated by FitLog (recipe 'bhatura') from USDA SR Legacy values: maida 250 g, curd 60 g, water 70 g, sugar 5 g, salt 3 g, oil 50 g; cooked weight 378 g. deep-fried; oil taken up estimated at 45 g per 390 g dough",
+   "sugar_g": 2.2,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 289,
+   "carbs_g": 46.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.7,
+   "fiber_g": 7.7,
+   "name": "Missi roti",
+   "portions": [
+    [
+     "1 roti",
+     50
+    ]
+   ],
+   "protein_g": 12.6,
+   "ref": "fitlog-in:missi-roti",
+   "saturated_fat_g": 0.8,
+   "sodium_mg": 431,
+   "source_note": "Calculated by FitLog (recipe 'missi-roti') from USDA SR Legacy values: atta 100 g, besan 100 g, onion 20 g, oil 10 g, water 120 g, salt 3 g; cooked weight 285 g",
+   "sugar_g": 4.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "makki roti",
+    "makki di roti",
+    "corn roti"
+   ],
+   "calories": 281,
+   "carbs_g": 53.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.9,
+   "fiber_g": 5.0,
+   "name": "Makki ki roti",
+   "portions": [
+    [
+     "1 roti",
+     60
+    ]
+   ],
+   "protein_g": 5.6,
+   "ref": "fitlog-in:makki-roti",
+   "saturated_fat_g": 2.4,
+   "sodium_mg": 291,
+   "source_note": "Calculated by FitLog (recipe 'makki-roti') from USDA SR Legacy values: makki atta 200 g, water 140 g, salt 2 g, ghee 10 g; cooked weight 290 g",
+   "sugar_g": 0.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "bajra bhakri",
+    "bajre ki roti",
+    "millet roti"
+   ],
+   "calories": 261,
+   "carbs_g": 50.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.9,
+   "fiber_g": 5.9,
+   "name": "Bajra roti",
+   "portions": [
+    [
+     "1 roti",
+     50
+    ]
+   ],
+   "protein_g": 7.6,
+   "ref": "fitlog-in:bajra-roti",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 271,
+   "source_note": "Calculated by FitLog (recipe 'bajra-roti') from USDA SR Legacy values: bajra 200 g, water 150 g, salt 2 g; cooked weight 290 g",
+   "sugar_g": 0.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "jowar bhakri",
+    "jolada rotti",
+    "sorghum roti"
+   ],
+   "calories": 227,
+   "carbs_g": 49.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.4,
+   "fiber_g": 4.6,
+   "name": "Jowar roti",
+   "portions": [
+    [
+     "1 roti",
+     50
+    ]
+   ],
+   "protein_g": 7.3,
+   "ref": "fitlog-in:jowar-roti",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 269,
+   "source_note": "Calculated by FitLog (recipe 'jowar-roti') from USDA SR Legacy values: jowar 200 g, water 150 g, salt 2 g; cooked weight 290 g",
+   "sugar_g": 1.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "uthappam",
+    "onion uttapam"
+   ],
+   "calories": 191,
+   "carbs_g": 31.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.9,
+   "fiber_g": 2.6,
+   "name": "Uttapam",
+   "portions": [
+    [
+     "1 uttapam",
+     120
+    ]
+   ],
+   "protein_g": 5.0,
+   "ref": "fitlog-in:uttapam",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 353,
+   "source_note": "Calculated by FitLog (recipe 'uttapam') from USDA SR Legacy values: rice raw 100 g, urad raw 35 g, water 170 g, onion 40 g, tomato 30 g, oil 15 g, salt 3 g; cooked weight 335 g",
+   "sugar_g": 0.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "besan cheela",
+    "besan pancake"
+   ],
+   "calories": 213,
+   "carbs_g": 26.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.3,
+   "fiber_g": 5.0,
+   "name": "Besan chilla",
+   "portions": [
+    [
+     "1 chilla",
+     70
+    ]
+   ],
+   "protein_g": 10.0,
+   "ref": "fitlog-in:besan-chilla",
+   "saturated_fat_g": 0.7,
+   "sodium_mg": 534,
+   "source_note": "Calculated by FitLog (recipe 'besan-chilla') from USDA SR Legacy values: besan 100 g, water 120 g, onion 30 g, tomato 20 g, oil 10 g, salt 3 g; cooked weight 230 g",
+   "sugar_g": 5.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "moong cheela",
+    "pesarattu"
+   ],
+   "calories": 203,
+   "carbs_g": 29.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.1,
+   "fiber_g": 7.6,
+   "name": "Moong dal chilla",
+   "portions": [
+    [
+     "1 chilla",
+     70
+    ]
+   ],
+   "protein_g": 11.0,
+   "ref": "fitlog-in:moong-chilla",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 536,
+   "source_note": "Calculated by FitLog (recipe 'moong-chilla') from USDA SR Legacy values: moong raw 100 g, water 130 g, onion 30 g, oil 10 g, salt 3 g; cooked weight 220 g",
+   "sugar_g": 3.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "cumin rice"
+   ],
+   "calories": 150,
+   "carbs_g": 27.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.7,
+   "fiber_g": 0.4,
+   "name": "Jeera rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.6,
+   "ref": "fitlog-in:jeera-rice",
+   "saturated_fat_g": 1.6,
+   "sodium_mg": 255,
+   "source_note": "Calculated by FitLog (recipe 'jeera-rice') from USDA SR Legacy values: rice cooked 600 g, ghee 15 g, salt 4 g; cooked weight 610 g",
+   "sugar_g": 0.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "pulao",
+    "pulav",
+    "veg pulav",
+    "pilaf"
+   ],
+   "calories": 135,
+   "carbs_g": 23.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.2,
+   "fiber_g": 1.3,
+   "name": "Vegetable pulao",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.7,
+   "ref": "fitlog-in:veg-pulao",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 288,
+   "source_note": "Calculated by FitLog (recipe 'veg-pulao') from USDA SR Legacy values: rice cooked 500 g, peas 60 g, carrot 50 g, onion 50 g, green beans 40 g, oil 20 g, salt 5 g; cooked weight 690 g",
+   "sugar_g": 1.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "chitranna",
+    "nimbu rice"
+   ],
+   "calories": 174,
+   "carbs_g": 26.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.0,
+   "fiber_g": 0.7,
+   "name": "Lemon rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.6,
+   "ref": "fitlog-in:lemon-rice",
+   "saturated_fat_g": 0.7,
+   "sodium_mg": 348,
+   "source_note": "Calculated by FitLog (recipe 'lemon-rice') from USDA SR Legacy values: rice cooked 500 g, oil 20 g, peanuts 25 g, lemon juice 20 g, salt 5 g; cooked weight 560 g",
+   "sugar_g": 0.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "thayir sadam",
+    "dahi chawal",
+    "mosaranna"
+   ],
+   "calories": 103,
+   "carbs_g": 16.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.6,
+   "fiber_g": 0.2,
+   "name": "Curd rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.1,
+   "ref": "fitlog-in:curd-rice",
+   "saturated_fat_g": 1.2,
+   "sodium_mg": 282,
+   "source_note": "Calculated by FitLog (recipe 'curd-rice') from USDA SR Legacy values: rice cooked 300 g, curd 250 g, milk 50 g, oil 5 g, salt 4 g; cooked weight 600 g",
+   "sugar_g": 2.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "puliyogare",
+    "puli sadam",
+    "pulihora"
+   ],
+   "calories": 194,
+   "carbs_g": 29.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.1,
+   "fiber_g": 0.9,
+   "name": "Tamarind rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.3,
+   "ref": "fitlog-in:tamarind-rice",
+   "saturated_fat_g": 0.8,
+   "sodium_mg": 404,
+   "source_note": "Calculated by FitLog (recipe 'tamarind-rice') from USDA SR Legacy values: rice cooked 500 g, tamarind 25 g, oil 30 g, peanuts 20 g, jaggery 10 g, salt 6 g; cooked weight 580 g",
+   "sugar_g": 3.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "thengai sadam"
+   ],
+   "calories": 173,
+   "carbs_g": 26.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.3,
+   "fiber_g": 1.3,
+   "name": "Coconut rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.7,
+   "ref": "fitlog-in:coconut-rice",
+   "saturated_fat_g": 3.4,
+   "sodium_mg": 273,
+   "source_note": "Calculated by FitLog (recipe 'coconut-rice') from USDA SR Legacy values: rice cooked 500 g, coconut 60 g, oil 15 g, salt 4 g; cooked weight 575 g",
+   "sugar_g": 0.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "neychoru"
+   ],
+   "calories": 168,
+   "carbs_g": 26.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.5,
+   "fiber_g": 0.5,
+   "name": "Ghee rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ],
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.8,
+   "ref": "fitlog-in:ghee-rice",
+   "saturated_fat_g": 2.9,
+   "sodium_mg": 278,
+   "source_note": "Calculated by FitLog (recipe 'ghee-rice') from USDA SR Legacy values: rice cooked 500 g, ghee 25 g, onion 30 g, cashew 10 g, salt 4 g; cooked weight 560 g",
+   "sugar_g": 0.4,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 150,
+   "carbs_g": 21.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.2,
+   "fiber_g": 0.6,
+   "name": "Egg fried rice",
+   "portions": [
+    [
+     "1 plate",
+     250.0
+    ]
+   ],
+   "protein_g": 3.9,
+   "ref": "fitlog-in:egg-fried-rice",
+   "saturated_fat_g": 0.9,
+   "sodium_mg": 301,
+   "source_note": "Calculated by FitLog (recipe 'egg-fried-rice') from USDA SR Legacy values: rice cooked 500 g, egg 100 g, oil 25 g, onion 40 g, capsicum 30 g, carrot 30 g, salt 5 g; cooked weight 700 g",
+   "sugar_g": 0.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "pongal",
+    "khara pongal"
+   ],
+   "calories": 146,
+   "carbs_g": 20.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.5,
+   "fiber_g": 1.7,
+   "name": "Ven pongal",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 plate",
+     250.0
+    ]
+   ],
+   "protein_g": 3.7,
+   "ref": "fitlog-in:ven-pongal",
+   "saturated_fat_g": 2.9,
+   "sodium_mg": 279,
+   "source_note": "Calculated by FitLog (recipe 'ven-pongal') from USDA SR Legacy values: rice raw 100 g, moong raw 50 g, water 600 g, ghee 25 g, cashew 10 g, salt 4 g; cooked weight 560 g",
+   "sugar_g": 0.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "dal tadka",
+    "toor dal",
+    "arhar dal",
+    "tuvar dal",
+    "dal fry"
+   ],
+   "calories": 106,
+   "carbs_g": 16.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.7,
+   "fiber_g": 4.6,
+   "name": "Dal tadka (toor dal)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 4.6,
+   "ref": "fitlog-in:dal-tadka",
+   "saturated_fat_g": 1.5,
+   "sodium_mg": 322,
+   "source_note": "Calculated by FitLog (recipe 'dal-tadka') from USDA SR Legacy values: toor cooked 400 g, water 150 g, ghee 15 g, onion 30 g, tomato 50 g, garlic 5 g, green chilli 3 g, salt 5 g; cooked weight 610 g",
+   "sugar_g": 0.5,
+   "weight": 60
+  },
+  {
+   "aliases": [
+    "yellow dal",
+    "mung dal"
+   ],
+   "calories": 91,
+   "carbs_g": 13.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.0,
+   "fiber_g": 5.4,
+   "name": "Moong dal",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 4.9,
+   "ref": "fitlog-in:moong-dal",
+   "saturated_fat_g": 1.1,
+   "sodium_mg": 336,
+   "source_note": "Calculated by FitLog (recipe 'moong-dal') from USDA SR Legacy values: moong cooked 400 g, water 150 g, ghee 10 g, tomato 40 g, onion 20 g, salt 5 g; cooked weight 580 g",
+   "sugar_g": 1.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "red lentil dal",
+    "masur dal"
+   ],
+   "calories": 96,
+   "carbs_g": 14.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 1.9,
+   "fiber_g": 5.5,
+   "name": "Masoor dal",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 6.1,
+   "ref": "fitlog-in:masoor-dal",
+   "saturated_fat_g": 0.2,
+   "sodium_mg": 325,
+   "source_note": "Calculated by FitLog (recipe 'masoor-dal') from USDA SR Legacy values: masoor cooked 400 g, water 150 g, oil 10 g, onion 30 g, tomato 50 g, salt 5 g; cooked weight 600 g",
+   "sugar_g": 1.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "chana dal fry"
+   ],
+   "calories": 142,
+   "carbs_g": 20.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.5,
+   "fiber_g": 5.5,
+   "name": "Chana dal",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 6.3,
+   "ref": "fitlog-in:chana-dal",
+   "saturated_fat_g": 1.8,
+   "sodium_mg": 345,
+   "source_note": "Calculated by FitLog (recipe 'chana-dal') from USDA SR Legacy values: chana cooked 400 g, water 120 g, ghee 15 g, onion 30 g, tomato 40 g, salt 5 g; cooked weight 570 g. split bengal gram valued as SR chickpeas",
+   "sugar_g": 3.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "maa ki dal",
+    "dal makhni"
+   ],
+   "calories": 131,
+   "carbs_g": 13.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.8,
+   "fiber_g": 4.3,
+   "name": "Dal makhani",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 5.2,
+   "ref": "fitlog-in:dal-makhani",
+   "saturated_fat_g": 4.1,
+   "sodium_mg": 427,
+   "source_note": "Calculated by FitLog (recipe 'dal-makhani') from USDA SR Legacy values: urad cooked 300 g, rajma cooked 60 g, butter 30 g, cream 40 g, tomato 100 g, onion 40 g, ginger 5 g, garlic 5 g, salt 6 g, water 100 g; cooked weight 600 g",
+   "sugar_g": 2.0,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "rajma",
+    "rajma curry",
+    "kidney bean curry"
+   ],
+   "calories": 114,
+   "carbs_g": 16.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.4,
+   "fiber_g": 4.9,
+   "name": "Rajma masala",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 5.6,
+   "ref": "fitlog-in:rajma",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 355,
+   "source_note": "Calculated by FitLog (recipe 'rajma') from USDA SR Legacy values: rajma cooked 400 g, onion 80 g, tomato 120 g, oil 20 g, ginger 5 g, garlic 5 g, salt 6 g, water 100 g; cooked weight 660 g",
+   "sugar_g": 1.2,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "chole",
+    "chana masala",
+    "chholay",
+    "kabuli chana curry"
+   ],
+   "calories": 145,
+   "carbs_g": 19.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.5,
+   "fiber_g": 5.1,
+   "name": "Chole (chana masala)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 5.8,
+   "ref": "fitlog-in:chole",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 364,
+   "source_note": "Calculated by FitLog (recipe 'chole') from USDA SR Legacy values: chana cooked 400 g, onion 80 g, tomato 120 g, oil 25 g, ginger 5 g, garlic 5 g, salt 6 g, water 80 g; cooked weight 650 g",
+   "sugar_g": 4.0,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "black chana curry"
+   ],
+   "calories": 141,
+   "carbs_g": 19.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.9,
+   "fiber_g": 5.3,
+   "name": "Kala chana curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 6.0,
+   "ref": "fitlog-in:kala-chana",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 381,
+   "source_note": "Calculated by FitLog (recipe 'kala-chana') from USDA SR Legacy values: chana cooked 400 g, onion 60 g, tomato 100 g, oil 20 g, salt 6 g, water 100 g; cooked weight 620 g. black chickpeas valued as SR chickpeas",
+   "sugar_g": 3.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "lobia",
+    "chawli",
+    "black eyed peas curry"
+   ],
+   "calories": 110,
+   "carbs_g": 14.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.6,
+   "fiber_g": 4.6,
+   "name": "Lobia curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 5.2,
+   "ref": "fitlog-in:lobia",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 316,
+   "source_note": "Calculated by FitLog (recipe 'lobia') from USDA SR Legacy values: lobia cooked 400 g, onion 60 g, tomato 100 g, oil 20 g, salt 5 g, water 100 g; cooked weight 620 g",
+   "sugar_g": 3.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "kadi",
+    "dahi kadhi"
+   ],
+   "calories": 77,
+   "carbs_g": 6.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.5,
+   "fiber_g": 0.7,
+   "name": "Kadhi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.2,
+   "ref": "fitlog-in:kadhi",
+   "saturated_fat_g": 1.7,
+   "sodium_mg": 345,
+   "source_note": "Calculated by FitLog (recipe 'kadhi') from USDA SR Legacy values: curd 300 g, besan 40 g, water 400 g, oil 10 g, ghee 5 g, salt 5 g; cooked weight 610 g",
+   "sugar_g": 3.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "kadhi pakoda"
+   ],
+   "calories": 124,
+   "carbs_g": 10.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.2,
+   "fiber_g": 1.6,
+   "name": "Kadhi pakora",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 4.6,
+   "ref": "fitlog-in:kadhi-pakora",
+   "saturated_fat_g": 1.8,
+   "sodium_mg": 351,
+   "source_note": "Calculated by FitLog (recipe 'kadhi-pakora') from USDA SR Legacy values: curd 300 g, besan 100 g, water 400 g, oil 30 g, ghee 5 g, onion 40 g, salt 6 g; cooked weight 720 g",
+   "sugar_g": 3.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "saaru",
+    "chaaru"
+   ],
+   "calories": 24,
+   "carbs_g": 4.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 0.7,
+   "fiber_g": 0.9,
+   "name": "Rasam",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 cup",
+     240
+    ]
+   ],
+   "protein_g": 0.8,
+   "ref": "fitlog-in:rasam",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 300,
+   "source_note": "Calculated by FitLog (recipe 'rasam') from USDA SR Legacy values: tomato 200 g, tamarind 15 g, toor cooked 60 g, water 600 g, ghee 5 g, salt 6 g; cooked weight 780 g",
+   "sugar_g": 1.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "aloo gobhi"
+   ],
+   "calories": 101,
+   "carbs_g": 11.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.6,
+   "fiber_g": 2.3,
+   "name": "Aloo gobi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.1,
+   "ref": "fitlog-in:aloo-gobi",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 435,
+   "source_note": "Calculated by FitLog (recipe 'aloo-gobi') from USDA SR Legacy values: potato raw 250 g, cauliflower 300 g, onion 50 g, tomato 60 g, oil 30 g, salt 6 g; cooked weight 560 g",
+   "sugar_g": 2.0,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "aloo mutter"
+   ],
+   "calories": 88,
+   "carbs_g": 12.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.7,
+   "fiber_g": 2.5,
+   "name": "Aloo matar",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.3,
+   "ref": "fitlog-in:aloo-matar",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 337,
+   "source_note": "Calculated by FitLog (recipe 'aloo-matar') from USDA SR Legacy values: potato raw 300 g, peas 150 g, onion 60 g, tomato 120 g, oil 25 g, salt 6 g, water 150 g; cooked weight 700 g",
+   "sugar_g": 2.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "cumin potatoes"
+   ],
+   "calories": 128,
+   "carbs_g": 19.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.0,
+   "fiber_g": 1.8,
+   "name": "Jeera aloo",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 1.7,
+   "ref": "fitlog-in:jeera-aloo",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 461,
+   "source_note": "Calculated by FitLog (recipe 'jeera-aloo') from USDA SR Legacy values: potato boiled 500 g, oil 25 g, salt 6 g; cooked weight 510 g",
+   "sugar_g": 0.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "aloo curry",
+    "aloo ki sabzi",
+    "potato sabzi"
+   ],
+   "calories": 83,
+   "carbs_g": 12.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.2,
+   "fiber_g": 1.3,
+   "name": "Aloo sabzi (potato curry)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 1.2,
+   "ref": "fitlog-in:aloo-sabzi",
+   "saturated_fat_g": 0.3,
+   "sodium_mg": 362,
+   "source_note": "Calculated by FitLog (recipe 'aloo-sabzi') from USDA SR Legacy values: potato boiled 400 g, tomato 100 g, oil 20 g, salt 6 g, water 200 g; cooked weight 650 g",
+   "sugar_g": 1.0,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 116,
+   "carbs_g": 14.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.0,
+   "fiber_g": 1.4,
+   "name": "Dum aloo",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 1.8,
+   "ref": "fitlog-in:dum-aloo",
+   "saturated_fat_g": 0.9,
+   "sodium_mg": 369,
+   "source_note": "Calculated by FitLog (recipe 'dum-aloo') from USDA SR Legacy values: potato boiled 400 g, curd 100 g, oil 35 g, onion 60 g, tomato 80 g, salt 6 g, water 100 g; cooked weight 650 g",
+   "sugar_g": 2.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "bhindi",
+    "okra sabzi",
+    "bhindi fry"
+   ],
+   "calories": 115,
+   "carbs_g": 9.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 8.6,
+   "fiber_g": 3.5,
+   "name": "Bhindi masala",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.2,
+   "ref": "fitlog-in:bhindi",
+   "saturated_fat_g": 0.9,
+   "sodium_mg": 469,
+   "source_note": "Calculated by FitLog (recipe 'bhindi') from USDA SR Legacy values: okra 400 g, onion 80 g, tomato 50 g, oil 35 g, salt 5 g; cooked weight 420 g",
+   "sugar_g": 2.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "baingan ka bharta",
+    "brinjal bharta"
+   ],
+   "calories": 77,
+   "carbs_g": 8.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.7,
+   "fiber_g": 3.7,
+   "name": "Baingan bharta",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 1.4,
+   "ref": "fitlog-in:baingan-bharta",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 350,
+   "source_note": "Calculated by FitLog (recipe 'baingan-bharta') from USDA SR Legacy values: eggplant 600 g, onion 80 g, tomato 100 g, oil 25 g, garlic 5 g, salt 5 g; cooked weight 560 g",
+   "sugar_g": 4.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "mix veg",
+    "mixed veg"
+   ],
+   "calories": 91,
+   "carbs_g": 11.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.4,
+   "fiber_g": 3.0,
+   "name": "Mixed vegetable sabzi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.4,
+   "ref": "fitlog-in:mixed-veg",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 408,
+   "source_note": "Calculated by FitLog (recipe 'mixed-veg') from USDA SR Legacy values: potato raw 150 g, carrot 100 g, peas 100 g, green beans 100 g, cauliflower 100 g, onion 50 g, tomato 80 g, oil 25 g, salt 6 g; cooked weight 600 g",
+   "sugar_g": 3.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "lauki",
+    "ghiya sabzi",
+    "bottle gourd curry"
+   ],
+   "calories": 48,
+   "carbs_g": 4.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.2,
+   "fiber_g": 0.8,
+   "name": "Lauki sabzi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 0.8,
+   "ref": "fitlog-in:lauki",
+   "saturated_fat_g": 0.3,
+   "sodium_mg": 407,
+   "source_note": "Calculated by FitLog (recipe 'lauki') from USDA SR Legacy values: bottle gourd 500 g, tomato 60 g, onion 40 g, oil 15 g, salt 5 g; cooked weight 480 g",
+   "sugar_g": 0.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "patta gobhi",
+    "cabbage poriyal",
+    "bandh gobhi"
+   ],
+   "calories": 76,
+   "carbs_g": 8.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.6,
+   "fiber_g": 3.4,
+   "name": "Cabbage sabzi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.0,
+   "ref": "fitlog-in:cabbage-sabzi",
+   "saturated_fat_g": 0.5,
+   "sodium_mg": 451,
+   "source_note": "Calculated by FitLog (recipe 'cabbage-sabzi') from USDA SR Legacy values: cabbage 500 g, peas 50 g, oil 20 g, salt 5 g; cooked weight 450 g",
+   "sugar_g": 4.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "beans thoran",
+    "beans sabzi"
+   ],
+   "calories": 100,
+   "carbs_g": 8.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.3,
+   "fiber_g": 3.6,
+   "name": "Beans poriyal",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.2,
+   "ref": "fitlog-in:beans-poriyal",
+   "saturated_fat_g": 3.4,
+   "sodium_mg": 492,
+   "source_note": "Calculated by FitLog (recipe 'beans-poriyal') from USDA SR Legacy values: green beans 400 g, coconut 40 g, oil 15 g, salt 5 g; cooked weight 400 g",
+   "sugar_g": 3.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "saag",
+    "sarson saag"
+   ],
+   "calories": 85,
+   "carbs_g": 8.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.8,
+   "fiber_g": 3.8,
+   "name": "Sarson ka saag",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.8,
+   "ref": "fitlog-in:sarson-saag",
+   "saturated_fat_g": 2.5,
+   "sodium_mg": 432,
+   "source_note": "Calculated by FitLog (recipe 'sarson-saag') from USDA SR Legacy values: mustard greens 500 g, spinach 200 g, makki atta 20 g, ghee 25 g, onion 40 g, garlic 10 g, green chilli 5 g, salt 6 g, water 100 g; cooked weight 600 g",
+   "sugar_g": 1.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "aviyal"
+   ],
+   "calories": 123,
+   "carbs_g": 10.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 8.9,
+   "fiber_g": 3.1,
+   "name": "Avial",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.0,
+   "ref": "fitlog-in:avial",
+   "saturated_fat_g": 5.3,
+   "sodium_mg": 413,
+   "source_note": "Calculated by FitLog (recipe 'avial') from USDA SR Legacy values: carrot 100 g, green beans 100 g, potato raw 100 g, bottle gourd 100 g, coconut 80 g, curd 60 g, oil 15 g, salt 5 g; cooked weight 500 g",
+   "sugar_g": 3.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "mushroom curry"
+   ],
+   "calories": 86,
+   "carbs_g": 5.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.8,
+   "fiber_g": 1.4,
+   "name": "Mushroom masala",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.0,
+   "ref": "fitlog-in:mushroom-masala",
+   "saturated_fat_g": 1.5,
+   "sodium_mg": 394,
+   "source_note": "Calculated by FitLog (recipe 'mushroom-masala') from USDA SR Legacy values: mushroom 400 g, onion 80 g, tomato 120 g, oil 25 g, cream 20 g, salt 5 g; cooked weight 500 g",
+   "sugar_g": 3.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "mutter paneer"
+   ],
+   "calories": 156,
+   "carbs_g": 5.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 11.7,
+   "fiber_g": 1.7,
+   "name": "Matar paneer",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 7.4,
+   "ref": "fitlog-in:matar-paneer",
+   "saturated_fat_g": 4.9,
+   "sodium_mg": 336,
+   "source_note": "Calculated by FitLog (recipe 'matar-paneer') from USDA SR Legacy values: paneer 200 g, peas 150 g, onion 80 g, tomato 150 g, oil 25 g, cream 20 g, salt 6 g, water 150 g; cooked weight 700 g",
+   "sugar_g": 2.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "paneer makhani"
+   ],
+   "calories": 215,
+   "carbs_g": 4.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 18.3,
+   "fiber_g": 0.7,
+   "name": "Paneer butter masala",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 8.7,
+   "ref": "fitlog-in:paneer-butter-masala",
+   "saturated_fat_g": 10.3,
+   "sodium_mg": 385,
+   "source_note": "Calculated by FitLog (recipe 'paneer-butter-masala') from USDA SR Legacy values: paneer 250 g, tomato 250 g, butter 40 g, cream 60 g, onion 50 g, cashew 20 g, sugar 5 g, salt 6 g, water 100 g; cooked weight 680 g",
+   "sugar_g": 3.1,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "karahi paneer"
+   ],
+   "calories": 202,
+   "carbs_g": 4.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 16.3,
+   "fiber_g": 1.0,
+   "name": "Kadai paneer",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 9.7,
+   "ref": "fitlog-in:kadai-paneer",
+   "saturated_fat_g": 6.7,
+   "sodium_mg": 418,
+   "source_note": "Calculated by FitLog (recipe 'kadai-paneer') from USDA SR Legacy values: paneer 250 g, capsicum 120 g, onion 100 g, tomato 150 g, oil 30 g, salt 6 g; cooked weight 560 g",
+   "sugar_g": 2.8,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 231,
+   "carbs_g": 4.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 19.5,
+   "fiber_g": 0.6,
+   "name": "Shahi paneer",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 10.0,
+   "ref": "fitlog-in:shahi-paneer",
+   "saturated_fat_g": 10.7,
+   "sodium_mg": 405,
+   "source_note": "Calculated by FitLog (recipe 'shahi-paneer') from USDA SR Legacy values: paneer 250 g, cream 80 g, cashew 30 g, onion 60 g, tomato 120 g, butter 20 g, curd 50 g, salt 6 g, water 80 g; cooked weight 620 g",
+   "sugar_g": 2.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "scrambled paneer"
+   ],
+   "calories": 250,
+   "carbs_g": 4.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 20.3,
+   "fiber_g": 0.7,
+   "name": "Paneer bhurji",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 13.2,
+   "ref": "fitlog-in:paneer-bhurji",
+   "saturated_fat_g": 9.1,
+   "sodium_mg": 389,
+   "source_note": "Calculated by FitLog (recipe 'paneer-bhurji') from USDA SR Legacy values: paneer 250 g, onion 60 g, tomato 80 g, capsicum 40 g, oil 20 g, salt 4 g; cooked weight 400 g",
+   "sugar_g": 2.5,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 273,
+   "carbs_g": 5.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 21.1,
+   "fiber_g": 0.7,
+   "name": "Paneer tikka",
+   "portions": [
+    [
+     "1 skewer (6 pieces)",
+     150
+    ],
+    [
+     "1 piece",
+     25
+    ]
+   ],
+   "protein_g": 15.5,
+   "ref": "fitlog-in:paneer-tikka",
+   "saturated_fat_g": 10.2,
+   "sodium_mg": 460,
+   "source_note": "Calculated by FitLog (recipe 'paneer-tikka') from USDA SR Legacy values: paneer 300 g, curd 60 g, besan 10 g, capsicum 60 g, onion 60 g, oil 15 g, salt 5 g; cooked weight 430 g",
+   "sugar_g": 3.1,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 203,
+   "carbs_g": 10.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 16.1,
+   "fiber_g": 1.1,
+   "name": "Malai kofta",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 5.3,
+   "ref": "fitlog-in:malai-kofta",
+   "saturated_fat_g": 6.5,
+   "sodium_mg": 397,
+   "source_note": "Calculated by FitLog (recipe 'malai-kofta') from USDA SR Legacy values: paneer 100 g, potato boiled 150 g, maida 15 g, oil 30 g, cream 60 g, cashew 25 g, onion 60 g, tomato 150 g, butter 15 g, salt 6 g, water 100 g; cooked weight 620 g",
+   "sugar_g": 2.1,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "murgh makhani",
+    "chicken makhani"
+   ],
+   "calories": 159,
+   "carbs_g": 3.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 10.4,
+   "fiber_g": 0.5,
+   "name": "Butter chicken",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 12.6,
+   "ref": "fitlog-in:butter-chicken",
+   "saturated_fat_g": 5.0,
+   "sodium_mg": 402,
+   "source_note": "Calculated by FitLog (recipe 'butter-chicken') from USDA SR Legacy values: chicken 500 g, curd 80 g, butter 40 g, cream 80 g, tomato 300 g, cashew 20 g, sugar 8 g, ginger 10 g, garlic 10 g, salt 8 g, oil 10 g, water 80 g; cooked weight 950…",
+   "sugar_g": 2.5,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "tikka masala",
+    "ctm"
+   ],
+   "calories": 138,
+   "carbs_g": 3.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.9,
+   "fiber_g": 0.6,
+   "name": "Chicken tikka masala",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 12.9,
+   "ref": "fitlog-in:chicken-tikka-masala",
+   "saturated_fat_g": 2.6,
+   "sodium_mg": 396,
+   "source_note": "Calculated by FitLog (recipe 'chicken-tikka-masala') from USDA SR Legacy values: chicken 500 g, curd 100 g, oil 30 g, onion 120 g, tomato 250 g, cream 60 g, ginger 10 g, garlic 10 g, salt 8 g; cooked weight 900 g",
+   "sugar_g": 2.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "murgh tikka"
+   ],
+   "calories": 166,
+   "carbs_g": 2.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.9,
+   "fiber_g": 0.1,
+   "name": "Chicken tikka",
+   "portions": [
+    [
+     "1 skewer (6 pieces)",
+     150
+    ],
+    [
+     "1 piece",
+     25
+    ]
+   ],
+   "protein_g": 22.7,
+   "ref": "fitlog-in:chicken-tikka",
+   "saturated_fat_g": 1.6,
+   "sodium_mg": 563,
+   "source_note": "Calculated by FitLog (recipe 'chicken-tikka') from USDA SR Legacy values: chicken 500 g, curd 100 g, oil 15 g, lemon juice 10 g, ginger 10 g, garlic 10 g, salt 6 g; cooked weight 490 g",
+   "sugar_g": 1.1,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 166,
+   "carbs_g": 1.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.7,
+   "fiber_g": 0.0,
+   "name": "Tandoori chicken",
+   "portions": [
+    [
+     "1 leg piece (edible part)",
+     120
+    ],
+    [
+     "1 quarter (edible part)",
+     180
+    ]
+   ],
+   "protein_g": 24.0,
+   "ref": "fitlog-in:tandoori-chicken",
+   "saturated_fat_g": 1.5,
+   "sodium_mg": 586,
+   "source_note": "Calculated by FitLog (recipe 'tandoori-chicken') from USDA SR Legacy values: chicken 600 g, curd 100 g, oil 15 g, lemon juice 15 g, salt 7 g; cooked weight 550 g. per 100 g of meat eaten, bone excluded",
+   "sugar_g": 0.9,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 155,
+   "carbs_g": 3.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 9.2,
+   "fiber_g": 0.4,
+   "name": "Chicken korma",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 14.2,
+   "ref": "fitlog-in:chicken-korma",
+   "saturated_fat_g": 4.3,
+   "sodium_mg": 421,
+   "source_note": "Calculated by FitLog (recipe 'chicken-korma') from USDA SR Legacy values: chicken 500 g, curd 150 g, onion 150 g, cashew 30 g, ghee 30 g, cream 40 g, salt 8 g, water 100 g; cooked weight 850 g",
+   "sugar_g": 1.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "karahi chicken"
+   ],
+   "calories": 126,
+   "carbs_g": 3.0,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.4,
+   "fiber_g": 0.8,
+   "name": "Kadai chicken",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 13.9,
+   "ref": "fitlog-in:kadai-chicken",
+   "saturated_fat_g": 1.0,
+   "sodium_mg": 438,
+   "source_note": "Calculated by FitLog (recipe 'kadai-chicken') from USDA SR Legacy values: chicken 500 g, capsicum 100 g, onion 120 g, tomato 200 g, oil 35 g, salt 8 g; cooked weight 800 g",
+   "sugar_g": 1.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "mutton masala",
+    "gosht curry",
+    "rogan josh",
+    "goat curry"
+   ],
+   "calories": 117,
+   "carbs_g": 3.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.1,
+   "fiber_g": 0.5,
+   "name": "Mutton curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 12.2,
+   "ref": "fitlog-in:mutton-curry",
+   "saturated_fat_g": 1.0,
+   "sodium_mg": 396,
+   "source_note": "Calculated by FitLog (recipe 'mutton-curry') from USDA SR Legacy values: goat 500 g, onion 150 g, tomato 150 g, curd 80 g, oil 40 g, ginger 10 g, garlic 10 g, salt 8 g, water 300 g; cooked weight 900 g. goat meat, boneless",
+   "sugar_g": 1.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "keema",
+    "mutton keema"
+   ],
+   "calories": 213,
+   "carbs_g": 5.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 16.1,
+   "fiber_g": 1.8,
+   "name": "Keema matar",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 11.3,
+   "ref": "fitlog-in:keema-matar",
+   "saturated_fat_g": 6.2,
+   "sodium_mg": 436,
+   "source_note": "Calculated by FitLog (recipe 'keema-matar') from USDA SR Legacy values: lamb mince 400 g, peas 150 g, onion 100 g, tomato 150 g, oil 15 g, salt 7 g; cooked weight 680 g",
+   "sugar_g": 2.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "anda curry",
+    "egg masala"
+   ],
+   "calories": 124,
+   "carbs_g": 3.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 9.6,
+   "fiber_g": 0.6,
+   "name": "Egg curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 egg with gravy",
+     110
+    ]
+   ],
+   "protein_g": 6.2,
+   "ref": "fitlog-in:egg-curry",
+   "saturated_fat_g": 2.0,
+   "sodium_mg": 417,
+   "source_note": "Calculated by FitLog (recipe 'egg-curry') from USDA SR Legacy values: egg boiled 300 g, onion 120 g, tomato 150 g, oil 30 g, salt 6 g, water 150 g; cooked weight 650 g",
+   "sugar_g": 1.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "anda bhurji",
+    "masala scrambled eggs"
+   ],
+   "calories": 157,
+   "carbs_g": 2.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 11.5,
+   "fiber_g": 0.5,
+   "name": "Egg bhurji",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "2-egg serving",
+     125
+    ]
+   ],
+   "protein_g": 10.3,
+   "ref": "fitlog-in:egg-bhurji",
+   "saturated_fat_g": 2.9,
+   "sodium_mg": 522,
+   "source_note": "Calculated by FitLog (recipe 'egg-bhurji') from USDA SR Legacy values: egg 300 g, onion 60 g, tomato 60 g, oil 15 g, green chilli 5 g, salt 4 g; cooked weight 380 g",
+   "sugar_g": 1.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "masala omelet",
+    "anda omelette"
+   ],
+   "calories": 153,
+   "carbs_g": 2.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 11.2,
+   "fiber_g": 0.4,
+   "name": "Masala omelette",
+   "portions": [
+    [
+     "1 omelette (2 eggs)",
+     130
+    ]
+   ],
+   "protein_g": 10.0,
+   "ref": "fitlog-in:masala-omelette",
+   "saturated_fat_g": 2.8,
+   "sodium_mg": 409,
+   "source_note": "Calculated by FitLog (recipe 'masala-omelette') from USDA SR Legacy values: egg 100 g, onion 20 g, tomato 15 g, green chilli 3 g, oil 5 g, salt 1 g; cooked weight 130 g",
+   "sugar_g": 1.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "tawa fish",
+    "fried fish",
+    "machli fry"
+   ],
+   "calories": 208,
+   "carbs_g": 2.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 11.2,
+   "fiber_g": 0.5,
+   "name": "Fish fry",
+   "portions": [
+    [
+     "1 piece",
+     80
+    ]
+   ],
+   "protein_g": 23.0,
+   "ref": "fitlog-in:fish-fry",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 680,
+   "source_note": "Calculated by FitLog (recipe 'fish-fry') from USDA SR Legacy values: fish 500 g, besan 20 g, oil 40 g, lemon juice 10 g, salt 6 g; cooked weight 460 g. shallow-fried; king mackerel (surmai) as the fish",
+   "sugar_g": 0.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "goan fish curry",
+    "kerala fish curry",
+    "meen moilee"
+   ],
+   "calories": 169,
+   "carbs_g": 3.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 12.2,
+   "fiber_g": 1.0,
+   "name": "Fish curry (coconut)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 12.2,
+   "ref": "fitlog-in:fish-curry-coconut",
+   "saturated_fat_g": 7.8,
+   "sodium_mg": 417,
+   "source_note": "Calculated by FitLog (recipe 'fish-curry-coconut') from USDA SR Legacy values: fish 400 g, coconut milk 250 g, onion 60 g, tamarind 10 g, oil 20 g, salt 6 g, water 100 g; cooked weight 720 g",
+   "sugar_g": 2.1,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "jhinga curry",
+    "shrimp curry"
+   ],
+   "calories": 150,
+   "carbs_g": 3.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 10.3,
+   "fiber_g": 1.0,
+   "name": "Prawn curry",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 12.7,
+   "ref": "fitlog-in:prawn-curry",
+   "saturated_fat_g": 6.6,
+   "sodium_mg": 417,
+   "source_note": "Calculated by FitLog (recipe 'prawn-curry') from USDA SR Legacy values: prawns 400 g, coconut milk 200 g, onion 80 g, tomato 80 g, oil 20 g, salt 6 g; cooked weight 680 g",
+   "sugar_g": 1.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "kanda poha",
+    "aloo poha",
+    "pohe"
+   ],
+   "calories": 176,
+   "carbs_g": 28.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.2,
+   "fiber_g": 1.2,
+   "name": "Poha",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ],
+    [
+     "1 plate",
+     250.0
+    ]
+   ],
+   "protein_g": 3.6,
+   "ref": "fitlog-in:poha",
+   "saturated_fat_g": 0.6,
+   "sodium_mg": 314,
+   "source_note": "Calculated by FitLog (recipe 'poha') from USDA SR Legacy values: rice raw 150 g, water 200 g, onion 60 g, potato raw 60 g, peanuts 20 g, oil 15 g, lemon juice 10 g, sugar 3 g, salt 4 g; cooked weight 500 g. flattened rice valued as raw white rice",
+   "sugar_g": 1.5,
+   "weight": 55
+  },
+  {
+   "aliases": [
+    "khaman",
+    "khaman dhokla"
+   ],
+   "calories": 166,
+   "carbs_g": 20.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.1,
+   "fiber_g": 3.2,
+   "name": "Dhokla",
+   "portions": [
+    [
+     "1 piece",
+     30
+    ],
+    [
+     "1 plate (4 pieces)",
+     120
+    ]
+   ],
+   "protein_g": 7.2,
+   "ref": "fitlog-in:dhokla",
+   "saturated_fat_g": 0.9,
+   "sodium_mg": 369,
+   "source_note": "Calculated by FitLog (recipe 'dhokla') from USDA SR Legacy values: besan 100 g, curd 60 g, water 160 g, oil 12 g, sugar 8 g, lemon juice 10 g, salt 3 g; cooked weight 340 g",
+   "sugar_g": 6.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "bhaji",
+    "pav bhaji"
+   ],
+   "calories": 98,
+   "carbs_g": 11.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.3,
+   "fiber_g": 2.1,
+   "name": "Pav bhaji (bhaji only)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 1.9,
+   "ref": "fitlog-in:pav-bhaji",
+   "saturated_fat_g": 3.3,
+   "sodium_mg": 387,
+   "source_note": "Calculated by FitLog (recipe 'pav-bhaji') from USDA SR Legacy values: potato boiled 300 g, cauliflower 100 g, peas 80 g, capsicum 60 g, tomato 200 g, onion 80 g, butter 50 g, salt 7 g, water 100 g; cooked weight 800 g",
+   "sugar_g": 2.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "wada pav",
+    "batata vada pav"
+   ],
+   "calories": 251,
+   "carbs_g": 32.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 10.7,
+   "fiber_g": 2.9,
+   "name": "Vada pav",
+   "portions": [
+    [
+     "1 vada pav",
+     150
+    ]
+   ],
+   "protein_g": 6.8,
+   "ref": "fitlog-in:vada-pav",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 394,
+   "source_note": "Calculated by FitLog (recipe 'vada-pav') from USDA SR Legacy values: pav 40 g, potato boiled 80 g, besan 20 g, oil 12 g, salt 1 g; cooked weight 150 g",
+   "sugar_g": 3.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "aloo tikia",
+    "potato patty"
+   ],
+   "calories": 177,
+   "carbs_g": 21.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 9.1,
+   "fiber_g": 2.7,
+   "name": "Aloo tikki",
+   "portions": [
+    [
+     "1 tikki",
+     50
+    ]
+   ],
+   "protein_g": 3.0,
+   "ref": "fitlog-in:aloo-tikki",
+   "saturated_fat_g": 0.9,
+   "sodium_mg": 429,
+   "source_note": "Calculated by FitLog (recipe 'aloo-tikki') from USDA SR Legacy values: potato boiled 400 g, peas 50 g, besan 20 g, oil 40 g, salt 5 g; cooked weight 460 g",
+   "sugar_g": 1.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "bhel",
+    "jhalmuri"
+   ],
+   "calories": 252,
+   "carbs_g": 42.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.0,
+   "fiber_g": 2.6,
+   "name": "Bhel puri",
+   "portions": [
+    [
+     "1 plate",
+     150
+    ]
+   ],
+   "protein_g": 5.4,
+   "ref": "fitlog-in:bhel-puri",
+   "saturated_fat_g": 0.8,
+   "sodium_mg": 384,
+   "source_note": "Calculated by FitLog (recipe 'bhel-puri') from USDA SR Legacy values: puffed rice 60 g, onion 30 g, tomato 30 g, potato boiled 40 g, peanuts 10 g, besan 15 g, oil 8 g, sugar 8 g, tamarind 5 g, lemon juice 5 g, salt 2 g; cooked weight 207 g",
+   "sugar_g": 7.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "golgappa",
+    "puchka",
+    "gol gappe"
+   ],
+   "calories": 113,
+   "carbs_g": 18.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 3.5,
+   "fiber_g": 1.5,
+   "name": "Pani puri",
+   "portions": [
+    [
+     "1 plate (6 puri, with pani)",
+     257
+    ]
+   ],
+   "protein_g": 2.5,
+   "ref": "fitlog-in:pani-puri",
+   "saturated_fat_g": 0.4,
+   "sodium_mg": 304,
+   "source_note": "Calculated by FitLog (recipe 'pani-puri') from USDA SR Legacy values: sooji 30 g, oil 8 g, potato boiled 40 g, chana cooked 20 g, water 150 g, tamarind 10 g, sugar 5 g, salt 2 g; cooked weight 257 g",
+   "sugar_g": 4.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "sago khichdi"
+   ],
+   "calories": 267,
+   "carbs_g": 41.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 10.2,
+   "fiber_g": 1.7,
+   "name": "Sabudana khichdi",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 3.2,
+   "ref": "fitlog-in:sabudana-khichdi",
+   "saturated_fat_g": 3.7,
+   "sodium_mg": 401,
+   "source_note": "Calculated by FitLog (recipe 'sabudana-khichdi') from USDA SR Legacy values: sabudana 150 g, water 90 g, potato boiled 100 g, peanuts 40 g, ghee 20 g, sugar 3 g, salt 4 g; cooked weight 390 g",
+   "sugar_g": 2.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "dahi bhalla",
+    "thayir vadai"
+   ],
+   "calories": 163,
+   "carbs_g": 17.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 7.6,
+   "fiber_g": 3.8,
+   "name": "Dahi vada",
+   "portions": [
+    [
+     "1 plate (2 vadas)",
+     150
+    ]
+   ],
+   "protein_g": 7.4,
+   "ref": "fitlog-in:dahi-vada",
+   "saturated_fat_g": 1.9,
+   "sodium_mg": 360,
+   "source_note": "Calculated by FitLog (recipe 'dahi-vada') from USDA SR Legacy values: urad raw 100 g, water 60 g, oil 25 g, curd 300 g, sugar 10 g, salt 4 g; cooked weight 480 g",
+   "sugar_g": 5.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "khasta kachori",
+    "moong dal kachori"
+   ],
+   "calories": 461,
+   "carbs_g": 50.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 24.8,
+   "fiber_g": 4.2,
+   "name": "Kachori",
+   "portions": [
+    [
+     "1 kachori",
+     50
+    ]
+   ],
+   "protein_g": 9.5,
+   "ref": "fitlog-in:kachori",
+   "saturated_fat_g": 2.6,
+   "sodium_mg": 538,
+   "source_note": "Calculated by FitLog (recipe 'kachori') from USDA SR Legacy values: maida 150 g, oil 70 g, water 60 g, moong raw 50 g, salt 4 g; cooked weight 290 g. deep-fried; 30 g oil in the dough and ~40 g taken up in frying",
+   "sugar_g": 1.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "paneer pakoda"
+   ],
+   "calories": 356,
+   "carbs_g": 14.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 26.1,
+   "fiber_g": 2.4,
+   "name": "Paneer pakora",
+   "portions": [
+    [
+     "1 piece",
+     25
+    ]
+   ],
+   "protein_g": 16.3,
+   "ref": "fitlog-in:paneer-pakora",
+   "saturated_fat_g": 8.9,
+   "sodium_mg": 445,
+   "source_note": "Calculated by FitLog (recipe 'paneer-pakora') from USDA SR Legacy values: paneer 200 g, besan 80 g, water 80 g, oil 40 g, salt 4 g; cooked weight 360 g",
+   "sugar_g": 3.4,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "bhujia",
+    "namkeen",
+    "aloo bhujia"
+   ],
+   "calories": 523,
+   "carbs_g": 38.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 34.5,
+   "fiber_g": 7.2,
+   "name": "Sev / bhujia",
+   "portions": [
+    [
+     "1 tbsp",
+     15.0
+    ],
+    [
+     "1 small bowl",
+     30
+    ]
+   ],
+   "protein_g": 14.9,
+   "ref": "fitlog-in:sev",
+   "saturated_fat_g": 3.5,
+   "sodium_mg": 559,
+   "source_note": "Calculated by FitLog (recipe 'sev') from USDA SR Legacy values: besan 100 g, water 50 g, oil 45 g, salt 2 g; cooked weight 150 g. deep-fried besan; commercial namkeen varies",
+   "sugar_g": 7.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "gulab jamoon"
+   ],
+   "calories": 374,
+   "carbs_g": 45.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 18.1,
+   "fiber_g": 0.2,
+   "name": "Gulab jamun",
+   "portions": [
+    [
+     "1 piece",
+     40
+    ]
+   ],
+   "protein_g": 8.6,
+   "ref": "fitlog-in:gulab-jamun",
+   "saturated_fat_g": 8.2,
+   "sodium_mg": 111,
+   "source_note": "Calculated by FitLog (recipe 'gulab-jamun') from USDA SR Legacy values: milk powder 100 g, maida 25 g, ghee 15 g, milk 40 g, oil 20 g, sugar 100 g, water 70 g; cooked weight 350 g. milk-powder dough, fried and soaked; syrup taken up estimated",
+   "sugar_g": 40.1,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "jilebi"
+   ],
+   "calories": 399,
+   "carbs_g": 63.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 14.9,
+   "fiber_g": 1.0,
+   "name": "Jalebi",
+   "portions": [
+    [
+     "1 piece",
+     25
+    ]
+   ],
+   "protein_g": 3.9,
+   "ref": "fitlog-in:jalebi",
+   "saturated_fat_g": 1.6,
+   "sodium_mg": 4,
+   "source_note": "Calculated by FitLog (recipe 'jalebi') from USDA SR Legacy values: maida 100 g, curd 20 g, water 110 g, oil 40 g, sugar 100 g; cooked weight 280 g. oil and syrup taken up estimated",
+   "sugar_g": 36.1,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "rosogolla",
+    "rasagola"
+   ],
+   "calories": 202,
+   "carbs_g": 25.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 8.3,
+   "fiber_g": 0.0,
+   "name": "Rasgulla",
+   "portions": [
+    [
+     "1 piece",
+     50
+    ]
+   ],
+   "protein_g": 6.9,
+   "ref": "fitlog-in:rasgulla",
+   "saturated_fat_g": 4.7,
+   "sodium_mg": 0,
+   "source_note": "Calculated by FitLog (recipe 'rasgulla') from USDA SR Legacy values: paneer 150 g, sugar 110 g, water 170 g; cooked weight 440 g. whole-milk chhena valued as fresh cheese; syrup taken up estimated",
+   "sugar_g": 25.6,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "ras malai"
+   ],
+   "calories": 200,
+   "carbs_g": 18.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 10.1,
+   "fiber_g": 0.0,
+   "name": "Rasmalai",
+   "portions": [
+    [
+     "1 piece with milk",
+     80
+    ]
+   ],
+   "protein_g": 8.9,
+   "ref": "fitlog-in:rasmalai",
+   "saturated_fat_g": 5.7,
+   "sodium_mg": 41,
+   "source_note": "Calculated by FitLog (recipe 'rasmalai') from USDA SR Legacy values: paneer 150 g, milk 500 g, sugar 70 g; cooked weight 520 g. milk reduced to about 60%; chhena valued as fresh cheese",
+   "sugar_g": 18.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "rice kheer",
+    "payasam",
+    "chawal ki kheer"
+   ],
+   "calories": 183,
+   "carbs_g": 26.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.2,
+   "fiber_g": 0.4,
+   "name": "Kheer (rice)",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 5.9,
+   "ref": "fitlog-in:kheer",
+   "saturated_fat_g": 3.0,
+   "sodium_mg": 67,
+   "source_note": "Calculated by FitLog (recipe 'kheer') from USDA SR Legacy values: milk 1000 g, rice raw 50 g, sugar 80 g, almonds 15 g; cooked weight 650 g",
+   "sugar_g": 20.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "vermicelli kheer",
+    "seviyan"
+   ],
+   "calories": 151,
+   "carbs_g": 20.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 5.6,
+   "fiber_g": 0.3,
+   "name": "Semiya payasam",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     150.0
+    ]
+   ],
+   "protein_g": 4.6,
+   "ref": "fitlog-in:semiya-payasam",
+   "saturated_fat_g": 3.0,
+   "sodium_mg": 47,
+   "source_note": "Calculated by FitLog (recipe 'semiya-payasam') from USDA SR Legacy values: vermicelli 50 g, milk 750 g, sugar 70 g, ghee 10 g, cashew 10 g; cooked weight 700 g",
+   "sugar_g": 15.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "gajar ka halwa",
+    "carrot halwa"
+   ],
+   "calories": 244,
+   "carbs_g": 32.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 11.6,
+   "fiber_g": 2.6,
+   "name": "Gajar halwa",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     100.0
+    ]
+   ],
+   "protein_g": 4.2,
+   "ref": "fitlog-in:gajar-halwa",
+   "saturated_fat_g": 6.3,
+   "sodium_mg": 102,
+   "source_note": "Calculated by FitLog (recipe 'gajar-halwa') from USDA SR Legacy values: carrot 500 g, milk 500 g, sugar 100 g, ghee 40 g, cashew 15 g; cooked weight 550 g",
+   "sugar_g": 27.2,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "sheera",
+    "rava kesari",
+    "sooji halwa"
+   ],
+   "calories": 298,
+   "carbs_g": 39.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 14.5,
+   "fiber_g": 0.9,
+   "name": "Suji halwa",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     100.0
+    ]
+   ],
+   "protein_g": 3.2,
+   "ref": "fitlog-in:suji-halwa",
+   "saturated_fat_g": 8.2,
+   "sodium_mg": 1,
+   "source_note": "Calculated by FitLog (recipe 'suji-halwa') from USDA SR Legacy values: sooji 100 g, ghee 60 g, sugar 100 g, water 300 g, cashew 10 g; cooked weight 450 g",
+   "sugar_g": 22.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "kaju barfi",
+    "kaju katri"
+   ],
+   "calories": 505,
+   "carbs_g": 56.4,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 29.0,
+   "fiber_g": 2.1,
+   "name": "Kaju katli",
+   "portions": [
+    [
+     "1 piece",
+     15
+    ]
+   ],
+   "protein_g": 11.4,
+   "ref": "fitlog-in:kaju-katli",
+   "saturated_fat_g": 5.8,
+   "sodium_mg": 8,
+   "source_note": "Calculated by FitLog (recipe 'kaju-katli') from USDA SR Legacy values: cashew 200 g, sugar 120 g, ghee 5 g, water 60 g; cooked weight 320 g",
+   "sugar_g": 41.1,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 205,
+   "carbs_g": 26.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 8.2,
+   "fiber_g": 0.4,
+   "name": "Kulfi",
+   "portions": [
+    [
+     "1 kulfi",
+     70
+    ]
+   ],
+   "protein_g": 7.1,
+   "ref": "fitlog-in:kulfi",
+   "saturated_fat_g": 3.9,
+   "sodium_mg": 88,
+   "source_note": "Calculated by FitLog (recipe 'kulfi') from USDA SR Legacy values: milk 1000 g, sugar 80 g, almonds 15 g; cooked weight 490 g. milk reduced to about 40%",
+   "sugar_g": 26.7,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "sweet curd",
+    "mishti dahi"
+   ],
+   "calories": 120,
+   "carbs_g": 17.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 4.1,
+   "fiber_g": 0.0,
+   "name": "Mishti doi",
+   "portions": [
+    [
+     "1 cup",
+     100
+    ]
+   ],
+   "protein_g": 4.0,
+   "ref": "fitlog-in:mishti-doi",
+   "saturated_fat_g": 2.3,
+   "sodium_mg": 57,
+   "source_note": "Calculated by FitLog (recipe 'mishti-doi') from USDA SR Legacy values: milk 600 g, curd 50 g, jaggery 60 g; cooked weight 520 g",
+   "sugar_g": 17.5,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "unsweetened chai",
+    "tea no sugar"
+   ],
+   "calories": 34,
+   "carbs_g": 2.8,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 1.8,
+   "fiber_g": 0.0,
+   "name": "Chai without sugar",
+   "portions": [
+    [
+     "1 cup (chai cup)",
+     150.0
+    ]
+   ],
+   "protein_g": 1.8,
+   "ref": "fitlog-in:chai-no-sugar",
+   "saturated_fat_g": 1.0,
+   "sodium_mg": 26,
+   "source_note": "Calculated by FitLog (recipe 'chai-no-sugar') from USDA SR Legacy values: tea 100 g, milk 100 g; cooked weight 180 g",
+   "sugar_g": 2.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "south indian coffee",
+    "kaapi",
+    "coffee with milk"
+   ],
+   "calories": 58,
+   "carbs_g": 7.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.2,
+   "fiber_g": 0.0,
+   "name": "Filter coffee",
+   "portions": [
+    [
+     "1 cup (chai cup)",
+     150.0
+    ]
+   ],
+   "protein_g": 2.1,
+   "ref": "fitlog-in:filter-coffee",
+   "saturated_fat_g": 1.2,
+   "sodium_mg": 29,
+   "source_note": "Calculated by FitLog (recipe 'filter-coffee') from USDA SR Legacy values: coffee 60 g, milk 120 g, sugar 8 g; cooked weight 180 g",
+   "sugar_g": 7.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "lassi",
+    "meethi lassi"
+   ],
+   "calories": 83,
+   "carbs_g": 12.2,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.7,
+   "fiber_g": 0.0,
+   "name": "Sweet lassi",
+   "portions": [
+    [
+     "1 glass",
+     250.0
+    ]
+   ],
+   "protein_g": 2.8,
+   "ref": "fitlog-in:sweet-lassi",
+   "saturated_fat_g": 1.7,
+   "sodium_mg": 38,
+   "source_note": "Calculated by FitLog (recipe 'sweet-lassi') from USDA SR Legacy values: curd 200 g, milk 50 g, sugar 25 g, water 25 g; cooked weight 300 g",
+   "sugar_g": 12.3,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "namkeen lassi"
+   ],
+   "calories": 40,
+   "carbs_g": 3.1,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.2,
+   "fiber_g": 0.0,
+   "name": "Salted lassi",
+   "portions": [
+    [
+     "1 glass",
+     250.0
+    ]
+   ],
+   "protein_g": 2.3,
+   "ref": "fitlog-in:salted-lassi",
+   "saturated_fat_g": 1.4,
+   "sodium_mg": 287,
+   "source_note": "Calculated by FitLog (recipe 'salted-lassi') from USDA SR Legacy values: curd 200 g, water 100 g, salt 2 g; cooked weight 302 g",
+   "sugar_g": 3.1,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "chaas",
+    "mattha",
+    "majjige",
+    "moru",
+    "indian buttermilk"
+   ],
+   "calories": 20,
+   "carbs_g": 1.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 1.1,
+   "fiber_g": 0.0,
+   "name": "Chaas (spiced buttermilk)",
+   "portions": [
+    [
+     "1 glass",
+     250.0
+    ]
+   ],
+   "protein_g": 1.2,
+   "ref": "fitlog-in:chaas",
+   "saturated_fat_g": 0.7,
+   "sodium_mg": 270,
+   "source_note": "Calculated by FitLog (recipe 'chaas') from USDA SR Legacy values: curd 100 g, water 200 g, salt 2 g, coriander 2 g; cooked weight 304 g",
+   "sugar_g": 1.5,
+   "weight": 50
+  },
+  {
+   "aliases": [],
+   "calories": 76,
+   "carbs_g": 12.5,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.2,
+   "fiber_g": 0.5,
+   "name": "Mango lassi",
+   "portions": [
+    [
+     "1 glass",
+     250.0
+    ]
+   ],
+   "protein_g": 2.4,
+   "ref": "fitlog-in:mango-lassi",
+   "saturated_fat_g": 1.3,
+   "sodium_mg": 29,
+   "source_note": "Calculated by FitLog (recipe 'mango-lassi') from USDA SR Legacy values: curd 150 g, mango 100 g, milk 50 g, sugar 15 g; cooked weight 315 g",
+   "sugar_g": 12.1,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "nimbu paani",
+    "shikanji",
+    "lemonade"
+   ],
+   "calories": 28,
+   "carbs_g": 7.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 0.0,
+   "fiber_g": 0.0,
+   "name": "Nimbu pani",
+   "portions": [
+    [
+     "1 glass",
+     250.0
+    ]
+   ],
+   "protein_g": 0.0,
+   "ref": "fitlog-in:nimbu-pani",
+   "saturated_fat_g": 0.0,
+   "sodium_mg": 129,
+   "source_note": "Calculated by FitLog (recipe 'nimbu-pani') from USDA SR Legacy values: lemon juice 30 g, sugar 20 g, water 250 g, salt 1 g; cooked weight 301 g",
+   "sugar_g": 6.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "badam doodh"
+   ],
+   "calories": 112,
+   "carbs_g": 10.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 6.2,
+   "fiber_g": 0.8,
+   "name": "Badam milk",
+   "portions": [
+    [
+     "1 glass",
+     250.0
+    ]
+   ],
+   "protein_g": 4.2,
+   "ref": "fitlog-in:badam-milk",
+   "saturated_fat_g": 1.9,
+   "sodium_mg": 38,
+   "source_note": "Calculated by FitLog (recipe 'badam-milk') from USDA SR Legacy values: milk 200 g, almonds 15 g, sugar 12 g; cooked weight 227 g",
+   "sugar_g": 10.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "raita",
+    "kheera raita"
+   ],
+   "calories": 48,
+   "carbs_g": 4.3,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 2.3,
+   "fiber_g": 0.1,
+   "name": "Cucumber raita",
+   "portions": [
+    [
+     "1 katori (small bowl)",
+     100.0
+    ]
+   ],
+   "protein_g": 2.6,
+   "ref": "fitlog-in:raita",
+   "saturated_fat_g": 1.5,
+   "sodium_mg": 308,
+   "source_note": "Calculated by FitLog (recipe 'raita') from USDA SR Legacy values: curd 200 g, cucumber 80 g, salt 2 g; cooked weight 282 g",
+   "sugar_g": 3.8,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "nariyal chutney"
+   ],
+   "calories": 227,
+   "carbs_g": 10.6,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 20.8,
+   "fiber_g": 5.5,
+   "name": "Coconut chutney",
+   "portions": [
+    [
+     "1 tbsp",
+     15.0
+    ],
+    [
+     "1 small bowl",
+     50
+    ]
+   ],
+   "protein_g": 2.5,
+   "ref": "fitlog-in:coconut-chutney",
+   "saturated_fat_g": 16.2,
+   "sodium_mg": 426,
+   "source_note": "Calculated by FitLog (recipe 'coconut-chutney') from USDA SR Legacy values: coconut 100 g, chana cooked 15 g, green chilli 5 g, water 60 g, oil 5 g, salt 2 g; cooked weight 187 g",
+   "sugar_g": 3.9,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "hari chutney",
+    "pudina chutney"
+   ],
+   "calories": 25,
+   "carbs_g": 4.9,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 0.4,
+   "fiber_g": 2.9,
+   "name": "Green chutney (mint-coriander)",
+   "portions": [
+    [
+     "1 tbsp",
+     15.0
+    ]
+   ],
+   "protein_g": 1.8,
+   "ref": "fitlog-in:green-chutney",
+   "saturated_fat_g": 0.1,
+   "sodium_mg": 593,
+   "source_note": "Calculated by FitLog (recipe 'green-chutney') from USDA SR Legacy values: coriander 60 g, mint 30 g, green chilli 10 g, lemon juice 15 g, water 20 g, salt 2 g; cooked weight 137 g",
+   "sugar_g": 1.0,
+   "weight": 50
+  },
+  {
+   "aliases": [
+    "aam ka achar",
+    "achar",
+    "pickle"
+   ],
+   "calories": 232,
+   "carbs_g": 10.7,
+   "category": "Indian dishes",
+   "dataset": "fitlog_indian",
+   "fat_g": 21.7,
+   "fiber_g": 1.1,
+   "name": "Mango pickle",
+   "portions": [
+    [
+     "1 tsp",
+     5.0
+    ],
+    [
+     "1 tbsp",
+     15.0
+    ]
+   ],
+   "protein_g": 0.6,
+   "ref": "fitlog-in:mango-pickle",
+   "saturated_fat_g": 2.5,
+   "sodium_mg": 3323,
+   "source_note": "Calculated by FitLog (recipe 'mango-pickle') from USDA SR Legacy values: mango 500 g, mustard oil 150 g, salt 60 g; cooked weight 700 g. green mango valued as ripe mango; oil-heavy North Indian style",
+   "sugar_g": 9.8,
+   "weight": 50
+  }
+ ],
+ "format": 1,
+ "releases": [
+  "FoodData_Central_survey_food_csv_2024-10-31.zip",
+  "FoodData_Central_sr_legacy_food_csv_2018-04.zip"
+ ]
+}

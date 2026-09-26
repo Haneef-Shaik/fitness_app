@@ -52,6 +52,7 @@ import type {
   ProgressPhoto,
   ProgressPhotoIn,
   AnalysisQuota,
+  AnalysisSettings,
   ConfirmIn,
   FoodAnalysis,
   ImageAnalysisIn,
@@ -64,6 +65,7 @@ import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';
 import { analyticsApi, type GroupBy, type RangeQuery } from '../api-analytics';
 import { analysisApi } from '../api-analysis';
+import { accountApi } from '../api-account';
 import { bodyApi, type RangeQuery as BodyRange } from '../api-body';
 import { nutritionApi } from '../api-nutrition';
 import { queueMeal, queueRecipeLog } from '../../features/nutrition/logMeal';
@@ -736,6 +738,33 @@ export function useDeleteAnalysisImages() {
   return useMutation({
     mutationFn: () => analysisApi.deleteImages(),
     onSuccess: () => applyInvalidation(client, 'analysis.imagesDeleted', {}),
+  });
+}
+
+/** K-08 — the quota, the provider and the model, read before a photo is taken. */
+export function useAnalysisSettings() {
+  return useQuery<AnalysisSettings>({
+    queryKey: qk.analysisSettings(),
+    queryFn: () => analysisApi.settings(),
+    staleTime: staleTimes.foods,
+  });
+}
+
+/**
+ * K-07's "Delete my uploaded photos".
+ *
+ * Photos show in two places — the analyses (H-18) and the progress gallery
+ * (I-05) — so both rules run. Not the diary: a meal saved from a food photo
+ * keeps its numbers, which live in `meal_items`.
+ */
+export function useDeleteAllPhotos() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => accountApi.deletePhotos(),
+    onSuccess: () => Promise.all([
+      applyInvalidation(client, 'analysis.imagesDeleted', {}),
+      applyInvalidation(client, 'progressPhoto.changed', {}),
+    ]),
   });
 }
 

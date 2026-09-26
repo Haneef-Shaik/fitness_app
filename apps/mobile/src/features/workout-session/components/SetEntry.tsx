@@ -18,6 +18,14 @@ import type { Exercise } from '@fitlog/api-types';
 import { Button, Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
 import { trackedFields } from '@/features/exercises/format';
+import {
+  advancedSummary, EMPTY_ADVANCED, withRir, withRpe, type AdvancedValue,
+} from '../advanced';
+
+const advancedOf = (v: SetEntryValue): AdvancedValue => ({
+  setType: v.setType, rpe: v.rpe ?? null, rir: v.rir ?? null, note: v.note ?? null,
+});
+const withValue = (v: SetEntryValue, a: AdvancedValue): SetEntryValue => ({ ...v, rpe: a.rpe, rir: a.rir });
 
 /** docs/05: 56 px in the logger, not the 44 px used elsewhere. */
 export const LOGGER_TARGET = 56;
@@ -28,6 +36,10 @@ export interface SetEntryValue {
   durationSeconds: number | null;
   distanceM: number | null;
   setType: 'warmup' | 'working' | 'drop' | 'failure';
+  /** E-06's fields. Optional: most sets never carry them. */
+  rpe?: number | null;
+  rir?: number | null;
+  note?: string | null;
 }
 
 export interface SetEntryProps {
@@ -37,6 +49,15 @@ export interface SetEntryProps {
   onChange: (next: SetEntryValue) => void;
   onCommit: () => void;
   onRepeatLast?: () => void;
+  /** Opens E-06 for the set being entered. */
+  onMore?: () => void;
+  /** Opens E-12. Offered only for an exercise that takes a load. */
+  onPlates?: () => void;
+  /** K-04 — RPE and RIR on the logger itself, for those who log them every set. */
+  showRpe?: boolean;
+  showRir?: boolean;
+  /** K-04 — the load stepper's increment. */
+  loadStep?: number;
   /** Shown inline under the field, never as a modal (docs/03 §10). */
   error?: string | null;
   commitLabel?: string;
@@ -58,7 +79,7 @@ function parseEntry(raw: string): number | null {
 }
 
 
-function Stepper({
+export function Stepper({
   label, value, onChange, step, min, max, format, testID,
 }: {
   label: string; value: number | null; onChange: (n: number | null) => void;
@@ -188,7 +209,8 @@ function Stepper({
 }
 
 export function SetEntry({
-  exercise, value, onChange, onCommit, onRepeatLast, error, commitLabel = 'Save set', busy,
+  exercise, value, onChange, onCommit, onRepeatLast, onMore, onPlates, showRpe, showRir,
+  loadStep = 2.5, error, commitLabel = 'Save set', busy,
 }: SetEntryProps) {
   const { c } = useTheme();
   const tracks = trackedFields(exercise);
@@ -204,7 +226,7 @@ export function SetEntry({
           label={`Load (${exercise.default_unit ?? 'kg'})`}
           value={value.loadKg}
           onChange={(n) => set('loadKg', n)}
-          step={2.5} min={0} max={1000}
+          step={loadStep} min={0} max={1000}
           testID="entry-load"
         />
       ) : null}
@@ -232,6 +254,23 @@ export function SetEntry({
         />
       ) : null}
 
+      {showRpe ? (
+        <Stepper
+          label="RPE" value={value.rpe ?? null}
+          onChange={(n) => onChange(withValue(value, withRpe(advancedOf(value), n)))}
+          step={0.5} min={0} max={10} testID="entry-rpe"
+        />
+      ) : null}
+
+      {showRir ? (
+        <Stepper
+          label="RIR" value={value.rir ?? null}
+          onChange={(n) => onChange(withValue(value, withRir(advancedOf(value), n)))}
+          step={0.5} min={0} max={10} testID="entry-rir"
+        />
+      ) : null}
+
+      <View collapsable={false} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
       <Pressable
         onPress={() => set('setType', value.setType === 'warmup' ? 'working' : 'warmup')}
         accessibilityRole="switch"
@@ -249,6 +288,24 @@ export function SetEntry({
           Warm-up
         </Text>
       </Pressable>
+      {onMore ? (
+        <MoreChip value={value} onPress={onMore} />
+      ) : null}
+      {onPlates && tracks.load ? (
+        <Pressable
+          onPress={onPlates}
+          accessibilityRole="button"
+          accessibilityLabel="Plate calculator"
+          testID="entry-plates"
+          style={{
+            paddingHorizontal: space.md, minHeight: 40, justifyContent: 'center',
+            borderRadius: radius.pill, borderWidth: 1, borderColor: c.line2,
+          }}
+        >
+          <Text variant="caption" style={{ color: c.ink2 }}>Plates</Text>
+        </Pressable>
+      ) : null}
+      </View>
 
       {error ? (
         <Text variant="caption" tone="crit" testID="entry-error">{error}</Text>
@@ -272,5 +329,33 @@ export function SetEntry({
         />
       ) : null}
     </View>
+  );
+}
+
+/** "More", or what E-06 has set — so a set type chosen there is never invisible here. */
+function MoreChip({ value, onPress }: { value: SetEntryValue; onPress: () => void }) {
+  const { c } = useTheme();
+  const summary = advancedSummary({
+    ...EMPTY_ADVANCED,
+    // Warm-up has its own toggle beside this chip; saying it twice is noise.
+    setType: value.setType === 'warmup' ? 'working' : value.setType,
+    rpe: value.rpe ?? null, rir: value.rir ?? null, note: value.note ?? null,
+  });
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={summary ? `More: ${summary}` : 'More: set type, RPE, RIR, note'}
+      testID="entry-more"
+      style={{
+        paddingHorizontal: space.md, minHeight: 40, justifyContent: 'center',
+        borderRadius: radius.pill, borderWidth: 1,
+        borderColor: summary ? c.accent : c.line2,
+      }}
+    >
+      <Text variant="caption" style={{ color: summary ? c.accent : c.ink2 }}>
+        {summary ?? 'More ⋯'}
+      </Text>
+    </Pressable>
   );
 }

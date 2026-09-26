@@ -37,7 +37,9 @@ async def test_seed_is_idempotent(engine):
                 select(func.count()).select_from(Exercise).where(Exercise.owner_user_id.is_(None))
             ),
         }
-    assert counts["muscle_groups"] == 22, counts
+    # Derived from the seed list, like the exercise count below: the tree grew
+    # from 22 to 25 groups with the exercise library and would grow again.
+    assert counts["muscle_groups"] == len(MUSCLES), counts
     # Every seeded exercise exactly once — not a hand-kept number that goes
     # stale the next time the catalog grows (it did in G10).
     assert counts["exercises"] == len(EXERCISES), counts

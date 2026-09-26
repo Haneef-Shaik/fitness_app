@@ -44,6 +44,7 @@ export function FilterChips({
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       accessibilityLabel={label}
+      testID={testID ? `${testID}-${key}` : undefined}
       style={{
         paddingHorizontal: space.md,
         minHeight: 34,

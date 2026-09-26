@@ -17,10 +17,20 @@ dependencies = [
     # The AI gateway speaks HTTP to a provider. Tests never reach one — the
     # stub gateway is the default — but the client itself is production code.
     "httpx>=0.28",
+    "boto3>=1.37",
+    "sentry-sdk[fastapi]>=2.20",
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.3", "pytest-asyncio>=0.24", "httpx>=0.28", "ruff>=0.8"]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.28",
+    "ruff>=0.8",
+    "moto[s3]>=5.0",
+    "flask>=3.0",
+    "flask-cors>=5.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

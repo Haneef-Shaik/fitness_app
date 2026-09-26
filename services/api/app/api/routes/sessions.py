@@ -22,6 +22,7 @@ from sqlalchemy.orm import selectinload
 from app.api.adapters import domain_set
 from app.api.deps import CurrentUser, DbSession, authorize
 from app.api.envelope import ok
+from app.api.visibility import visible_to
 from app.core.errors import Conflict, NotFound, ValidationFailed
 from app.domain import training as domain_training
 from app.domain.dates import to_local_date
@@ -63,6 +64,7 @@ from app.services.sessions import (
     finish_session,
     load_session,
 )
+from app.services.volume import warmups_counted
 
 router = APIRouter(tags=["sessions"])
 
@@ -111,7 +113,8 @@ async def _serialise(db: DbSession, s: WorkoutSession) -> dict:
             SessionExerciseOut(
                 id=se.id, exercise_id=se.exercise_id,
                 exercise_name=names.get(se.exercise_id), order_index=se.order_index,
-                notes=se.notes, skipped=se.skipped, target_snapshot=se.target_snapshot,
+                notes=se.notes, skipped=se.skipped, superset_group=se.superset_group,
+                target_snapshot=se.target_snapshot,
                 sets=[_set_out(x) for x in se.sets],
             )
             for se in s.exercises
@@ -152,6 +155,7 @@ def _snapshot(pe: PlanExercise) -> dict:
         "target_duration_seconds": pe.target_duration_seconds,
         "target_distance_m": _num(pe.target_distance_m),
         "rest_seconds": pe.rest_seconds,
+        "superset_group": pe.superset_group,
         "plan_exercise_id": str(pe.id),
     }
 
@@ -218,6 +222,7 @@ async def start_session(body: SessionStart, user: CurrentUser, db: DbSession):
             db.add(SessionExercise(
                 session_id=session.id, exercise_id=pe.exercise_id, order_index=i,
                 plan_exercise_id=pe.id, target_snapshot=_snapshot(pe),
+                superset_group=pe.superset_group,
             ))
 
     elif body.repeat_session_id:
@@ -225,12 +230,12 @@ async def start_session(body: SessionStart, user: CurrentUser, db: DbSession):
         for i, se in enumerate(prev.exercises):
             db.add(SessionExercise(
                 session_id=session.id, exercise_id=se.exercise_id, order_index=i,
-                target_snapshot=se.target_snapshot,
+                target_snapshot=se.target_snapshot, superset_group=se.superset_group,
             ))
 
     elif body.exercise_ids:
         found = set((await db.scalars(
-            select(Exercise.id).where(Exercise.id.in_(body.exercise_ids))
+            select(Exercise.id).where(Exercise.id.in_(body.exercise_ids), visible_to(user))
         )).all())
         if missing := set(body.exercise_ids) - found:
             raise ValidationFailed(
@@ -291,12 +296,25 @@ async def add_exercise(
     s = await _owned_session(db, session_id, user, "update")
     if s.status is not SessionStatus.in_progress:
         raise Conflict("That workout is finished. Reopen it to make changes.")
-    if await db.scalar(select(Exercise.id).where(Exercise.id == body.exercise_id)) is None:
+    if body.id is not None:
+        # The outbox replays this write until it hears back, so a second arrival
+        # of the same id is the same exercise — not a second copy of it.
+        existing = await db.get(SessionExercise, body.id)
+        if existing is not None:
+            if existing.session_id != s.id:
+                raise Conflict("That exercise id already belongs to another workout.")
+            return ok(await _serialise(db, await load_session(db, s.id)))
+    if await db.scalar(
+        select(Exercise.id).where(Exercise.id == body.exercise_id, visible_to(user))
+    ) is None:
         raise NotFound("That exercise does not exist.")
-    db.add(SessionExercise(
+    row = SessionExercise(
         session_id=s.id, exercise_id=body.exercise_id,
         order_index=max((se.order_index for se in s.exercises), default=-1) + 1,
-    ))
+    )
+    if body.id is not None:
+        row.id = body.id
+    db.add(row)
     await db.flush()
     return ok(await _serialise(db, await load_session(db, s.id)), status_code=201)
 
@@ -416,6 +434,17 @@ async def flush_sets(
     return ok({"results": results}, meta={"accepted": sum(1 for r in results if r["accepted"])})
 
 
+async def _set_by_client_id(
+    db: DbSession, session_id: uuid.UUID, client_id: uuid.UUID
+) -> WorkoutSet | None:
+    return await db.scalar(
+        select(WorkoutSet)
+        .join(SessionExercise, SessionExercise.id == WorkoutSet.session_exercise_id)
+        .where(SessionExercise.session_id == session_id, WorkoutSet.client_id == client_id)
+        .limit(1)
+    )
+
+
 @router.patch("/workout-sets/{set_id}", response_model=Envelope[SetOut])
 async def patch_set(set_id: uuid.UUID, body: dict, user: CurrentUser, db: DbSession):
     """4.4 — editing re-derives e1RM from the new numbers in the same transaction, so
@@ -423,6 +452,25 @@ async def patch_set(set_id: uuid.UUID, body: dict, user: CurrentUser, db: DbSess
     row = await db.scalar(select(WorkoutSet).where(WorkoutSet.id == set_id))
     if row is None:
         raise NotFound("That set no longer exists.")
+    return ok(_set_out(await _apply_set_patch(db, row, body, user)))
+
+
+@router.patch(
+    "/workout-sessions/{session_id}/sets/by-client/{client_id}", response_model=Envelope[SetOut]
+)
+async def patch_set_by_client_id(
+    session_id: uuid.UUID, client_id: uuid.UUID, body: dict, user: CurrentUser, db: DbSession
+):
+    """The logger's edit, queued offline. It names the set by the id the phone
+    gave it at commit (I8), because the server's id never reaches the draft."""
+    await _owned_session(db, session_id, user, "update")
+    row = await _set_by_client_id(db, session_id, client_id)
+    if row is None:
+        raise NotFound("That set no longer exists.")
+    return ok(_set_out(await _apply_set_patch(db, row, body, user)))
+
+
+async def _apply_set_patch(db: DbSession, row: WorkoutSet, body: dict, user: User) -> WorkoutSet:
     se = await _owned_session_exercise(db, row.session_exercise_id, user, "update")
 
     from app.schemas.sessions import SetPatch
@@ -443,7 +491,7 @@ async def patch_set(set_id: uuid.UUID, body: dict, user: CurrentUser, db: DbSess
     if se.session.status is SessionStatus.completed:
         # W06.6 — a retroactive edit must recompute, or the summary silently drifts.
         await finish_session(db, await load_session(db, se.session_id))
-    return ok(_set_out(row))
+    return row
 
 
 @router.delete("/workout-sets/{set_id}", response_model=Envelope[DeletedOut])
@@ -453,6 +501,28 @@ async def delete_set(set_id: uuid.UUID, user: CurrentUser, db: DbSession):
     row = await db.scalar(select(WorkoutSet).where(WorkoutSet.id == set_id))
     if row is None:
         raise NotFound("That set no longer exists.")
+    await _delete_set_row(db, row, user)
+    return ok({"deleted": True})
+
+
+@router.delete(
+    "/workout-sessions/{session_id}/sets/by-client/{client_id}", response_model=Envelope[DeletedOut]
+)
+async def delete_set_by_client_id(
+    session_id: uuid.UUID, client_id: uuid.UUID, user: CurrentUser, db: DbSession
+):
+    """The logger's ✕, queued offline. **Idempotent**: a replayed delete of a set
+    that is already gone reports `deleted: false` rather than failing, so it can
+    never strand itself in the Sync Center."""
+    await _owned_session(db, session_id, user, "delete")
+    row = await _set_by_client_id(db, session_id, client_id)
+    if row is None:
+        return ok({"deleted": False})
+    await _delete_set_row(db, row, user)
+    return ok({"deleted": True})
+
+
+async def _delete_set_row(db: DbSession, row: WorkoutSet, user: User) -> None:
     se = await _owned_session_exercise(db, row.session_exercise_id, user, "delete")
     se_id = row.session_exercise_id
 
@@ -462,7 +532,6 @@ async def delete_set(set_id: uuid.UUID, user: CurrentUser, db: DbSession):
 
     if se.session.status is SessionStatus.completed:
         await finish_session(db, await load_session(db, se.session_id))
-    return ok({"deleted": True})
 
 
 # --------------------------------------------------------------- lifecycle
@@ -790,6 +859,7 @@ async def exercise_history(
     await _exercise_or_404(db, exercise_id)
 
     found = await _completed_occurrences(db, user, exercise_id)
+    warmups = await warmups_counted(db, user.id)
     page = found[offset: offset + limit]
     sets_by_se = await _sets_by_session_exercise(db, [se.id for _, se in page])
 
@@ -813,7 +883,7 @@ async def exercise_history(
                 notes=se.notes,
                 target_snapshot=se.target_snapshot,
                 sets=[SetOut.model_validate(_set_out(r)) for r in rows],
-                volume_kg=domain_training.total_volume_kg(domain_sets),
+                volume_kg=domain_training.total_volume_kg(domain_sets, include_warmups=warmups),
                 best_e1rm_kg=max(e1rms) if e1rms else None,
                 formula_version=domain_training.E1RM_FORMULA_VERSION if e1rms else None,
             ).model_dump(mode="json")
@@ -832,6 +902,7 @@ async def exercise_stats(exercise_id: uuid.UUID, user: CurrentUser, db: DbSessio
     await _exercise_or_404(db, exercise_id)
 
     found = await _completed_occurrences(db, user, exercise_id)
+    warmups = await warmups_counted(db, user.id)
     sets_by_se = await _sets_by_session_exercise(db, [se.id for _, se in found])
 
     total_volume = 0.0
@@ -841,7 +912,7 @@ async def exercise_stats(exercise_id: uuid.UUID, user: CurrentUser, db: DbSessio
     # Oldest first: a trend line reads left to right.
     for session, se in reversed(found):
         domain_sets = [_domain_set(r) for r in sets_by_se.get(se.id, [])]
-        total_volume += domain_training.total_volume_kg(domain_sets)
+        total_volume += domain_training.total_volume_kg(domain_sets, include_warmups=warmups)
 
         eligible = [d for d in domain_sets if domain_training.is_pr_eligible(d)]
         e1rms = [

@@ -289,10 +289,10 @@ than an error.
 |---------|--------|--------|
 | Quantity | numeric | Recomputes macros live. `inputMode="decimal"` |
 | Unit ⌄ | select | g · ml · piece · serving · cup · tbsp — only the units this food defines |
-| Portion presets | one tap | Common portions from `foods.serving_size`/`serving_unit` |
+| Portion presets | one tap | Every row of `food_portions` — USDA's household measures, or for an Indian dish "1 katori (small bowl) · 150 g". Fills the gram field; never a second unit |
 | Macro panel | — | Recomputed as `per_100g × grams ÷ 100`, or serving-based for count units |
 | Add to / date | select | Retargets the meal and date |
-| Details & source ⌄ | expand | Brand, provider, full nutrient list, "per 100 g" basis |
+| Details & source ⌄ | expand | Fibre, sugar, saturated fat, sodium per 100 g; the dataset's attribution (USDA asks to be named) and the row's own citation — an FDC id or the recipe a dish was calculated from ([data-sources.md](../data-sources.md)) |
 | `[ Add ]` | `POST /meals/:id/items` | Writes with `source = manual`, `confirmed = true`, macros **snapshotted**. Closes and returns to the caller |
 
 **Edit mode.** Opening an existing item shows the same sheet with `[ Save ]` and `( Remove )`.

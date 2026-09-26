@@ -5,7 +5,7 @@
  *   { success, data, error: { code, message, fields, request_id } }
  * The client unwraps it and throws ApiError, so callers never inspect `success`.
  */
-import type { Goal, GoalIn, GoalPatch, Profile, ProfilePatch, TokenPair } from '@fitlog/api-types';
+import type { Goal, GoalIn, GoalPatch, Me, Profile, ProfilePatch, TokenPair } from '@fitlog/api-types';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
@@ -24,6 +24,17 @@ function defaultBase(): string {
 }
 
 export const API_BASE = defaultBase();
+
+/**
+ * A URL the server handed out, made loadable.
+ *
+ * The local object store signs paths on this API (`/v1/uploads/…`); the hosted
+ * one (S3) signs absolute bucket URLs. Both are expiring capabilities, so an
+ * `<Image>` loads either with no token — only a relative one needs the base.
+ */
+export function resolveApiUrl(url: string): string {
+  return url.startsWith('/') ? `${API_BASE}${url}` : url;
+}
 
 export class ApiError extends Error {
   constructor(
@@ -44,6 +55,14 @@ export const getAccessToken = () => accessToken;
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
+/**
+ * The request id of the last call the server refused. "Report a problem" sends
+ * it, so a report like "it didn't save" leads straight to the log line saying
+ * why (docs/06 §10). An id, not the request: nothing the user typed is kept.
+ */
+let lastFailedRequest: string | null = null;
+export const lastFailedRequestId = () => lastFailedRequest;
+
 async function raw<T>(
   method: Method, path: string, body?: unknown, extraHeaders?: Record<string, string>,
 ): Promise<T> {
@@ -62,6 +81,7 @@ async function raw<T>(
 
   if (!res.ok || json?.success === false) {
     const e = json?.error ?? {};
+    if (e.request_id) lastFailedRequest = e.request_id;
     throw new ApiError(
       e.code ?? 'NETWORK',
       e.message ?? 'Could not reach the server. Check your connection.',
@@ -108,6 +128,7 @@ async function rawPaged<T>(path: string): Promise<Page<T>> {
 
   if (!res.ok || json?.success === false) {
     const e = json?.error ?? {};
+    if (e.request_id) lastFailedRequest = e.request_id;
     throw new ApiError(
       e.code ?? 'NETWORK',
       e.message ?? 'Could not reach the server. Check your connection.',
@@ -119,6 +140,23 @@ async function rawPaged<T>(path: string): Promise<Page<T>> {
   return { data: (json?.data ?? []) as T, meta: json?.meta };
 }
 
+/**
+ * Routes where a 401 answers the credentials in the BODY — a wrong password, a
+ * dead refresh token, a spent link — and says nothing about the access token.
+ * Refreshing and retrying one would turn "wrong password" into a refresh loop.
+ *
+ * A list rather than every `/auth/` route: resend and sign-out-others (A-06,
+ * K-02) act on the signed-in account, and `/auth/me` is read from screens long
+ * after sign-in, so an expired access token there must refresh like anywhere.
+ */
+const CREDENTIAL_ROUTES = [
+  '/auth/login', '/auth/register', '/auth/refresh', '/auth/logout',
+  '/auth/password/', '/auth/email/verify',
+];
+
+const answersCredentials = (path: string) =>
+  CREDENTIAL_ROUTES.some((route) => path.startsWith(route));
+
 /** Runs the request; on a 401 it tries one silent refresh before surfacing the error. */
 async function request<T>(
   method: Method, path: string, body?: unknown, extraHeaders?: Record<string, string>,
@@ -126,7 +164,7 @@ async function request<T>(
   try {
     return await raw<T>(method, path, body, extraHeaders);
   } catch (err) {
-    if (!(err instanceof ApiError) || err.status !== 401 || path.startsWith('/auth/')) throw err;
+    if (!(err instanceof ApiError) || err.status !== 401 || answersCredentials(path)) throw err;
     const refreshed = await tryRefresh();
     if (!refreshed) throw err;
     return raw<T>(method, path, body, extraHeaders);
@@ -145,6 +183,16 @@ async function request<T>(
  * Single-flighting makes the concurrent case behave like the sequential one.
  */
 let refreshInFlight: Promise<boolean> | null = null;
+
+/**
+ * L-05 — who hears that the server has ended this session. The session provider,
+ * which asks the user to sign in again over the screen they are on, rather than
+ * the whole app dropping them at the login screen mid-meal or mid-workout.
+ */
+let revokedListener: (() => void) | null = null;
+export function onSessionRevoked(listener: (() => void) | null): void {
+  revokedListener = listener;
+}
 
 async function performRefresh(): Promise<boolean> {
   const token = await getRefreshToken();
@@ -167,6 +215,7 @@ async function performRefresh(): Promise<boolean> {
     if (revoked) {
       await clearRefreshToken();
       setAccessToken(null);
+      revokedListener?.();
     }
     return false;
   }
@@ -205,7 +254,7 @@ export const api = {
  * server's OpenAPI document and gated in CI. Nothing here is hand-typed: a
  * hand-written response shape is drift with extra steps (D3b).
  */
-export type { Goal, Profile, TokenPair };
+export type { Goal, Me, Profile, TokenPair };
 
 interface AuthResult extends TokenPair { user: { id: string; email: string } }
 
@@ -214,7 +263,7 @@ export const auth = {
     api.post<AuthResult>('/auth/register', { email, password }),
   login: (email: string, password: string) =>
     api.post<AuthResult>('/auth/login', { email, password }),
-  me: () => api.get<{ id: string; email: string; status: string }>('/auth/me'),
+  me: () => api.get<Me>('/auth/me'),
   logout: (refresh_token: string) => api.post('/auth/logout', { refresh_token }),
 };
 

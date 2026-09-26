@@ -12,26 +12,33 @@ hand-written copy of it.
 **The trap the contract names.** `food_analysis_items` is append-only — a
 trigger forbids UPDATE and DELETE — and `meal_items.analysis_item_id` references
 it with `ON DELETE RESTRICT`. Nothing else in the codebase ever deletes from it,
-which is exactly why an account delete forgets it. Here the order is explicit
-and the trigger is dropped for the length of one transaction, which is the only
+which is exactly why an account delete forgets it. The order is explicit and
+the trigger is dropped for the length of one transaction, which is the only
 place in the product that is allowed to happen and is why it is written down.
+
+**Deletion lives in `app/services/account.py`** since launch, because the web
+page Google Play links to deletes too, and two implementations is how one of
+them leaves rows behind. The routes here check who is asking; the service does
+the deleting.
 """
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Annotated
 
-from fastapi import APIRouter, Query
-from sqlalchemy import select, text
+from fastapi import APIRouter, Request
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, DbSession
 from app.api.envelope import ok
-from app.core.errors import Unauthorized
+from app.core.errors import ValidationFailed
+from app.core.ratelimit import enforce
 from app.core.security import verify_password
 from app.models import (
     BodyMetric,
     CalorieTarget,
+    Exercise,
+    Feedback,
     FitnessGoal,
     Food,
     FoodAnalysis,
@@ -45,8 +52,15 @@ from app.models import (
     WorkoutProgram,
     WorkoutSession,
 )
+from app.schemas.account import (
+    DELETE_CONFIRMATION,
+    AccountDeletedOut,
+    AccountDeleteIn,
+    PhotosDeletedOut,
+)
 from app.schemas.envelope import Envelope
-from app.storage.provider import get_store
+from app.services.account import delete_photos as delete_photos_for
+from app.services.account import purge_account
 
 router = APIRouter(prefix="/account", tags=["account"])
 
@@ -159,6 +173,16 @@ async def export_account(user: CurrentUser, db: DbSession):
             "session_minutes": profile.session_minutes if profile else None,
             "equipment": profile.equipment if profile else None,
             "checkin_interval_days": profile.checkin_interval_days if profile else None,
+            "week_starts_on": profile.week_starts_on if profile else None,
+            # K-04 (launch).
+            "logging_preferences": {
+                "warmups_in_volume": profile.warmups_in_volume,
+                "show_rpe": profile.show_rpe, "show_rir": profile.show_rir,
+                "default_rest_seconds": profile.default_rest_seconds,
+                "load_step_kg": _num(profile.load_step_kg),
+                "bar_weight_kg": _num(profile.bar_weight_kg),
+                "plate_inventory_kg": profile.plate_inventory_kg,
+            } if profile else None,
         },
         # Q8: every target, with the day it took effect.
         "calorie_targets": [
@@ -197,7 +221,10 @@ async def export_account(user: CurrentUser, db: DbSession):
                                 "target_reps_min": e.target_reps_min,
                                 "target_reps_max": e.target_reps_max,
                                 "target_load": _num(e.target_load),
+                                "target_duration_seconds": e.target_duration_seconds,
+                                "target_distance_m": _num(e.target_distance_m),
                                 "rest_seconds": e.rest_seconds,
+                                "superset_group": e.superset_group,
                             }
                             for e in d.exercises
                         ],
@@ -217,6 +244,8 @@ async def export_account(user: CurrentUser, db: DbSession):
                     {
                         "exercise_id": str(e.exercise_id),
                         "order_index": e.order_index,
+                        "notes": e.notes, "skipped": e.skipped,
+                        "superset_group": e.superset_group,
                         "sets": [
                             {
                                 "set_index": w.set_index,
@@ -224,6 +253,9 @@ async def export_account(user: CurrentUser, db: DbSession):
                                 if hasattr(w.set_type, "value") else str(w.set_type),
                                 "load_kg": _num(w.load_kg), "reps": w.reps,
                                 "completed": w.completed, "rpe": _num(w.rpe),
+                                "rir": _num(w.rir), "note": w.note,
+                                "duration_seconds": w.duration_seconds,
+                                "distance_m": _num(w.distance_m),
                             }
                             for w in sorted(e.sets, key=lambda x: x.set_index)
                         ],
@@ -322,6 +354,30 @@ async def export_account(user: CurrentUser, db: DbSession):
             }
             for a in analyses
         ],
+        # Their own exercises. Sessions reference exercises by id; without the
+        # definitions, an export of custom or imported lifts is ids with no
+        # names (G11 security review).
+        "custom_exercises": [
+            {
+                "id": str(e.id), "name": e.name, "equipment": _enum(e.equipment),
+                "movement_pattern": e.movement_pattern, "aliases": list(e.aliases or []),
+                "instructions": getattr(e, "instructions", None),
+                "tracks_load": e.tracks_load, "tracks_reps": e.tracks_reps,
+                "tracks_duration": e.tracks_duration, "tracks_distance": e.tracks_distance,
+                "status": _enum(e.status),
+            }
+            for e in (await db.scalars(
+                select(Exercise).where(Exercise.owner_user_id == user.id).order_by(Exercise.name)
+            )).all()
+        ],
+        # What they told us in "Send feedback" — theirs, like anything else.
+        "feedback": [
+            {"category": f.category, "message": f.message, "app_version": f.app_version,
+             "platform": f.platform, "created_at": _iso(f.created_at)}
+            for f in (await db.scalars(
+                select(Feedback).where(Feedback.user_id == user.id).order_by(Feedback.created_at)
+            )).all()
+        ],
         #: Which tables this archive covers. The completeness test reads this
         #: and compares it against the schema, so a domain added later without
         #: an export entry fails a test rather than being discovered by a user
@@ -330,109 +386,66 @@ async def export_account(user: CurrentUser, db: DbSession):
     })
 
 
-#: Every table an export covers. `users` and `refresh_tokens` are deliberately
-#: absent (credentials, not data); `daily_summaries` is a cache reproducible
-#: from the rest.
+#: Every table an export covers. `users`, `refresh_tokens`, `account_tokens`
+#: and `push_tokens` are deliberately absent (credentials, not data — an emailed link is a
+#: password while it lives); `daily_summaries` is a cache reproducible from the
+#: rest.
 EXPORTED_TABLES = {
     "user_profiles", "fitness_goals", "workout_programs", "workout_plan_days",
     "plan_exercises", "workout_sessions", "session_exercises", "workout_sets",
     "personal_records", "foods", "meal_categories", "meals", "meal_items",
     "recipes", "recipe_items", "body_metrics", "progress_photos",
-    "food_analyses", "food_analysis_items", "calorie_targets",
+    "food_analyses", "food_analysis_items", "calorie_targets", "feedback", "exercises",
 }
 
 
-#: The order matters and the FKs enforce it. `meal_items` must lose its
-#: reference to `food_analysis_items` before those rows can go, and the
-#: append-only trigger has to be stood down for the length of the transaction —
-#: the only place in the product where that is allowed.
-#:
-#: **Most of these are belt-and-braces over `ON DELETE CASCADE`**, and that is
-#: deliberate rather than accidental: removing the `food_analyses` or
-#: `daily_summaries` line leaves the tests green, because the FK from `users`
-#: does the work. Mutation testing said so, and the list stays explicit anyway —
-#: a "delete everything" that relies on FK behaviour nobody restates is one FK
-#: edit away from being wrong, and `test_deleting_a_user_cascades_as_the_schema_promises`
-#: is what would catch that edit.
-#:
-#: The lines that are **not** redundant, and would each leave rows behind:
-#:   `food_analysis_items` — RESTRICT from `meal_items`, plus the trigger
-#:   every child table whose parent is not the user (sets, items, plan days)
-_DELETE_ORDER = (
-    ("DELETE FROM workout_sets w USING session_exercises se, workout_sessions s"
-     " WHERE w.session_exercise_id = se.id AND se.session_id = s.id AND s.user_id = :uid"),
-    ("DELETE FROM session_exercises se USING workout_sessions s"
-     " WHERE se.session_id = s.id AND s.user_id = :uid"),
-    "DELETE FROM personal_records WHERE user_id = :uid",
-    "DELETE FROM workout_sessions WHERE user_id = :uid",
-    ("DELETE FROM plan_exercises pe USING workout_plan_days d, workout_programs p"
-     " WHERE pe.plan_day_id = d.id AND d.program_id = p.id AND p.user_id = :uid"),
-    ("DELETE FROM workout_plan_days d USING workout_programs p"
-     " WHERE d.program_id = p.id AND p.user_id = :uid"),
-    "DELETE FROM workout_programs WHERE user_id = :uid",
-    ("DELETE FROM meal_items mi USING meals m"
-     " WHERE mi.meal_id = m.id AND m.user_id = :uid"),
-    "DELETE FROM meals WHERE user_id = :uid",
-    ("DELETE FROM recipe_items ri USING recipes r"
-     " WHERE ri.recipe_id = r.id AND r.user_id = :uid"),
-    "DELETE FROM recipes WHERE user_id = :uid",
-    "DELETE FROM meal_categories WHERE user_id = :uid",
-    # Only now, with nothing referencing them.
-    ("DELETE FROM food_analysis_items fai USING food_analyses fa"
-     " WHERE fai.analysis_id = fa.id AND fa.user_id = :uid"),
-    "DELETE FROM food_analyses WHERE user_id = :uid",
-    "DELETE FROM foods WHERE owner_user_id = :uid",
-    "DELETE FROM body_metrics WHERE user_id = :uid",
-    "DELETE FROM progress_photos WHERE user_id = :uid",
-    "DELETE FROM daily_summaries WHERE user_id = :uid",
-    "DELETE FROM fitness_goals WHERE user_id = :uid",
-    "DELETE FROM calorie_targets WHERE user_id = :uid",
-    "DELETE FROM refresh_tokens WHERE user_id = :uid",
-    "DELETE FROM user_profiles WHERE user_id = :uid",
-    "DELETE FROM users WHERE id = :uid",
-)
+async def _check_password(db: DbSession, user_id, password: str) -> User | None:
+    account = await db.scalar(select(User).where(User.id == user_id))
+    if account is None or not verify_password(password, account.password_hash):
+        return None
+    return account
 
 
-@router.delete("", response_model=Envelope[dict])
-async def delete_account(
-    user: CurrentUser,
-    db: DbSession,
-    confirm: Annotated[str, Query(description="The account password.")],
-):
+@router.post("/delete", response_model=Envelope[AccountDeletedOut])
+async def delete_account(body: AccountDeleteIn, request: Request, user: CurrentUser, db: DbSession):
     """Removes the account and everything in it. There is no undo.
 
-    The password is required again: a delete reachable by a stolen session token
-    is a delete somebody else can perform.
+    The password is required again: a delete reachable by a stolen session
+    token is a delete somebody else can perform. It is rate limited like a
+    login for the same reason — it is a place to guess a password — with the
+    per-account half keyed by the **signed-in account's id**, not its email.
+    The web page's budget is keyed by the email it is given, which anybody can
+    type: sharing it would let a stranger post a few bogus attempts an hour and
+    stop the owner deleting their account in the app, which both stores require.
+
+    A wrong password is a **422 on the field**, not a 401: the session is
+    fine, and a 401 would send the app to refresh it and resend the same
+    wrong password.
+
+    Immediate, not the 30-day grace K-07 sketches `[ASSUMPTION]`: a grace
+    period needs a scheduled purge and a cancel-on-login path, and an account
+    that says "deleted" while its data still exists is the worse failure.
     """
-    account = await db.scalar(select(User).where(User.id == user.id))
-    if account is None or not verify_password(confirm, account.password_hash):
-        raise Unauthorized("That password is not right.")
+    await enforce(db, request, "account_delete", account=str(user.id))
 
-    user_id = user.id
+    problems: dict[str, str] = {}
+    if body.confirmation != DELETE_CONFIRMATION:
+        problems["confirmation"] = f"Type {DELETE_CONFIRMATION} in capitals to confirm."
+    if await _check_password(db, user.id, body.password) is None:
+        problems["password"] = "That password is not right."
+    if problems:
+        raise ValidationFailed(next(iter(problems.values())), fields=problems)
 
-    # The files, before the rows that name them — a row is how we know a file
-    # exists, so losing the row first orphans the file forever.
-    store = get_store()
-    photos = (await db.scalars(
-        select(ProgressPhoto).where(ProgressPhoto.user_id == user_id)
-    )).all()
-    for photo in photos:
-        await store.delete(photo.image_key)
-    await store.delete_prefix(f"uploads/{user_id}")
+    photos = await purge_account(db, user.id)
+    return ok(AccountDeletedOut(deleted=True, photos_deleted=photos).model_dump())
 
-    # The append-only trigger stands down for exactly this transaction. It is
-    # the only place in the product that happens, and it is deliberate: a user
-    # asking to be forgotten outranks an audit trail about them.
-    await db.execute(text(
-        "ALTER TABLE food_analysis_items DISABLE TRIGGER food_analysis_items_no_update"
-    ))
-    try:
-        for statement in _DELETE_ORDER:
-            await db.execute(text(statement), {"uid": str(user_id)})
-    finally:
-        await db.execute(text(
-            "ALTER TABLE food_analysis_items ENABLE TRIGGER food_analysis_items_no_update"
-        ))
 
-    await db.flush()
-    return ok({"deleted": True, "photos_deleted": len(photos)})
+@router.delete("/photos", response_model=Envelope[PhotosDeletedOut])
+async def delete_photos(user: CurrentUser, db: DbSession):
+    """K-07's "Delete my uploaded photos" — every stored image, idempotently.
+
+    No password: nothing here is irreversible in a way the account delete is,
+    the screen confirms first, and a person's own photos should be easy to
+    take back.
+    """
+    return ok(await delete_photos_for(db, user.id))

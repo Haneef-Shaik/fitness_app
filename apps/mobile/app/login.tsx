@@ -1,5 +1,5 @@
 /** A-04 Log In */
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { resetTo } from '@/lib/navigation';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
@@ -7,13 +7,16 @@ import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Field, Text } from '@/ui';
-import { useTheme, space, radius, font } from '@/theme';
+import { useTheme, space, radius, font, target } from '@/theme';
 import { useSession } from '@/lib/session';
 import { ApiError } from '@/lib/api';
+import { Notice } from '@/features/auth/Notice';
 
 export default function Login() {
   const { c } = useTheme();
   const { signIn } = useSession();
+  // A-05 lands here after a reset: every session ended, so say why this one did.
+  const { notice } = useLocalSearchParams<{ notice?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -52,6 +55,12 @@ export default function Login() {
 
           <Text variant="h1" style={{ marginTop: space.sm, marginBottom: space.lg }}>Welcome back</Text>
 
+          {notice === 'password-updated' ? (
+            <View style={{ marginBottom: space.base }}>
+              <Notice tone="good" testID="login-notice">Password updated. Log in with your new password.</Notice>
+            </View>
+          ) : null}
+
           {general ? (
             <View style={{ borderWidth: 1, borderColor: c.crit, borderRadius: radius.card, padding: 12, marginBottom: space.base }}>
               <Text variant="caption" tone="crit">{general}</Text>
@@ -81,6 +90,17 @@ export default function Login() {
               style={[input, { borderColor: errors.password ? c.crit : c.line }]}
             />
           </Field>
+
+          {/* A-04 → A-05, carrying the typed email so nobody types it twice. */}
+          <Pressable
+            onPress={() => router.push({
+              pathname: '/forgot-password', params: email.trim() ? { email: email.trim() } : {},
+            })}
+            accessibilityRole="link" accessibilityLabel="Forgot password?" testID="login-forgot"
+            style={{ alignSelf: 'flex-end', minHeight: target.min, justifyContent: 'center' }}
+          >
+            <Text variant="caption" tone="ink2">Forgot password?</Text>
+          </Pressable>
 
           <Button title="Log in" onPress={submit} loading={busy} style={{ marginTop: space.md }} />
 

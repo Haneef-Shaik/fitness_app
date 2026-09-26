@@ -41,6 +41,8 @@ class ExerciseOut(BaseModel):
     tracks_duration: bool
     tracks_distance: bool
     default_unit: str
+    #: D-02's "how to do it": setup, movement, one cue. Plain text.
+    instructions: str | None = None
     # Flattened by the route (slug/name live on the joined muscle_group), so this
     # is excluded from ORM validation and populated afterwards.
     muscles: list[MuscleRefOut] = []
@@ -64,6 +66,7 @@ class ExerciseIn(BaseModel):
     tracks_duration: bool = False
     tracks_distance: bool = False
     default_unit: str = Field(default="kg", max_length=8)
+    instructions: str | None = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
     def _check(self) -> ExerciseIn:
@@ -89,6 +92,7 @@ class ExercisePatch(BaseModel):
     tracks_duration: bool | None = None
     tracks_distance: bool | None = None
     default_unit: str | None = Field(default=None, max_length=8)
+    instructions: str | None = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
     def _check(self) -> ExercisePatch:

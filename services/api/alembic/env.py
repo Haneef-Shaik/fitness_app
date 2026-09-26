@@ -1,18 +1,24 @@
 """Alembic environment — async engine, URL and metadata pulled from the app.
 
 Never hardcodes a database URL: it reads app.config so dev, test and production
-all migrate through the same code path.
+all migrate through the same code path — and the engine comes from the same
+builder the API and the worker use (`app/db_engine.py`), so pooler and TLS
+settings cannot differ between the code and its migrations.
+
+`Settings()`, not `get_settings()`: a migration needs a database, not the JWT
+secret. `get_settings()` validates every production secret, which would put all
+of them into the migration job (docs/12 §5). The database's own production rule
+— TLS — is still enforced, by the builder.
 """
 import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
 
 import app.models  # noqa: F401  — registers every model on Base.metadata
 from alembic import context
-from app.config import get_settings
+from app import db_engine
+from app.config import Settings
 from app.db import Base
 
 config = context.config
@@ -25,7 +31,7 @@ target_metadata = Base.metadata
 def _url() -> str:
     # ALEMBIC_DATABASE_URL lets CI and the test suite point somewhere else.
     import os
-    return os.environ.get("ALEMBIC_DATABASE_URL") or get_settings().database_url
+    return os.environ.get("ALEMBIC_DATABASE_URL") or Settings().database_url
 
 
 def run_migrations_offline() -> None:
@@ -48,11 +54,8 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
-    config.set_main_option("sqlalchemy.url", _url())
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.", poolclass=pool.NullPool,
-    )
+    # One connection, then exit: no pool to hold (pooled=False).
+    connectable = db_engine.build_engine(Settings(), url=_url(), pooled=False)
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()

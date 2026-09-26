@@ -29,6 +29,8 @@ import { useCategoryOptions } from '@/features/nutrition/useCategoryOptions';
 import { grams, kcal } from '@/features/nutrition/format';
 import { useAnalysis, useConfirmAnalysis } from '@/lib/query/hooks';
 import { space } from '@/theme';
+import { usePermissionGate } from '@/features/permissions/PermissionPrimer';
+import { registerForPush, type PushOutcome } from '@/features/push/push';
 
 /** H-07's error table, as sentences. A user never sees a code. */
 const FAILURE_MESSAGE: Record<string, string> = {
@@ -259,6 +261,11 @@ function totalOf(analysis: FoodAnalysis | undefined, drafts: Record<string, Draf
 
 /** H-07, inline. Dismissible from the first second — the job runs regardless. */
 function Working({ analysis }: { analysis: FoodAnalysis }) {
+  const { gate, element: primer } = usePermissionGate();
+  const [notify, setNotify] = useState<PushOutcome | null>(null);
+  const askToNotify = () => gate('notifications', () => {
+    void registerForPush().then(setNotify);
+  });
   return (
     <View style={{ gap: space.lg }}>
       <Card>
@@ -273,6 +280,20 @@ function Working({ analysis }: { analysis: FoodAnalysis }) {
         testID="analysis-dismiss"
         onPress={() => router.replace('/nutrition')}
       />
+      {analysis.input_type === 'image' && notify !== 'registered' ? (
+        <Button title="Tell me when it's ready" kind="ghost" testID="analysis-notify"
+          onPress={() => { void askToNotify(); }} />
+      ) : null}
+      {notify === 'registered' ? (
+        <Text variant="caption" tone="good" testID="analysis-notify-on">
+          We'll send a notification when it's ready.
+        </Text>
+      ) : notify ? (
+        <Text variant="caption" tone="ink3" testID="analysis-notify-off">
+          Notifications aren't available here — it will be waiting in your diary.
+        </Text>
+      ) : null}
+      {primer}
     </View>
   );
 }

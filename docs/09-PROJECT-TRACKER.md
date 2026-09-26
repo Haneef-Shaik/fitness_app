@@ -1,7 +1,7 @@
 # Project Tracker
 ## FitLog — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-25 (G10 closed — the release gate) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-09-26 (G11 — launch readiness; see [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md)) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -16,14 +16,14 @@
 | | |
 |---|---|
 | **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
-| **Tests passing** | **1,622** — 132 TS domain, 539 Python *(3 skipped)*, **951 client** |
-| **API endpoints live** | **97** operations across **73** paths, all with declared response shapes (D17) |
-| **App screens built** | **54** of 103 designed |
+| **Tests passing** | **2,406** — 133 TS domain, **1,050** Python *(4 skipped)*, **1,223 client** |
+| **API endpoints live** | **125** operations across **98** paths, all with declared response shapes (D17) |
+| **App screens built** | **76** route screens *(G11 added the launch surfaces: A-05, A-06, K-02, K-03, K-04, K-07, K-08, K-10, L-04, feedback, imports; E-06, E-07, E-12, E-13 and L-05, L-06, L-08 as sheets and overlays)* |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
-| **Running** | Expo app → FastAPI → PostgreSQL — the acceptance suite green **on a phone** (SM-E546B, Expo Go) and dry-run on a **release APK** in the Android emulator |
-| **Version control** | git · `84d2e4c` the release gate (G10) — **not yet pushed** (no GitHub credentials on the build machine) |
+| **Running** | Expo **SDK 57** app (RN 0.86, target API 36) → FastAPI → PostgreSQL — G11: the acceptance suite green on a **release APK** in the emulator (26 Sep); G10: on a phone |
+| **Version control** | git · HEAD `0ce4299`; **G10 and G11 work is uncommitted on `main`** and nothing is pushed (no GitHub credentials on the build machine) |
 | **CI** | GitHub Actions — **5 jobs** on every push (TS domain, Python, API-type drift gate, mobile tests, contract) · nightly **acceptance suite on a release APK** in an emulator (`e2e.yml`, dry-run locally 25 Sep) |
 
 ```
@@ -223,9 +223,9 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **Push `main`** and watch CI and the first `e2e.yml` run | The CI fixes and the release-APK acceptance job exist only locally — this machine has no GitHub credentials | a green CI on GitHub |
-| 2 | **Host the API over HTTPS** and generate the real upload key, then `STORE=1 scripts/build-release-apk.sh` | Store signing and cleartext-off are built and verified on the APK (25 Sep, throwaway key); what is left is the owner's host and key | a store listing |
-| 3 | Expo SDK upgrade carrying react-native#48547 — then re-test **#15b** and **#28** | Both dated **2026-12-15** | — |
+| 1 | **Commit and push** G10 + G11, watch CI and the first `e2e.yml` run | Everything since `0ce4299` exists only in this working tree | a green CI on GitHub |
+| 2 | Owner decisions L2, L5, L6, L7, L8 and the accounts in [TODO.md §1](TODO.md) | Every remaining launch item waits on one of them | hosting, store listings |
+| 3 | Host staging by [12-DEPLOYMENT.md](12-DEPLOYMENT.md); first iOS build via EAS | The first real run of the deploy pipeline and of `expo-sqlite` on iOS | beta |
 
 *Cleared 21 Sep: Alembic migrations (DR1), git init, CI (DR3).*
 *Cleared 22 Sep: **G0** — `docs/03` re-platformed for React Native; D14–D16 recorded.*
@@ -239,6 +239,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 *Cleared 23 Sep: **G8** — AI nutrition: append-only analyses, a Postgres-queued worker, a contained gateway, signed uploads. **AC-08, AC-09, AC-10** — 11 of 12.*
 *Cleared 23 Sep: **G9** — body metrics, goals, progress photos and a single-call dashboard. **AC-11 — 12 of 12**. T4 implemented; Q5 closed.*
 *Cleared 25 Sep: **G10** — the release gate: TalkBack session, NFR evidence, release-APK budgets, the suite on a phone and a release APK. **M8 — 9 of 9.** Q1, Q9 answered.*
+*26 Sep: **G11** — launch readiness: every *Build* item of [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md) that code can close (46 ticked with evidence), SDK 57, a whole-branch security review with every finding fixed, and the acceptance suite green on a release APK. What remains needs the owner — [TODO.md](TODO.md).*
 
 ## Blocked
 
@@ -248,15 +249,15 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **1,622** — 951 client, 539 API (+3 skipped), 132 domain | grows with each milestone |
+| Tests passing | **2,406** — 1,223 client, 1,050 API (+4 skipped), 133 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **539** | every endpoint, happy + failure |
+| API integration tests | **1,050** | every endpoint, happy + failure |
 | Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
-| Migrations | **7** — M1 foundations, M2 training core, M3 deferrable ordering, M4 plan time/distance targets, M5 nutrition, M6 AI analyses, **M7 body metrics, daily summaries and progress photos** | kept reversible — M5, M6 and M7 each round-tripped upgrade → downgrade → re-upgrade before they shipped |
+| Migrations | **18** — M1–M7 and the two m8s as before, then G11's **m9–m17** (logging preferences, feedback, imported sessions, push tokens, supersets, the food catalog and exercise instructions, account tokens, rate-limit counters, push tokens following the sign-in); the chain is linear after merging four parallel branches | kept reversible, and the drift check and destructive round trip run in CI |
 | Mutation checks | **96** verified catches — **G9 added 17**: the canonical weigh-in in both directions, ordering by written rather than measured, unit conversion skipped, the local date taken from the device clock, four write paths that forget to invalidate a summary, the timezone re-bucket and its cache clear, an unconfirmed item reaching the dashboard's calories, progress clamped, progress reported as zero when unmeasured, a borrowed baseline, a naive streak, and six on the screens. **Three survived and each exposed a real gap**: the timezone test was time-of-day dependent (two profiles **25 hours apart** always differ, one profile only sometimes does); a summary column nothing read could not have its invalidation tested, so the body card now reads it; and `invalidate_all` on a timezone change was unjustified until T4 was actually implemented | every guard and shared-vector change |
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | **enforced**, and **ratcheted in G9** to **65/60/60/66** (from G8's 62/56/57/63). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **68.4%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **65.25%** statements / **66.59%** lines. The gate caught G9 mid-goal: the screens landed before their tests and the functions threshold failed, which is the ratchet working | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
-| Acceptance criteria passing | **12 of 12**. **On the phone (G10, 25 Sep): every flow — AC-01, 02, 04, 05, 07, 08, 09, 10, 11 and the offline flow**, each asserted on the screen *and* in the database (Expo Go, SM-E546B). The same flows on an installed **release APK** in the emulator: **all ten green in one clean run** (25 Sep, after finding 37). AC-03, 06 and 12 rest on API tests by nature (timezone matrices, analytics agreement, plan-edit snapshots) | 12 of 12 ✅ |
+| Acceptance criteria passing | **12 of 12**. **G11 (26 Sep), release APK on SDK 57 in the emulator:** AC-01, 02, 04, 05, 07, 08, 09, 10, 11 and the offline flow, each asserted on the screen *and* in the database. Two flows were adjusted for the 297-exercise catalog (picked by index, now narrowed to Chest), and the demo seed was fixed (it read one page of the catalog and never repaired an emptied plan day). **G10 (25 Sep):** the same flows on a phone (Expo Go, SM-E546B). AC-03, 06 and 12 rest on API tests by nature | 12 of 12 ✅ |
 | tap → set rendered | **p95 67.4 ms** on a release APK (p50 54.7, n=99) — Samsung SM-E546B, Android 16 · dev build 296.5 ms (G4 dev 396.4 ms). [release-build](measurements/release-build.md) | p95 < 100 ms (D16) — **MET** |
 
 ## Changelog
@@ -321,6 +322,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | 22 Sep | **The fixture was the flake.** `seed_demo.py` cancelled a leftover open session only on a brand-new account — the cancel sat below an early return. E-01 shows only "You're mid-workout" while a session is open, so every flow reaching for a plan day failed on a selector, reading like a broken app. Its docstring also claimed "wipes and recreates", which it never did |
 | 22 Sep | **`setAirplaneMode` does not take this device offline** — Wi-Fi stays enabled, and three "offline" sets reached the server in ~20 ms. Worse, **offline plus relaunch is not expressible in Expo Go at all**, because the bundle reloads from Metro over the same LAN. The offline scenario now takes the **API** away while Metro stays up, which isolates exactly what is under test and leaves the radio alone |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
+| 26 Sep | **G11 — launch readiness.** [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md) written from the BRD, PRD and a market comparison, then worked through: MVP gaps (E-06, E-07, E-12, K-03, K-04, L-04–L-08, mid-workout skip/reorder/swap), a **data-loss fix** (mid-session deletes, added exercises, edits and notes never reached the server; Finish now waits for the queue), accounts (A-05, A-06, K-02), privacy (K-07 + web deletion, K-08, K-10, draft policies), rate limiting, production infrastructure (Supabase-ready engine, S3 store, Docker, CD, Sentry, runbook), **Expo SDK 57 / target API 36** with a signed AAB, 7,838 foods and 297 exercises, supersets, Strong/Hevy/MFP import, push, feedback, product metrics. A whole-branch security review: 2 high, 3 medium, 8 low, all fixed; plus commits now land before the response, and the outbox is FIFO across backoff |
 
 
 ---

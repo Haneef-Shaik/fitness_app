@@ -24,6 +24,8 @@ export interface DraftSet {
   readonly distanceM: number | null;
   readonly rpe: number | null;
   readonly rir: number | null;
+  /** E-06's per-set note. Optional so drafts persisted before G11 still load. */
+  readonly note?: string | null;
   readonly completed: boolean;
   readonly performedAt: string;
   readonly syncState: SyncState;
@@ -42,6 +44,8 @@ export interface DraftExercise {
   readonly sets: readonly DraftSet[];
   readonly notes: string | null;
   readonly skipped: boolean;
+  /** E-13 — exercises sharing a number are one superset. Optional for old drafts. */
+  readonly supersetGroup?: number | null;
   readonly tracks: Readonly<{
     load: boolean; reps: boolean; duration: boolean; distance: boolean;
   }>;

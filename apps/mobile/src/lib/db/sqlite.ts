@@ -134,9 +134,19 @@ export function createSqliteStore(name = DATABASE_NAME): SessionStore {
       if (owner === null) return [];
       const d = await handle();
       const rows = await d.getAllAsync<OutboxRow>(
-        `SELECT * FROM outbox WHERE owner = ? AND state = 'pending' AND next_attempt_at <= ?
-         ORDER BY aggregate_id, id LIMIT ?`,
-        owner, now, limit,
+        // FIFO per aggregate, including across backoff: a write is ready only
+        // when no EARLIER pending write of its aggregate is still waiting. A
+        // later write overtaking a backed-off one could delete a set before it
+        // existed, or send a set before its exercise (G11).
+        `SELECT * FROM outbox o
+          WHERE o.owner = ? AND o.state = 'pending' AND o.next_attempt_at <= ?
+            AND NOT EXISTS (
+              SELECT 1 FROM outbox p
+               WHERE p.owner = o.owner AND p.aggregate_id = o.aggregate_id
+                 AND p.state = 'pending' AND p.id < o.id AND p.next_attempt_at > ?
+            )
+         ORDER BY o.aggregate_id, o.id LIMIT ?`,
+        owner, now, now, limit,
       );
       return rows.map(toEntry);
     },

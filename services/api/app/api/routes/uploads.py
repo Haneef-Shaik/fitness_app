@@ -1,9 +1,10 @@
-"""Signed uploads (G8 scope 4).
+"""Signed uploads (G8 scope 4), and the local store's signed reads (L1).
 
-Two endpoints and one rule: **the server strips EXIF on arrival, whatever the
-client did.** The client strips it too (H-09's pipeline), but a modified client
-simply does not, and a photo of someone's kitchen carries the coordinates of
-their home. Either half alone is a single point of failure for location data.
+Uploads are two endpoints and one rule: **the server strips EXIF on arrival,
+whatever the client did.** The client strips it too (H-09's pipeline), but a
+modified client simply does not, and a photo of someone's kitchen carries the
+coordinates of their home. Either half alone is a single point of failure for
+location data.
 
 The signature covers the key, the content type, the declared size and the owner
 — not just the key. Signing the key alone would let a caller re-point a valid
@@ -14,16 +15,16 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Response
 
 from app.api.deps import CurrentUser
 from app.api.envelope import ok
 from app.config import get_settings
-from app.core.errors import Forbidden, PayloadTooLarge, ValidationFailed
+from app.core.errors import Forbidden, NotFound, PayloadTooLarge, ValidationFailed
 from app.schemas.analysis import UploadSignIn, UploadSignOut
 from app.schemas.envelope import Envelope
 from app.storage import signing
-from app.storage.exif import is_supported_image, strip_exif
+from app.storage.exif import PNG_MAGIC, is_supported_image, strip_exif
 from app.storage.provider import get_store
 
 router = APIRouter(tags=["uploads"])
@@ -95,3 +96,38 @@ async def put_upload(
     await get_store().put(key, cleaned, content_type)
 
     return ok({"key": key, "byte_size": len(cleaned)})
+
+
+@router.get("/uploads/{key:path}", include_in_schema=False)
+async def read_upload(
+    key: str,
+    exp: Annotated[int, Query()],
+    sig: Annotated[str, Query()],
+):
+    """The local store's `read_url`: an image, for whoever holds the signature.
+
+    **No bearer token, on purpose.** An `<Image>` does not attach one, and the
+    signature already is the authorisation — issued per response after the
+    owner check, expiring, and bound to one key. That is exactly what the S3
+    store's presigned URL is, so a client treats the two the same. Hosted, the
+    S3 store never points here.
+    """
+    settings = get_settings()
+    if not signing.verify_read(
+        key=key, secret=settings.upload_signing_secret, expires=exp, signature=sig,
+    ):
+        # One answer for forged, expired and swapped, as with uploads.
+        raise Forbidden("That image link is not valid any more.")
+
+    try:
+        data = await get_store().read(key)
+    except (FileNotFoundError, ValueError) as exc:
+        raise NotFound("That image no longer exists.") from exc
+
+    remaining = max(0, exp - signing._now())
+    return Response(
+        content=data,
+        media_type="image/png" if data.startswith(PNG_MAGIC) else "image/jpeg",
+        # `private`: a shared cache must never hold somebody's progress photo.
+        headers={"cache-control": f"private, max-age={remaining}"},
+    )

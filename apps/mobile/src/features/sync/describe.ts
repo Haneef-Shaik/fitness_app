@@ -34,7 +34,11 @@ export interface QueuedChange {
 export function describePath(entry: OutboxEntry): string {
   const { path, method } = entry;
 
+  if (path.includes('/sets/by-client/')) return method === 'DELETE' ? 'Set removal' : 'Set change';
   if (path.includes('/sets')) return 'Set';
+  if (/^\/workout-sessions\/[^/]+\/exercises$/.test(path)) return 'Exercise';
+  if (path.startsWith('/session-exercises/')) return 'Exercise note';
+  if (/^\/workout-sessions\/[^/]+$/.test(path)) return 'Workout note';
   if (path.startsWith('/meals')) return method === 'POST' ? 'Meal' : 'Meal change';
   if (path.includes('/recipes/') && path.endsWith('/log')) return 'Recipe';
   if (path.startsWith('/body-metrics')) return 'Measurement';

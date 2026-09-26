@@ -7,7 +7,7 @@
  * and, worse, would make the app feel broken when the provider is slow.
  */
 import type {
-  ConfirmIn, FoodAnalysis, ImageAnalysisIn, Meal, AnalysisQuota,
+  ConfirmIn, FoodAnalysis, ImageAnalysisIn, Meal, AnalysisQuota, AnalysisSettings,
   TextAnalysisIn, UploadSign, UploadSignIn,
 } from '@fitlog/api-types';
 import { api } from './api';
@@ -15,6 +15,12 @@ import { api } from './api';
 export const analysisApi = {
   /** Read BEFORE offering the button (02 §5.4), never after it is pressed. */
   quota: () => api.get<AnalysisQuota>('/food-analysis/quota'),
+
+  /**
+   * K-08 — usage, who receives a photo, and the low-confidence threshold.
+   * From the server's configuration, so the disclosure is where photos go.
+   */
+  settings: () => api.get<AnalysisSettings>('/food-analysis/settings'),
 
   analyseText: (body: TextAnalysisIn) =>
     api.post<FoodAnalysis>('/food-analysis/text', body),

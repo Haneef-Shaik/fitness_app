@@ -4,7 +4,7 @@ from __future__ import annotations
 import enum
 import uuid
 
-from sqlalchemy import Boolean, Enum, ForeignKey, Index, String
+from sqlalchemy import Boolean, Enum, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -75,6 +75,11 @@ class Exercise(Base, TimestampMixin):
     tracks_duration: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     tracks_distance: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     default_unit: Mapped[str] = mapped_column(String(8), default="kg", nullable=False)
+
+    #: How to do it — setup, movement, one cue (D-02). Plain text, 2–4
+    #: sentences for the global catalog; optional notes for a custom exercise.
+    #: Nullable: a user's own exercise owes nobody a paragraph.
+    instructions: Mapped[str | None] = mapped_column(Text)
 
     muscles: Mapped[list[ExerciseMuscle]] = relationship(
         back_populates="exercise", cascade="all, delete-orphan", lazy="selectin"

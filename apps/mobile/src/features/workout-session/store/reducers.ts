@@ -20,6 +20,7 @@ export interface NewExercise {
   exerciseName?: string | null;
   sessionExerciseId?: string | null;
   targetSnapshot?: Record<string, unknown> | null;
+  supersetGroup?: number | null;
   tracks: DraftExercise['tracks'];
 }
 
@@ -33,6 +34,7 @@ export interface NewSet {
   distanceM?: number | null;
   rpe?: number | null;
   rir?: number | null;
+  note?: string | null;
   completed?: boolean;
   performedAt?: string;
 }
@@ -73,6 +75,7 @@ export function startDraft(input: StartDraftInput): SessionDraft {
       sets: [],
       notes: null,
       skipped: false,
+      supersetGroup: e.supersetGroup ?? null,
       tracks: e.tracks,
     })),
   };
@@ -104,6 +107,7 @@ export function appendSet(d: SessionDraft, exerciseClientId: string, input: NewS
       distanceM: input.distanceM ?? null,
       rpe: input.rpe ?? null,
       rir: input.rir ?? null,
+      note: input.note ?? null,
       completed: input.completed ?? true,
       performedAt: input.performedAt ?? new Date().toISOString(),
       syncState: 'pending',
@@ -174,8 +178,36 @@ export function addExercise(d: SessionDraft, input: NewExercise): SessionDraft {
     sets: [],
     notes: null,
     skipped: false,
+    supersetGroup: input.supersetGroup ?? null,
     tracks: input.tracks,
   }]);
+}
+
+/**
+ * E-05's swap: the new exercise takes the old one's place in the order. Only an
+ * exercise with nothing logged can be swapped — swapping away logged sets would
+ * delete them, and that is what Remove is for, said as Remove.
+ */
+export function swapExercise(d: SessionDraft, exerciseClientId: string, input: NewExercise): SessionDraft {
+  const i = d.exercises.findIndex((e) => e.clientId === exerciseClientId);
+  if (i < 0 || d.exercises[i]!.sets.length > 0) return d;
+  const replacement: DraftExercise = {
+    clientId: input.clientId,
+    sessionExerciseId: input.sessionExerciseId ?? null,
+    exerciseId: input.exerciseId,
+    exerciseName: input.exerciseName ?? null,
+    orderIndex: i,
+    targetSnapshot: input.targetSnapshot ?? null,
+    sets: [],
+    notes: null,
+    skipped: false,
+    // The replacement takes the old exercise's place in its superset too.
+    supersetGroup: d.exercises[i]!.supersetGroup ?? null,
+    tracks: input.tracks,
+  };
+  const next = [...d.exercises];
+  next[i] = replacement;
+  return bump(d, next);
 }
 
 export function removeExercise(d: SessionDraft, exerciseClientId: string): SessionDraft {
@@ -194,7 +226,8 @@ export function reorderExercises(d: SessionDraft, orderedClientIds: readonly str
 }
 
 export function patchExercise(
-  d: SessionDraft, exerciseClientId: string, patch: Partial<Pick<DraftExercise, 'notes' | 'skipped' | 'sessionExerciseId'>>,
+  d: SessionDraft, exerciseClientId: string,
+  patch: Partial<Pick<DraftExercise, 'notes' | 'skipped' | 'sessionExerciseId' | 'supersetGroup'>>,
 ): SessionDraft {
   return mapExercise(d, exerciseClientId, (e) => ({ ...e, ...patch })) ?? d;
 }

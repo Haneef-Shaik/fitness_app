@@ -19,6 +19,8 @@ import { getPref, setPref } from '@/lib/prefs';
 import { plannedReminders, type ReminderKey } from '@/features/reminders/plan';
 import { REMINDERS_PREF, useReminderContext } from '@/features/reminders/useReminderContext';
 import { applyReminders, ensurePermission } from '@/features/reminders/schedule';
+import { checkPermission } from '@/features/permissions/primer';
+import { PermissionPrimer } from '@/features/permissions/PermissionPrimer';
 import { space } from '@/theme';
 
 /** Whose notification permission it is: Expo Go's in development, the app's own in a build. */
@@ -39,6 +41,8 @@ type Switches = Partial<Record<ReminderKey, boolean>>;
 export default function Notifications() {
   const [on, setOn] = useState<Switches>({});
   const [denied, setDenied] = useState(false);
+  // L-06: the reminder waiting on FitLog's explanation before the OS asks.
+  const [priming, setPriming] = useState<ReminderKey | null>(null);
   const [error, setError] = useState<string | null>(null);
   const ctx = useReminderContext();
 
@@ -49,6 +53,14 @@ export default function Notifications() {
   const toggle = async (key: ReminderKey) => {
     setError(null);
     const turningOn = !on[key];
+    if (turningOn) {
+      const state = await checkPermission('notifications');
+      if (state.status === 'undetermined') { setPriming(key); return; }
+    }
+    await apply(key, turningOn);
+  };
+
+  const apply = async (key: ReminderKey, turningOn: boolean) => {
     if (turningOn && (await ensurePermission()) !== 'granted') {
       setDenied(true);
       return;
@@ -104,6 +116,13 @@ export default function Notifications() {
           </Text>
         ) : null}
       </View>
+      <PermissionPrimer
+        kind="notifications"
+        mode="ask"
+        visible={priming !== null}
+        onContinue={() => { const key = priming; setPriming(null); if (key) void apply(key, true); }}
+        onClose={() => setPriming(null)}
+      />
     </ScreenScaffold>
   );
 }

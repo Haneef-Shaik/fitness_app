@@ -1,0 +1,23 @@
+# The image carries the app, its migrations and its scripts — nothing else.
+# Secrets are environment variables at run time, never files in a layer.
+.env
+.env.*
+!.env.example
+
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# User data: local uploads never belong in an image.
+var/
+
+# Not needed to run; keeps the image small and the build context fast.
+tests/
+Dockerfile
+.dockerignore

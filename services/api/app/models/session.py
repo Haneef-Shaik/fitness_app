@@ -90,11 +90,17 @@ class WorkoutSession(Base, TimestampMixin):
         order_by="SessionExercise.order_index", lazy="selectin",
     )
 
+    #: Set only on a session imported from another app's export: a stable hash
+    #: of when it started and what it was called, so importing the same file
+    #: twice adds nothing the second time.
+    import_key: Mapped[str | None] = mapped_column(String(64))
+
     __table_args__ = (
         Index(
             "ix_sessions_user_local_date", "user_id", "local_date",
             postgresql_where=(status == SessionStatus.completed),
         ),
+        UniqueConstraint("user_id", "import_key", name="uq_session_import_key"),
         # At most one open session per user — enforced by the database, not by a check
         # in application code that a second device could race past.
         Index(
@@ -117,6 +123,8 @@ class SessionExercise(Base, TimestampMixin):
     order_index: Mapped[int] = mapped_column(nullable=False)         # dense, 0-based
     notes: Mapped[str | None] = mapped_column(String(2000))
     skipped: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    #: E-13 — copied from the plan at start (I1), changeable mid-workout.
+    superset_group: Mapped[int | None] = mapped_column()
 
     plan_exercise_id: Mapped[uuid.UUID | None] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("plan_exercises.id", ondelete="SET NULL")

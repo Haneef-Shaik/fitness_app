@@ -56,6 +56,13 @@ export default function SessionDetail() {
               />
             </Card>
 
+            {session.notes ? (
+              <Card testID="session-notes">
+                <Text variant="label" accessibilityRole="header">Notes</Text>
+                <Text variant="body" style={{ marginTop: 4 }}>{session.notes}</Text>
+              </Card>
+            ) : null}
+
             {(session.exercises ?? []).map((se) => (
               <ExerciseBlock key={se.id} se={se} />
             ))}
@@ -79,26 +86,47 @@ function ExerciseBlock({ se }: { se: SessionExercise }) {
         ) : (
           sets.map((s, i) => <SetRow key={s.id} set={s} index={i} />)
         )}
+        {se.notes ? (
+          <Text variant="caption" tone="ink2" style={{ marginTop: space.sm }}>✎ {se.notes}</Text>
+        ) : null}
       </Card>
     </View>
   );
 }
 
+const TYPE_PILL: Partial<Record<WorkoutSet['set_type'], string>> = {
+  warmup: 'warm-up', drop: 'drop', failure: 'failure',
+};
+
 function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
   const load = set.load_kg === null || set.load_kg === undefined ? null : `${set.load_kg} kg`;
   const reps = set.reps === null || set.reps === undefined ? null : count(set.reps, 'rep');
   const detail = [load, reps].filter(Boolean).join(' × ') || '—';
+  const effort = [
+    set.rpe != null ? `RPE ${set.rpe}` : null,
+    set.rir != null ? `RIR ${set.rir}` : null,
+  ].filter(Boolean).join(' · ');
+  const kind = TYPE_PILL[set.set_type];
   return (
     <View
-      style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 6 }}
-      accessibilityLabel={`Set ${index + 1}, ${detail}${set.set_type === 'warmup' ? ', warm-up' : ''}`}
+      style={{ paddingVertical: 6 }}
+      accessible
+      accessibilityLabel={`Set ${index + 1}, ${detail}${kind ? `, ${kind}` : ''}`
+        + `${effort ? `, ${effort}` : ''}${set.note ? `. Note: ${set.note}` : ''}`}
     >
-      <Text variant="caption" tone="ink3" style={{ width: 20 }}>{index + 1}</Text>
-      <Text variant="body" style={{ flex: 1 }}>{detail}</Text>
-      {/* Warm-ups are marked because they are excluded from volume (I3) — an
-          unexplained gap between the sets shown and the total reads as a bug. */}
-      {set.set_type === 'warmup' ? <Pill kind="mute">warm-up</Pill> : null}
-      {set.is_pr ? <Pill kind="good">PR</Pill> : null}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+        <Text variant="caption" tone="ink3" style={{ width: 20 }}>{index + 1}</Text>
+        <Text variant="body" style={{ flex: 1 }}>{detail}</Text>
+        {effort ? <Text variant="caption" tone="ink3">{effort}</Text> : null}
+        {/* Warm-ups are marked because they are excluded from volume (I3) — an
+            unexplained gap between the sets shown and the total reads as a bug.
+            Drop sets likewise, because they never set a record. */}
+        {kind ? <Pill kind="mute">{kind}</Pill> : null}
+        {set.is_pr ? <Pill kind="good">PR</Pill> : null}
+      </View>
+      {set.note ? (
+        <Text variant="caption" tone="ink2" style={{ marginLeft: 28, marginTop: 2 }}>{set.note}</Text>
+      ) : null}
     </View>
   );
 }

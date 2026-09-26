@@ -101,7 +101,7 @@ packaging change, not a redesign.
 | Cache / queue | Redis | Cache, rate limiting, job queue, distributed locks |
 | Object storage | S3-compatible, private bucket | BRD §18 |
 | AI gateway | Provider-independent service returning **structured JSON only** | BRD §17 |
-| Nutrition data | Licensed provider normalised into internal `Food` | BRD §17; see §7 below |
+| Nutrition data | USDA FoodData Central (public domain) + curated Indian dishes, **seeded** into the internal `Food` catalog — nothing fetched at runtime | Q1; see §5.2b and [data-sources.md](data-sources.md) |
 | Observability | OpenTelemetry traces + structured logs + RED metrics | BRD §19 |
 
 ### 3.1 What changed by choosing Python, and what it costs
@@ -331,6 +331,28 @@ the model.
 Step 5 is what makes home-cooked and regional food workable, and is the reason `meal_items` must be
 able to hold macros without a food.
 
+### 5.2b The catalog behind the ladder (Q1: internal catalog, grown by seed)
+
+Q1 was answered *internal catalog for v1*, so "provider search" (step 4) is a search of FitLog's own
+`foods` table, seeded from `app/seed/data/` — ~7,700 USDA FoodData Central foods (Foundation + SR
+Legacy), 138 Indian dishes valued from cited USDA records or stated recipes, and the 22 starter
+foods. Provenance, licence and the portions are rows, not comments: `food_datasets`, `foods.dataset`
+/ `source_note`, `food_portions`. The sources and their attribution are in
+[data-sources.md](data-sources.md).
+
+At that size, "matches the query" is hundreds of rows, so the resolver **ranks**
+(`app/food/internal.py`): an exact name or alias first, then the user's own foods, then foods whose
+first segment *is* the query (USDA writes "Rice, white, cooked"), whole-word matches, a seeded
+`search_weight` prior, pg_trgm similarity and the shorter name. A query that matches nothing falls
+back to trigram similarity, so a typo still finds the food.
+
+The ladder's **acceptance** tightened with it (`app/food/ladder.py`): a full-phrase rung accepts the
+best hit only if every word of the rung is in it (a fuzzy guess never resolves an AI item), and a
+single-word rung accepts only a food whose name or alias *is* that word — "curry" appearing in a
+dozen names does not make "Nani's Sunday curry" resolve. Measured by
+`scripts/measure_food_resolution.py` over 40 everyday meal phrases: 17/40 resolved correctly against
+the 22-food catalog, 40/40 now.
+
 ### 5.3 Failure containment
 | Failure | Behaviour |
 |---------|-----------|
@@ -358,6 +380,15 @@ rule is no cloud, so `app/storage/base.py` is an `ObjectStore` Protocol with
 implementation — the same shape as the food resolver, for the same reason. The
 signature covers the **key, the content type, the declared size and the owner**;
 signing the key alone would let a caller re-point a valid signature at another object.
+
+*Hosting (L1, 26 Sep):* `S3ObjectStore` (`app/storage/s3.py`) is that implementation —
+Supabase Storage when hosted, `STORAGE_BACKEND=s3` — held to the same contract suite as
+the local store. **Uploads still go through the API** on every backend, because the
+server's EXIF strip is the half a modified client cannot skip. **Reads are signed too:**
+each photo carries an `image_url` that expires with `UPLOAD_URL_TTL_SECONDS` — a
+presigned bucket URL on S3, an HMAC-signed `GET /v1/uploads/{key}` locally — so an
+`<Image>` loads it with no bearer token and the bucket stays private. A read signature is
+a different payload from an upload one, so neither can be replayed as the other.
 
 **Append-only is enforced by the database, not by discipline.** Migration `m6` installs
 two triggers:
@@ -396,6 +427,7 @@ Fields below are **additions/refinements** the BRD schema needs to satisfy its o
 | Table | Addition | Why |
 |-------|----------|-----|
 | `users` | `deleted_at` | §18 account deletion, with soft-delete grace |
+| `account_tokens` (new, m9) | `user_id`, `purpose` (`password_reset` \| `verify_email` \| `change_email`), `token_hash` (SHA-256, unique), `email`, `expires_at`, `used_at` | A-05/A-06/K-02 emailed single-use links. Only the hash is stored, as for refresh tokens. At most one row per user and purpose — issuing deletes the older ones. `email` is the address the link went to: the new address for a change, and how a link to an address the account has left is refused. Credentials, not data: absent from the export, deleted with the account |
 | `user_profiles` | `birth_date`, `sex`, `dashboard_layout jsonb`, `logging_field_prefs jsonb` | TDEE inputs (§9 activity_level is alone insufficient); §15 customization |
 | `user_profiles` | `daily_calorie_target`, `protein/carbs/fat_g_target` | §15 custom targets; §11 day metrics need a target |
 | `user_profiles` | `training_experience`, `training_days_per_week`, `session_minutes`, `equipment`, `checkin_interval_days` (G10) | Onboarding's training answers drive the starter-program ranking; the check-in interval drives when the next check-in is due |
@@ -412,6 +444,10 @@ Fields below are **additions/refinements** the BRD schema needs to satisfy its o
 | `meals` | `local_date date` | Same reasoning as sessions |
 | `meal_items` | macros + `quantity_grams` + `analysis_item_id` + `user_corrected` + `display_name` | See §4.2 |
 | `foods` | `aliases text[]`, `verified boolean`, `is_custom`, `owner_user_id` | Resolution ladder + user-created foods |
+| `foods` (m9) | `dataset` → `food_datasets`, `source_note`, `category`, `search_weight`, `sugar_g`, `saturated_fat_g`, `sodium_mg` | Q1's seeded catalog: per-row provenance, ranking prior, label nutrients (shown on H-05, not snapshotted) |
+| `food_datasets` (m9, new) | `slug`, `name`, `publisher`, `version`, `licence`, `attribution` | One row per published dataset — the attribution its licence asks for |
+| `food_portions` (m9, new) | `food_id`, `label`, `grams`, `sort_order` | H-05 presets ("1 katori = 150 g"); a way to enter grams, never a second nutrition basis |
+| `exercises` (m9) | `instructions text` | D-02's "How to do it" |
 | `food_analyses` | `meal_id` nullable FK, `error_code`, `completed_at`, `quota_cost` | Links an analysis to the meal it fed; retry + observability |
 | `body_metrics` | `custom_measurements jsonb` | §P01.2 configurable measurements without a migration per field |
 | `daily_summaries` | `user_id, local_date, calories, protein_g, carbs_g, fat_g, fiber_g, session_count, volume_kg, weight_kg, computed_at` | §9 "optional precomputed aggregate"; §11 week/month reads |
@@ -511,7 +547,8 @@ Base `/{version}` = `/v1`. All responses use the envelope from the house pattern
 
 | Domain | Endpoints |
 |--------|-----------|
-| Auth | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/password/forgot`, `/auth/password/reset`, `POST /auth/verify-email` |
+| Auth | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `GET /auth/me` (+ `email_verified`, `pending_email`), `POST /auth/password/forgot` (always the same 200), `/auth/password/reset` (revokes every refresh token), `/auth/email/verify` (A-06, and applies a K-02 email change), `/auth/email/resend` (signed in; 429 within 60 s), `/auth/sessions/revoke-others` (signed in; keeps the caller's family, named by the access token's `sid`) |
+| Account security (K-02) | `POST /account/password` (current + new; revokes every family, returns a fresh pair), `POST /account/email` (password + new address; applies when the link sent there is opened) |
 | Profile | `GET|PATCH /profile`, `GET|PATCH /profile/preferences`, `GET|PATCH /profile/dashboard` |
 | Goals | `GET|POST /goals`, `GET|PATCH|DELETE /goals/:id` |
 | Exercises | `GET /exercises` (q, muscle, equipment, pattern, include_archived), `POST /exercises`, `GET|PATCH /exercises/:id`, `POST /exercises/:id/archive`, `GET /exercises/:id/history`, `GET /exercises/:id/stats` |
@@ -566,6 +603,8 @@ Base `/{version}` = `/v1`. All responses use the envelope from the house pattern
 | Rate limiting | Per-user and per-IP, tighter on auth and AI endpoints |
 | Input validation | Shared Zod schemas at every boundary; reject unknown fields |
 | PII in logs | Never log emails, image contents, raw food text or tokens; log `user_id` + `request_id` only |
+| Email | Behind an `EmailSender` protocol (`app/email/`): `console` (default; in-memory outbox, echoed to the log in development only) or `resend` (HTTP, `EMAIL_API_KEY`, `EMAIL_FROM`). Production refuses to start on `console`. A failed send is logged by kind and status — never the address or the body, which holds a live link. Links use the app scheme (`APP_LINK_BASE`, default `fitlog://`) and carry the same token as a paste-able code |
+| Account recovery | Reset and verification links are single-use, hashed at rest, 30 min / 24 h, one per purpose per minute. The reset request never discloses whether an account exists — same body, and the lookup, link and mail all happen after the response, so timing does not tell either. A reset, a password change and "sign out other devices" also kill a pending email change (the current address is warned when one is requested). Revocation and refresh/login serialise on the account row, so a refresh in flight cannot outlive a revoke. Credential changes commit before they answer. **Verification gates nothing**: an unverified account is a full account, and reset links go to verified and unverified addresses alike |
 | EXIF | GPS and device metadata stripped client-side before upload, and again server-side |
 
 ---
@@ -611,3 +650,9 @@ photo is one traceable story.
 Forward-only migrations, expand/contract for column changes, and every deploy reversible without a
 schema rollback. Seed data (global exercise catalog, muscle-group tree, starter foods) is versioned
 and idempotent so any environment can be rebuilt from scratch.
+
+**As built (26 Sep):** one Docker image runs both processes; `scripts/migrate.sh` is the release
+step (migrate, revoke Supabase's Data API roles, seed) and needs only `DATABASE_URL`;
+`.github/workflows/deploy.yml` builds once, then releases staging and — behind a required reviewer
+— production. Staging is held to production's startup rules. The runbook is
+[12-DEPLOYMENT.md](12-DEPLOYMENT.md). Preview environments per PR are not built.

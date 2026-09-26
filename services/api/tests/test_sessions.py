@@ -384,6 +384,9 @@ async def test_session_volume_matches_the_vector(auth_client, case):
     storable = [s for s in case["sets"] if s.get("reps")]
     if not storable:
         pytest.skip("no storable sets in this vector")
+    if case.get("include_warmups"):
+        # K-04: the server counts warm-ups when the user's profile says so.
+        _data(await auth_client.patch("/v1/profile", json={"warmups_in_volume": True}))
     ex = await _exercise_ids(auth_client)
     s = _data(await auth_client.post("/v1/workout-sessions", json={"exercise_ids": ex[:1]}), 201)
     se_id = s["exercises"][0]["id"]
@@ -560,3 +563,28 @@ async def test_the_volume_record_is_the_best_session_not_a_lifetime_total(auth_c
 async def test_records_are_empty_before_anything_is_logged(auth_client):
     ex = await _exercise_ids(auth_client)
     assert _data(await auth_client.get(f"/v1/exercises/{ex[0]}/records")) == {}
+
+
+async def test_another_users_custom_exercise_cannot_be_borrowed(auth_client, client):
+    """Referencing it leaked its name and blocked its owner's account deletion."""
+    stranger = f"owner-{uuid.uuid4().hex[:8]}@example.com"
+    token = _data(await client.post(
+        "/v1/auth/register", json={"email": stranger, "password": "correct-horse-battery"}
+    ), 201)["access_token"]
+    them = {"authorization": f"Bearer {token}"}
+    group = _data(await client.get("/v1/muscle-groups", headers=them))[0]["id"]
+    theirs = _data(await client.post("/v1/exercises", headers=them, json={
+        "name": "Private Secret Lift", "equipment": "other",
+        "muscles": [{"muscle_group_id": group, "role": "primary"}],
+    }), 201)["id"]
+
+    r = await auth_client.post("/v1/workout-sessions", json={"exercise_ids": [theirs]})
+    assert r.status_code == 422, r.text
+
+    mine = _data(await auth_client.post("/v1/workout-sessions", json={"exercise_ids": []}), 201)
+    r = await auth_client.post(f"/v1/workout-sessions/{mine['id']}/exercises", json={"exercise_id": theirs})
+    assert r.status_code == 404, r.text
+
+    deleted = await client.post("/v1/account/delete", headers={"authorization": f"Bearer {token}"},
+                                json={"password": "correct-horse-battery", "confirmation": "DELETE"})
+    assert deleted.status_code == 200, deleted.text

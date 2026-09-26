@@ -18,6 +18,8 @@ class PlanExerciseIn(BaseModel):
     target_duration_seconds: int | None = Field(default=None, ge=1, le=86400)
     target_distance_m: float | None = Field(default=None, gt=0, le=1_000_000)
     rest_seconds: int | None = Field(default=None, ge=0, le=600)
+    #: E-13 — exercises sharing a number are one superset / circuit.
+    superset_group: int | None = Field(default=None, ge=1, le=9)
 
     @model_validator(mode="after")
     def _swap_reversed_rep_range(self) -> PlanExerciseIn:

@@ -40,7 +40,8 @@ describe('constants match the contract', () => {
 describe('volume', () => {
   for (const c of V.volume) {
     it(c.name, () => {
-      expect(totalVolumeKg(c.sets.map(toSet))).toBeCloseTo(c.expected_volume_kg, 9);
+      expect(totalVolumeKg(c.sets.map(toSet), { includeWarmups: c.include_warmups ?? false }))
+        .toBeCloseTo(c.expected_volume_kg, 9);
     });
   }
 });

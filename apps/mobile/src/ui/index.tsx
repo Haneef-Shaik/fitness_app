@@ -66,8 +66,8 @@ export function Card({
       ]}
     >
       {/* the 1px inner top highlight — the thing that makes an edge catch light */}
-      <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { borderTopWidth: 1, borderTopColor: c.sheen, borderRadius: hero ? radius.lg : radius.card }]} />
-      {accent ? <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { backgroundColor: c.accentWash }]} /> : null}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderTopWidth: 1, borderTopColor: c.sheen, borderRadius: hero ? radius.lg : radius.card }]} />
+      {accent ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: c.accentWash }]} /> : null}
       <View>{children}</View>
     </View>
   );

@@ -130,6 +130,31 @@ describe('401 → refresh → retry', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ['/auth/password/forgot'], ['/auth/password/reset'], ['/auth/email/verify'],
+  ])('never refreshes for %s either — its 401 is about the body, not the session', async (path) => {
+    await storage.setRefreshToken('present');
+    fetchMock.mockResolvedValueOnce(failEnvelope(401, { code: 'x', message: 'no', request_id: 'r' }));
+
+    await expect(api.post(path, {})).rejects.toBeInstanceOf(ApiError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['/auth/me'], ['/auth/email/resend'], ['/auth/sessions/revoke-others'],
+  ])('refreshes for %s, which acts on the signed-in account (A-06, K-02)', async (path) => {
+    // These live under /auth/ but carry no credentials in the body: a 401 is
+    // an expired access token, and must refresh like any other call.
+    await storage.setRefreshToken('r1');
+    fetchMock
+      .mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'no', request_id: 'r' }))
+      .mockResolvedValueOnce(okEnvelope({ access_token: 'a2', refresh_token: 'r2' }))
+      .mockResolvedValueOnce(okEnvelope({ ok: true }));
+
+    await expect(api.post(path)).resolves.toEqual({ ok: true });
+    expect(fetchMock.mock.calls[1]![0]).toContain('/auth/refresh');
+  });
+
   it('refreshes ONCE when several requests 401 together', async () => {
     // Observed for real: a screen fires several queries, they all 401, each
     // refreshes with the same token, the first rotates it and reuse detection

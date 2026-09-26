@@ -31,7 +31,10 @@ jest.mock('@/lib/query/hooks', () => ({
     data: null, isPending: false, isError: false, error: null, refetch: jest.fn(),
   }),
   useMuscleGroups: () => ({ data: [], isPending: false, isError: false, error: null, refetch: jest.fn() }),
+  useProfile: () => ({ data: mockProfile() }),
 }));
+
+const mockProfile = jest.fn((): unknown => undefined);
 
 jest.mock('@/features/workout-session/useSession', () => ({
   useSession: (id: string) => ({
@@ -43,8 +46,11 @@ jest.mock('@/features/workout-session/useSession', () => ({
   draftWithSetsFromServer: (s: unknown) => mockFromServer(s),
 }));
 
+const mockUnsent = jest.fn(async (_id: string) => 0);
+
 jest.mock('@/features/workout-session/sessionController', () => ({
   flushAndReconcile: jest.fn(async () => {}),
+  unsentFor: (id: string) => mockUnsent(id),
   outbox: { flush: jest.fn(), status: jest.fn(async () => ({ pending: 0, failed: [] })) },
 }));
 
@@ -67,6 +73,7 @@ function seed(setCount: number) {
 beforeEach(async () => {
   jest.clearAllMocks();
   mockServerSession.mockImplementation(() => undefined);
+  mockUnsent.mockImplementation(async () => 0);
   const store = createMemoryStore('user-1');
   await store.open();
   configurePersistence({ store });
@@ -214,5 +221,278 @@ describe('the entry stays in reach (G10)', () => {
     fireEvent.press(screen.getByText('Save set 2'));
     expect(toEnd).toHaveBeenCalledTimes(1);
     toEnd.mockRestore();
+  });
+});
+
+describe('finishing waits for every queued change (G11)', () => {
+  it('does not finish while changes are still waiting to upload', async () => {
+    // The server closes the workout on finish and then refuses the sets still
+    // in the queue — so the last sets of an offline workout were lost.
+    seed(2);
+    mockUnsent.mockImplementation(async () => 2);
+
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('finish-workout'));
+
+    await waitFor(() => expect(screen.getByTestId('finish-error')).toBeTruthy());
+    expect(mockFinish).not.toHaveBeenCalled();
+    expect(screen.getByText(/2 changes still waiting to upload/)).toBeTruthy();
+    expect(useSessionStore.getState().draft).not.toBeNull();
+  });
+
+  it('says so, and keeps the workout open, when finishing fails', async () => {
+    seed(1);
+    mockFinish.mockImplementation(async () => { throw new Error('The server is busy. Try again.'); });
+
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('finish-workout'));
+
+    await waitFor(() => expect(screen.getByText('The server is busy. Try again.')).toBeTruthy());
+    expect(useSessionStore.getState().draft).not.toBeNull();
+  });
+});
+
+describe('E-06 · the advanced set editor', () => {
+  it('shapes the next set: type, RPE and a note travel with it', async () => {
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('entry-more'));
+    fireEvent.press(screen.getByTestId('advanced-type-failure'));
+    fireEvent.press(screen.getByTestId('advanced-rpe-inc'));   // 0 → 0.5
+    fireEvent.changeText(screen.getByTestId('advanced-note'), 'Grip went');
+    fireEvent.press(screen.getByTestId('advanced-done'));
+
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '80');
+    fireEvent.changeText(screen.getByTestId('entry-reps-input'), '6');
+    fireEvent.press(screen.getByTestId('entry-commit'));
+
+    const set = useSessionStore.getState().draft!.exercises[0]!.sets[0]!;
+    expect(set).toMatchObject({ setType: 'failure', rpe: 0.5, rir: 9.5, note: 'Grip went' });
+  });
+
+  it('effort never carries over to the set after', async () => {
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('entry-more'));
+    fireEvent.press(screen.getByTestId('advanced-rpe-inc'));
+    fireEvent.press(screen.getByTestId('advanced-done'));
+    fireEvent.changeText(screen.getByTestId('entry-reps-input'), '6');
+    fireEvent.press(screen.getByTestId('entry-commit'));
+    fireEvent.press(screen.getByTestId('entry-commit'));
+
+    const sets = useSessionStore.getState().draft!.exercises[0]!.sets;
+    expect(sets[0]!.rpe).toBe(0.5);
+    expect(sets[1]!.rpe).toBeNull();
+  });
+
+  it('edits a committed set from its row', async () => {
+    seed(1);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('set-row-0'));
+    fireEvent.press(screen.getByTestId('advanced-type-drop'));
+    fireEvent.press(screen.getByTestId('advanced-done'));
+
+    expect(useSessionStore.getState().draft!.exercises[0]!.sets[0]!.setType).toBe('drop');
+    expect(screen.getByText('D')).toBeTruthy();
+  });
+
+  it('deletes a committed set from its row', async () => {
+    seed(2);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('set-row-1'));
+    fireEvent.press(screen.getByTestId('advanced-delete'));
+
+    expect(useSessionStore.getState().draft!.exercises[0]!.sets).toHaveLength(1);
+  });
+});
+
+describe('E-07 · notes', () => {
+  it('a quick tag becomes the workout note', async () => {
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('session-notes'));
+    fireEvent.press(screen.getByTestId('notes-tag-felt-strong'));
+    fireEvent.press(screen.getByTestId('notes-done'));
+
+    expect(useSessionStore.getState().draft!.notes).toBe('Felt strong');
+  });
+
+  it('an exercise note is kept on the exercise', async () => {
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('exercise-notes'));
+    fireEvent.changeText(screen.getByTestId('notes-input'), 'Seat on 4');
+    fireEvent.press(screen.getByTestId('notes-done'));
+
+    expect(useSessionStore.getState().draft!.exercises[0]!.notes).toBe('Seat on 4');
+  });
+});
+
+describe('K-04 preferences reach the logger', () => {
+  afterEach(() => mockProfile.mockImplementation(() => undefined));
+
+  it('shows RPE on the logger when asked, and it travels with the set', () => {
+    mockProfile.mockImplementation(() => ({ show_rpe: true }));
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.press(screen.getByTestId('entry-rpe-inc'));
+    fireEvent.changeText(screen.getByTestId('entry-reps-input'), '5');
+    fireEvent.press(screen.getByTestId('entry-commit'));
+
+    expect(useSessionStore.getState().draft!.exercises[0]!.sets[0]!.rpe).toBe(0.5);
+  });
+
+  it('keeps RPE off the logger by default', () => {
+    seed(0);
+    render(<ActiveSession />);
+    expect(screen.queryByTestId('entry-rpe')).toBeNull();
+  });
+
+  it('starts the default rest when the plan sets none', () => {
+    mockProfile.mockImplementation(() => ({ default_rest_seconds: 90 }));
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.changeText(screen.getByTestId('entry-reps-input'), '5');
+    fireEvent.press(screen.getByTestId('entry-commit'));
+
+    expect(screen.getByTestId('rest-timer')).toBeTruthy();
+  });
+
+  it('counts warm-ups in the finish summary when the user does', async () => {
+    mockProfile.mockImplementation(() => ({ warmups_in_volume: true }));
+    seed(0);
+    useSessionStore.getState().commitSet('x1', {
+      clientId: '0000000a-0000-4000-8000-00000000000a', reps: 10, loadKg: 40, setType: 'warmup',
+    });
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('finish-workout'));
+
+    await waitFor(() => expect(screen.getByTestId('finish-summary')).toBeTruthy());
+    expect(screen.getAllByText('400 kg')).toHaveLength(2);
+  });
+
+  it('E-12 · the plate calculator loads the bar for the entered weight', () => {
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '100');
+    fireEvent.press(screen.getByTestId('entry-plates'));
+
+    expect(screen.getByTestId('plate-per-side').props.children).toBe('25 · 15');
+    expect(screen.getByTestId('plate-exact')).toBeTruthy();
+  });
+
+  it('E-12 · offers the nearest load when the exact one cannot be made', () => {
+    seed(0);
+    render(<ActiveSession />);
+
+    fireEvent.changeText(screen.getByTestId('entry-load-input'), '101');
+    fireEvent.press(screen.getByTestId('entry-plates'));
+    fireEvent.press(screen.getByTestId('plate-use'));
+
+    expect(screen.getByTestId('entry-load-input').props.value).toBe('100');
+  });
+});
+
+describe('changing the plan mid-workout (BRD 5.1)', () => {
+  function seedTwo() {
+    seed(0);
+    useSessionStore.getState().addExercise({
+      clientId: '5a5a5a5a-0000-4000-8000-00000000000b', exerciseId: 'e2', exerciseName: 'Row', tracks: TRACKS,
+    });
+  }
+
+  it('skips an exercise and keeps what was logged', () => {
+    seed(2);
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('exercise-options'));
+    fireEvent.press(screen.getByTestId('menu-skip'));
+
+    const ex = useSessionStore.getState().draft!.exercises[0]!;
+    expect(ex.skipped).toBe(true);
+    expect(ex.sets).toHaveLength(2);
+  });
+
+  it('moves an exercise later and stays on it', () => {
+    seedTwo();
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('exercise-options'));
+    fireEvent.press(screen.getByTestId('menu-later'));
+
+    expect(useSessionStore.getState().draft!.exercises.map((e) => e.exerciseName)).toEqual(['Row', 'Bench']);
+  });
+
+  it('asks before removing an exercise with sets, naming them', () => {
+    seed(3);
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('exercise-options'));
+    fireEvent.press(screen.getByTestId('menu-remove'));
+
+    expect(screen.getByText('Remove Bench and its 3 sets from this workout?')).toBeTruthy();
+    fireEvent.press(screen.getByTestId('remove-yes'));
+    expect(useSessionStore.getState().draft!.exercises).toHaveLength(0);
+  });
+
+  it('offers swap only while nothing is logged', () => {
+    seed(1);
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('exercise-options'));
+    expect(screen.getByTestId('menu-swap').props.accessibilityState).toMatchObject({ disabled: true });
+  });
+});
+
+describe('E-13 · supersets in the logger', () => {
+  afterEach(() => mockProfile.mockImplementation(() => undefined));
+
+  function seedSuperset() {
+    useSessionStore.getState().start({
+      sessionId: 's1',
+      startedAt: '2026-09-22T10:00:00Z',
+      exercises: [
+        { clientId: 'x1', exerciseId: 'e1', exerciseName: 'Curl', sessionExerciseId: 'se1', supersetGroup: 1, tracks: TRACKS },
+        { clientId: 'x2', exerciseId: 'e2', exerciseName: 'Pushdown', sessionExerciseId: 'se2', supersetGroup: 1, tracks: TRACKS },
+      ],
+    });
+  }
+
+  it('moves to the partner after a set and rests only after the round', () => {
+    mockProfile.mockImplementation(() => ({ default_rest_seconds: 90 }));
+    seedSuperset();
+    render(<ActiveSession />);
+    expect(screen.getByText('Superset A · 1 of 2')).toBeTruthy();
+
+    fireEvent.changeText(screen.getByTestId('entry-reps-input'), '10');
+    fireEvent.press(screen.getByTestId('entry-commit'));
+
+    expect(screen.getByText('Superset A · 2 of 2')).toBeTruthy();
+    expect(screen.queryByTestId('rest-timer')).toBeNull();
+
+    fireEvent.changeText(screen.getByTestId('entry-reps-input'), '12');
+    fireEvent.press(screen.getByTestId('entry-commit'));
+
+    expect(screen.getByText('Superset A · 1 of 2')).toBeTruthy();
+    expect(screen.getByTestId('rest-timer')).toBeTruthy();
+  });
+
+  it('two exercises can be made a superset mid-workout', () => {
+    seed(0);
+    useSessionStore.getState().addExercise({
+      clientId: '5a5a5a5a-0000-4000-8000-00000000000c', exerciseId: 'e2', exerciseName: 'Row', tracks: TRACKS,
+    });
+    render(<ActiveSession />);
+    fireEvent.press(screen.getByTestId('exercise-options'));
+    fireEvent.press(screen.getByTestId('menu-superset'));
+
+    const groups = useSessionStore.getState().draft!.exercises.map((e) => e.supersetGroup);
+    expect(groups[0]).toBe(groups[1]);
+    expect(groups[0]).not.toBeNull();
   });
 });

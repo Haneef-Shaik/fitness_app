@@ -24,9 +24,11 @@ import { Platform } from 'react-native';
 
 const web = Platform.OS === 'web';
 
-function fs(): typeof import('expo-file-system') {
+// Since SDK 54 the package root is the new File/Directory API and these calls
+// THROW there; the API this file is written against lives at `/legacy`.
+function fs(): typeof import('expo-file-system/legacy') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  return require('expo-file-system') as typeof import('expo-file-system');
+  return require('expo-file-system/legacy') as typeof import('expo-file-system/legacy');
 }
 
 async function readAll(): Promise<Record<string, unknown>> {

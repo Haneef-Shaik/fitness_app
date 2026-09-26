@@ -23,6 +23,16 @@ jest.mock('expo-secure-store', () => {
   };
 });
 
+// Sentry's SDK reaches for its native module (RNSentry) on import. The suite
+// never has a DSN, so the app never initialises it; this double lets the
+// crash-reporting tests assert what the app asks of the SDK.
+jest.mock('@sentry/react-native', () => ({
+  __esModule: true,
+  init: jest.fn(),
+  wrap: jest.fn((component: unknown) => component),
+  captureException: jest.fn(),
+}));
+
 // Icons load a native font module, which Jest does not have. A stand-in that
 // renders the icon's name keeps screens renderable and lets a test assert which
 // icon is shown (e.g. the filled one on the active tab).

@@ -66,8 +66,13 @@ export function createMemoryStore(initialOwner: string | null = null): SessionSt
     },
 
     async readyEntries(now: string, limit = 50) {
-      return mine()
-        .filter((e) => e.state === 'pending' && e.nextAttemptAt <= now)
+      const pending = mine().filter((e) => e.state === 'pending');
+      // FIFO per aggregate, across backoff too: ready only when no EARLIER
+      // pending write of the same aggregate is still waiting (the SQLite query).
+      const blocked = (e: Owned) => pending.some((p) =>
+        p.aggregateId === e.aggregateId && p.id < e.id && p.nextAttemptAt > now);
+      return pending
+        .filter((e) => e.nextAttemptAt <= now && !blocked(e))
         .sort((a, b) => (a.aggregateId === b.aggregateId
           ? a.id - b.id
           : a.aggregateId.localeCompare(b.aggregateId)))

@@ -98,6 +98,33 @@ function contract(name: string, make: () => SessionStore) {
         expect(s1).toEqual(['a1', 'a2']);
       });
 
+      it('never overtakes an earlier write that is still backing off (G11)', async () => {
+        // Set 2 was in flight when the server went away: it is backing off.
+        // Set 3 was logged after, offline, and is due now. Sent first, it
+        // overtook set 2 — harmless for two sets, but a delete overtaking the
+        // set it deletes, or a set overtaking the exercise it belongs to, is
+        // a resurrected set or a 404 parked in the Sync Center for ever.
+        await store.commit(draft(1), entry('k2', 's1', '2026-09-22T10:30:00Z'));
+        await store.commit(draft(2), entry('k3', 's1', '2026-09-22T10:00:00Z'));
+        await store.commit(draft(3), entry('other', 's2', '2026-09-22T10:00:00Z'));
+
+        const early = await store.readyEntries('2026-09-22T10:10:00Z');
+        expect(early.map((e) => e.idempotencyKey)).toEqual(['other']);
+
+        const later = await store.readyEntries('2026-09-22T10:30:00Z');
+        expect(later.filter((e) => e.aggregateId === 's1').map((e) => e.idempotencyKey)).toEqual(['k2', 'k3']);
+      });
+
+      it('lets a queue move past a write that failed for good', async () => {
+        await store.commit(draft(1), entry('bad', 's1'));
+        const [bad] = await store.readyEntries('2026-09-22T11:00:00Z');
+        await store.markFailed(bad!.id, 'Rejected.');
+        await store.commit(draft(2), entry('next', 's1'));
+
+        const ready = await store.readyEntries('2026-09-22T11:00:00Z');
+        expect(ready.map((e) => e.idempotencyKey)).toEqual(['next']);
+      });
+
       it('honours the limit', async () => {
         for (const k of ['k1', 'k2', 'k3']) await store.commit(draft(1), entry(k));
         await expect(store.readyEntries('2026-09-22T11:00:00Z', 2)).resolves.toHaveLength(2);

@@ -1,4 +1,11 @@
-/** D-02 · Exercise Detail — PRs, e1RM trend, recent sessions, never-performed. */
+/**
+ * D-02 · Exercise Detail — how to do it, PRs, e1RM trend, recent sessions,
+ * never-performed.
+ *
+ * "How to do it" sits above the records because the person who needs it most
+ * is the one who has never logged the exercise — and for them everything
+ * below it is empty.
+ */
 import { useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
 import type { ExerciseHistoryEntry } from '@fitlog/api-types';
@@ -36,6 +43,17 @@ export default function ExerciseDetail() {
               <Text variant="caption" tone="ink3">{muscleSummary(e)}</Text>
             ) : null}
             {e.status === 'archived' ? <Pill>archived</Pill> : null}
+
+            {e.instructions ? (
+              <View testID="exercise-instructions">
+                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>
+                  How to do it
+                </Text>
+                <Card>
+                  <Text variant="body" style={{ lineHeight: 22 }}>{e.instructions}</Text>
+                </Card>
+              </View>
+            ) : null}
 
             {neverPerformed ? (
               /* The state a NEW USER sees for every exercise — the most viewed

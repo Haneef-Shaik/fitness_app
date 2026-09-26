@@ -106,6 +106,9 @@ export const qk = {
   analyses: () => ['analyses', 'list'] as const,
   analysis: (id: string) => ['analyses', 'detail', id] as const,
   analysisQuota: () => ['analyses', 'quota'] as const,
+  // K-08 carries the quota too, so it lives under the same prefix and moves
+  // with it when an analysis is submitted.
+  analysisSettings: () => ['analyses', 'settings'] as const,
 
   // B-01 (G9). Keyed by the date ASKED FOR, which is usually nothing at all:
   // `undefined` means "the server's today", and caching that under a date the

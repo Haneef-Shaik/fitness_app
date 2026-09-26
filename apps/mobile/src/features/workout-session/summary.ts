@@ -40,7 +40,14 @@ export interface SessionSummary {
   exercises: ExerciseSummary[];
 }
 
-export function summarise(draft: SessionDraft, finishedAt: Date): SessionSummary {
+export interface SummaryOptions {
+  /** K-04 — the user counts warm-ups toward volume. The server agrees (D6). */
+  includeWarmups?: boolean;
+}
+
+export function summarise(
+  draft: SessionDraft, finishedAt: Date, opts: SummaryOptions = {},
+): SessionSummary {
   const started = Date.parse(draft.startedAt);
   const durationSeconds = Number.isNaN(started)
     ? 0
@@ -57,7 +64,7 @@ export function summarise(draft: SessionDraft, finishedAt: Date): SessionSummary
       clientId: e.clientId,
       name: e.exerciseName,
       setCount: e.sets.length,
-      volumeKg: totalVolumeKg(domain),
+      volumeKg: totalVolumeKg(domain, opts),
       bestE1rmKg: e1rms.length ? Math.max(...e1rms) : null,
       formulaVersion: e1rms.length ? E1RM_FORMULA_VERSION : null,
     };
@@ -67,13 +74,14 @@ export function summarise(draft: SessionDraft, finishedAt: Date): SessionSummary
     durationSeconds,
     exerciseCount: draft.exercises.length,
     setCount: draft.exercises.reduce((n, e) => n + e.sets.length, 0),
-    totalVolumeKg: draft.exercises.reduce((n, e) => n + totalVolumeKg(e.sets.map(toDomain)), 0),
+    totalVolumeKg: draft.exercises.reduce((n, e) => n + totalVolumeKg(e.sets.map(toDomain), opts), 0),
     exercises,
   };
 }
 
 /** What a single set contributed — the per-set delta E-03 shows. */
-export const contribution = (s: DraftSet): number => setVolumeKg(toDomain(s));
+export const contribution = (s: DraftSet, opts: SummaryOptions = {}): number =>
+  setVolumeKg(toDomain(s), opts);
 
 /** The four records this session would set, for E-11. Warm-ups are not attempts. */
 export const draftRecords = (sets: readonly DraftSet[]) => evaluateRecords(sets.map(toDomain));

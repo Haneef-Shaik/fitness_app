@@ -17,6 +17,7 @@ import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { ExercisePicker } from '@/features/exercises/ExercisePicker';
 import { PrescriptionEditor } from '@/features/programs/PrescriptionEditor';
 import { muscleSetCounts } from '@/features/programs/setCounts';
+import { isLinked, toggleLink } from '@/features/programs/supersetLinks';
 import { prescriptionLine } from '../programs/[id]';
 import {
   useExercises, useProgram, useSetDayExercises, useUpdatePlanDay,
@@ -63,6 +64,8 @@ export default function PlanDayEditor() {
       target_duration_seconds: pe.target_duration_seconds,
       target_distance_m: pe.target_distance_m,
       rest_seconds: pe.rest_seconds,
+      // Carried through, or saving the day would quietly dissolve its supersets.
+      superset_group: pe.superset_group ?? null,
     } as PlanExerciseIn)));
   }, [day]);
 
@@ -200,6 +203,21 @@ export default function PlanDayEditor() {
                             hitSlop={8}
                           ><Text variant="body" tone="ink3">↓</Text></Pressable>
                         </View>
+                        {i < rows.length - 1 ? (
+                          <Pressable
+                            onPress={() => setRows((prev) => toggleLink(prev, i))}
+                            accessibilityRole="switch"
+                            accessibilityState={{ checked: isLinked(rows, i) }}
+                            accessibilityLabel={`Superset ${ex?.name ?? 'this exercise'} with the next one`}
+                            testID={`superset-link-${i}`}
+                            style={{ marginTop: space.sm, alignSelf: 'flex-start' }}
+                            hitSlop={8}
+                          >
+                            <Text variant="caption" tone={isLinked(rows, i) ? 'accent' : 'ink3'}>
+                              {isLinked(rows, i) ? '⛓ Superset with next' : '+ Superset with next'}
+                            </Text>
+                          </Pressable>
+                        ) : null}
                       </Card>
                     );
                   })}

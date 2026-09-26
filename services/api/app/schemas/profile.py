@@ -7,6 +7,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.age import MIN_AGE_YEARS, age_on, today_anywhere
 
+#: A standard metric plate set, heaviest first (E-12).
+DEFAULT_PLATES_KG: tuple[float, ...] = (25, 20, 15, 10, 5, 2.5, 1.25)
+
 
 class ProfileOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -29,6 +32,24 @@ class ProfileOut(BaseModel):
     session_minutes: int | None = None
     equipment: Literal["full_gym", "home_gym", "dumbbells", "bodyweight"] | None = None
     checkin_interval_days: int = 7
+    warmups_in_volume: bool = False
+    show_rpe: bool = False
+    show_rir: bool = False
+    default_rest_seconds: int | None = None
+    load_step_kg: float = 2.5
+    bar_weight_kg: float = 20
+    plate_inventory_kg: list[float] = Field(default_factory=lambda: list(DEFAULT_PLATES_KG))
+
+    @field_validator("load_step_kg", "bar_weight_kg", mode="before")
+    @classmethod
+    def _plain_number(cls, v):
+        # Numeric columns arrive as Decimal; the wire carries a number.
+        return float(v) if v is not None else v
+
+    @field_validator("plate_inventory_kg", mode="before")
+    @classmethod
+    def _standard_plates_when_unset(cls, v):
+        return list(DEFAULT_PLATES_KG) if v is None else v
 
 
 class ProfilePatch(BaseModel):
@@ -51,6 +72,23 @@ class ProfilePatch(BaseModel):
     session_minutes: int | None = Field(default=None, ge=15, le=240)
     equipment: Literal["full_gym", "home_gym", "dumbbells", "bodyweight"] | None = None
     checkin_interval_days: int | None = Field(default=None, ge=1, le=31)
+    warmups_in_volume: bool | None = None
+    show_rpe: bool | None = None
+    show_rir: bool | None = None
+    default_rest_seconds: int | None = Field(default=None, ge=15, le=900)
+    load_step_kg: float | None = Field(default=None, ge=0.25, le=10)
+    bar_weight_kg: float | None = Field(default=None, ge=0, le=50)
+    plate_inventory_kg: list[float] | None = Field(default=None, min_length=1, max_length=12)
+
+    @field_validator("plate_inventory_kg")
+    @classmethod
+    def _real_plates(cls, v: list[float] | None) -> list[float] | None:
+        if v is None:
+            return v
+        if any(p <= 0 or p > 50 for p in v):
+            raise ValueError("Plates weigh more than 0 and at most 50 kg.")
+        # Largest first: the calculator loads greedily from the heaviest plate.
+        return sorted(set(v), reverse=True)
 
     @field_validator("birth_date")
     @classmethod

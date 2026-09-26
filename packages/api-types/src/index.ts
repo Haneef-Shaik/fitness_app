@@ -145,6 +145,31 @@ export type BodyPoint = Schemas['BodyPointOut'];
 export type ProgressPhoto = Schemas['ProgressPhotoOut'];
 export type ProgressPhotoIn = Schemas['ProgressPhotoIn'];
 
+/* ---------------------------------- account recovery & security (A-05, A-06, K-02) */
+
+/** A-05 — the same body whether or not the address has an account. */
+export type ResetRequested = Schemas['RequestedOut'];
+export type PasswordReset = Schemas['PasswordResetOut'];
+export type EmailVerified = Schemas['EmailVerifiedOut'];
+export type VerificationSent = Schemas['VerificationSentOut'];
+export type EmailChange = Schemas['EmailChangeOut'];
+export type SessionsRevoked = Schemas['SessionsRevokedOut'];
+export type ForgotPasswordIn = Schemas['ForgotPasswordIn'];
+export type ResetPasswordIn = Schemas['ResetPasswordIn'];
+export type VerifyEmailIn = Schemas['VerifyEmailIn'];
+export type ChangePasswordIn = Schemas['ChangePasswordIn'];
+export type ChangeEmailIn = Schemas['ChangeEmailIn'];
+
+/* ------------------------------------------- privacy and AI disclosure (launch) */
+
+/** K-07 — the password travels in the body, never the URL. */
+export type AccountDeleteIn = Schemas['AccountDeleteIn'];
+export type AccountDeleted = Schemas['AccountDeletedOut'];
+/** K-07's "Delete my uploaded photos". */
+export type PhotosDeleted = Schemas['PhotosDeletedOut'];
+/** K-08 — usage, who analyses photos, and the low-confidence threshold. */
+export type AnalysisSettings = Schemas['AnalysisSettingsOut'];
+
 /* ---------------------------------------------------------- request payloads */
 
 export type ProfilePatch = Schemas['ProfilePatch'];
@@ -165,3 +190,4 @@ export type SetIn = Schemas['SetIn'];
 export type RegisterIn = Schemas['RegisterIn'];
 export type LoginIn = Schemas['LoginIn'];
 export type RefreshIn = Schemas['RefreshIn'];
+export type ServiceStatus = Schemas['ServiceStatusOut'];

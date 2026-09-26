@@ -11,12 +11,25 @@ climbs down in decreasing confidence:
   1. the detected name, as given
   2. the name with quantities and filler words removed  ("2 eggs" → "eggs")
   3. its singular form                                   ("eggs"  → "egg")
-  4. each remaining word on its own, longest first        ("chicken curry" → "chicken")
+  4. each remaining word on its own, longest first        ("egg bhurji" → "egg")
 
 **Step 5 is deliberately "give up".** An unresolved item keeps the model's own
 macros and is flagged in the UI, which is what makes home-cooked and regional
 food loggable at all. A wrong match is worse than no match: it silently
 substitutes somebody else's recipe for the one that was eaten.
+
+**What a rung accepts** tightened when the catalog grew from 22 foods to
+~8,000. With 22, anything a search returned was probably right; with 8,000,
+"curry" also finds curry powder. So:
+
+- rungs 1–3 take the resolver's best hit only if it contains every word of
+  the rung (the resolver answers a typo with a fuzzy guess — fine for a
+  person choosing from a list, not for an unattended match);
+- step 4 takes a lone word only when it IS a food's name or alias
+  ("naan" → Naan), never when it merely appears in one ("curry" → Curry
+  powder). That is what keeps "Nani's Sunday curry" unresolved.
+
+An exact name or alias match always beats the resolver's own ordering.
 """
 from __future__ import annotations
 
@@ -62,54 +75,83 @@ def _singular(word: str) -> str:
     return word
 
 
-def candidate_queries(detected_name: str) -> list[str]:
-    """The ladder's rungs, in order, with no duplicates and nothing empty."""
-    rungs: list[str] = [detected_name.strip()]
+def _rungs(detected_name: str) -> list[tuple[str, bool]]:
+    """(query, is_single_word_fallback), in order, deduplicated, none too short."""
+    rungs: list[tuple[str, bool]] = [(detected_name.strip(), False)]
 
     normalised = normalise(detected_name)
-    rungs.append(normalised)
+    rungs.append((normalised, False))
 
     words = normalised.split()
-    singular = " ".join(_singular(w) for w in words)
-    rungs.append(singular)
+    rungs.append((" ".join(_singular(w) for w in words), False))
 
     # Then each word on its own, longest first — the longest word is usually
     # the most specific one. Tried in order rather than picked, because
     # "Chicken Breast, skinless" makes "skinless" the longest and "chicken" the
     # one that matters.
     if len(words) > 1:
-        rungs.extend(sorted((_singular(w) for w in words), key=len, reverse=True))
+        singles = sorted((_singular(w) for w in words), key=len, reverse=True)
+        rungs.extend((w, True) for w in singles)
 
     seen: set[str] = set()
     # Anything shorter than this is match-hungry rather than specific: a rung of
     # "s" matches most of the catalog through a LIKE, and would resolve
     # "Nani's Sunday curry" to whatever happened to sort first.
     return [
-        r for r in rungs
+        (r, fallback) for r, fallback in rungs
         if len(r) >= MIN_RUNG_LENGTH and not (r in seen or seen.add(r))
     ]
 
 
+def candidate_queries(detected_name: str) -> list[str]:
+    """The ladder's rungs, in order, with no duplicates and nothing empty."""
+    return [query for query, _ in _rungs(detected_name)]
+
+
 async def resolve_detected_name(resolver: _Searchable, detected_name: str) -> uuid.UUID | None:
     """The best canonical food for a detected name, or `None` for step 5."""
-    for query in candidate_queries(detected_name):
+    for query, word_fallback in _rungs(detected_name):
         matches = await resolver.search(query, limit=5)
         if not matches:
             continue
-        best = _best(matches, query)
+        best = _best(matches, query, exact_only=word_fallback)
         if best is not None:
             return best.ref.id
     return None
 
 
-def _best(matches: list, query: str):
-    """Prefer an exact normalised match; otherwise the shortest name.
+def _forms(text: str) -> set[str]:
+    """A name as the ladder compares it: normalised, and its singular."""
+    plain = normalise(text)
+    return {plain, " ".join(_singular(w) for w in plain.split())} - {""}
 
-    Shortest is a proxy for "least qualified": searching "egg" against
-    "Whole Egg" and "Egg Noodles, dried" should land on the egg.
+
+def _names(candidate) -> set[str]:
+    """Every form of the candidate's name and of its aliases."""
+    forms = _forms(candidate.name)
+    for alias in getattr(candidate, "aliases", ()) or ():
+        forms |= _forms(alias)
+    return forms
+
+
+def _covers(candidate, query: str) -> bool:
+    """Every word of the rung starts some word of the candidate's names."""
+    words = {w for form in _names(candidate) for w in form.split()}
+    wanted = [_singular(w) for w in normalise(query).split()]
+    return bool(wanted) and all(any(w.startswith(q) for w in words) for q in wanted)
+
+
+def _best(matches: list, query: str, *, exact_only: bool = False):
+    """An exact normalised name or alias match first; otherwise the resolver's
+    best hit that covers the query — unless only an exact match will do.
+
+    Exact-first is what makes "2 eggs" land on "Whole Egg": "whole" is
+    filler, so that food IS the query, whatever else merely mentions eggs.
     """
-    target = normalise(query)
+    target = _forms(query)
     for candidate in matches:
-        if normalise(candidate.name) == target:
+        if target & _names(candidate):
             return candidate
-    return min(matches, key=lambda c: len(c.name))
+    if exact_only:
+        return None
+    return next((c for c in matches if _covers(c, query)), None)

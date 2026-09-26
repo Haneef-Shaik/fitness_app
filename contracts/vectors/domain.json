@@ -38,6 +38,31 @@
       "expected_volume_kg": 800.0
     },
     {
+      "name": "warm-up counted when the user counts it (K-04)",
+      "include_warmups": true,
+      "sets": [
+        {
+          "set_type": "warmup",
+          "load_kg": 40,
+          "reps": 12,
+          "completed": true
+        },
+        {
+          "set_type": "working",
+          "load_kg": 100,
+          "reps": 8,
+          "completed": true
+        },
+        {
+          "set_type": "warmup",
+          "load_kg": 60,
+          "reps": 5,
+          "completed": false
+        }
+      ],
+      "expected_volume_kg": 1280.0
+    },
+    {
       "name": "incomplete set contributes nothing",
       "sets": [
         {

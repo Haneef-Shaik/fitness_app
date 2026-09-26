@@ -592,13 +592,20 @@ inventory is configurable and persists (K-04). Switches to lb plates with the un
 
 ---
 
-## E-13 · Supersets & Circuits `[P2]`
-**Priority** P2
+## E-13 · Supersets & Circuits
+**Priority** P1 (built in G11, launch plan phase 6)
 
-Grouping `session_exercises` so the logger alternates between them and the rest timer applies to the
-group rather than each exercise. Requires a `group_id` and `group_order` on `session_exercises`.
-**Not built at MVP**; the columns are not added until the feature is scheduled, to avoid a half-used
-schema.
+Exercises sharing a `superset_group` (1–9) on `plan_exercises` and `session_exercises` form one
+superset — or a circuit, with three or more. Order within the group is the exercises' own order, so
+no `group_order` column is needed. The group is frozen into the session at start (I1) and copied on
+"repeat", and can be changed mid-workout.
+
+- **C-05:** "+ Superset with next" between neighbouring rows. Unlinking splits a run where it can;
+  a group of one is dissolved rather than kept as a label that changes nothing.
+- **E-03:** the logger goes round-robin — after a set it moves to the next member of the group, and
+  the rest timer starts only when the round is complete. A pill reads "Superset A · 1 of 2";
+  the exercise switcher prefixes members with their letter. Skipped members are stepped over.
+- **Options ⋯:** "Superset with the next exercise" / "Leave the superset".
 
 ---
 

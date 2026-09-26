@@ -133,7 +133,9 @@ function FoodRow({ food }: { food: Food }) {
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1 }}>
-            <Text variant="body" numberOfLines={1}>{food.name}</Text>
+            {/* Two lines: a USDA name carries its meaning in the qualifiers
+                ("Rice, white, long-grain, cooked"), and one line cut them off. */}
+            <Text variant="body" numberOfLines={2}>{food.name}</Text>
             <Text variant="caption" tone="ink3">
               {/* Per 100 g, and it says so — the unit is the whole trap. */}
               {kcal(food.calories)} kcal · {grams(food.protein_g)} protein · per 100 g

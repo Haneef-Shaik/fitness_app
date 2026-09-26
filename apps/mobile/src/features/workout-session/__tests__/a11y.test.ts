@@ -61,3 +61,16 @@ describe('startedAgo', () => {
     expect(startedAgo(2 * 86_400)).toBe('started 2 days ago');
   });
 });
+
+describe('a set row names what E-06 added', () => {
+  const base = {
+    clientId: 'c', setIndex: 1, setType: 'drop' as const, reps: 8, loadKg: 60,
+    loadUnitEntered: 'kg' as const, durationSeconds: null, distanceM: null,
+    rpe: 8.5, rir: 1, note: 'x', completed: true, performedAt: '', syncState: 'synced' as const,
+  };
+
+  it('reads the type, the effort and that there is a note', () => {
+    expect(setRowLabel(base))
+      .toBe('Set 2, drop set, 60 kilograms for 8 reps, RPE 8.5, 1 in reserve, has a note. Synced');
+  });
+});

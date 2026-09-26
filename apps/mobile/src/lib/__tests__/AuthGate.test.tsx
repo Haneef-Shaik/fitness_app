@@ -94,6 +94,18 @@ describe('it must not bounce someone off a screen they chose', () => {
     }
   });
 
+  it('leaves the emailed-link screens alone — their links arrive signed out (A-05, A-06)', () => {
+    for (const path of ['/forgot-password', '/reset-password', '/verify-email']) {
+      jest.clearAllMocks();
+      mockRoute.path = path;
+      mockSession.status = 'signed-out';
+
+      render(<AuthGate />);
+
+      expect(mockReplace).not.toHaveBeenCalled();
+    }
+  });
+
   it('still rescues someone stranded on a screen that needs a session', () => {
     // The case the gate exists for: the token goes while deep in the app.
     mockRoute.path = '/session/abc';

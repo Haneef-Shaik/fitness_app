@@ -2,6 +2,12 @@
 
     uv run python scripts/seed_demo.py
 
+For App Review, against a deployed API with the reviewer account's own details
+(never the defaults below, which are public in this repository):
+
+    FITLOG_API=https://api.example.com DEMO_EMAIL=review@… DEMO_PASSWORD=… \
+        uv run python scripts/seed_demo.py
+
 Idempotent, but NOT a wipe: it creates what is missing, cancels whatever
 session was left open, and removes programs other than the seeded one (AC-01
 builds one per run). Completed history is kept.
@@ -10,16 +16,20 @@ from __future__ import annotations
 
 import asyncio
 import datetime as dt
+import os
 import sys
 import uuid
 from zoneinfo import ZoneInfo
 
 import httpx
 
-BASE = "http://localhost:8000"
-EMAIL = "demo@fitlog.app"
-TZ = "Asia/Kolkata"
-PASSWORD = "fitlogdemo1234"
+BASE = os.environ.get("FITLOG_API", "http://localhost:8000").rstrip("/")
+EMAIL = os.environ.get("DEMO_EMAIL", "demo@fitlog.app")
+TZ = os.environ.get("DEMO_TIMEZONE", "Asia/Kolkata")
+PASSWORD = os.environ.get("DEMO_PASSWORD", "fitlogdemo1234")
+if BASE.startswith("https://") and PASSWORD == "fitlogdemo1234":
+    # The default is in a public repo. A deployed account with it is anyone's.
+    sys.exit("Set DEMO_PASSWORD for a deployed API; the default is public.")
 
 
 # The split the design files render. Names are matched against the seeded catalog, so
@@ -58,8 +68,23 @@ PAST_SESSIONS = [
 
 
 async def _catalog(c, h) -> dict[str, str]:
-    rows = (await c.get("/v1/exercises", headers=h, params={"limit": 200})).json()["data"]
-    return {e["name"]: e["id"] for e in rows}
+    """Every exercise, page by page. One page of 200 was the whole catalog until
+    G11 grew it to 297, and a name past the first page silently left its plan
+    day without that exercise."""
+    names: dict[str, str] = {}
+    offset = 0
+    while True:
+        rows = (await c.get("/v1/exercises", headers=h,
+                            params={"limit": 200, "offset": offset})).json()["data"]
+        for e in rows:
+            # By name and by alias, ignoring case: "Back Squat" is the catalog's
+            # Barbell Squat, and "Pull-Up" its "Pull-up".
+            names.setdefault(e["name"].lower(), e["id"])
+            for alias in e.get("aliases") or []:
+                names.setdefault(alias.lower(), e["id"])
+        if len(rows) < 200:
+            return names
+        offset += 200
 
 
 PROGRAM_NAME = "Push / Pull / Legs"
@@ -88,7 +113,14 @@ async def _seed_program(c, h, catalog: dict[str, str]) -> dict[str, str]:
     existing = [p for p in (await c.get("/v1/workout-programs", headers=h)).json()["data"]
                 if p["name"] == PROGRAM_NAME]
     if existing:
-        return {d["name"]: d["id"] for d in existing[0]["days"]}
+        days = {d["name"]: d for d in existing[0]["days"]}
+        # Repaired, not skipped: a day left empty (a catalog that changed under
+        # it, an interrupted seed) would start a workout with nothing in it.
+        for day_name, rows in SPLIT.items():
+            day = days.get(day_name)
+            if day is not None and not day.get("exercises"):
+                await _fill_day(c, h, day["id"], rows, catalog)
+        return {name: d["id"] for name, d in days.items()}
 
     r = await c.post("/v1/workout-programs", headers=h, json={
         "name": PROGRAM_NAME, "description": "Three-day split, repeated twice a week",
@@ -105,18 +137,22 @@ async def _seed_program(c, h, catalog: dict[str, str]) -> dict[str, str]:
         day_id = next(d["id"] for d in r.json()["data"]["days"] if d["name"] == day_name)
         day_ids[day_name] = day_id
 
-        payload = []
-        for name, sets, lo, hi, load, rest in rows:
-            if name not in catalog:
-                continue
-            payload.append({
-                "exercise_id": catalog[name], "target_sets": sets,
-                "target_reps_min": lo, "target_reps_max": hi,
-                "target_load": load, "rest_seconds": rest,
-            })
-        r = await c.put(f"/v1/plan-days/{day_id}/exercises", headers=h, json=payload)
-        assert r.status_code == 200, r.text
+        await _fill_day(c, h, day_id, rows, catalog)
     return day_ids
+
+
+async def _fill_day(c, h, day_id: str, rows, catalog: dict[str, str]) -> None:
+    payload = []
+    for name, sets, lo, hi, load, rest in rows:
+        if name.lower() not in catalog:
+            continue
+        payload.append({
+            "exercise_id": catalog[name.lower()], "target_sets": sets,
+            "target_reps_min": lo, "target_reps_max": hi,
+            "target_load": load, "rest_seconds": rest,
+        })
+    r = await c.put(f"/v1/plan-days/{day_id}/exercises", headers=h, json=payload)
+    assert r.status_code == 200, r.text
 
 
 async def _seed_history(c, h, day_ids: dict[str, str]) -> int:
@@ -130,7 +166,12 @@ async def _seed_history(c, h, day_ids: dict[str, str]) -> int:
     if open_session:
         await c.post(f"/v1/workout-sessions/{open_session['id']}/cancel", headers=h)
 
-    if (await c.get("/v1/workout-sessions", headers=h)).json()["meta"]["count"]:
+    # Kept when it is real history. Sessions with no sets — seeded while a plan
+    # day was empty — are not history anyone could compare against, and left
+    # alone they made "previous performance" and "previous chest day" empty for
+    # every E2E run after (G11).
+    history = (await c.get("/v1/history/workouts", headers=h, params={"limit": 50})).json()["data"]
+    if any(row.get("set_count") for row in history):
         return 0
 
     made = 0

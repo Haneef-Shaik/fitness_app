@@ -177,6 +177,12 @@ bold "Seeding the known state"
 }
 
 WANT="${1:-all}"
+# A criterion this script does not know runs nothing — and nothing failing
+# would print "every requested criterion holds". Refuse it instead.
+case "$WANT" in
+  all|ac-01|ac-02|ac-04|ac-05|ac-07|ac-08|ac-09|ac-10|ac-11|offline) ;;
+  *) fail "unknown criterion '$WANT' — one of: all ac-01 ac-02 ac-04 ac-05 ac-07 ac-08 ac-09 ac-10 ac-11 offline"; exit 2 ;;
+esac
 
 if [ "$WANT" = all ] || [ "$WANT" = ac-01 ]; then
   run_one ac-01 ac-01-build-chest-workout.yaml --day Chest
@@ -193,10 +199,11 @@ if [ "$WANT" = all ] || [ "$WANT" = ac-07 ]; then
   # suite had caught.
   run_one ac-07 ac-07-log-a-meal.yaml --calories 389
 fi
-# AC-08 / AC-10 need the AI worker; the stub provider answers, so no key and
-# no cost. Started for these two and stopped after, so nothing else runs
-# against a queue it did not expect (G10, TODO 3.1).
-if [ "$WANT" = all ] || [ "$WANT" = ac-08 ] || [ "$WANT" = ac-10 ]; then
+# AC-08 / AC-09 / AC-10 need the AI worker; the stub provider answers, so no
+# key and no cost. Started for these and stopped after, so nothing else runs
+# against a queue it did not expect (G10, TODO 3.1). AC-09 was missing from
+# this condition, so `e2e.sh ac-09` ran nothing and reported success.
+if [ "$WANT" = all ] || [ "$WANT" = ac-08 ] || [ "$WANT" = ac-09 ] || [ "$WANT" = ac-10 ]; then
   ( cd services/api && nohup uv run python -m app.worker </dev/null >/tmp/fitlog-worker.log 2>&1 & echo $! > /tmp/fitlog-worker.pid )
   if [ "$WANT" = all ] || [ "$WANT" = ac-08 ]; then
     run_one ac-08 ac-08-describe-a-meal.yaml

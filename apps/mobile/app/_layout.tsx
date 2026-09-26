@@ -30,6 +30,7 @@ import { SessionExpiredDialog } from '@/ui/shell/SessionExpiredDialog';
 import { MaintenanceOverlay } from '@/features/status/ServiceNotices';
 import { ReminderSync } from '@/features/reminders/useReminderSync';
 import { PushSync } from '@/features/push/PushSync';
+import { HealthSync } from '@/features/health/HealthSync';
 import { showsTabBar } from '@/ui/shell/tabs';
 import { BottomInsetHandled } from '@/ui/topInset';
 import { createIdentityHandler, dropCachedReads } from '@/lib/identity';
@@ -150,6 +151,8 @@ function Layout() {
             <ReminderSync />
             {/* "Your meal estimate is ready" — registered only if already allowed. */}
             <PushSync />
+            {/* K-09: weigh-ins from the health store, only if switched on. */}
+            <HealthSync />
             <Root />
             {/* Asked once per ACCOUNT, once that account is known — an unfinished
                 workout belongs to the account that started it (G10). */}

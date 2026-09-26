@@ -30,6 +30,8 @@ import { AdvancedSetSheet } from '@/features/workout-session/components/Advanced
 import { NotesSheet } from '@/features/workout-session/components/NotesSheet';
 import { ExerciseMenuSheet } from '@/features/workout-session/components/ExerciseMenuSheet';
 import { cleanNote, EMPTY_ADVANCED, type AdvancedValue } from '@/features/workout-session/advanced';
+import { healthBridge } from '@/features/health/bridge';
+import { saveFinishedWorkout } from '@/features/health/sync';
 import { summarise, type SessionSummary } from '@/features/workout-session/summary';
 import { savedAnnouncement, setRowLabel, syncWords } from '@/features/workout-session/a11y';
 import { targetFor } from '@/features/workout-session/restTimer';
@@ -344,6 +346,11 @@ export default function ActiveSession() {
       // 6-set workout. E-08 is meant to be instant, not merely fast.
       const snapshot = summarise(draft, new Date(), { includeWarmups: countWarmups });
       const result = await finish(id);
+      // K-09 — a copy in the health store, if asked for; never blocks finishing.
+      void saveFinishedWorkout(healthBridge(), {
+        id, title: draft.exercises[0]?.exerciseName ? `FitLog · ${draft.exercises[0].exerciseName}` : 'FitLog workout',
+        start: draft.startedAt, end: new Date().toISOString(),
+      });
       setFinished({ records: (result.records ?? []) as PersonalRecord[], summary: snapshot });
     } catch (e) {
       setFinishError(e instanceof Error && e.message ? e.message : "The workout couldn't be finished. Try again.");

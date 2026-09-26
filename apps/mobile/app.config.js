@@ -20,6 +20,21 @@ module.exports = ({ config }) => {
   return {
     ...config,
     version,
+    plugins: [
+      ...(config.plugins ?? []),
+      // K-09. Health Connect's permission-rationale screen (the link in its
+      // permission dialog) and Apple Health's usage strings. Read weight, write
+      // workouts — nothing else is asked for.
+      'react-native-health-connect',
+      ['@kingstinct/react-native-healthkit', {
+        NSHealthShareUsageDescription:
+          'FitLog reads your weight from Apple Health, so a smart scale\'s weigh-ins appear in your progress.',
+        NSHealthUpdateUsageDescription: 'FitLog saves your finished workouts to Apple Health.',
+        background: false,
+      }],
+      // Health Connect's client needs API 26; nothing else here needs less.
+      ['expo-build-properties', { android: { minSdkVersion: 26 } }],
+    ],
     // Placeholder artwork from scripts/make-icons.py until the real icon exists;
     // replacing the PNGs is the whole change.
     icon: config.icon ?? './assets/icon.png',
@@ -35,6 +50,11 @@ module.exports = ({ config }) => {
     },
     android: {
       ...config.android,
+      permissions: [
+        ...(config.android?.permissions ?? []),
+        'android.permission.health.READ_WEIGHT',
+        'android.permission.health.WRITE_EXERCISE',
+      ],
       adaptiveIcon: {
         backgroundColor: '#0E0F11',
         ...config.android?.adaptiveIcon,

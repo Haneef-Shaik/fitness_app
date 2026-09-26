@@ -121,8 +121,11 @@ Play's closest categories; if Play's form offers a nutrition-specific type at su
   and weight management* (food diary, calorie/macro targets, weight tracking).
 - Is it a medical device, or does it diagnose/treat? **No.** Every calculated figure is labelled an
   estimate (PRD guardrail); no medical claims.
-- Does it use Health Connect? **Not in v1.** (When K-09 lands, update this and request only the
-  Health Connect permissions actually used.)
+- Does it use Health Connect? **Yes (K-09), opt-in:** `READ_WEIGHT` (weigh-ins from a smart scale
+  appear in Progress) and `WRITE_EXERCISE` (finished workouts saved as strength training). Play
+  Console's **Health Connect permissions declaration** needs one justification per permission —
+  use those two sentences — and the privacy policy must say the same. Nothing is read in the
+  background, and neither permission is requested until the user switches the feature on.
 
 ## 4 · Google Play — other declarations
 
@@ -153,6 +156,11 @@ no IDFA; no App Tracking Transparency prompt needed).
 
 **Data Not Linked to You:**
 - Diagnostics — **Crash Data**, **Performance Data** (only if crash reporting is enabled; scrubbed)
+
+**HealthKit (K-09):** the app reads body mass and writes workouts only when the user switches each
+on; it never uses HealthKit data for advertising, never stores it in iCloud, and the privacy policy
+states both (App Review 5.1.3). Enable the HealthKit capability on the App ID (EAS does this from
+the entitlement the config plugin adds).
 
 **Export compliance:** `ITSAppUsesNonExemptEncryption = false` is set in `app.config.js` (HTTPS only).
 

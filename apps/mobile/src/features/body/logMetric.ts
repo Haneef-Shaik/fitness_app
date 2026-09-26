@@ -21,9 +21,13 @@ export interface QueuedMetric {
   idempotencyKey: string;
 }
 
-export async function queueMetric(body: BodyMetricIn): Promise<QueuedMetric> {
+/**
+ * `idempotencyKey` is for a caller that has a stable id of its own — an import
+ * from Health Connect or Apple Health passes the record's uuid, so a second
+ * sync of the same weigh-in is the SAME queued write, not another one.
+ */
+export async function queueMetric(body: BodyMetricIn, idempotencyKey: string = uuid()): Promise<QueuedMetric> {
   const clientId = body.client_id ?? uuid();
-  const idempotencyKey = uuid();
 
   await store.enqueue({
     aggregateId: `body:${clientId}`,

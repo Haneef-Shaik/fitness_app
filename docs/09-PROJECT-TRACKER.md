@@ -16,7 +16,7 @@
 | | |
 |---|---|
 | **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
-| **Tests passing** | **2,406** — 133 TS domain, **1,050** Python *(4 skipped)*, **1,223 client** |
+| **Tests passing** | **2,417** — 133 TS domain, **1,050** Python *(4 skipped)*, **1,234 client** |
 | **API endpoints live** | **125** operations across **98** paths, all with declared response shapes (D17) |
 | **App screens built** | **76** route screens *(G11 added the launch surfaces: A-05, A-06, K-02, K-03, K-04, K-07, K-08, K-10, L-04, feedback, imports; E-06, E-07, E-12, E-13 and L-05, L-06, L-08 as sheets and overlays)* |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
@@ -249,7 +249,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **2,406** — 1,223 client, 1,050 API (+4 skipped), 133 domain | grows with each milestone |
+| Tests passing | **2,417** — 1,234 client, 1,050 API (+4 skipped), 133 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | **1,050** | every endpoint, happy + failure |
 | Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
@@ -323,6 +323,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | 22 Sep | **`setAirplaneMode` does not take this device offline** — Wi-Fi stays enabled, and three "offline" sets reached the server in ~20 ms. Worse, **offline plus relaunch is not expressible in Expo Go at all**, because the bundle reloads from Metro over the same LAN. The offline scenario now takes the **API** away while Metro stays up, which isolates exactly what is under test and leaves the radio alone |
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 | 26 Sep | **G11 — launch readiness.** [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md) written from the BRD, PRD and a market comparison, then worked through: MVP gaps (E-06, E-07, E-12, K-03, K-04, L-04–L-08, mid-workout skip/reorder/swap), a **data-loss fix** (mid-session deletes, added exercises, edits and notes never reached the server; Finish now waits for the queue), accounts (A-05, A-06, K-02), privacy (K-07 + web deletion, K-08, K-10, draft policies), rate limiting, production infrastructure (Supabase-ready engine, S3 store, Docker, CD, Sentry, runbook), **Expo SDK 57 / target API 36** with a signed AAB, 7,838 foods and 297 exercises, supersets, Strong/Hevy/MFP import, push, feedback, product metrics. A whole-branch security review: 2 high, 3 medium, 8 low, all fixed; plus commits now land before the response, and the outbox is FIFO across backoff |
+| 26 Sep | **K-09 — Apple Health / Health Connect.** Weight in, workouts out, each behind its own switch and its own OS permission. Proven on the release APK in the emulator against the real Health Connect: the permission sheet names only Weight and Exercise, and a finished workout shows up there as strength training. iOS is configured (entitlement, usage strings) but not yet run on an iPhone |
 
 
 ---

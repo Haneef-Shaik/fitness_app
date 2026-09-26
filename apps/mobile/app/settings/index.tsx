@@ -89,6 +89,8 @@ export default function Settings() {
               onPress={() => router.push('/settings/units')} />
             <NavRow icon="barbell-outline" label="Logging preferences"
               onPress={() => router.push('/settings/logging')} />
+            <NavRow icon="heart-outline" label="Health integrations"
+              onPress={() => router.push('/settings/health')} />
             <NavRow icon="download-outline" label="Import from another app"
               onPress={() => router.push('/settings/import')} />
             <NavRow icon="flame-outline" label="Calorie and macro targets"

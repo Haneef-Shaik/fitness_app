@@ -40,3 +40,13 @@ it('refuses a build number the stores would not accept', () => {
   process.env.FITLOG_BUILD_NUMBER = '1.2';
   expect(() => withBuildNumbers({ config: BASE })).toThrow(/positive integer/);
 });
+
+it('K-09 asks Health Connect for weight and workouts only, and names why on iOS', () => {
+  const out = withBuildNumbers({ config: BASE });
+  expect(out.android.permissions).toEqual([
+    'android.permission.health.READ_WEIGHT', 'android.permission.health.WRITE_EXERCISE',
+  ]);
+  const kit = out.plugins.find((p: unknown) => Array.isArray(p) && p[0] === '@kingstinct/react-native-healthkit');
+  expect(kit[1].NSHealthShareUsageDescription).toMatch(/weight/);
+  expect(out.plugins).toContainEqual(['expo-build-properties', { android: { minSdkVersion: 26 } }]);
+});

@@ -14,7 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
-import type { Exercise } from '@volt/api-types';
+import type { Exercise } from '@fitlog/api-types';
 import { Button, Text } from '@/ui';
 import { radius, space, useTheme } from '@/theme';
 import { trackedFields } from '@/features/exercises/format';

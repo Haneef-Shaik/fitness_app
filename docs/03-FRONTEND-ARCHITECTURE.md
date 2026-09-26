@@ -63,7 +63,7 @@ This is `find apps/mobile -type f` on 22 Sep, not a plan — **6 of 103 screens*
 
 ```
 apps/mobile/
-├── app.json                          # expo config: scheme "volt", typedRoutes, newArchEnabled
+├── app.json                          # expo config: scheme "fitlog", typedRoutes, newArchEnabled
 ├── app/                              # expo-router — file-based routes, thin
 │   ├── _layout.tsx                   #   root: fonts, ThemeProvider, SessionProvider
 │   ├── index.tsx                     #   boot → redirect by auth state
@@ -136,7 +136,7 @@ apps/mobile/
     └── theme/                        # tokens.ts — the design-token source of truth
 ```
 
-**The shared kernel lives outside the app.** `packages/domain` (`@volt/domain`, already a dependency
+**The shared kernel lives outside the app.** `packages/domain` (`@fitlog/domain`, already a dependency
 of `apps/mobile`) holds the pure types and formula implementations, pinned against the Python side by
 `contracts/vectors/domain.json`. Nothing framework-specific goes in it.
 
@@ -144,8 +144,8 @@ of `apps/mobile`) holds the pure types and formula implementations, pinned again
 1. `app/` contains routing and layout composition only. No business logic, no data fetching beyond a
    prefetch call.
 2. A `features/*` folder may not import from another `features/*` folder. Shared needs move down into
-   `lib/`, `ui/` or `@volt/domain`.
-3. `@volt/domain` is pure TypeScript with no React and no React Native imports — it is the half of the
+   `lib/`, `ui/` or `@fitlog/domain`.
+3. `@fitlog/domain` is pure TypeScript with no React and no React Native imports — it is the half of the
    client the server's Python domain is pinned against.
 4. Files stay under ~400 lines; a component over 200 lines is a refactor signal.
 5. **Immutability everywhere.** Store updates return new objects; no in-place mutation of server
@@ -199,7 +199,7 @@ the first and third rules below mechanisms rather than aspirations.
   back; on iOS the edge swipe. It closes a sheet before popping a route, and it asks for
   confirmation before abandoning an active session or an unsaved AI review — the session route
   intercepts removal (`usePreventRemove`) rather than letting a gesture silently destroy work.
-- Deep links arrive through `expo-linking` on the `volt://` scheme (`app.json`) and resolve to the
+- Deep links arrive through `expo-linking` on the `fitlog://` scheme (`app.json`) and resolve to the
   correct **authenticated** destination after login (`?next=`).
 - Routes are typed — `app.json` enables `experiments.typedRoutes`, so a route that does not exist is
   a type error rather than a blank screen.

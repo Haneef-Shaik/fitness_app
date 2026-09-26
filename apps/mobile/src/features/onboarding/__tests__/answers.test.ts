@@ -6,7 +6,7 @@
  * a target and a program actually depend on. This module is the arithmetic
  * between the answers and the records — pure, so every rule is tested here.
  */
-import type { Goal, Profile } from '@volt/api-types';
+import type { Goal, Profile } from '@fitlog/api-types';
 import {
   ageOn, answersFrom, baselineMetrics, goalAnswers, goalWrite, withUnits, EMPTY_ANSWERS, goalFrom, heightCm, planFrom, plausibility, profilePatch,
   weightKg, type Answers,

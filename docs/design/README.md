@@ -1,4 +1,4 @@
-# Volt — Design System & Screens
+# FitLog — Design System & Screens
 
 The visual layer for the Fitness & Nutrition Tracking Platform.
 Implements [05-DESIGN-SYSTEM.md](../05-DESIGN-SYSTEM.md) as running code.
@@ -20,10 +20,10 @@ The only network call is the Google Fonts stylesheet; without it the pages fall 
 |------|-----------|
 | `index.html` | **The hub.** All 12 domains, the rules, theme toggle. |
 | `foundations.html` | Depth, type scale, colour, contrast evidence. |
-| `volt.css` | The whole design system — tokens + every component. Import at the app root. |
-| `volt-shell.js` | Shared design-file shell: icon set, phone chrome, board/prototype/theme. |
+| `fitlog.css` | The whole design system — tokens + every component. Import at the app root. |
+| `fitlog-shell.js` | Shared design-file shell: icon set, phone chrome, board/prototype/theme. |
 | `tokens.css` | Tokens only, for engineers who want the system without the file-viewer CSS. |
-| `screens/*.html` | One file per domain. Each declares `window.VOLT = { title, intro, screens[] }`. |
+| `screens/*.html` | One file per domain. Each declares `window.FITLOG = { title, intro, screens[] }`. |
 
 ### Domains
 
@@ -101,7 +101,7 @@ violet **4.9** from protein blue. Full reasoning in [05-DESIGN-SYSTEM §2.3](../
 ## Using it in the app
 
 ```html
-<link rel="stylesheet" href="/design/volt.css">
+<link rel="stylesheet" href="/design/fitlog.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
 ```
 
@@ -129,5 +129,5 @@ Each domain file is a plain array. Add an entry and it appears in both views:
 ```
 
 Use `nav({title, sub, right, close})` for headers, `tabbar('nutrition')` for tab roots, and the
-component classes in `volt.css` — `card`, `card hero`, `well`, `dash`, `stats`, `meter`, `macro`,
+component classes in `fitlog.css` — `card`, `card hero`, `well`, `dash`, `stats`, `meter`, `macro`,
 `settbl`, `pad`, `linkrow`, `swrow`, `chip`, `pill`, `empty`, `sheet`, `ov`.

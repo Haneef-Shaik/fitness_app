@@ -1,7 +1,7 @@
 /**
  * E-08's numbers, computed from the draft so the summary is instant.
  *
- * **Every figure comes from `@volt/domain`**, never from a local re-derivation:
+ * **Every figure comes from `@fitlog/domain`**, never from a local re-derivation:
  * the same TypeScript the shared vectors pin, mirroring the Python the server
  * runs inside the finish transaction. That is what makes the instant client-side
  * summary and the server's authoritative one agree by construction rather than
@@ -10,7 +10,7 @@
 import {
   E1RM_FORMULA_VERSION, estimated1rmKg, evaluateRecords, isPrEligible, setVolumeKg,
   totalVolumeKg, type WorkoutSet as DomainSet,
-} from '@volt/domain';
+} from '@fitlog/domain';
 import type { DraftSet, SessionDraft } from './store/types';
 
 const toDomain = (s: DraftSet): DomainSet => ({

@@ -15,7 +15,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 API="$ROOT/services/api"
-PORT="${VOLT_VERIFY_PORT:-8099}"
+PORT="${FITLOG_VERIFY_PORT:-8099}"
 BASE="http://127.0.0.1:$PORT/v1"
 
 # A closed port. Nothing is listening, and nothing ever will be.
@@ -36,9 +36,9 @@ die()  { printf '  \033[31m✗\033[0m %s\n' "$*"; exit 1; }
 
 say "Starting the API and the worker with the AI provider unreachable"
 cd "$API"
-uv run uvicorn app.main:app --port "$PORT" --log-level warning </dev/null >/tmp/volt-verify-api.log 2>&1 &
+uv run uvicorn app.main:app --port "$PORT" --log-level warning </dev/null >/tmp/fitlog-verify-api.log 2>&1 &
 API_PID=$!
-uv run python -m app.worker </dev/null >/tmp/volt-verify-worker.log 2>&1 &
+uv run python -m app.worker </dev/null >/tmp/fitlog-verify-worker.log 2>&1 &
 WORKER_PID=$!
 
 for _ in $(seq 1 40); do

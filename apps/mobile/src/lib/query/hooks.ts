@@ -58,7 +58,7 @@ import type {
   TextAnalysisIn,
   HistoryItem,
   PreviousOccurrence,
-  SessionComparison, ProgramTemplate, Checkins } from '@volt/api-types';
+  SessionComparison, ProgramTemplate, Checkins } from '@fitlog/api-types';
 import { goalsApi, profileApi } from '../api';
 import { catalogApi, programsApi, type ExerciseQuery } from '../api-catalog';
 import { historyApi, type HistoryQuery } from '../api-history';

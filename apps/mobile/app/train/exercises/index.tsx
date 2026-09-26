@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
-import type { Exercise } from '@volt/api-types';
+import type { Exercise } from '@fitlog/api-types';
 import { Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { FilterChips, anyFilterActive, describeFilters } from '@/ui/FilterChips';

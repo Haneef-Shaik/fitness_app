@@ -5,7 +5,7 @@ Two jobs, and they are the same job:
 **Tests never reach a provider.** Every assertion in `test_ai_nutrition.py` runs
 against this, so the suite is deterministic, free, and does not need a key.
 
-**Local development works without a key.** `VOLT_AI_PROVIDER=stub` is the
+**Local development works without a key.** `FITLOG_AI_PROVIDER=stub` is the
 default, so `git clone` → `pytest` → run the app needs no secret at all. A
 developer opts *in* to spending money.
 

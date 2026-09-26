@@ -10,10 +10,10 @@
  * Answers are kept as the user typed them (strings), because a half-typed
  * "84," is a real state of the form. They are parsed only on the way out.
  */
-import type { Goal as SavedGoal, Profile } from '@volt/api-types';
+import type { Goal as SavedGoal, Profile } from '@fitlog/api-types';
 import {
   energyPlan, kgToLb, lbToKg, type ActivityLevel, type EnergyPlan, type PlanGoal,
-} from '@volt/domain';
+} from '@fitlog/domain';
 
 export type Units = 'metric' | 'imperial';
 export type Experience = 'beginner' | 'intermediate' | 'advanced';

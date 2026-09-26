@@ -63,5 +63,5 @@ class ProfilePatch(BaseModel):
         if v > today:
             raise ValueError("Birth date is in the future.")
         if age_on(v, today) < MIN_AGE_YEARS:
-            raise ValueError(f"Volt is for people aged {MIN_AGE_YEARS} and over.")
+            raise ValueError(f"FitLog is for people aged {MIN_AGE_YEARS} and over.")
         return v

@@ -1,13 +1,13 @@
-<title>Auth &amp; Onboarding — Volt</title>
+<title>Auth &amp; Onboarding — FitLog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="../volt.css">
+<link rel="stylesheet" href="../fitlog.css">
 
 <div class="topbar"><div class="topbar-in">
   <a class="wordmark" href="../index.html">
     <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
-    Volt <span class="sub">A · Auth</span></a>
+    FitLog <span class="sub">A · Auth</span></a>
   <div class="tabs" role="tablist" aria-label="View">
     <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
     <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
@@ -24,14 +24,14 @@
   <section id="view-play" hidden></section>
 </div>
 
-<script src="../volt-shell.js"></script>
+<script src="../fitlog-shell.js"></script>
 <script>
 (function(){
-const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const S=FitLogShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
 const dots=(n,of)=>`<div class="row g6">${Array.from({length:of},(_,i)=>
   `<span style="width:${i===n?18:6}px;height:6px;border-radius:3px;background:${i<=n?'var(--accent)':'var(--line-2)'};display:block"></span>`).join('')}</div>`;
 
-window.VOLT={title:"Auth &amp; Onboarding",intro:"Sign-up through to a dashboard that is not empty. Step 2 of the wizard cannot be skipped because units and timezone decide what every later number means; everything else has a documented default.",screens:[
+window.FITLOG={title:"Auth &amp; Onboarding",intro:"Sign-up through to a dashboard that is not empty. Step 2 of the wizard cannot be skipped because units and timezone decide what every later number means; everything else has a documented default.",screens:[
 
 {id:'A-01',name:'Splash / bootstrap',route:'/',html:()=>`
 <div class="screen" style="justify-content:center;align-items:center">
@@ -40,7 +40,7 @@ window.VOLT={title:"Auth &amp; Onboarding",intro:"Sign-up through to a dashboard
       background:linear-gradient(180deg,var(--accent-hi),var(--accent));color:var(--accent-ink);
       box-shadow:0 18px 40px -14px rgba(176,164,255,.9)">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg></div>
-    <div class="display mt20" style="font-size:34px;letter-spacing:.06em">VOLT</div>
+    <div class="display mt20" style="font-size:34px;letter-spacing:.06em">FITLOG</div>
     <div class="skel mt20" style="width:120px;height:4px;margin:20px auto 0"></div>
   </div>
 </div>`},
@@ -282,6 +282,6 @@ window.VOLT={title:"Auth &amp; Onboarding",intro:"Sign-up through to a dashboard
 
 ]};
 
-VoltShell.mount();
+FitLogShell.mount();
 })();
 </script>

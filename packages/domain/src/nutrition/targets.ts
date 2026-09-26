@@ -17,7 +17,7 @@ export type MacroGrams = Record<MacroKey, number>;
 
 const MACRO_KEYS: readonly MacroKey[] = ['proteinG', 'carbsG', 'fatG'];
 
-/** Atwater factors. Alcohol is deliberately absent — Volt does not log it. */
+/** Atwater factors. Alcohol is deliberately absent — FitLog does not log it. */
 export const MACRO_KCAL_PER_G: Readonly<Record<MacroKey, number>> = {
   proteinG: 4, carbsG: 4, fatG: 9,
 };

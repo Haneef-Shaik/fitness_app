@@ -27,7 +27,7 @@ and recorded a sample with it on (see docs/a11y-audit.md).
 cd scripts/talkback
 swiftc -O vocr.swift -o vocr               # once: Vision OCR over video frames
 python3 keyboard.py serve &                # keep running: the virtual keyboard
-bash on.sh                                 # opens Volt, TalkBack on
+bash on.sh                                 # opens FitLog, TalkBack on
 python3 listen.py -g 3 first next next click wait:4 next next
 bash off.sh                                # TalkBack off, settings restored
 ```

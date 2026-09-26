@@ -8,7 +8,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-const REFRESH = 'volt.refresh_token';
+const REFRESH = 'fitlog.refresh_token';
 
 // SecureStore has no web implementation; web falls back to localStorage, which is
 // acceptable only because web is a development surface, not the shipping platform.
@@ -41,7 +41,7 @@ export async function clearRefreshToken(): Promise<void> {
  * know whose unfinished workout and queue are on the device (G10), or the
  * logger — which must work offline (I10) — would have nowhere to write.
  */
-const ACCOUNT = 'volt.account_id';
+const ACCOUNT = 'fitlog.account_id';
 
 export async function setAccountId(id: string): Promise<void> {
   try {

@@ -20,7 +20,7 @@ reading line is compiled in (`EXPO_PUBLIC_MEASURE=1`). None of these is on the
 measured paths.
 
 **What the spans cover.** Cold start: from the process starting (logcat's
-`Start proc`) to the app logging `VOLT_DASHBOARD_READY` — the moment the
+`Start proc`) to the app logging `FITLOG_DASHBOARD_READY` — the moment the
 dashboard has its data, including its one API call over Wi-Fi — both stamped
 by logcat. *First frame* is `am start -W`'s TotalTime.
 tap → set: `performance.now()` at the top of the tap handler to a frame after

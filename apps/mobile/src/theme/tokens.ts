@@ -1,5 +1,5 @@
 /**
- * Volt design tokens — the React Native port of docs/design/volt.css.
+ * FitLog design tokens — the React Native port of docs/design/fitlog.css.
  * Dark is primary; light is the deliberate swap. The Iris accent (OKLCH ~292 deg)
  * was chosen by CVD separation, not taste — see docs/05-DESIGN-SYSTEM.md section 2.3.
  */

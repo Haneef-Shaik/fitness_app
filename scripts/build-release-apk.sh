@@ -8,8 +8,8 @@
 #   FRESH=1 … bash scripts/build-release-apk.sh                          # re-run expo prebuild
 #
 #   STORE=1 API_URL=https://api.example.com \
-#   VOLT_UPLOAD_STORE_FILE=/abs/upload.jks VOLT_UPLOAD_STORE_PASSWORD=… \
-#   VOLT_UPLOAD_KEY_ALIAS=… VOLT_UPLOAD_KEY_PASSWORD=… bash scripts/build-release-apk.sh
+#   FITLOG_UPLOAD_STORE_FILE=/abs/upload.jks FITLOG_UPLOAD_STORE_PASSWORD=… \
+#   FITLOG_UPLOAD_KEY_ALIAS=… FITLOG_UPLOAD_KEY_PASSWORD=… bash scripts/build-release-apk.sh
 #       a STORE build: HTTPS only, no cleartext, signed with the upload key
 #       (plugins/withReleaseSigning.js), and checked for all three afterwards.
 #
@@ -32,10 +32,10 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 STORE="${STORE:-0}"
 if [ "$STORE" = 1 ]; then
   case "$API_URL" in https://*) ;; *) echo "STORE=1 needs an https:// API_URL" >&2; exit 1 ;; esac
-  for v in VOLT_UPLOAD_STORE_FILE VOLT_UPLOAD_STORE_PASSWORD VOLT_UPLOAD_KEY_ALIAS VOLT_UPLOAD_KEY_PASSWORD; do
+  for v in FITLOG_UPLOAD_STORE_FILE FITLOG_UPLOAD_STORE_PASSWORD FITLOG_UPLOAD_KEY_ALIAS FITLOG_UPLOAD_KEY_PASSWORD; do
     [ -n "${!v:-}" ] || { echo "STORE=1 needs $v" >&2; exit 1; }
   done
-  [ -f "$VOLT_UPLOAD_STORE_FILE" ] || { echo "no keystore at $VOLT_UPLOAD_STORE_FILE" >&2; exit 1; }
+  [ -f "$FITLOG_UPLOAD_STORE_FILE" ] || { echo "no keystore at $FITLOG_UPLOAD_STORE_FILE" >&2; exit 1; }
   FRESH=1   # a dev build's cleartext patch must not survive into a store build
 fi
 

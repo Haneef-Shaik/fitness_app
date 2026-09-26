@@ -23,15 +23,15 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: volt
-          POSTGRES_PASSWORD: volt
-          POSTGRES_DB: volt
+          POSTGRES_USER: fitlog
+          POSTGRES_PASSWORD: fitlog
+          POSTGRES_DB: fitlog
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U volt -d volt"
+          --health-cmd "pg_isready -U fitlog -d fitlog"
           --health-interval 3s --health-timeout 3s --health-retries 20
     env:
-      DATABASE_URL: postgresql+asyncpg://volt:volt@localhost:5432/volt
+      DATABASE_URL: postgresql+asyncpg://fitlog:fitlog@localhost:5432/fitlog
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -92,7 +92,7 @@ jobs:
           # 10.0.2.2 is the host as seen from inside the emulator.
           script: |
             adb install -r apps/mobile/android/app/build/outputs/apk/release/app-release.apk
-            APP_ID=com.volt.app bash scripts/e2e.sh
+            APP_ID=com.fitlog.app bash scripts/e2e.sh
 
       - name: Keep the failure artifacts
         if: failure()

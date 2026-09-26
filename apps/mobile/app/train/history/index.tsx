@@ -14,7 +14,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
-import type { HistoryItem } from '@volt/api-types';
+import type { HistoryItem } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

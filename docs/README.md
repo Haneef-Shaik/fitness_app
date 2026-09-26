@@ -1,4 +1,4 @@
-# Volt — Fitness & Nutrition Tracking Platform
+# FitLog — Fitness & Nutrition Tracking Platform
 
 > **Source of requirements:** `../fitness_nutrition_tracking_BRD_data_model.docx` (BRD v1.0)
 > This repository turns that BRD into a specified, designed and partly built product.
@@ -112,7 +112,7 @@ cd apps/mobile && pnpm start     # QR code for Expo Go on a phone
 cd apps/mobile && pnpm web       # or open http://localhost:8081
 ```
 
-**Demo account** — `demo@volt.app` / `voltdemo1234`, onboarding pre-completed so it opens
+**Demo account** — `demo@fitlog.app` / `fitlogdemo1234`, onboarding pre-completed so it opens
 on the dashboard. Recreate it any time (idempotent):
 
 ```bash

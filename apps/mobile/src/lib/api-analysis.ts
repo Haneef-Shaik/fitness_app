@@ -9,7 +9,7 @@
 import type {
   ConfirmIn, FoodAnalysis, ImageAnalysisIn, Meal, AnalysisQuota,
   TextAnalysisIn, UploadSign, UploadSignIn,
-} from '@volt/api-types';
+} from '@fitlog/api-types';
 import { api } from './api';
 
 export const analysisApi = {

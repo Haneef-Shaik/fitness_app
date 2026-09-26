@@ -107,7 +107,7 @@ async def test_under_16_is_refused_whatever_the_client_does(auth_client):
     # The client stops this at onboarding; a client is not a boundary.
     r = await auth_client.patch("/v1/profile", json={"birth_date": _years_ago(16, days=1)})
     assert r.status_code == 422
-    assert r.json()["error"]["fields"]["birth_date"] == "Volt is for people aged 16 and over."
+    assert r.json()["error"]["fields"]["birth_date"] == "FitLog is for people aged 16 and over."
 
 
 async def test_16_today_is_allowed(auth_client):

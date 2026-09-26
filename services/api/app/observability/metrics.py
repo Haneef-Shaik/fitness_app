@@ -135,54 +135,54 @@ class Registry:
         lines: list[str] = []
         out = lines.append
 
-        out("# HELP volt_http_requests_total HTTP requests by route template and status class.")
-        out("# TYPE volt_http_requests_total counter")
+        out("# HELP fitlog_http_requests_total HTTP requests by route template and status class.")
+        out("# TYPE fitlog_http_requests_total counter")
         for (method, route, bucket), n in sorted(self.http_requests.items()):
-            out(f'volt_http_requests_total{{method="{method}",route="{route}",'
+            out(f'fitlog_http_requests_total{{method="{method}",route="{route}",'
                 f'status="{bucket}"}} {n}')
 
-        out("# HELP volt_http_request_duration_seconds Request duration.")
-        out("# TYPE volt_http_request_duration_seconds histogram")
+        out("# HELP fitlog_http_request_duration_seconds Request duration.")
+        out("# TYPE fitlog_http_request_duration_seconds histogram")
         for labels in sorted(self.http_duration.totals):
             method, route = labels
             cumulative = 0
             for i, edge in enumerate(HTTP_BUCKETS):
                 cumulative += self.http_duration.counts[labels][i]
-                out(f'volt_http_request_duration_seconds_bucket{{method="{method}",'
+                out(f'fitlog_http_request_duration_seconds_bucket{{method="{method}",'
                     f'route="{route}",le="{edge}"}} {cumulative}')
             total = self.http_duration.totals[labels]
-            out(f'volt_http_request_duration_seconds_bucket{{method="{method}",'
+            out(f'fitlog_http_request_duration_seconds_bucket{{method="{method}",'
                 f'route="{route}",le="+Inf"}} {total}')
-            out(f'volt_http_request_duration_seconds_sum{{method="{method}",'
+            out(f'fitlog_http_request_duration_seconds_sum{{method="{method}",'
                 f'route="{route}"}} {self.http_duration.sums[labels]}')
-            out(f'volt_http_request_duration_seconds_count{{method="{method}",'
+            out(f'fitlog_http_request_duration_seconds_count{{method="{method}",'
                 f'route="{route}"}} {total}')
 
-        out("# HELP volt_set_commits_total Set commits — the core loop (02 §9).")
-        out("# TYPE volt_set_commits_total counter")
+        out("# HELP fitlog_set_commits_total Set commits — the core loop (02 §9).")
+        out("# TYPE fitlog_set_commits_total counter")
         for outcome, n in sorted(self.set_commits.items()):
-            out(f'volt_set_commits_total{{outcome="{outcome}"}} {n}')
+            out(f'fitlog_set_commits_total{{outcome="{outcome}"}} {n}')
 
-        out("# HELP volt_ai_analyses_total Food analyses by outcome.")
-        out("# TYPE volt_ai_analyses_total counter")
+        out("# HELP fitlog_ai_analyses_total Food analyses by outcome.")
+        out("# TYPE fitlog_ai_analyses_total counter")
         for outcome, n in sorted(self.ai_analyses.items()):
-            out(f'volt_ai_analyses_total{{outcome="{outcome}"}} {n}')
+            out(f'fitlog_ai_analyses_total{{outcome="{outcome}"}} {n}')
 
-        out("# HELP volt_ai_analysis_duration_seconds Time from queued to finished.")
-        out("# TYPE volt_ai_analysis_duration_seconds histogram")
+        out("# HELP fitlog_ai_analysis_duration_seconds Time from queued to finished.")
+        out("# TYPE fitlog_ai_analysis_duration_seconds histogram")
         cumulative = 0
         for i, edge in enumerate(AI_BUCKETS):
             cumulative += self.ai_duration.counts[()][i]
-            out(f'volt_ai_analysis_duration_seconds_bucket{{le="{edge}"}} {cumulative}')
+            out(f'fitlog_ai_analysis_duration_seconds_bucket{{le="{edge}"}} {cumulative}')
         total = self.ai_duration.totals[()]
-        out(f'volt_ai_analysis_duration_seconds_bucket{{le="+Inf"}} {total}')
-        out(f"volt_ai_analysis_duration_seconds_sum {self.ai_duration.sums[()]}")
-        out(f"volt_ai_analysis_duration_seconds_count {total}")
+        out(f'fitlog_ai_analysis_duration_seconds_bucket{{le="+Inf"}} {total}')
+        out(f"fitlog_ai_analysis_duration_seconds_sum {self.ai_duration.sums[()]}")
+        out(f"fitlog_ai_analysis_duration_seconds_count {total}")
 
-        out("# HELP volt_food_resolutions_total Analysis items matched to a canonical food.")
-        out("# TYPE volt_food_resolutions_total counter")
+        out("# HELP fitlog_food_resolutions_total Analysis items matched to a canonical food.")
+        out("# TYPE fitlog_food_resolutions_total counter")
         for outcome, n in sorted(self.food_resolution.items()):
-            out(f'volt_food_resolutions_total{{outcome="{outcome}"}} {n}')
+            out(f'fitlog_food_resolutions_total{{outcome="{outcome}"}} {n}')
 
         return "\n".join(lines) + "\n"
 

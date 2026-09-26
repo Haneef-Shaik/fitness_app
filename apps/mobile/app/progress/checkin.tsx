@@ -19,7 +19,7 @@ import {
 import { NumberField } from '@/features/onboarding/ui';
 import { useQueryClient } from '@tanstack/react-query';
 import { applyInvalidation } from '@/lib/query/invalidation';
-import { kgToLb } from '@volt/domain';
+import { kgToLb } from '@fitlog/domain';
 import { space } from '@/theme';
 
 const CM_PER_IN = 2.54;

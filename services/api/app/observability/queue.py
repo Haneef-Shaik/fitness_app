@@ -43,14 +43,14 @@ async def ai_queue_signals(db: AsyncSession) -> dict[str, float]:
 def render(signals: dict[str, float]) -> str:
     """The same numbers in the Prometheus text format, appended to `/metrics`."""
     return "\n".join([
-        "# HELP volt_ai_queue_depth Food analyses waiting or being worked on.",
-        "# TYPE volt_ai_queue_depth gauge",
-        f'volt_ai_queue_depth{{status="pending"}} {signals["ai_queue_pending"]:g}',
-        f'volt_ai_queue_depth{{status="processing"}} {signals["ai_queue_processing"]:g}',
-        "# HELP volt_ai_queue_oldest_pending_seconds Age of the oldest job not yet picked up.",
-        "# TYPE volt_ai_queue_oldest_pending_seconds gauge",
-        f"volt_ai_queue_oldest_pending_seconds {signals['ai_oldest_pending_seconds']:.1f}",
-        "# HELP volt_ai_queue_oldest_processing_seconds Time the oldest in-flight job has held its lock.",
-        "# TYPE volt_ai_queue_oldest_processing_seconds gauge",
-        f"volt_ai_queue_oldest_processing_seconds {signals['ai_oldest_processing_seconds']:.1f}",
+        "# HELP fitlog_ai_queue_depth Food analyses waiting or being worked on.",
+        "# TYPE fitlog_ai_queue_depth gauge",
+        f'fitlog_ai_queue_depth{{status="pending"}} {signals["ai_queue_pending"]:g}',
+        f'fitlog_ai_queue_depth{{status="processing"}} {signals["ai_queue_processing"]:g}',
+        "# HELP fitlog_ai_queue_oldest_pending_seconds Age of the oldest job not yet picked up.",
+        "# TYPE fitlog_ai_queue_oldest_pending_seconds gauge",
+        f"fitlog_ai_queue_oldest_pending_seconds {signals['ai_oldest_pending_seconds']:.1f}",
+        "# HELP fitlog_ai_queue_oldest_processing_seconds Time the oldest in-flight job has held its lock.",
+        "# TYPE fitlog_ai_queue_oldest_processing_seconds gauge",
+        f"fitlog_ai_queue_oldest_processing_seconds {signals['ai_oldest_processing_seconds']:.1f}",
     ]) + "\n"

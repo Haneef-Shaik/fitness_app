@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import type { PreviousPerformance } from '@volt/api-types';
+import type { PreviousPerformance } from '@fitlog/api-types';
 import { PreviousPerformanceStrip } from '../PreviousPerformance';
 
 const set = (id: string, load: number, reps: number, type = 'working') => ({

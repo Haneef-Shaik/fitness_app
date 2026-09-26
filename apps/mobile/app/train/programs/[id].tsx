@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
-import type { PlanDay, PlanExercise } from '@volt/api-types';
+import type { PlanDay, PlanExercise } from '@fitlog/api-types';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

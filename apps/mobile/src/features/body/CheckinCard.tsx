@@ -8,7 +8,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import type { Checkins } from '@volt/api-types';
+import type { Checkins } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { friendlyDate, shortDate } from '@/features/dashboard/date';
 import { MEASUREMENTS } from '@/features/onboarding/answers';

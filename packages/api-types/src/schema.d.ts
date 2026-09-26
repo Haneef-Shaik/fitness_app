@@ -2,7 +2,7 @@
  * GENERATED FILE — DO NOT EDIT.
  *
  * Produced from the API's OpenAPI document by:
- *   pnpm --filter @volt/api-types generate
+ *   pnpm --filter @fitlog/api-types generate
  *
  * CI regenerates this and fails the build if it differs (D3b). A hand-edit here
  * is drift with extra steps: change the Pydantic schema instead.

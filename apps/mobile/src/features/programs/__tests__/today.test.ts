@@ -2,7 +2,7 @@
  * C-01's "TODAY" card: which plan day to offer. Driven by the SERVER's local
  * date (I7), never the phone's clock.
  */
-import type { Program } from '@volt/api-types';
+import type { Program } from '@fitlog/api-types';
 import { suggestDay, weekdayOf } from '../today';
 
 const day = (id: string, name: string, scheduled_weekday: number | null) =>

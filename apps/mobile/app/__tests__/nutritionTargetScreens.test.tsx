@@ -4,7 +4,7 @@
  * H-15's macro percentages can read 30 / 40 / 30 while summing to 99, and a
  * calorie target calculated from missing data looks exactly like one
  * calculated from real data. Both are asserted here; the arithmetic itself is
- * proved in `@volt/domain`.
+ * proved in `@fitlog/domain`.
  *
  * H-10's fields are per 100 g. A per-serving figure typed into them is wrong in
  * every meal ever logged from that food, so the label is asserted like any
@@ -76,7 +76,7 @@ const weigh = (kg: string) => fireEvent.changeText(screen.getByTestId('target-we
 describe('H-15 · the calculator', () => {
   it('will not invent a target, and names what it is missing', () => {
     render(<Targets />);
-    // No weight yet: Volt does not track bodyweight, so it has to ask.
+    // No weight yet: FitLog does not track bodyweight, so it has to ask.
     expect(screen.getByTestId('target-cannot-calculate')).toBeTruthy();
     expect(screen.getByTestId('target-cannot-calculate').props.children.join(''))
       .toContain('your weight');

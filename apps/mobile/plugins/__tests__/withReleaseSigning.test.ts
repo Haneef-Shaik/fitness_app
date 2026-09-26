@@ -32,14 +32,14 @@ describe('withReleaseSigning', () => {
   const out = applyReleaseSigning(GENERATED);
 
   it('declares a release signing config read from the environment, never from the repo', () => {
-    expect(out).toMatch(/release \{\n\s+if \(System\.getenv\('VOLT_UPLOAD_STORE_FILE'\)\)/);
-    for (const v of ['VOLT_UPLOAD_STORE_FILE', 'VOLT_UPLOAD_STORE_PASSWORD', 'VOLT_UPLOAD_KEY_ALIAS', 'VOLT_UPLOAD_KEY_PASSWORD']) {
+    expect(out).toMatch(/release \{\n\s+if \(System\.getenv\('FITLOG_UPLOAD_STORE_FILE'\)\)/);
+    for (const v of ['FITLOG_UPLOAD_STORE_FILE', 'FITLOG_UPLOAD_STORE_PASSWORD', 'FITLOG_UPLOAD_KEY_ALIAS', 'FITLOG_UPLOAD_KEY_PASSWORD']) {
       expect(out).toContain(`System.getenv('${v}')`);
     }
   });
 
   it('signs a release build with it when the key is given, and only the release build', () => {
-    expect(out).toContain("signingConfig System.getenv('VOLT_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug");
+    expect(out).toContain("signingConfig System.getenv('FITLOG_UPLOAD_STORE_FILE') ? signingConfigs.release : signingConfigs.debug");
     // The debug build type keeps the debug key.
     expect(out).toMatch(/debug \{\n\s+signingConfig signingConfigs\.debug\n/);
   });

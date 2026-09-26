@@ -11,7 +11,7 @@
  * A meal delivered twice is one meal, so a flaky connection cannot double a
  * day's calories.
  */
-import type { MealIn } from '@volt/api-types';
+import type { MealIn } from '@fitlog/api-types';
 import { store } from '../../lib/db';
 import { uuid } from '../../lib/uuid';
 

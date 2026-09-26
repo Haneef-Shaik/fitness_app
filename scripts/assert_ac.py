@@ -25,8 +25,8 @@ import urllib.parse
 import urllib.request
 
 BASE = "http://localhost:8000"
-EMAIL = "demo@volt.app"
-PASSWORD = "voltdemo1234"
+EMAIL = "demo@fitlog.app"
+PASSWORD = "fitlogdemo1234"
 
 GREEN, RED, DIM, OFF = "\033[32m", "\033[31m", "\033[2m", "\033[0m"
 

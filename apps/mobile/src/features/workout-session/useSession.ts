@@ -6,7 +6,7 @@
  * is not mid-set for either of them.
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SessionFinish, WorkoutSession } from '@volt/api-types';
+import type { SessionFinish, WorkoutSession } from '@fitlog/api-types';
 import { api } from '../../lib/api';
 import { applyInvalidation } from '../../lib/query/invalidation';
 import { qk } from '../../lib/query/queryKeys';

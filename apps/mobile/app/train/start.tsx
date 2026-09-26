@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
-import type { PlanDay, Program, WorkoutSession } from '@volt/api-types';
+import type { PlanDay, Program, WorkoutSession } from '@fitlog/api-types';
 import { Button, Card, Pill, Text, Well } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

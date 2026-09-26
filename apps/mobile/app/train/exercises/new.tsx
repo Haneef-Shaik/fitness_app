@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
-import type { ExerciseIn } from '@volt/api-types';
+import type { ExerciseIn } from '@fitlog/api-types';
 import { Button, Field, Pill, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useCreateExercise, useExercises, useMuscleGroups } from '@/lib/query/hooks';

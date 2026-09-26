@@ -49,12 +49,12 @@ if [ -z "${HOST:-}" ] && [[ "$DEVICE" == emulator-* ]]; then
 else
   HOST="${HOST:-$LAN:8081}"
 fi
-EMAIL="${EMAIL:-demo@volt.app}"
+EMAIL="${EMAIL:-demo@fitlog.app}"
 # Which app the flows drive. Expo Go (the default) loads the bundle from Metro
 # over the LAN; an installed build — CI's release APK — is launched directly:
-#   APP_ID=com.volt.app bash scripts/e2e.sh
+#   APP_ID=com.fitlog.app bash scripts/e2e.sh
 APP_ID="${APP_ID:-host.exp.exponent}"
-PASSWORD="${PASSWORD:-voltdemo1234}"
+PASSWORD="${PASSWORD:-fitlogdemo1234}"
 FLOWS=apps/mobile/.maestro
 
 bold() { printf '\n\033[1m%s\033[0m\n' "$1"; }
@@ -97,7 +97,7 @@ api_start() {
   # stdin, and when e2e.sh is run through a pipe the reader never sees EOF. The
   # script finishes, the results never appear, and it looks like a hang.
   ( cd services/api && nohup uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 \
-      </dev/null >/tmp/volt-api.log 2>&1 & )
+      </dev/null >/tmp/fitlog-api.log 2>&1 & )
   for _ in $(seq 1 60); do
     curl -sf --max-time 1 http://localhost:8000/v1/openapi.json >/dev/null 2>&1 && return 0
     sleep 1
@@ -148,8 +148,8 @@ run_one() {
   pass "$id proven on the device AND in the database"
 }
 
-FIXTURE_DIR=/sdcard/Pictures/VoltE2E
-FIXTURE=$FIXTURE_DIR/volt-e2e-meal.jpg
+FIXTURE_DIR=/sdcard/Pictures/FitLogE2E
+FIXTURE=$FIXTURE_DIR/fitlog-e2e-meal.jpg
 push_fixture() {
   adb -s "$DEVICE" shell mkdir -p "$FIXTURE_DIR"
   adb -s "$DEVICE" push "$FLOWS/fixtures/meal.jpg" "$FIXTURE" >/dev/null
@@ -161,7 +161,7 @@ push_fixture() {
 }
 drop_fixture() {
   adb -s "$DEVICE" shell content delete --uri content://media/external/images/media \
-    --where "_display_name=\'volt-e2e-meal.jpg\'" >/dev/null 2>&1
+    --where "_display_name=\'fitlog-e2e-meal.jpg\'" >/dev/null 2>&1
   adb -s "$DEVICE" shell rm -rf "$FIXTURE_DIR"
 }
 
@@ -197,7 +197,7 @@ fi
 # no cost. Started for these two and stopped after, so nothing else runs
 # against a queue it did not expect (G10, TODO 3.1).
 if [ "$WANT" = all ] || [ "$WANT" = ac-08 ] || [ "$WANT" = ac-10 ]; then
-  ( cd services/api && nohup uv run python -m app.worker </dev/null >/tmp/volt-worker.log 2>&1 & echo $! > /tmp/volt-worker.pid )
+  ( cd services/api && nohup uv run python -m app.worker </dev/null >/tmp/fitlog-worker.log 2>&1 & echo $! > /tmp/fitlog-worker.pid )
   if [ "$WANT" = all ] || [ "$WANT" = ac-08 ]; then
     run_one ac-08 ac-08-describe-a-meal.yaml
   fi

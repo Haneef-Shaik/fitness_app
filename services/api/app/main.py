@@ -36,7 +36,7 @@ from app.observability import queue as queue_metrics
 from app.observability.metrics import registry
 
 app = FastAPI(
-    title="Volt API",
+    title="FitLog API",
     version="0.1.0",
     description="Fitness & Nutrition Tracking Platform. See docs/02-SYSTEM-ARCHITECTURE.md.",
     openapi_url="/v1/openapi.json",

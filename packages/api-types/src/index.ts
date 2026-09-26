@@ -7,7 +7,7 @@
  * steps, and CI fails the build when the generated file is stale (D3b).
  *
  * To change a shape, change the Pydantic schema in `services/api/app/schemas/`,
- * then run `pnpm --filter @volt/api-types generate`.
+ * then run `pnpm --filter @fitlog/api-types generate`.
  */
 import type { components, operations, paths } from './schema';
 

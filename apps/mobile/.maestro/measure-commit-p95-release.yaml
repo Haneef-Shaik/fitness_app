@@ -9,11 +9,11 @@
 # the top of the tap handler, and again in a post-commit frame callback. So the
 # scrolling this flow does between taps costs wall-clock but cannot touch the
 # numbers — it is outside both ends of the measured span.
-appId: com.volt.app
+appId: com.fitlog.app
 name: Measure commit p95 (release build)
 env:
-  EMAIL: demo@volt.app
-  PASSWORD: voltdemo1234
+  EMAIL: demo@fitlog.app
+  PASSWORD: fitlogdemo1234
   HOST: 192.168.1.3:8081
 ---
 - runFlow:

@@ -12,7 +12,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
-import type { PreviousPerformance as Previous } from '@volt/api-types';
+import type { PreviousPerformance as Previous } from '@fitlog/api-types';
 import { Text } from '@/ui';
 import { formatServerDate } from '@/lib/datetime';
 import { font, radius, space, useTheme } from '@/theme';

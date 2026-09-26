@@ -52,7 +52,7 @@ router = APIRouter(prefix="/account", tags=["account"])
 
 #: Bumped when the shape changes. An archive with no version is an archive
 #: nobody can write an importer for later.
-EXPORT_FORMAT = "volt.export.v1"
+EXPORT_FORMAT = "fitlog.export.v1"
 
 
 def _enum(value):

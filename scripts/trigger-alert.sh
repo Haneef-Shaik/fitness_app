@@ -16,12 +16,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 API="$ROOT/services/api"
-PORT="${VOLT_ALERT_PORT:-8098}"
+PORT="${FITLOG_ALERT_PORT:-8098}"
 BASE="http://127.0.0.1:$PORT/v1"
 
 #: Above the rule's 200-observation minimum, with one failure — 1/250 = 0.4%,
 #: which is four times the 0.1% threshold and nowhere near the 0.5% general one.
-COMMITS="${VOLT_ALERT_COMMITS:-250}"
+COMMITS="${FITLOG_ALERT_COMMITS:-250}"
 
 cleanup() {
   # Close the session this run opened: left open, every run adds one to the
@@ -41,7 +41,7 @@ jsonq() { python3 -c "import json,sys; d=json.load(sys.stdin); print($1)"; }
 
 say "Starting the API on :$PORT"
 cd "$API"
-uv run uvicorn app.main:app --port "$PORT" --log-level warning </dev/null >/tmp/volt-alert-api.log 2>&1 &
+uv run uvicorn app.main:app --port "$PORT" --log-level warning </dev/null >/tmp/fitlog-alert-api.log 2>&1 &
 API_PID=$!
 for _ in $(seq 1 40); do
   curl -sf "http://127.0.0.1:$PORT/health" >/dev/null 2>&1 && break
@@ -84,8 +84,8 @@ ok "$COMMITS committed"
 say "What is firing"
 BODY=$(curl -sS "$BASE/admin/alerts" "${AUTH[@]}")
 # Via a file, not a pipe: the heredoc below would eat stdin.
-printf '%s' "$BODY" > /tmp/volt-alerts.json
-python3 - /tmp/volt-alerts.json <<'PYEOF'
+printf '%s' "$BODY" > /tmp/fitlog-alerts.json
+python3 - /tmp/fitlog-alerts.json <<'PYEOF'
 import json, sys
 
 d = json.load(open(sys.argv[1]))["data"]

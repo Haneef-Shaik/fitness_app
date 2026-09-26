@@ -1,4 +1,4 @@
-import type { Exercise, PlanExerciseIn } from '@volt/api-types';
+import type { Exercise, PlanExerciseIn } from '@fitlog/api-types';
 
 export interface MuscleSetCount {
   slug: string;

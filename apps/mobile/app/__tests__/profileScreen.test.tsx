@@ -77,10 +77,10 @@ it('a refused field says why — the server holds the age rule (A-07, Q9)', asyn
   const { ApiError } = jest.requireActual('@/lib/api');
   mockPatch.mockRejectedValueOnce(new ApiError(
     'VALIDATION_FAILED', 'Some details need fixing.', 422,
-    { birth_date: 'Volt is for people aged 16 and over.' },
+    { birth_date: 'FitLog is for people aged 16 and over.' },
   ));
   render(<ProfileDetails />);
   await save();
-  expect(screen.getByTestId('profile-error').props.children).toBe('Volt is for people aged 16 and over.');
+  expect(screen.getByTestId('profile-error').props.children).toBe('FitLog is for people aged 16 and over.');
   expect(mockBack).not.toHaveBeenCalled();
 });

@@ -1,13 +1,13 @@
-<title>Workout Logger — Volt</title>
+<title>Workout Logger — FitLog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="../volt.css">
+<link rel="stylesheet" href="../fitlog.css">
 
 <div class="topbar"><div class="topbar-in">
   <a class="wordmark" href="../index.html">
     <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
-    Volt <span class="sub">E · Logger</span></a>
+    FitLog <span class="sub">E · Logger</span></a>
   <div class="tabs" role="tablist" aria-label="View">
     <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
     <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
@@ -24,10 +24,10 @@
   <section id="view-play" hidden></section>
 </div>
 
-<script src="../volt-shell.js"></script>
+<script src="../fitlog-shell.js"></script>
 <script>
 (function(){
-const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+const S=FitLogShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
 const PREV=[{load:30,reps:10},{load:30,reps:9},{load:27.5,reps:10}];
 const fresh=()=>({sets:[{k:'W',load:20,reps:12,rpe:null,s:'synced'},{k:1,load:30,reps:10,rpe:8,s:'synced'},
   {k:2,load:30,reps:9,rpe:9,s:'pending'}],entry:{load:30,reps:9,rpe:9},rest:0,restOn:false});
@@ -40,7 +40,7 @@ function delta(i,s){const p=PREV[i]; if(!p) return '<span class="dlt flat">new</
   if(Math.abs(d)<.5) return '<span class="dlt flat">=</span>';
   return d>0?'<span class="dlt up">&#9650; '+fmt(d)+'</span>':'<span class="dlt down">&#9660; '+fmt(-d)+'</span>';}
 
-window.VOLT={title:"Workout Logger",intro:"The critical path. Every set commit is local-first: it renders instantly and syncs behind the scenes, so the screen never waits on a network. E-03 is live — use the steppers and save a set.",screens:[
+window.FITLOG={title:"Workout Logger",intro:"The critical path. Every set commit is local-first: it renders instantly and syncs behind the scenes, so the screen never waits on a network. E-03 is live — use the steppers and save a set.",screens:[
 
 {id:'E-01',name:'Start a workout',route:'/train/start',html:()=>`
 <div class="screen">
@@ -380,6 +380,6 @@ onClick(e,ctx){
   ctx.repaint();
 }};
 
-VoltShell.mount();
+FitLogShell.mount();
 })();
 </script>

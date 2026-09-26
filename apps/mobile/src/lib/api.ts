@@ -1,11 +1,11 @@
 /**
- * Typed client for the Volt API.
+ * Typed client for the FitLog API.
  *
  * Every response uses the envelope from docs/02 §7:
  *   { success, data, error: { code, message, fields, request_id } }
  * The client unwraps it and throws ApiError, so callers never inspect `success`.
  */
-import type { Goal, GoalIn, GoalPatch, Profile, ProfilePatch, TokenPair } from '@volt/api-types';
+import type { Goal, GoalIn, GoalPatch, Profile, ProfilePatch, TokenPair } from '@fitlog/api-types';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
@@ -201,7 +201,7 @@ export const api = {
 };
 
 /* ---------------- typed endpoints ----------------
- * Every shape below comes from @volt/api-types, which is generated from the
+ * Every shape below comes from @fitlog/api-types, which is generated from the
  * server's OpenAPI document and gated in CI. Nothing here is hand-typed: a
  * hand-written response shape is drift with extra steps (D3b).
  */

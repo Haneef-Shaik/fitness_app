@@ -33,7 +33,7 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 
-AVD="${AVD:-volt-test}"
+AVD="${AVD:-fitlog-test}"
 IMAGE="${IMAGE:-system-images;android-34;google_apis;arm64-v8a}"
 DEVICE="${DEVICE:-pixel_6}"
 
@@ -135,8 +135,8 @@ start() {
     # signed-in account, which is exactly the "whose state is this?" problem the
     # sign-in prelude had to be taught to handle.
     nohup emulator -avd "$AVD" -no-snapshot-load -no-boot-anim \
-      "${window[@]}" </dev/null >/tmp/volt-emulator.log 2>&1 &
-    info "log: /tmp/volt-emulator.log"
+      "${window[@]}" </dev/null >/tmp/fitlog-emulator.log 2>&1 &
+    info "log: /tmp/fitlog-emulator.log"
 
     eadb wait-for-device
     printf '    booting'

@@ -1,5 +1,5 @@
 /**
- * Volt UI primitives. Ported from docs/design/volt.css.
+ * FitLog UI primitives. Ported from docs/design/fitlog.css.
  *
  * The depth recipe matters: a card is a tinted gradient + a 1px inner top highlight
  * + a real shadow. Flat fills read as a wireframe, which is what the first design pass

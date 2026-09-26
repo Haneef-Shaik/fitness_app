@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { EnergyPlan } from '@volt/domain';
+import type { EnergyPlan } from '@fitlog/domain';
 import { Card, Text } from '@/ui';
 import { Pressable } from '@/ui/Pressable';
 import { DataBoundary } from '@/ui/DataBoundary';

@@ -5,7 +5,7 @@
  * the sets, so resuming a workout showed nothing logged — which reads as lost
  * work, the most alarming thing this screen can do.
  */
-import type { WorkoutSession } from '@volt/api-types';
+import type { WorkoutSession } from '@fitlog/api-types';
 import { draftFromServer, draftWithSetsFromServer } from '../useSession';
 
 jest.mock('../../../lib/api', () => ({ api: { get: jest.fn(), post: jest.fn() } }));

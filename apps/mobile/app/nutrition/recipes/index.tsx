@@ -8,7 +8,7 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
-import type { Recipe } from '@volt/api-types';
+import type { Recipe } from '@fitlog/api-types';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

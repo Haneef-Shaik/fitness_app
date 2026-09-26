@@ -11,7 +11,7 @@
  *    what lets a later reorder walk rows through values their neighbours hold —
  *    the mistake D13 records on the server side.
  */
-import type { SetType } from '@volt/domain';
+import type { SetType } from '@fitlog/domain';
 import type { DraftExercise, DraftSet, SessionDraft, SyncState } from './types';
 
 export interface NewExercise {

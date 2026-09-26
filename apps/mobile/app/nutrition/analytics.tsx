@@ -12,7 +12,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import type { NutritionRange } from '@volt/api-types';
+import type { NutritionRange } from '@fitlog/api-types';
 import { Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

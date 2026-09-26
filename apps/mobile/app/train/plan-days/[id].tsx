@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
-import type { Exercise, PlanExerciseIn } from '@volt/api-types';
+import type { Exercise, PlanExerciseIn } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';

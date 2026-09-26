@@ -17,9 +17,9 @@ from zoneinfo import ZoneInfo
 import httpx
 
 BASE = "http://localhost:8000"
-EMAIL = "demo@volt.app"
+EMAIL = "demo@fitlog.app"
 TZ = "Asia/Kolkata"
-PASSWORD = "voltdemo1234"
+PASSWORD = "fitlogdemo1234"
 
 
 # The split the design files render. Names are matched against the seeded catalog, so

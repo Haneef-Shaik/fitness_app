@@ -10,7 +10,7 @@ beforeEach(async () => {
 describe('refresh token storage', () => {
   it('round-trips through SecureStore, not AsyncStorage', async () => {
     await setRefreshToken('tok');
-    expect(SecureStore.setItemAsync).toHaveBeenCalledWith('volt.refresh_token', 'tok');
+    expect(SecureStore.setItemAsync).toHaveBeenCalledWith('fitlog.refresh_token', 'tok');
     await expect(getRefreshToken()).resolves.toBe('tok');
   });
 

@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import type { Exercise, PlanExerciseIn } from '@volt/api-types';
+import type { Exercise, PlanExerciseIn } from '@fitlog/api-types';
 import { PrescriptionEditor } from '../PrescriptionEditor';
 
 function exercise(over: Partial<Exercise>): Exercise {

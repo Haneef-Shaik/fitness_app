@@ -6,10 +6,10 @@
       "@/*": [
         "./src/*"
       ],
-      "@volt/domain": [
+      "@fitlog/domain": [
         "../../packages/domain/src/index.ts"
       ],
-      "@volt/api-types": [
+      "@fitlog/api-types": [
         "../../packages/api-types/src/index.ts"
       ]
     }

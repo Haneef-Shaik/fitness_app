@@ -1,13 +1,13 @@
-<title>Exercise Catalog — Volt</title>
+<title>Exercise Catalog — FitLog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="../volt.css">
+<link rel="stylesheet" href="../fitlog.css">
 
 <div class="topbar"><div class="topbar-in">
   <a class="wordmark" href="../index.html">
     <svg class="bolt" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4 13.2h6L9.8 22 20 10.6h-6.4L13.5 2Z"/></svg>
-    Volt <span class="sub">D · Exercises</span></a>
+    FitLog <span class="sub">D · Exercises</span></a>
   <div class="tabs" role="tablist" aria-label="View">
     <button class="tab" role="tab" aria-selected="true"  data-view="board">Screens</button>
     <button class="tab" role="tab" aria-selected="false" data-view="play">Prototype</button>
@@ -24,11 +24,11 @@
   <section id="view-play" hidden></section>
 </div>
 
-<script src="../volt-shell.js"></script>
+<script src="../fitlog-shell.js"></script>
 <script>
 (function(){
-const S=VoltShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
-window.VOLT={title:"Exercise Catalog",intro:"Search, custom exercises and muscle mapping. A custom exercise needs at least one primary muscle, because muscle-group analytics and the previous-chest-day query both depend on it.",screens:[
+const S=FitLogShell, I=S.I, nav=S.nav, tabbar=S.tabbar;
+window.FITLOG={title:"Exercise Catalog",intro:"Search, custom exercises and muscle mapping. A custom exercise needs at least one primary muscle, because muscle-group analytics and the previous-chest-day query both depend on it.",screens:[
 
 {id:'D-01',name:'Exercise library',route:'/train/exercises',html:()=>{
   const e=(n,eq,m,badge,meta)=>`<div class="linkrow"><div class="t"><b>${n}</b><span>${m}</span>
@@ -176,6 +176,6 @@ window.VOLT={title:"Exercise Catalog",intro:"Search, custom exercises and muscle
 
 ]};
 
-VoltShell.mount();
+FitLogShell.mount();
 })();
 </script>

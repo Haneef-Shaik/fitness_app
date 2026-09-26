@@ -246,7 +246,7 @@ describe('H-05 · the portion', () => {
 
     fireEvent.changeText(screen.getByTestId('portion-grams'), '50');
 
-    // 380 kcal per 100 g → 190 at 50 g. Computed by @volt/domain, not here.
+    // 380 kcal per 100 g → 190 at 50 g. Computed by @fitlog/domain, not here.
     expect(screen.getByText('190')).toBeTruthy();
   });
 

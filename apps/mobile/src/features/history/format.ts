@@ -6,7 +6,7 @@
  * 8,240 kg". It is also the only place that decides what a session is *called*
  * when it has no name: the exercises it contained.
  */
-import type { HistoryItem } from '@volt/api-types';
+import type { HistoryItem } from '@fitlog/api-types';
 
 /** Thousands separators, no decimals — a kg figure with decimals reads as noise. */
 export function formatVolume(kg: number | null | undefined): string | null {

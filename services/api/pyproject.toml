@@ -1,7 +1,7 @@
 [project]
-name = "volt-api"
+name = "fitlog-api"
 version = "0.1.0"
-description = "Volt — Fitness & Nutrition Tracking Platform API"
+description = "FitLog — Fitness & Nutrition Tracking Platform API"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",

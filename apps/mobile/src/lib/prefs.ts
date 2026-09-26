@@ -32,11 +32,11 @@ function fs(): typeof import('expo-file-system') {
 async function readAll(): Promise<Record<string, unknown>> {
   try {
     if (web) {
-      const raw = localStorage.getItem('volt.prefs');
+      const raw = localStorage.getItem('fitlog.prefs');
       return raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
     }
     const file = fs();
-    const path = `${file.documentDirectory ?? ''}volt-prefs.json`;
+    const path = `${file.documentDirectory ?? ''}fitlog-prefs.json`;
     const info = await file.getInfoAsync(path);
     if (!info.exists) return {};
     return JSON.parse(await file.readAsStringAsync(path)) as Record<string, unknown>;
@@ -54,10 +54,10 @@ export async function setPref(key: string, value: unknown): Promise<void> {
   try {
     const next = { ...(await readAll()), [key]: value };
     const body = JSON.stringify(next);
-    if (web) localStorage.setItem('volt.prefs', body);
+    if (web) localStorage.setItem('fitlog.prefs', body);
     else {
       const file = fs();
-      await file.writeAsStringAsync(`${file.documentDirectory ?? ''}volt-prefs.json`, body);
+      await file.writeAsStringAsync(`${file.documentDirectory ?? ''}fitlog-prefs.json`, body);
     }
   } catch {
     // A preference that cannot be saved is a preference that does not persist.

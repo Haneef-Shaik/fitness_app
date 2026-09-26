@@ -2,7 +2,7 @@
  * C-01's "TODAY" card: the plan day to offer. Driven by the server's local
  * date (I7) rather than the phone's clock.
  */
-import type { PlanDay, Program } from '@volt/api-types';
+import type { PlanDay, Program } from '@fitlog/api-types';
 
 /** 0 = Monday … 6 = Sunday, the backend's convention. Parsed as a calendar
  *  date, so no timezone can move it. */

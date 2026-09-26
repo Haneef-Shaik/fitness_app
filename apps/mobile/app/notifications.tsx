@@ -25,7 +25,7 @@ import { space } from '@/theme';
 // 'storeClient' is ExecutionEnvironment.StoreClient; the string survives a mocked module.
 const APP_NAME = Constants?.executionEnvironment === 'storeClient'
   ? 'Expo Go'
-  : (Constants?.expoConfig?.name ?? 'Volt');
+  : (Constants?.expoConfig?.name ?? 'FitLog');
 
 const REMINDERS: readonly { key: ReminderKey; label: string; detail: string }[] = [
   { key: 'workout', label: 'Workout reminder', detail: '5 pm on the days your program plans one' },

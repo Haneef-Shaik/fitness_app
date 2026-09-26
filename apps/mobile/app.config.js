@@ -40,6 +40,11 @@ module.exports = ({ config }) => {
       }],
       // Health Connect's client needs API 26; nothing else here needs less.
       ['expo-build-properties', { android: { minSdkVersion: 26 } }],
+      // Reminders and "your meal estimate is ready". Android draws a
+      // notification's small icon as a silhouette — the full-colour app icon
+      // becomes a blank square — so it gets make-icons.py's white one. On iOS
+      // this adds the push entitlement.
+      ['expo-notifications', { icon: './assets/notification-icon.png', color: '#5A31C4' }],
       // docs/14 S7. Sign in with Apple's entitlement (iOS only).
       'expo-apple-authentication',
       // Google Sign-In's iOS URL scheme. Only once there is one: the plugin

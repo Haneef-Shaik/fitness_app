@@ -30,6 +30,7 @@ import { SessionExpiredDialog } from '@/ui/shell/SessionExpiredDialog';
 import { MaintenanceOverlay } from '@/features/status/ServiceNotices';
 import { ReminderSync } from '@/features/reminders/useReminderSync';
 import { PushSync } from '@/features/push/PushSync';
+import { NotificationTaps } from '@/features/notifications/NotificationTaps';
 import { HealthSync } from '@/features/health/HealthSync';
 import { showsTabBar } from '@/ui/shell/tabs';
 import { BottomInsetHandled } from '@/ui/topInset';
@@ -147,10 +148,13 @@ function Layout() {
                 redirects only while it is mounted, so losing the session
                 anywhere else left the screen you were on. */}
             <AuthGate />
-            {/* B-04: scheduled reminders follow the program and the next check-in. */}
+            {/* B-04: scheduled reminders follow the program, the next check-in
+                and what is already logged today; signing out cancels them. */}
             <ReminderSync />
             {/* "Your meal estimate is ready" — registered only if already allowed. */}
             <PushSync />
+            {/* A tapped reminder or push opens its screen — even the tap that launched the app. */}
+            <NotificationTaps />
             {/* K-09: weigh-ins from the health store, only if switched on. */}
             <HealthSync />
             <Root />

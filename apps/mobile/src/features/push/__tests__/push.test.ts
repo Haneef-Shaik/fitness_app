@@ -18,7 +18,7 @@ jest.mock('expo-notifications', () => ({
   getExpoPushTokenAsync: jest.fn(async () => ({ data: 'ExponentPushToken[xyz]' })),
 }));
 
-import { registerForPush, routeFor, unregisterPush } from '../push';
+import { registerForPush, unregisterPush } from '../push';
 
 beforeEach(() => {
   jest.clearAllMocks(); mockGranted = true; mockProject = 'proj-1';
@@ -47,11 +47,4 @@ it('unregisters on sign-out and forgets the token', async () => {
   await unregisterPush();
   expect(mockSend).toHaveBeenCalledWith('DELETE', '/devices/push-token', { token: 'ExponentPushToken[xyz]', platform: 'ios' });
   expect(mockPrefs['push.token']).toBeNull();
-});
-
-it('only navigates for a notification it recognises', () => {
-  expect(routeFor({ type: 'analysis', analysis_id: '0b6f3c8e-1f2a-4c3d-9e8f-123456789abc' }))
-    .toBe('/nutrition/analysis/0b6f3c8e-1f2a-4c3d-9e8f-123456789abc');
-  expect(routeFor({ type: 'analysis', analysis_id: '../../etc' })).toBeNull();
-  expect(routeFor({ type: 'other' })).toBeNull();
 });

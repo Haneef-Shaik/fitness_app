@@ -39,8 +39,9 @@ export interface ForgetDeps {
 }
 
 export interface DeleteAccountDeps extends ForgetDeps {
-  /** The server call. Throws on refusal. */
-  remove: (password: string) => Promise<unknown>;
+  /** The server call. Throws on refusal — REAUTH_REQUIRED when the sign-in
+   *  is too old to delete with (docs/14 S5), which the screen handles. */
+  remove: () => Promise<unknown>;
   signOut: () => Promise<void>;
 }
 
@@ -76,9 +77,9 @@ export async function forgetThisDevice(
  * because a session that merely expired must keep its unfinished workout for
  * its account, as sign-out promises (K-01).
  */
-export async function deleteAccountEverywhere(password: string, deps: DeleteAccountDeps): Promise<void> {
+export async function deleteAccountEverywhere(deps: DeleteAccountDeps): Promise<void> {
   try {
-    await deps.remove(password);
+    await deps.remove();
   } catch (e) {
     if (!(e instanceof ApiError && e.status === 401)) throw e;
     leaveFarewell(SESSION_ENDED);

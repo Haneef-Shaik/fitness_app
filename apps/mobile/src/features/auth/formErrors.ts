@@ -7,6 +7,7 @@
  * the server, and says so rather than guessing.
  */
 import { ApiError } from '@/lib/api';
+import { AuthProblem } from './supabaseAuth';
 
 export interface FormErrors {
   fields: Record<string, string>;
@@ -16,6 +17,10 @@ export interface FormErrors {
 export const OFFLINE_MESSAGE = 'Could not reach the server. Check your connection.';
 
 export function formErrors(e: unknown): FormErrors {
+  // Supabase Auth's problems (docs/14) already say which field they belong to.
+  if (e instanceof AuthProblem) {
+    return e.field ? { fields: { [e.field]: e.message }, general: null } : { fields: {}, general: e.message };
+  }
   if (e instanceof ApiError) {
     const named = Object.keys(e.fields).length > 0;
     return { fields: e.fields, general: named ? null : e.message };

@@ -1,16 +1,15 @@
 /**
- * K-02 · Change password.
+ * K-02 · Change password (Supabase Auth, docs/14).
  *
  * Asks for the current password — a stolen, unlocked phone should not be
- * enough — and applies sign-up's rule to the new one. The server signs every
- * other device out and hands this one a fresh pair, which is adopted before
- * anything can try to refresh the old, now revoked, token.
+ * enough — and applies sign-up's rule to the new one. Every other device is
+ * signed out; this one stays signed in.
  */
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Field } from '@/ui';
 import { TextInput } from '@/ui/TextInput';
-import { accountApi } from '@/lib/api-account';
+import { AuthProblem, changePassword } from './supabaseAuth';
 import { useSession } from '@/lib/session';
 import { space, useTheme } from '@/theme';
 import { formErrors } from './formErrors';
@@ -25,7 +24,7 @@ export function ChangePasswordForm({ onDone, onCancel }: {
 }) {
   const { c } = useTheme();
   const input = useInputStyle();
-  const { adoptTokens } = useSession();
+  const { email } = useSession();
   const [current, setCurrent] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -44,12 +43,20 @@ export function ChangePasswordForm({ onDone, onCancel }: {
 
     setBusy(true);
     try {
-      await adoptTokens(await accountApi.changePassword(current, password));
-      onDone('Password changed. Every other device was signed out; this one is still signed in.');
+      const othersOut = await changePassword(email ?? '', current, password);
+      onDone(othersOut
+        ? 'Password changed. Every other device was signed out; this one is still signed in.'
+        : 'Password changed, but other devices could not be signed out just now. Use "Sign out other devices" below.');
     } catch (e) {
-      const f = formErrors(e);
-      setErrors(f.fields);
-      setGeneral(f.general);
+      if (e instanceof AuthProblem && e.code === 'invalid_credentials') {
+        setErrors({ current_password: e.message });
+      } else {
+        const f = formErrors(e);
+        // Supabase names the field `password`; here it is the NEW one.
+        const { password: problem, ...rest } = f.fields;
+        setErrors(problem ? { ...rest, new_password: problem } : rest);
+        setGeneral(f.general);
+      }
     } finally {
       setBusy(false);
     }

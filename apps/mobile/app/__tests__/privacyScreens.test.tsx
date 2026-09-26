@@ -15,6 +15,7 @@ import { Linking } from 'react-native';
 import Constants from 'expo-constants';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { ApiError } from '@/lib/api';
+import { AuthProblem } from '@/features/auth/supabaseAuth';
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
@@ -23,17 +24,22 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockSignOut = jest.fn(async () => {});
+const mockReauthenticate = jest.fn(async (_password?: string) => {});
+const mockAccount = { provider: 'email' as string | null };
 jest.mock('@/lib/session', () => ({
   useSession: () => ({
     email: 'haneef@example.com',
+    provider: mockAccount.provider,
     profile: { display_name: 'Haneef A', timezone: 'Asia/Kolkata' },
     signOut: mockSignOut,
+    reauthenticate: mockReauthenticate,
   }),
 }));
 
 const mockExport = jest.fn();
 const mockDelete = jest.fn();
 jest.mock('@/lib/api-account', () => ({
+  ...jest.requireActual('@/lib/api-account'),
   accountApi: {
     export: (...a: unknown[]) => mockExport(...a),
     delete: (...a: unknown[]) => mockDelete(...a),
@@ -191,6 +197,8 @@ describe('K-07 · delete my account', () => {
     fireEvent.press(screen.getByLabelText('Continue'));
   }
 
+  beforeEach(() => { mockAccount.provider = 'email'; });
+
   it('is reachable in three taps from settings', () => {
     render(<Settings />);
     fireEvent.press(screen.getByLabelText('Data and privacy')); // 1
@@ -199,7 +207,6 @@ describe('K-07 · delete my account', () => {
 
     reachTheForm(); // 2 and 3
     expect(screen.getByLabelText('Type DELETE to confirm')).toBeTruthy();
-    expect(screen.getByLabelText('Your password')).toBeTruthy();
   });
 
   it('says what goes, and offers the export first', async () => {
@@ -211,30 +218,29 @@ describe('K-07 · delete my account', () => {
     await waitFor(() => expect(mockSave).toHaveBeenCalled());
   });
 
-  it('stays disabled until DELETE is typed exactly and a password is given', () => {
+  it('stays disabled until DELETE is typed exactly', () => {
     reachTheForm();
     const confirm = () => screen.getByLabelText('Delete my account permanently');
     expect(confirm().props.accessibilityState.disabled).toBe(true);
 
     fireEvent.changeText(screen.getByLabelText('Type DELETE to confirm'), 'delete');
-    fireEvent.changeText(screen.getByLabelText('Your password'), 'correct-horse-battery');
     expect(confirm().props.accessibilityState.disabled).toBe(true);
 
     fireEvent.changeText(screen.getByLabelText('Type DELETE to confirm'), 'DELETE');
     expect(confirm().props.accessibilityState.disabled).toBe(false);
   });
 
-  async function submit(password = 'correct-horse-battery') {
+  function submit() {
     reachTheForm();
     fireEvent.changeText(screen.getByLabelText('Type DELETE to confirm'), 'DELETE');
-    fireEvent.changeText(screen.getByLabelText('Your password'), password);
     fireEvent.press(screen.getByLabelText('Delete my account permanently'));
   }
 
   it('deletes, forgets this phone and signs out', async () => {
-    await submit();
+    submit();
     await waitFor(() => expect(mockSignOut).toHaveBeenCalled());
-    expect(mockDelete).toHaveBeenCalledWith('correct-horse-battery');
+    expect(mockDelete).toHaveBeenCalledTimes(1);
+    expect(mockReauthenticate).not.toHaveBeenCalled();
     expect(mockStore.clearDraft).toHaveBeenCalled();
     expect(mockStore.discard).toHaveBeenCalledWith(7);
     expect(mockApplyReminders).toHaveBeenCalledWith([]);
@@ -242,27 +248,63 @@ describe('K-07 · delete my account', () => {
     expect(takeFarewell()).toMatch(/has been deleted/);
   });
 
-  it('a wrong password shows on the field and changes nothing', async () => {
-    mockDelete.mockRejectedValue(new ApiError(
-      'VALIDATION_FAILED', 'That password is not right.', 422,
-      { password: 'That password is not right.' },
-    ));
-    await submit('wrong');
-    expect(await screen.findByText('That password is not right.')).toBeTruthy();
-    expect(mockSignOut).not.toHaveBeenCalled();
-    expect(mockStore.clearDraft).not.toHaveBeenCalled();
+  describe('a sign-in too old to delete with (docs/14 S5)', () => {
+    const tooOld = () => new ApiError('REAUTH_REQUIRED', 'Sign in again to delete your account.', 403);
+
+    it('asks for the password, signs in again, then deletes', async () => {
+      mockDelete.mockRejectedValueOnce(tooOld());
+      submit();
+      expect(await screen.findByText(/enter your password to delete your account/)).toBeTruthy();
+      expect(mockSignOut).not.toHaveBeenCalled();
+
+      fireEvent.changeText(screen.getByLabelText('Your password'), 'correct-horse-battery');
+      fireEvent.press(screen.getByLabelText('Delete my account permanently'));
+
+      await waitFor(() => expect(mockSignOut).toHaveBeenCalled());
+      expect(mockReauthenticate).toHaveBeenCalledWith('correct-horse-battery');
+      expect(mockDelete).toHaveBeenCalledTimes(2);
+    });
+
+    it('a wrong password shows on the field and changes nothing', async () => {
+      mockDelete.mockRejectedValueOnce(tooOld());
+      mockReauthenticate.mockRejectedValueOnce(
+        new AuthProblem('Your current password is not right.', 'password', 'invalid_credentials'),
+      );
+      submit();
+      await screen.findByLabelText('Your password');
+      fireEvent.changeText(screen.getByLabelText('Your password'), 'wrong');
+      fireEvent.press(screen.getByLabelText('Delete my account permanently'));
+
+      expect(await screen.findByText('Your current password is not right.')).toBeTruthy();
+      expect(mockDelete).toHaveBeenCalledTimes(1);
+      expect(mockSignOut).not.toHaveBeenCalled();
+      expect(mockStore.clearDraft).not.toHaveBeenCalled();
+    });
+
+    it('a Google account signs in with Google again — there is no password to ask for', async () => {
+      mockAccount.provider = 'google';
+      mockDelete.mockRejectedValueOnce(tooOld());
+      submit();
+      expect(await screen.findByText(/sign in with Google again/)).toBeTruthy();
+      expect(screen.queryByLabelText('Your password')).toBeNull();
+
+      fireEvent.press(screen.getByLabelText('Sign in with Google and delete'));
+
+      await waitFor(() => expect(mockSignOut).toHaveBeenCalled());
+      expect(mockReauthenticate).toHaveBeenCalledWith(undefined);
+    });
   });
 
   it('offline, it does not pretend to know what happened', async () => {
     mockDelete.mockRejectedValue(new TypeError('Network request failed'));
-    await submit();
+    submit();
     expect(await screen.findByText(/can't tell whether your account was deleted/)).toBeTruthy();
     expect(mockSignOut).not.toHaveBeenCalled();
   });
 
   it('a refusal says nothing was deleted', async () => {
     mockDelete.mockRejectedValue(new ApiError('RATE_LIMITED', 'Too many attempts.', 429));
-    await submit();
+    submit();
     expect(await screen.findByText(/Nothing has been deleted/)).toBeTruthy();
     expect(mockSignOut).not.toHaveBeenCalled();
   });

@@ -12,13 +12,15 @@ import React, { useState } from 'react';
 import { Modal, View } from 'react-native';
 import { Button, Text } from '@/ui';
 import { TextInput } from '@/ui/TextInput';
-import { ApiError } from '@/lib/api';
+import { AuthProblem } from '@/features/auth/supabaseAuth';
 import { useSession } from '@/lib/session';
 import { radius, space, useTheme } from '@/theme';
 
 export function SessionExpiredDialog() {
   const { c } = useTheme();
-  const { expired, email, reauthenticate, signOut } = useSession();
+  const { expired, email, provider, reauthenticate, signOut } = useSession();
+  // A Google or Apple account has no password to type: its own sheet signs it back in.
+  const external = provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : null;
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +31,12 @@ export function SessionExpiredDialog() {
     setError(null);
     setBusy(true);
     try {
-      await reauthenticate(password);
+      await reauthenticate(external ? undefined : password);
       setPassword('');
     } catch (e) {
-      setError(e instanceof ApiError && e.status === 401
+      setError(e instanceof AuthProblem && e.code === 'invalid_credentials'
         ? "That password didn't match. Try again."
-        : e instanceof ApiError ? e.message : "Couldn't reach FitLog. Check your connection and try again.");
+        : e instanceof AuthProblem ? e.message : "Couldn't reach FitLog. Check your connection and try again.");
     } finally {
       setBusy(false);
     }
@@ -55,7 +57,7 @@ export function SessionExpiredDialog() {
             Your session for {email ?? 'this account'} ended. Nothing on this screen is lost, and
             anything waiting to upload will go once you're back in.
           </Text>
-          <TextInput
+          {external ? null : <TextInput
             testID="expired-password"
             accessibilityLabel="Password"
             value={password}
@@ -69,9 +71,10 @@ export function SessionExpiredDialog() {
               minHeight: 48, paddingHorizontal: space.md, borderRadius: radius.btn,
               borderWidth: 1, borderColor: c.line2, color: c.ink, backgroundColor: c.sunken,
             }}
-          />
+          />}
           {error ? <Text variant="caption" tone="crit" testID="expired-error">{error}</Text> : null}
-          <Button title="Sign in" loading={busy} disabled={!password} testID="expired-submit"
+          <Button title={external ? `Continue with ${external}` : 'Sign in'} loading={busy}
+            disabled={!external && !password} testID="expired-submit"
             onPress={() => { void submit(); }} />
           <Button title="Sign out instead" kind="ghost" testID="expired-signout"
             onPress={() => { void signOut(); }} />

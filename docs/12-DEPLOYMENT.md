@@ -4,7 +4,10 @@
 [L1 and L2](11-LAUNCH-PLAN.md#phase-0--decisions-the-owner-must-make-first) — Supabase (Pro) as
 managed Postgres 16 and Storage for photos; the API and the AI worker as two processes from one
 Docker image on a container host (Railway, Fly or Render — this runbook stays host-agnostic).
-**FitLog keeps its own auth and API:** no Supabase Auth, no RLS, no Supabase client SDK anywhere.
+**Signing in is Supabase Auth's** (docs/14-SUPABASE.md): email and password, Google and Apple. The
+app talks to Supabase for that alone; **every read and write still goes through the FitLog API**,
+which accepts only this project's Supabase access tokens. No RLS, no Data API, no table reachable
+from the app's key.
 
 Read §14 before trusting any of it: it says what was proven on a laptop and what cannot be until
 the accounts exist. §15 is the checklist, in order. Dashboard paths (*Menu → Page → Setting*) are as
@@ -55,8 +58,8 @@ bucket, not a key.
    `openssl rand -base64 32`, store it in your password manager, never anywhere else.
 3. **Turn off the Data API** — *Integrations → Data API → Enable Data API: off*. FitLog never uses
    it. With it on, Supabase serves the `public` schema over HTTP and grants its `anon` and
-   `authenticated` roles privileges on every table created there — `users.password_hash`
-   included — to anyone holding the project's anon key, which Supabase treats as public. The
+   `authenticated` roles privileges on every table created there — every workout, meal and
+   photo record — to anyone holding the project's publishable key, which the app ships with. The
    release step also revokes those grants on every deploy (`app/db_hardening.py`), so a toggle
    switched back on later does not reopen the door; this switch is the first half.
 4. **Enforce TLS** — *Database → Settings → SSL Configuration → Enforce SSL on incoming
@@ -81,10 +84,60 @@ bucket, not a key.
    it turns a lost day into a lost couple of minutes. Staging does not need it. §11 is the restore
    drill — do it once before launch.
 
+9. **Authentication** — §2.1, next. The app cannot sign anyone in until it is done.
+
 **Not in the database backups: the photos.** Supabase says so plainly — a database backup holds the
 rows that *name* the objects, not the objects. Storage has no versioning either, so a deleted photo
 is gone. For v1 that is accepted; if it is not, schedule a nightly copy of the bucket to a second
 provider (`rclone sync` against both S3 endpoints) and add it to §11.
+
+### 2.1 Supabase Auth
+
+Everything here has a local twin in `supabase/config.toml`, which `pnpm supabase start` applies —
+when a setting is in doubt, the file is the reference.
+
+1. **Keys** — *Project Settings → API Keys*. The **publishable** key (`sb_publishable_…`) goes into
+   the app build (§4.3); it only lets an app ask Supabase Auth to sign in. The **secret** key
+   (`sb_secret_…`) goes into the host's secret store as `SUPABASE_SECRET_KEY` (§4.1) and nowhere
+   else. *JWT Keys*: current projects sign with an asymmetric key, which the API checks against the
+   project's JWKS — nothing to copy. A project still on the legacy HS256 secret: migrate it to
+   signing keys (the dashboard offers it), or set `SUPABASE_JWT_SECRET`.
+2. **URL configuration** — *Authentication → URL Configuration*: **Site URL**
+   `fitlog://auth/callback`; **Redirect URLs** `fitlog://**`. Every email link opens the app
+   (`app/auth/callback.tsx`); a redirect not on this list is sent to the Site URL instead.
+3. **Email sign-in** — *Authentication → Sign In / Providers → Email*: enabled; **Confirm email:
+   on** (docs/14 S8 — without it, someone can register a victim's address first and be linked into
+   their account later); **Secure email change: on** (both addresses confirm); **Secure password
+   change: off** (the app asks for the current password itself). *Password strength*: minimum
+   length **10** (the app's rule, `password.ts`), and **Leaked password protection: on** (Pro).
+4. **SMTP — required, not optional.** *Authentication → Emails → SMTP Settings*: Supabase's own
+   sender is for testing — a handful of emails an hour, to team addresses only. Use a transactional
+   provider (Resend, Postmark, SES): sender `FitLog <no-reply@your-domain>`, with SPF and DKIM set
+   on the domain, or confirmation and reset emails land in spam. Then *Rate Limits*: raise
+   **emails per hour** to what launch needs (sign-ups × 2 is a fair start).
+5. **Email templates** — *Authentication → Emails → Templates*, one per file in
+   `supabase/templates/`: **Confirm signup** ← `confirmation.html`, **Reset password** ←
+   `recovery.html` (it carries the 6-digit code the app's "I have a code" takes — the link alone
+   only works on the phone that asked), **Magic link** ← `magic_link.html` (the web deletion
+   page's code, S6). Subjects as in `config.toml`. *Security notifications*: **Password changed**
+   ← `password_changed_notification.html` and **Email address changed** ←
+   `email_changed_notification.html`, both **on**.
+6. **Google** (S7) — in Google Cloud Console, one project: an OAuth consent screen (app name,
+   support email, privacy policy URL), then OAuth clients: **Web** (its ID is what Supabase and the
+   app's `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` use), **Android** (package `com.fitlog.app` and the
+   SHA-1 of the **Play app-signing** key *and* of the upload key), **iOS** (bundle id
+   `com.fitlog.app`). In Supabase, *Providers → Google*: enabled; **Client IDs** = the web ID, then
+   the iOS ID, comma-separated; the web client's secret; **Skip nonce check: on** (the iOS SDK
+   adds its own nonce). Without these the app simply shows no Google button.
+7. **Apple** (S7) — only for the iOS app, and required by App Store rule 4.8 once Google is offered.
+   Apple Developer → Identifiers: enable **Sign in with Apple** on `com.fitlog.app`. In Supabase,
+   *Providers → Apple*: enabled, **Client IDs** `com.fitlog.app`. Native sign-in needs no secret
+   key; a web flow would, and FitLog has none.
+8. **Sessions** — *Authentication → Sessions*: leave refresh-token rotation on (with its 10-second
+   reuse interval). The API also refuses a token whose sign-in has ended, at once (S3).
+9. **Check it** — sign up in a staging build with a real address: the confirmation email arrives,
+   from your domain, and its link opens the app signed in. Then "Forgot password?" → the email has
+   a link and a code → the code works in "I have a code".
 
 ---
 
@@ -171,11 +224,10 @@ serving. `services/api/.env.example` lists every one; a test fails if a setting 
 | `DB_POOL_MODE` | optional | `session` | §3 — `transaction` only for port 6543 |
 | `DB_POOL_SIZE` | optional | `5` (worker: `2`) | §3.3 |
 | `DB_MAX_OVERFLOW` | optional | `5` (worker: `0`) | §3.3 |
-| `JWT_SECRET` | **required** | 64 random characters | `openssl rand -base64 48`. ≥ 32 bytes, never the dev value. Different per environment |
-| `JWT_ALGORITHM` | optional | `HS256` | Leave it |
-| `ACCESS_TOKEN_TTL_MINUTES` | optional | `15` | Leave it |
-| `REFRESH_TOKEN_TTL_DAYS` | optional | `60` | Leave it |
-| `UPLOAD_SIGNING_SECRET` | **required** | 64 random characters | `openssl rand -base64 48`, **not** the JWT secret |
+| `SUPABASE_URL` | **required** | `https://<ref>.supabase.co` | §2.1. `https://` only when deployed. The API accepts only tokens this project issued |
+| `SUPABASE_SECRET_KEY` | **required** | `sb_secret_…` | §2.1. Server-only: deleting a sign-in, the web deletion page's code, thumbnails |
+| `SUPABASE_JWT_SECRET` | only for a legacy project | — | §2.1. Empty for a project on signing keys |
+| `UPLOAD_SIGNING_SECRET` | **required** | 64 random characters | `openssl rand -base64 48` |
 | `STORAGE_BACKEND` | **required** | `s3` | Must be `s3`; `local` is refused |
 | `S3_ENDPOINT_URL` | **required** for Supabase | `https://<ref>.storage.supabase.co/storage/v1/s3` | §2.7. Empty means AWS itself |
 | `S3_REGION` | **required** | `eu-central-1` | §2.7 — the project's region |
@@ -214,6 +266,10 @@ serving. `services/api/.env.example` lists every one; a test fails if a setting 
 | Name | Example | Notes |
 |---|---|---|
 | `API_URL` → `EXPO_PUBLIC_API_URL` | `https://api.example.com` | `STORE=1` refuses anything but `https://` |
+| `SUPABASE_URL` → `EXPO_PUBLIC_SUPABASE_URL` | `https://<ref>.supabase.co` | §2.1. `STORE=1` requires it, `https://` only |
+| `SUPABASE_PUBLISHABLE_KEY` → `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` | §2.1. Public by design; `STORE=1` requires it |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | `…apps.googleusercontent.com` | §2.1 step 6. Unset = no Google button |
+| `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `GOOGLE_IOS_URL_SCHEME` | the iOS client's ID and its reversed form | iOS builds only (`app.config.js` adds the Google plugin when the scheme is set) |
 | `EXPO_PUBLIC_SENTRY_DSN` | the **mobile** project's DSN | Empty = the app sends nothing |
 | `EXPO_PUBLIC_SENTRY_ENVIRONMENT` | `staging` | Defaults to `production` in a release build |
 | `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | — | Source-map upload (§8). Without the token the build skips the upload |
@@ -225,7 +281,7 @@ serving. `services/api/.env.example` lists every one; a test fails if a setting 
 
 `scripts/migrate.sh` runs, in order: `alembic upgrade head`, `alembic current`, the Data API revoke
 (`app/db_hardening.py`), and the reference-data seed (idempotent: exercises, muscle groups, foods).
-It needs **`DATABASE_URL` and nothing else** — not the JWT secret, not the storage keys — and it
+It needs **`DATABASE_URL` and nothing else** — not the Supabase keys, not the storage keys — and it
 refuses `ENVIRONMENT=production` unless `CONFIRM_PRODUCTION=1`.
 
 - **Normally you never run it.** The deploy workflow runs it for each environment before the new
@@ -439,7 +495,7 @@ the worker; tell users what window was lost.
 | Supabase project, bucket, S3 keys | its own | its own |
 | Host services | `fitlog-api-staging`, `fitlog-worker-staging` | `fitlog-api`, `fitlog-worker` |
 | `ENVIRONMENT` | `staging` — **same startup rules** as production | `production` |
-| Secrets (`JWT_SECRET`, `UPLOAD_SIGNING_SECRET`, `AI_API_KEY`) | its own values | its own values |
+| Secrets (`SUPABASE_SECRET_KEY`, `UPLOAD_SIGNING_SECRET`, `AI_API_KEY`) | its own values | its own values |
 | `AI_PROVIDER` | `anthropic` with its own key and a low Anthropic spend limit | `anthropic` |
 | Sentry | same projects, `environment: staging` | `environment: production` |
 | PITR | no | yes, once there are users |
@@ -482,7 +538,8 @@ On the build machine, 26 Sep 2026, without any cloud account:
 |---|---|
 | The image builds, runs as uid 10001 on Python 3.13, and serves `/health` with its release | `docker build … services/api`; `docker run` against the dev database → `{"status":"ok","release":"fitlog-api@localtest"}`; `/metrics` read the queue from Postgres |
 | The worker runs from the same image, and both containers report healthy | `docker run … python -m app.worker` → Docker health `healthy` for both; the worker judged by its heartbeat |
-| A misconfigured production container refuses to boot | `ENVIRONMENT=production` with the dev JWT secret, with `STORAGE_BACKEND=local`, and with a URL without TLS → each stops with the setting named |
+| A misconfigured production container refuses to boot | `ENVIRONMENT=production` with a dev secret, with `STORAGE_BACKEND=local`, with a URL without TLS, and without an `https://` `SUPABASE_URL` and secret key → each stops with the setting named |
+| Supabase end to end, on a **local** Supabase stack (CLI 2.118) | docs/14: the API suite through the transaction pooler, Storage's S3 endpoint and render URLs, Auth — sign-up with confirmation, reset by link and by code, change of address at both addresses, sign-out elsewhere refused at once, deletion — and the acceptance suite on an emulator |
 | The S3 store honours the storage contract | 26 tests against moto's S3 server in the suite, and against a real S3-compatible server (SeaweedFS): presigned URLs expire (403 after the TTL), the bare object URL is refused, `uploads/u1` never deletes `uploads/u10` |
 | Account deletion empties the user's bucket folder and nobody else's | `tests/test_signed_reads.py`, routes against an S3 bucket |
 | Transaction-pooler options work through a transaction pooler | §3.2, PgBouncer |
@@ -492,7 +549,8 @@ On the build machine, 26 Sep 2026, without any cloud account:
 | The workflows are well-formed | `actionlint` clean |
 
 **Not verified — no account exists:** a real Supabase project (its S3 endpoint, presigned URLs
-through its gateway, the session pooler, a restore), any container host, the push to GHCR, the
+through its gateway, the session pooler, a restore, its SMTP, Google and Apple sign-in — the local
+stack has none of the three), any container host, the push to GHCR, the
 deploy hooks, `workflow_run` firing on GitHub, and a real Sentry project receiving events. The first
 staging deploy is their first test. Do not read a missing run as a passing one.
 
@@ -502,7 +560,11 @@ staging deploy is their first test. Do not read a missing run as a passing one.
 
 1. [ ] Push `main`; CI green; branch protection on (§6).
 2. [ ] Supabase **staging** project: Pro, region, password, **Data API off**, SSL enforced, session
-       pooler URL, private bucket, S3 keys (§2).
+       pooler URL, private bucket, S3 keys (§2); **Auth**: redirect URLs, email confirmation,
+       custom SMTP, templates, password rule (§2.1).
+2a. [ ] Google OAuth clients (web, Android with both SHA-1s, iOS) and the Google provider; Sign in
+       with Apple on the bundle id and the Apple provider (§2.1 steps 6–7). Optional for Android
+       launch; the buttons appear only when configured.
 3. [ ] GitHub environment `staging`: `DATABASE_URL`. Run *Deploy* by hand → staging migrated and
        seeded, nothing deployed yet (§5, §6).
 4. [ ] Sentry organisation and the two projects, privacy settings on (§8).
@@ -518,4 +580,5 @@ staging deploy is their first test. Do not read a missing run as a passing one.
         reviewer set (§6, §12).
 11. [ ] Domain and HTTPS for production (§9); uptime check (§10); every spend alert (§10).
 12. [ ] PITR decision for production (§2.8); the **restore drill**, written down (§11).
-13. [ ] Store build against the production URL, with the Sentry DSN and token (§4.3, §8).
+13. [ ] Store build against the production URL and Supabase project, with the Sentry DSN and
+        token (§4.3, §8).

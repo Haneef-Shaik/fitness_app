@@ -41,8 +41,8 @@ describe('where the bar is hidden', () => {
   it.each([
     // Signed-out and first-run screens: there is nothing to navigate to.
     '/', '/welcome', '/login', '/register', '/onboarding',
-    // A-05 and A-06, opened from an emailed link and often signed out.
-    '/forgot-password', '/reset-password', '/verify-email',
+    // A-05 and A-06, and where every emailed link lands (docs/14).
+    '/forgot-password', '/reset-password', '/auth/callback',
     // Full-screen tasks (00 §4, 03 §4.1): leaving one is a deliberate act.
     '/session/abc', '/nutrition/describe', '/nutrition/photo', '/nutrition/analysis/abc',
     '/train/start', '/quick', '/search',

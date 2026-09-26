@@ -25,12 +25,11 @@ import { useSession } from './session';
  * wins the race and nothing looks wrong; on a slower one the button appears
  * dead. Found on an emulator, which lost the race every time.
  *
- * A-05 and A-06 are here because their links arrive signed out: a reset is for
- * someone who cannot sign in, and a verification link is often opened on a
- * phone that is not signed in to that account.
+ * The email links arrive signed out (`/auth/callback`, docs/14): a new account
+ * confirming its address, or someone resetting a password they cannot use.
  */
 const PUBLIC_ROUTES = [
-  '/welcome', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email',
+  '/welcome', '/login', '/register', '/forgot-password', '/reset-password', '/auth/callback',
 ];
 
 export function AuthGate() {

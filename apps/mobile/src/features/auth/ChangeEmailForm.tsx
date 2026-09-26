@@ -1,16 +1,15 @@
 /**
- * K-02 · Change email.
+ * K-02 · Change email (Supabase Auth, docs/14).
  *
- * The password again, then a link to the NEW address. Nothing changes until
- * that link is opened — a typo here must not move the account, and every
- * future reset link with it, to an inbox nobody reads. The old address is told
- * once the change lands.
+ * The password again, then confirmation links. Nothing changes until they are
+ * opened — a typo here must not move the account, and every future reset link
+ * with it, to an inbox nobody reads.
  */
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Field } from '@/ui';
 import { TextInput } from '@/ui/TextInput';
-import { accountApi } from '@/lib/api-account';
+import { changeEmail } from './supabaseAuth';
 import { useSession } from '@/lib/session';
 import { space, useTheme } from '@/theme';
 import { formErrors } from './formErrors';
@@ -23,7 +22,7 @@ export function ChangeEmailForm({ onDone, onCancel }: {
 }) {
   const { c } = useTheme();
   const input = useInputStyle();
-  const { refreshAccount } = useSession();
+  const { email: current, refreshAccount } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -41,13 +40,16 @@ export function ChangeEmailForm({ onDone, onCancel }: {
 
     setBusy(true);
     try {
-      const { pending_email: pending } = await accountApi.changeEmail(email.trim(), password);
-      // So K-02 shows "Waiting for you to confirm…" from the server's own record.
+      await changeEmail(current ?? '', password, email.trim());
+      // So K-02 shows "Waiting for you to confirm…" from Supabase's own record.
       await refreshAccount().catch(() => {});
-      onDone(`We sent a link to ${pending}. Your email changes when you open it.`);
+      onDone(`We sent confirmation links to ${email.trim()} and to your current address. `
+        + 'Your email changes once you open them.');
     } catch (e) {
       const f = formErrors(e);
-      setErrors(f.fields);
+      // Supabase names the address field "email"; here it is the NEW one.
+      const { email: onEmail, ...rest } = f.fields;
+      setErrors(onEmail ? { ...rest, new_email: onEmail } : rest);
       setGeneral(f.general);
     } finally {
       setBusy(false);

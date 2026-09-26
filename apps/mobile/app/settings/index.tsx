@@ -21,14 +21,13 @@ import { useSession } from '@/lib/session';
 import { store } from '@/lib/db';
 import { unregisterPush } from '@/features/push/push';
 import { count } from '@/features/nutrition/format';
-import { VerifyEmailBanner } from '@/features/auth/VerifyEmailBanner';
 import { font, space, useTheme } from '@/theme';
 
 interface Unfinished { workout: boolean; unsent: number }
 
 export default function Settings() {
   const { c } = useTheme();
-  const { email, emailVerified, profile, signOut } = useSession();
+  const { email, profile, signOut } = useSession();
   const [confirm, setConfirm] = useState<Unfinished | null>(null);
   const [leaving, setLeaving] = useState(false);
 
@@ -76,7 +75,6 @@ export default function Settings() {
         </View>
 
         {/* `false`, not falsy: unknown (offline, or not yet asked) shows nothing. */}
-        {emailVerified === false ? <VerifyEmailBanner /> : null}
 
         <View>
           <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Settings</Text>

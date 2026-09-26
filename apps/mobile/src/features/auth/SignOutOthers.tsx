@@ -3,21 +3,16 @@
  *
  * Asks first and says what it will and will not do: every other sign-in ends,
  * this one stays, and a workout saved on another phone stays on that phone —
- * it uploads when that phone signs back in (K-02 edge cases). Then says how
- * many devices it actually signed out.
+ * it uploads when that phone signs back in (K-02 edge cases). Supabase ends
+ * the other sign-ins, and the API refuses their tokens at once (docs/14 S3).
  */
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Card, Text } from '@/ui';
-import { accountApi } from '@/lib/api-account';
+import { signOutOtherDevices } from './supabaseAuth';
 import { space } from '@/theme';
 import { formErrors } from './formErrors';
 import { Notice } from './Notice';
-
-function outcome(revoked: number): string {
-  if (revoked === 0) return 'No other devices were signed in.';
-  return `Signed out of ${revoked} other ${revoked === 1 ? 'device' : 'devices'}.`;
-}
 
 export function SignOutOthers() {
   const [asking, setAsking] = useState(false);
@@ -27,8 +22,8 @@ export function SignOutOthers() {
   async function confirm() {
     setBusy(true);
     try {
-      const { revoked } = await accountApi.signOutOtherDevices();
-      setResult({ tone: 'good', text: outcome(revoked) });
+      await signOutOtherDevices();
+      setResult({ tone: 'good', text: 'Every other device is signed out. This phone is still signed in.' });
       setAsking(false);
     } catch (e) {
       setResult({ tone: 'crit', text: formErrors(e).general ?? 'That did not work. Try again.' });

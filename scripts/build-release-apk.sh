@@ -36,6 +36,23 @@ cd "$(dirname "$0")/../apps/mobile"
 
 : "${API_URL:?set API_URL — the address the APP will use to reach the API}"
 
+# Supabase (docs/14): the app signs in with it directly. A store build must name
+# the project; a local build defaults to the local stack (pnpm supabase start)
+# on API_URL's host, with its publishable key read from `supabase status` —
+# public by design, and still never written into the repository.
+if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_PUBLISHABLE_KEY:-}" ]; then
+  if [ "${STORE:-0}" = 1 ]; then
+    echo "STORE=1 needs SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY" >&2; exit 1
+  fi
+  LOCAL_KEY=$( (cd ../.. && pnpm exec supabase status -o env 2>/dev/null) | sed -n 's/^PUBLISHABLE_KEY="\(.*\)"$/\1/p')
+  HOST="${API_URL#*://}"; HOST="${HOST%%/*}"; HOST="${HOST%%:*}"
+  SUPABASE_URL="${SUPABASE_URL:-http://$HOST:54321}"
+  SUPABASE_PUBLISHABLE_KEY="${SUPABASE_PUBLISHABLE_KEY:-$LOCAL_KEY}"
+  [ -n "$SUPABASE_PUBLISHABLE_KEY" ] || {
+    echo "no SUPABASE_PUBLISHABLE_KEY, and no local Supabase answering (pnpm supabase start)" >&2; exit 1;
+  }
+fi
+
 export JAVA_HOME="${JAVA_HOME:-/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home}"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 [ -d "$JAVA_HOME" ] && export PATH="$JAVA_HOME/bin:$PATH"
@@ -43,6 +60,7 @@ export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 STORE="${STORE:-0}"
 if [ "$STORE" = 1 ]; then
   case "$API_URL" in https://*) ;; *) echo "STORE=1 needs an https:// API_URL" >&2; exit 1 ;; esac
+  case "$SUPABASE_URL" in https://*) ;; *) echo "STORE=1 needs an https:// SUPABASE_URL" >&2; exit 1 ;; esac
   for v in FITLOG_UPLOAD_STORE_FILE FITLOG_UPLOAD_STORE_PASSWORD FITLOG_UPLOAD_KEY_ALIAS FITLOG_UPLOAD_KEY_PASSWORD; do
     [ -n "${!v:-}" ] || { echo "STORE=1 needs $v" >&2; exit 1; }
   done
@@ -90,16 +108,20 @@ cd android
 # that said one API and called another (found measuring on a phone, 26 Sep).
 rm -rf app/build/generated/assets/react app/build/generated/sourcemaps/react \
   app/build/intermediates/sourcemaps/react
-EXPO_PUBLIC_API_URL="$API_URL" ./gradlew assembleRelease --no-daemon -q
+EXPO_PUBLIC_API_URL="$API_URL" EXPO_PUBLIC_SUPABASE_URL="$SUPABASE_URL" \
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY" \
+  ./gradlew assembleRelease --no-daemon -q
 APK=app/build/outputs/apk/release/app-release.apk
 # Checked, not assumed: the address the app will call is the one asked for.
 # Host and port, not the whole URL: Hermes packs its string table with shared
 # prefixes, so the scheme may be stored run into the string before it.
 # -c, not -q: under pipefail, -q's early exit kills unzip with SIGPIPE and the
 # pipeline fails even when the address is there.
-HOST_PORT="${API_URL#*://}"; HOST_PORT="${HOST_PORT%%/*}"
-unzip -p "$APK" assets/index.android.bundle | LC_ALL=C grep -a -c -F "$HOST_PORT" >/dev/null \
-  || { echo "✗ the APK's bundle does not call $HOST_PORT — a stale bundle?" >&2; exit 1; }
+for URL in "$API_URL" "$SUPABASE_URL"; do
+  HOST_PORT="${URL#*://}"; HOST_PORT="${HOST_PORT%%/*}"
+  unzip -p "$APK" assets/index.android.bundle | LC_ALL=C grep -a -c -F "$HOST_PORT" >/dev/null \
+    || { echo "✗ the APK's bundle does not call $HOST_PORT — a stale bundle?" >&2; exit 1; }
+done
 if [ "$STORE" = 1 ]; then
   # Checked, not assumed: the three things that make it a store build.
   BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
@@ -111,7 +133,9 @@ if [ "$STORE" = 1 ]; then
   "$BT/apksigner" verify --print-certs "$APK" | grep "certificate DN"
 
   # The bundle Play actually receives, from the same prebuild and signing config.
-  EXPO_PUBLIC_API_URL="$API_URL" ./gradlew bundleRelease --no-daemon -q
+  EXPO_PUBLIC_API_URL="$API_URL" EXPO_PUBLIC_SUPABASE_URL="$SUPABASE_URL" \
+    EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY" \
+    ./gradlew bundleRelease --no-daemon -q
   AAB=app/build/outputs/bundle/release/app-release.aab
   "$JAVA_HOME/bin/jarsigner" -verify -certs "$AAB" >/dev/null \
     || { echo "✗ the bundle is not signed" >&2; exit 1; }
@@ -119,4 +143,4 @@ if [ "$STORE" = 1 ]; then
     && { echo "✗ the bundle is signed with the debug key" >&2; exit 1; }
   echo "✓ bundle: apps/mobile/android/$AAB — upload this one to Play"
 fi
-echo "built: apps/mobile/android/app/build/outputs/apk/release/app-release.apk (API $API_URL)"
+echo "built: apps/mobile/android/app/build/outputs/apk/release/app-release.apk (API $API_URL, Supabase $SUPABASE_URL)"

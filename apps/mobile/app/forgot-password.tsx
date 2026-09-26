@@ -7,9 +7,9 @@
  * every accepted request. What it may report is a problem with the REQUEST — an
  * address that is not one, no connection — which says nothing about accounts.
  *
- * The reset itself is its own route (`/reset-password`), because that is where
- * the emailed link lands; "I have a code" goes there for a phone that will not
- * open the link.
+ * The reset itself is its own route (`/reset-password`), where the emailed
+ * link lands (through app/auth/callback.tsx); "I have a code" goes there for
+ * an email read on another device, where the link cannot work (PKCE).
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -18,7 +18,7 @@ import { Button, Field, Text } from '@/ui';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { TextInput } from '@/ui/TextInput';
-import { recoveryApi } from '@/lib/api-account';
+import { forgotPassword } from '@/features/auth/supabaseAuth';
 import { formErrors } from '@/features/auth/formErrors';
 import { useInputStyle } from '@/features/auth/inputStyle';
 import { Notice } from '@/features/auth/Notice';
@@ -46,7 +46,7 @@ export default function ForgotPassword() {
     }
     setBusy(true);
     try {
-      await recoveryApi.forgotPassword(address);
+      await forgotPassword(address);
       setSentTo(address);
       cooldown.start();
     } catch (e) {
@@ -69,8 +69,8 @@ export default function ForgotPassword() {
         {general ? <Notice tone="crit" testID="forgot-error">{general}</Notice> : null}
         {sentTo ? (
           <Notice tone="good" testID="forgot-sent">
-            If an account exists for {sentTo}, we've sent a reset link. It works once, for 30
-            minutes. Not there? Check your spam folder.
+            If an account exists for {sentTo}, we've sent a reset link and a 6-digit code. They
+            work once, for an hour. Not there? Check your spam folder.
           </Notice>
         ) : null}
 
@@ -96,7 +96,7 @@ export default function ForgotPassword() {
         />
 
         <Pressable
-          onPress={() => router.push('/reset-password')}
+          onPress={() => router.push({ pathname: '/reset-password', params: { email: email.trim() } })}
           accessibilityRole="link" accessibilityLabel="I have a code"
           style={{ minHeight: target.min, justifyContent: 'center', alignSelf: 'center' }}
         >

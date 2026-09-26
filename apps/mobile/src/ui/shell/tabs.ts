@@ -33,7 +33,7 @@ export const TABS: readonly Tab[] = [
 const HIDDEN: readonly RegExp[] = [
   /^\/$/, /^\/welcome/, /^\/login/, /^\/register/, /^\/onboarding/,
   // A-05 and A-06 open from an emailed link, often signed out.
-  /^\/forgot-password/, /^\/reset-password/, /^\/verify-email/,
+  /^\/forgot-password/, /^\/reset-password/, /^\/auth\//,
   /^\/session\//, /^\/nutrition\/(describe|photo|analysis)(\/|$)/,
   /^\/train\/start$/, /^\/quick$/, /^\/search$/,
 ];

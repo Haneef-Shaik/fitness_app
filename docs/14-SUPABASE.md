@@ -185,5 +185,5 @@ test**, checked against auth-js 2.117's source:
   re-check (S5) is as strong as the sign-in method.
 
 **Owner items:** the Google OAuth clients and the Apple capability (docs/12 §2.1); until then the
-buttons are simply absent. Local runs: `eval "$(scripts/supabase-api-env.sh)"` gives the API the
-local stack's settings.
+buttons are simply absent. Local runs: `eval "$(scripts/supabase-env.sh)"` gives the API, the
+scripts and the app the local stack's settings.

@@ -59,8 +59,9 @@ f=$(grep -rnE "$DOM" docs/*.md docs/wireframes/*.md 2>/dev/null \
       | grep -v accessibilityRole | drop_exempt | wc -l | tr -d ' ')
 check "DOM-only a11y identifiers in spec docs" 0 "$f"
 
-# D10: the refresh token lives in the device keychain. A native client cannot use a
-# cookie, and docs/02 plus the auth wireframe both specified one until 22 Sep.
+# D10: the sign-in lives in the device keychain (Supabase's session since 26 Sep,
+# D30). A native client cannot use a cookie, and docs/02 plus the auth wireframe
+# both specified one until 22 Sep.
 g=$(grep -rniE 'httponly|samesite' docs/*.md docs/wireframes/*.md 2>/dev/null \
       | drop_exempt | wc -l | tr -d ' ')
 check "cookie-based auth in spec docs (contradicts D10)" 0 "$g"

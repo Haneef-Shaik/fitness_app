@@ -107,14 +107,16 @@ builds refuse `http://` API URLs and ship without cleartext traffic).
 **Do you provide a way for users to request that their data is deleted?** Yes — in the app
 (Profile → Data and privacy → Delete my account) and on the web at `https://<api-domain>/account/delete`.
 
-"Shared" in Play's sense excludes service providers processing on FitLog's behalf (hosting,
-database/storage, the AI provider, crash reporting, email). **FitLog shares no data** in Play's
-sense. Everything below is **Collected**, not shared.
+"Shared" in Play's sense excludes service providers processing on FitLog's behalf (hosting;
+Supabase for the database, storage and sign-in; the AI provider; crash reporting; email). **FitLog
+shares no data** in Play's sense. Everything below is **Collected**, not shared. Signing in with
+Google (or Apple, on iOS) is the user's choice and brings in the same two items — email address
+and name — already declared below.
 
 | Data type (Play) | Collected | Optional? | Purpose(s) | Where in FitLog |
 |---|---|---|---|---|
-| Personal info → **Email address** | Yes | Required | Account management, App functionality | Sign-up, sign-in, password reset |
-| Personal info → **Name** | Yes | Optional | App functionality | Display name in profile |
+| Personal info → **Email address** | Yes | Required | Account management, App functionality | Sign-up, sign-in (password, Google or Apple), password reset |
+| Personal info → **Name** | Yes | Optional | App functionality | Display name in profile; from Google or Apple when signing in with them |
 | Personal info → **Other info** (birth date, sex) | Yes | Optional | App functionality | Calorie target estimate; age check (16+) |
 | Health and fitness → **Health info** (weight, body measurements, height) | Yes | Optional | App functionality | Body metrics, targets |
 | Health and fitness → **Fitness info** (workouts, sets, programs, goals) | Yes | Optional | App functionality | The training log |
@@ -182,6 +184,7 @@ the entitlement the config plugin adds).
 | Guideline | How FitLog meets it |
 |---|---|
 | 5.1.1(v) account deletion in-app | Profile → Data and privacy → Delete my account |
+| 4.8 login services | Sign in with Apple is offered on iOS whenever Google sign-in is (docs/14 S7); both appear only once configured |
 | 5.1.1(i) privacy policy link | In the app (Profile → About) and in App Store Connect |
 | 5.1.2 data use | No tracking, no third-party advertising |
 | 1.4.1 health & safety | Estimates labelled as estimates; no medical claims; not a medical device |
@@ -192,10 +195,14 @@ the entitlement the config plugin adds).
 
 ## 7 · Reviewer notes and demo account (both stores)
 
-Create the account on the **production** API — never with the public defaults:
+Create the account on the **production** API and Supabase project — never with the public
+defaults. The script creates the reviewer's sign-in in Supabase Auth, already confirmed (so App
+Review never waits on an email), with the project's secret key:
 
 ```bash
 FITLOG_API=https://<api-domain> DEMO_EMAIL=review@<your-domain> DEMO_PASSWORD='<long random>' \
+SUPABASE_URL=https://<ref>.supabase.co SUPABASE_PUBLISHABLE_KEY=sb_publishable_… \
+SUPABASE_SECRET_KEY=sb_secret_… \
   uv run python services/api/scripts/seed_demo.py
 ```
 

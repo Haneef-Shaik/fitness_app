@@ -224,9 +224,9 @@ class TestExport:
                   **await _child_row_counts(db, user_id)}
         populated = {name for name, n in counts.items() if n > 0}
 
-        # Credentials, not data: an emailed link (account_tokens) is a password
-        # while it lives, exactly as a refresh token is.
-        credentials = {"users", "refresh_tokens", "account_tokens", "push_tokens"}
+        # Credentials, not data. Passwords, sessions and emailed links are
+        # Supabase Auth's (docs/14) and never in FitLog's tables at all.
+        credentials = {"users", "push_tokens"}
         missing = populated - covered - credentials - {"daily_summaries"}
         assert not missing, f"these tables have rows and are not in the export: {missing}"
 
@@ -249,17 +249,20 @@ class TestExport:
         assert theirs["sessions"] == []
         assert theirs["meals"] == []
 
-    async def test_it_never_contains_a_password_hash_or_a_token(self, auth_client):
+    async def test_it_never_contains_a_credential(self, auth_client):
         import json
 
         await _populate(auth_client)
         archive = _data(await auth_client.get("/v1/account/export"))
 
         blob = json.dumps(archive)
-        # An export is a file a user emails to themselves.
-        assert "password_hash" not in blob
-        assert "$argon2" not in blob
+        # An export is a file a user emails to themselves. FitLog holds no
+        # password or session (Supabase does); nor may a push token or the
+        # bearer token that asked for the export end up in it.
+        assert "password" not in blob
         assert "refresh_token" not in blob
+        assert "ExponentPushToken" not in blob
+        assert auth_client.headers["authorization"].removeprefix("Bearer ") not in blob
 
 
 class TestDelete:

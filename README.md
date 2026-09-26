@@ -40,13 +40,22 @@ cd services/api && uv sync && uv run pytest
 
 ## Run
 
-Two processes, and the separation is deliberate (D25):
+Signing in, the database and photo storage are **Supabase** ([docs/14](docs/14-SUPABASE.md));
+locally, its stack in Docker. Then two processes, and the separation is deliberate (D25):
 
 ```bash
+pnpm supabase start                      # Postgres, Auth, Storage, and Mailpit for the emails
+eval "$(scripts/supabase-env.sh)"        # its URLs and keys, for the API, scripts and app
+# Migrations and the food/exercise catalog — once, and after pulling new migrations.
+# A direct connection: migrations never go through the transaction pooler.
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@127.0.0.1:54322/postgres bash scripts/migrate.sh
 cd services/api
 uv run uvicorn app.main:app --reload     # the API
 uv run python -m app.worker              # the food-analysis worker
 ```
+
+Emails the stack sends (sign-up confirmation, reset codes) land in Mailpit:
+<http://127.0.0.1:54324>.
 
 The worker calls the AI provider; the API never does. A model call takes seconds and sometimes
 takes the timeout, so doing it in a request handler would mean one slow plate photograph occupying
@@ -70,7 +79,7 @@ fails with `ai_unavailable` and nothing else notices.
 ### Hosted
 
 The same two processes ship as **one Docker image** (`services/api/Dockerfile`): the default
-command is the API, `python -m app.worker` is the worker. Postgres and photo storage are Supabase;
+command is the API, `python -m app.worker` is the worker. Postgres, photo storage and sign-in are Supabase;
 `scripts/migrate.sh` is the release step; `.github/workflows/deploy.yml` builds, migrates and
 deploys staging, then production behind a reviewer. Every setting, and every click, is in the
 runbook: **[docs/12-DEPLOYMENT.md](docs/12-DEPLOYMENT.md)**.

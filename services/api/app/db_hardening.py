@@ -2,9 +2,10 @@
 
 Supabase serves the `public` schema over its Data API (PostgREST) and grants its
 `anon` and `authenticated` roles privileges on the tables created there. FitLog
-keeps its own auth and API (L1) and never uses the Data API, so those grants are
-a second, unauthenticated door to every row — `users.password_hash` included —
-for anyone holding the project's anon key, which Supabase treats as public.
+signs in with Supabase Auth (docs/14) but reads and writes only through its own
+API, never the Data API — so those grants would be a second door to every row
+for anyone holding the project's publishable key, which the app ships with, or
+a signed-in user's token (the `authenticated` role).
 
 The runbook turns the Data API off (docs/12 §2). This is the other half, and it
 does not depend on anyone remembering a dashboard switch: the release step

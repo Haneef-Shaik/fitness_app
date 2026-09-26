@@ -93,7 +93,8 @@ contracts/vectors/    the cross-language contract — both test suites load this
 packages/domain/      TypeScript domain rules (offline logger)
 services/api/         FastAPI service; app/domain/ is the authoritative implementation
 apps/mobile/          Expo app (iOS + Android)
-infra/                docker-compose: dev Postgres + ephemeral test Postgres
+infra/                docker-compose: the ephemeral test Postgres (and a plain dev Postgres)
+supabase/             the local Supabase stack's config and FitLog's auth email templates
 ```
 
 **Why the domain logic exists twice:** the logger computes volume, estimated 1RM and personal-record
@@ -107,19 +108,29 @@ a user watching their session summary change after it syncs.
 All paths are from the **repository root**, not this folder.
 
 ```bash
-# 1. database
-docker compose -f infra/docker-compose.yml up -d db
+# 1. Supabase: database, sign-in, photo storage (Docker) — docs/14
+pnpm supabase start
+eval "$(scripts/supabase-env.sh)"    # its URLs and keys, for everything below
 
-# 2. API  →  http://localhost:8000/v1/docs
+# 2. migrations and the food/exercise catalog — direct, never through the pooler
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@127.0.0.1:54322/postgres bash scripts/migrate.sh
+
+# 3. API  →  http://localhost:8000/v1/docs
 cd services/api && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-# 3. app
+# 4. app
 cd apps/mobile && pnpm start     # QR code for Expo Go on a phone
 cd apps/mobile && pnpm web       # or open http://localhost:8081
 ```
 
+Sign-up confirmation emails and reset codes go to Mailpit, <http://127.0.0.1:54324>; Studio
+(the database, the auth users) is <http://127.0.0.1:54323>. Links in those emails open the app
+(`fitlog://`), so they work in a release build, not in Expo Go — confirm an address by opening
+its link on the laptop, then log in.
+
 **Demo account** — `demo@fitlog.app` / `fitlogdemo1234`, onboarding pre-completed so it opens
-on the dashboard. Recreate it any time (idempotent):
+on the dashboard. It is created in the local Supabase Auth, confirmed. Recreate it any time
+(idempotent):
 
 ```bash
 cd services/api && uv run python scripts/seed_demo.py
@@ -133,11 +144,13 @@ cd services/api    && uv run pytest    # Python domain + API integration
 ```
 
 The API tests need the ephemeral test database:
-`docker compose -f infra/docker-compose.yml up -d db-test`
+`docker compose -f infra/docker-compose.yml up -d db-test` — plain Postgres with a minimal
+`auth` schema the suite creates; tokens are signed by a test key. The same suite runs on
+Supabase's own Postgres too (docs/14).
 
 ### Hosting it
 
-**[12-DEPLOYMENT.md](12-DEPLOYMENT.md)** — the runbook: Supabase (Postgres + photo storage), the
+**[12-DEPLOYMENT.md](12-DEPLOYMENT.md)** — the runbook: Supabase (Postgres, photo storage, sign-in), the
 API and worker as two services from one Docker image, migrations as a release step, GitHub
 environments, crash reporting, backups and the restore drill, rollback.
 
@@ -146,7 +159,7 @@ environments, crash reporting, backups and the restore drill, rollback.
 ## Decisions and conventions
 
 **The decision log lives in [08-PROJECT-CHARTER.md §6](08-PROJECT-CHARTER.md#6-decision-log)** —
-D1 through D10, each with a date and rationale. It is the single canonical list; this file does not
+D1 through D30, each with a date and rationale. It is the single canonical list; this file does not
 repeat it, because a decision table maintained in two places drifts.
 
 The ones that shape the most reading:

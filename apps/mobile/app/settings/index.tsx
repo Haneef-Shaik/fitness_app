@@ -7,9 +7,9 @@
  * workout stays on the device for this account (K-01) and queued changes
  * upload when they sign back in.
  *
- * An unverified email gets a note here with a Resend (A-06) — a note, not a
- * gate: nothing in the app waits on it. Password, email and other devices live
- * one row down, in Account and security (K-02).
+ * Every account here has a confirmed address — Supabase Auth confirms it
+ * before the first sign-in (docs/14 S8). Password, email and other devices
+ * live one row down, in Account and security (K-02).
  */
 import { router } from 'expo-router';
 import { useState } from 'react';

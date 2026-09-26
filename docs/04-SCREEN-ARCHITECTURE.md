@@ -347,8 +347,8 @@ PUBLIC
   /login                               A-04
   /register                            A-03
   /forgot-password                     A-05  request step (?email= carried from A-04)
-  /reset-password                      A-05  reset step (?token= from the emailed link, or a pasted code)
-  /verify-email                        A-06  (?token= from the emailed link; also finishes a K-02 email change)
+  /reset-password                      A-05  new password after the reset link, or the 6-digit code typed signed out
+  /auth/callback                       A-05, A-06, K-02  every Supabase email link lands here (?code= PKCE)
 
 ONBOARDING (authenticated, profile incomplete)
   /onboarding/[step]                   A-07  step ∈ basics|units|activity|goal|targets|schedule

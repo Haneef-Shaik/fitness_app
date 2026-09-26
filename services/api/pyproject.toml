@@ -11,8 +11,10 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg>=0.30",
     "alembic>=1.14",
-    "argon2-cffi>=23.1",
-    "pyjwt>=2.10",
+    # [crypto]: Supabase signs access tokens with ES256/RS256 (docs/14 S2),
+    # which PyJWT verifies only with `cryptography` — found missing from the
+    # production install, where only a test dependency (moto) had brought it.
+    "pyjwt[crypto]>=2.10",
     "email-validator>=2.2",
     # The AI gateway speaks HTTP to a provider. Tests never reach one — the
     # stub gateway is the default — but the client itself is production code.

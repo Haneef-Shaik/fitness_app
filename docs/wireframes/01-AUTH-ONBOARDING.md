@@ -37,7 +37,8 @@ in-progress workout.
 | Account status `disabled` | L-08 with a support contact |
 | Account soft-deleted, within the grace window | A-04 with a "Restore account?" prompt |
 
-**Data.** `POST /auth/refresh` · `GET /profile` · local SQLite draft check.
+**Data.** Supabase Auth's stored session (refreshed when expired; with no signal, the stored
+sign-in opens the app — O10) · `GET /auth/me` · `GET /profile` · local SQLite draft check.
 
 **Edge cases**
 - Bootstrap exceeds 3 s → render A-02 with a quiet retry rather than holding the splash.
@@ -126,7 +127,8 @@ flow and honoured after onboarding completes.
 | Password field | `autocomplete=new-password` | Strength meter is advisory, never blocking above the minimum |
 | 👁 reveal | toggle | Announced as "Password shown/hidden" |
 | Marketing checkbox | toggle | **Unchecked by default.** Never pre-consented |
-| Create account | `POST /auth/register` | 201 → A-07 · 409 → inline "An account already uses this email. Log in instead." with a link · 429 → "Too many attempts. Try again in {n} minutes." |
+| Create account | Supabase `signUp` ([docs/14](../14-SUPABASE.md)) | → "Check your email" (A-06: the address is confirmed before the first sign-in, S8) · address in use → inline "An account already uses this email. Log in instead." · rate limited → "Too many attempts. Try again shortly." |
+| Continue with Google / Apple | native sheet → Supabase | Shown only when configured; Apple on iOS only (S7). Closing the sheet changes nothing |
 | Log in | navigate | → A-04, carrying any typed email |
 
 **Validation**
@@ -174,7 +176,7 @@ their field via `accessibilityHint`. Nothing depends on the strength meter's col
 **Controls**
 | Control | Action | Result / failure |
 |---------|--------|------------------|
-| Log in | `POST /auth/login` | 200 → A-01 routing logic · 401 → "Email or password is incorrect." (**never** which one) · 423 → "Account locked. Check your email." · 429 → cooldown message with a countdown |
+| Log in | Supabase `signInWithPassword` | → A-01 routing logic · wrong → "That email and password do not match." (**never** which one) · address not confirmed → "Confirm your email first" with *Send the confirmation link again* · rate limited → "Too many attempts. Try again shortly." |
 | Forgot password? | navigate | → A-05, carrying the typed email |
 | Create an account | navigate | → A-03 |
 
@@ -219,27 +221,28 @@ STATE 1b — sent (always shown, regardless of whether the account exists)
 **Controls**
 | Control | Action | Result |
 |---------|--------|--------|
-| Send reset link | `POST /auth/password/forgot` | Always the same confirmation — **account existence is never disclosed** |
+| Send reset link | Supabase `resetPasswordForEmail` | Always the same confirmation — **account existence is never disclosed** |
 | Resend | same | Enabled after a 60 s cooldown |
-| Update password | `POST /auth/password/reset` | 200 → all other sessions revoked → A-04 with "Password updated. Log in." · 400 invalid/expired token → "This link has expired." + a request-new-link action |
+| I have a code | → `/reset-password` signed out | Email + the 6-digit code from the same email (`verifyOtp`, type `recovery`) |
+| Update password | Supabase `updateUser` | → every other device signed out; this one stays in → the app · a used or expired link or code → "That link has expired or was already used. Ask for a new one." |
 
 **Edge cases.** Token already used → same expired message. Token for a different account than the
 one currently logged in → sign the current session out first. Reset while a workout session is in
 progress on this device → the local draft survives (it is device-local, not session-local).
 
-**As built.** The link is single-use and lasts 30 minutes; requesting again kills the older link.
-Unknown, used, superseded and expired all return `400 LINK_EXPIRED` with one sentence — telling them
-apart would tell a guesser which tokens existed. A second request inside 60 s is answered
-identically and sends nothing, so the form cannot flood someone's inbox. A completed reset revokes
-**every** session, this device's included, so the app signs out locally and lands on A-04 with
-"Password updated. Log in with your new password." Opening the link also marks the address
-verified (it proves the inbox). The strength meter states its level in words ("Too short" below the
-10-character minimum, then "Good", "Strong") — shared with A-03 and K-02.
+**As built (Supabase Auth, 26 Sep — [docs/14](../14-SUPABASE.md)).** The email carries a link
+**and a 6-digit code**, each single-use for an hour. The link is PKCE: it opens the app
+(`/auth/callback`) and works only on the phone that asked, so an email read on a laptop is not a
+dead end — "I have a code" takes the code. The new-password form appears only after a reset link or
+code (an unlocked phone cannot set a password without the old one); the new password signs every
+other device out and keeps this one, and Supabase emails a "password changed" notice. The strength
+meter states its level in words ("Too short" below the 10-character minimum, then "Good",
+"Strong") — shared with A-03 and K-02.
 
 ---
 
 ## A-06 · Verify Email
-**Route** `/verify-email` · **Type** FS · **Priority** P1
+**Route** `/verify-email` *(retired 26 Sep — see As built)* · **Type** FS · **Priority** P1
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -263,14 +266,14 @@ log a workout because of an unverified email would violate the product's core pr
 **Edge cases.** Changing the email restarts verification and revokes any outstanding link.
 Verifying in another tab → this screen detects it on focus and advances automatically.
 
-**As built (launch).** Sign-up sends the link (24 h, single use); `fitlog://verify-email?token=…`
-verifies on arrival, signed in or not, and the code can be pasted instead. Resend is on this screen,
-on a K-01 banner ("Verify your email · Resend") and in K-02, counting down from 60 s. **The grace
-period is not enforced and nothing locks** — not export, not logging, not password reset, which
-emails verified and unverified addresses alike. Whether anything should lock after 7 days is an
-open product decision; until it is taken, verification is informational. Not built: "Open mail app"
-and "Skip for now" (the screen is never forced on anyone, so there is nothing to skip). The same
-link also completes a K-02 email change.
+**As built — changed 26 Sep ([docs/14](../14-SUPABASE.md) S8).** Confirmation is **required
+before the first sign-in** of a password account; the grace period above is superseded. With
+Supabase linking sign-ins that share a confirmed address, an unconfirmed sign-up would let someone
+pre-register a victim's address and be linked into their later Google sign-in. There is no
+`/verify-email` screen: A-03 turns into "Check your email" with *Send the link again*; A-04 offers
+the link again to an unconfirmed account; the link opens `/auth/callback`, which signs the phone
+in. Opened on another device it still confirms the address — then log in. Google and Apple
+addresses are confirmed by the provider.
 
 ---
 
@@ -463,11 +466,11 @@ dashboard shows a "Finish setting up" card instead of fabricating values.
 
 | Concern | Rule |
 |---------|------|
-| Token storage | Access token in memory; refresh token in the **device keychain** via `expo-secure-store` — never a cookie, because a native client cannot use one ([D10](../08-PROJECT-CHARTER.md#6-decision-log)), and never in plain key-value storage. The web build falls back to browser storage, which is acceptable only because web is a development surface and not a shipping platform ([D1](../08-PROJECT-CHARTER.md#6-decision-log)) |
+| Token storage | Access token in memory; Supabase's session (with its refresh token) in the **device keychain** via `expo-secure-store`, in chunks — never a cookie, because a native client cannot use one ([D10](../08-PROJECT-CHARTER.md#6-decision-log)), and never in plain key-value storage. The web build falls back to browser storage, which is acceptable only because web is a development surface and not a shipping platform ([D1](../08-PROJECT-CHARTER.md#6-decision-log)) |
 | Session expiry mid-use | L-05 dialog re-authenticates **in place** — the user never loses the screen they were on, and never loses an active session draft |
 | Sign out | Clears server state and query cache. **If a session draft exists, it is retained on-device and quarantined to that user** — sign-out is not a reason to destroy a workout |
 | Multiple devices | Allowed. A workout started on one device shows on the other via the active-session bar after sync |
-| Rate limiting | Every auth endpoint; the UI shows a countdown, never a bare "try later" |
+| Rate limiting | Sign-in, sign-up and auth emails are limited by Supabase Auth; the UI says so in words, never a bare "try later" |
 | Enumeration | Login and password reset never reveal whether an account exists |
 | Deep links | `?next=` survives register → onboarding → dashboard |
 | Analytics | `auth.registered`, `auth.logged_in`, `auth.failed{reason}`, `onboarding.step_completed{step}`, `onboarding.skipped{step}`, `onboarding.completed{steps_skipped}` |

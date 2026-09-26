@@ -83,7 +83,7 @@ module.exports = ({ config }) => {
         'android.permission.RECORD_AUDIO',
         'android.permission.SYSTEM_ALERT_WINDOW',
         // expo-secure-store declares these for biometric-gated items; FitLog
-        // stores its refresh token without `requireAuthentication`, so they
+        // stores its sign-in (Supabase's session) without `requireAuthentication`, so they
         // would only be a question on the Play form with no feature behind it.
         'android.permission.USE_BIOMETRIC',
         'android.permission.USE_FINGERPRINT',

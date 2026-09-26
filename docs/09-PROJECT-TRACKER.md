@@ -16,7 +16,7 @@
 | | |
 |---|---|
 | **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
-| **Tests passing** | **2,429** — 133 TS domain, **1,054** Python *(4 skipped)*, **1,242 client** |
+| **Tests passing** | **2,430** — 133 TS domain, **1,054** Python *(4 skipped)*, **1,243 client** |
 | **API endpoints live** | **125** operations across **98** paths, all with declared response shapes (D17) |
 | **App screens built** | **76** route screens *(G11 added the launch surfaces: A-05, A-06, K-02, K-03, K-04, K-07, K-08, K-10, L-04, feedback, imports; E-06, E-07, E-12, E-13 and L-05, L-06, L-08 as sheets and overlays)* |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
@@ -249,7 +249,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **2,429** — 1,242 client, 1,054 API (+4 skipped), 133 domain | grows with each milestone |
+| Tests passing | **2,430** — 1,243 client, 1,054 API (+4 skipped), 133 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
 | API integration tests | **1,054** | every endpoint, happy + failure |
 | Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
@@ -258,7 +258,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | Lint | `ruff` clean, enforced in CI | stays clean |
 | Coverage gate | **enforced**, and **ratcheted in G9** to **65/60/60/66** (from G8's 62/56/57/63). Careful reading the table: naming a path in `coverageThreshold` **removes it from `global`**, so the printed **68.4%** includes `src/lib/query` and `DataBoundary` (held at 90%+) while the `global` bucket is the remainder — measured **65.25%** statements / **66.59%** lines. The gate caught G9 mid-goal: the screens landed before their tests and the functions threshold failed, which is the ratchet working | 80% global (D18) — **not met, and now deliberately tracked** rather than aspirational |
 | Acceptance criteria passing | **12 of 12**. **G11 (26 Sep), release APK on SDK 57 in the emulator:** AC-01, 02, 04, 05, 07, 08, 09, 10, 11 and the offline flow, each asserted on the screen *and* in the database. Two flows were adjusted for the 297-exercise catalog (picked by index, now narrowed to Chest), and the demo seed was fixed (it read one page of the catalog and never repaired an emptied plan day). **G10 (25 Sep):** the same flows on a phone (Expo Go, SM-E546B). AC-03, 06 and 12 rest on API tests by nature | 12 of 12 ✅ |
-| tap → set rendered | **p95 67.4 ms** on a release APK (p50 54.7, n=99) — Samsung SM-E546B, Android 16 · dev build 296.5 ms (G4 dev 396.4 ms). [release-build](measurements/release-build.md) | p95 < 100 ms (D16) — **MET** |
+| tap → set rendered | **p95 80.7 ms** on a release APK, **SDK 57** (p50 61.6, worst 95, n=99; cold start median 956 ms) — Samsung SM-E546B, Android 16, 26 Sep · G10 on SDK 52: 67.4 ms · dev build 296.5 ms (G4 dev 396.4 ms). [release-build](measurements/release-build.md) | p95 < 100 ms (D16) — **MET** |
 
 ## Changelog
 
@@ -326,6 +326,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | 26 Sep | **K-09 — Apple Health / Health Connect.** Weight in, workouts out, each behind its own switch and its own OS permission. Proven on the release APK in the emulator against the real Health Connect: the permission sheet names only Weight and Exercise, and a finished workout shows up there as strength training. iOS is configured (entitlement, usage strings) but not yet run on an iPhone |
 | 26 Sep | **Store screenshots found five defects.** Seeding a believable account and looking at it the way a store visitor would: every **line chart started at zero**, so eight weeks of 83 → 79.9 kg and a bench e1RM climb both drew as flat lines; weigh-in **times were UTC** (07:05 in India read 01:35); the weight screen gave **no sign of the selected range**; the **AI review showed the model's macros for an item matched to a catalog food, while confirm saved the food's** (195 kcal reviewed, ~300 logged); and "a side salad" was matched to **McDONALD'S, Side Salad**. All fixed with tests. The demo seed had also been silently dropping the Push day's triceps exercise (a name not in the catalog). The Play phone set is in `docs/store/screenshots/android/`, re-taken by `scripts/store-screenshots.sh` |
 | 26 Sep | **SDK 57 upgrade re-audited; #15b closed.** The upgrade agent hit a usage limit right after reaching SDK 57, before its own checks; every line it wrote is in the tree, and its checklist holds today — `expo-doctor` 21/21, every package at SDK 57's version, target/compile API 36 from the APK, 133 domain tests. The one brief item nobody had done: whether the TextInput focus bridge was still needed. On RN 0.86 it was not — a field takes the keyboard's focus itself — and it had become a second, invisible stop on every Shift+Tab. Removed; sign-in and the logger walked on the emulator's hardware keyboard, one stop per field both ways; AC-01, 02, 07 re-run green |
+| 26 Sep | **D16 had regressed, and nothing said so until a phone measured it.** On the phone, SDK 57 release APK: tap → set **p95 164.6 ms**, over the 100 ms budget (G10: 67.4). G11's set editing passed each row an `onEdit` that was a new function every render, so `SetRow`'s memo never held and every commit re-rendered the whole list. One `useCallback` (above the screen's early returns — the first attempt below them broke four finish tests): **p95 80.7 ms**, p50 61.6, worst 95; cold start 956 ms. A test now counts the rows a commit renders. The first measurement run also exposed `build-release-apk.sh` reusing the previous JS bundle when only `API_URL` changed — an APK that printed one API and called another; it now regenerates the bundle and refuses an APK whose bundle lacks the address |
 
 
 ---

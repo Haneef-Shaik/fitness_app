@@ -224,6 +224,26 @@ describe('the entry stays in reach (G10)', () => {
   });
 });
 
+describe('a commit renders one row, not the list (D16)', () => {
+  // G11 gave each row an inline onEdit, so React.memo never held and every
+  // commit re-rendered every row: the phone's p95 went from 67.4 ms (G10) to
+  // 164.6 ms over 100 sets. Each row render names itself once, so the labels
+  // counted here are the rows that rendered.
+  it('saving set 21 renders only set 21', () => {
+    const a11y = require('@/features/workout-session/a11y');
+    seed(20);
+    render(<ActiveSession />);
+    const label = jest.spyOn(a11y, 'setRowLabel');
+
+    fireEvent.press(screen.getByText('Save set 21'));
+
+    const rendered = label.mock.calls.map(([set]) => (set as { setIndex: number }).setIndex);
+    expect(rendered.length).toBeGreaterThan(0);
+    expect(new Set(rendered)).toEqual(new Set([20]));
+    label.mockRestore();
+  });
+});
+
 describe('finishing waits for every queued change (G11)', () => {
   it('does not finish while changes are still waiting to upload', async () => {
     // The server closes the workout on finish and then refuses the sets still

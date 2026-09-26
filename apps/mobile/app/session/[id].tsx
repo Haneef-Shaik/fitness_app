@@ -7,7 +7,7 @@
  * only visible difference between online and offline is the per-set sync dot.
  */
 import { router, useLocalSearchParams } from 'expo-router';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState, Keyboard, ScrollView, View } from 'react-native';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
@@ -179,6 +179,13 @@ export default function ActiveSession() {
   const [swapping, setSwapping] = useState<string | null>(null);
   const [open, setOpen] = useState<Open>(null);
   const [editing, setEditing] = useState<AdvancedValue>(EMPTY_ADVANCED);
+  // Stable (and above the early returns: it is a hook), because every SetRow receives it: a new function each render
+  // defeated SetRow's memo and re-rendered the whole list on every commit
+  // (p95 164.6 ms on the phone, against D16's 100 ms).
+  const openEdit = useCallback((s: DraftSet) => {
+    setEditing({ setType: s.setType, rpe: s.rpe, rir: s.rir, note: s.note ?? null });
+    setOpen({ sheet: 'advanced-edit', setClientId: s.clientId, setNumber: s.setIndex + 1 });
+  }, []);
   const [finishError, setFinishError] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
   const [timing, setTiming] = useState<ReturnType<typeof commitTimings.report> | null>(null);
@@ -359,10 +366,6 @@ export default function ActiveSession() {
     }
   };
 
-  const openEdit = (s: DraftSet) => {
-    setEditing({ setType: s.setType, rpe: s.rpe, rir: s.rir, note: s.note ?? null });
-    setOpen({ sheet: 'advanced-edit', setClientId: s.clientId, setNumber: s.setIndex + 1 });
-  };
 
   const closeAdvanced = () => {
     if (open?.sheet === 'advanced-edit') {

@@ -1,9 +1,9 @@
 """Supabase's Data API cannot reach FitLog's tables (L1, docs/12 §2).
 
 Supabase grants its `anon` and `authenticated` roles privileges on tables
-created in `public`, and serves `public` over its Data API. FitLog keeps its own
-auth and never uses that API, so the grants would be a second door to every row
-— password hashes included — for anyone holding the project's anon key.
+created in `public`, and serves `public` over its Data API. FitLog signs in
+with Supabase Auth but never uses that API, so the grants would be a second door
+to every row for anyone holding the app's publishable key or a user's token.
 
 Each test runs inside one transaction that is rolled back: roles are
 cluster-wide in Postgres, and a probe role must not outlive the test.

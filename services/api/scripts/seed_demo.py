@@ -2,10 +2,15 @@
 
     uv run python scripts/seed_demo.py
 
-For App Review, against a deployed API with the reviewer account's own details
-(never the defaults below, which are public in this repository):
+The account is created in Supabase Auth, already confirmed (docs/14), then set
+up through the FitLog API. Locally, the stack `pnpm supabase start` runs.
+
+For App Review, against a deployed API and its Supabase project, with the
+reviewer account's own details (never the defaults below, which are public in
+this repository):
 
     FITLOG_API=https://api.example.com DEMO_EMAIL=review@… DEMO_PASSWORD=… \
+    SUPABASE_URL=https://<ref>.supabase.co SUPABASE_PUBLISHABLE_KEY=… SUPABASE_SECRET_KEY=… \
         uv run python scripts/seed_demo.py
 
 Idempotent, but NOT a wipe: it creates what is missing, cancels whatever
@@ -35,6 +40,11 @@ PASSWORD = os.environ.get("DEMO_PASSWORD", "fitlogdemo1234")
 if BASE.startswith("https://") and PASSWORD == "fitlogdemo1234":
     # The default is in a public repo. A deployed account with it is anyone's.
     sys.exit("Set DEMO_PASSWORD for a deployed API; the default is public.")
+if BASE.startswith("https://") and not os.environ.get("SUPABASE_URL"):
+    # Without it the sign-in falls back to the LOCAL stack, and the deployed API
+    # refuses a token its own project did not issue.
+    sys.exit("Set SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY and SUPABASE_SECRET_KEY "
+             "for the deployed API's Supabase project.")
 
 
 # The split the design files render. Names are matched against the seeded catalog, so

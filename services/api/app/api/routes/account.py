@@ -149,8 +149,8 @@ async def export_account(user: CurrentUser, db: DbSession):
     return ok({
         "format": EXPORT_FORMAT,
         "exported_at": datetime.now(UTC).isoformat(),
-        # The account itself. NOT the password hash and NOT a refresh token —
-        # an export is a file a user emails to themselves.
+        # The account itself — no credential: an export is a file a user
+        # emails to themselves (and passwords and sessions are Supabase's).
         "account": {"email": user.email, "created_at": _iso(user.created_at)},
         "profile": {
             "display_name": profile.display_name if profile else None,
@@ -385,10 +385,10 @@ async def export_account(user: CurrentUser, db: DbSession):
     })
 
 
-#: Every table an export covers. `users`, `refresh_tokens`, `account_tokens`
-#: and `push_tokens` are deliberately absent (credentials, not data — an emailed link is a
-#: password while it lives); `daily_summaries` is a cache reproducible from the
-#: rest.
+#: Every table an export covers. `users` and `push_tokens` are deliberately
+#: absent (the account is exported above; a push token is a credential, not
+#: data); `daily_summaries` is a cache reproducible from the rest. Passwords
+#: and sessions are Supabase Auth's and in no FitLog table (docs/14).
 EXPORTED_TABLES = {
     "user_profiles", "fitness_goals", "workout_programs", "workout_plan_days",
     "plan_exercises", "workout_sessions", "session_exercises", "workout_sets",

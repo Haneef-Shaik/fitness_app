@@ -27,10 +27,15 @@ permanent.</li>
 <h3>Your account</h3>
 <ul>
 <li>Your email address and the date you joined.</li>
-<li>Your password — stored only as a one-way hash (Argon2). We never see or store the password
-itself.</li>
-<li>Sign-in sessions on your devices, stored as hashes so a leaked database cannot be used to sign
-in as you.</li>
+<li>If you sign in with a password: it is held by our sign-in provider (section 5) only as a
+one-way hash. Neither we nor they can read it.</li>
+<li>If you choose <strong>Continue with Google</strong> or <strong>Continue with Apple</strong>: the
+email address that service shares with us (with Apple, possibly a private relay address Apple
+creates for you) and your name, if you let it share that. We never receive your Google or Apple
+password.</li>
+<li>Your sign-ins on each device — when each was made, and the device's IP address and app version
+as our sign-in provider records them — so a sign-in can be ended: by you, or when your password
+changes.</li>
 </ul>
 <h3>Your profile</h3>
 <ul>
@@ -50,6 +55,16 @@ and your meal categories.</li>
 <li><strong>Body metrics:</strong> body weight, measurements and any notes you add.</li>
 <li><strong>Progress photos</strong> you take or choose in the app.</li>
 <li><strong>Goals</strong> you set and how they progress.</li>
+</ul>
+<h3>Health integrations — only if you switch them on</h3>
+<ul>
+<li>With <strong>Apple Health</strong> (iPhone) or <strong>Health Connect</strong> (Android) switched on
+in Settings → Health integrations, FitLog <strong>reads your body-weight entries</strong> (for
+example from a smart scale), stored with your other body metrics, and <strong>writes each finished
+workout</strong> as a strength-training session. It asks for nothing else and reads nothing in the
+background. Data from Apple Health or Health Connect is never used for advertising, never shared
+or sold, and not stored in iCloud. Switch either off at any time, in the app or in the Health
+app's settings.</li>
 </ul>
 <h3>Food analysis</h3>
 <ul>
@@ -73,8 +88,8 @@ none is used.]</li>
 <ul>
 <li><strong>Location.</strong> The app removes location and camera metadata (EXIF) from photos before
 upload, and our server removes it again on arrival.</li>
-<li>Your contacts, advertising identifiers, or data from other apps. FitLog does not connect to
-Apple Health, Google Fit or wearables at this time.</li>
+<li>Your contacts, advertising identifiers, or data from other apps — beyond the Health
+integrations above, and only if you switch them on.</li>
 </ul>
 
 <h2>2. Health information</h2>
@@ -121,14 +136,19 @@ only to provide their service to us:</p>
 <tr><th scope="col">Provider</th><th scope="col">What for</th><th scope="col">Data</th></tr>
 <tr><td>[OWNER: hosting provider, and region]</td><td>Running the FitLog servers</td>
 <td>All data, in transit and while processed</td></tr>
-<tr><td>[OWNER: database and file-storage provider, and region]</td><td>Storing your account, logs
-and photos</td><td>All data at rest, including photos</td></tr>
+<tr><td>Supabase Inc. ([OWNER: the project's region])</td><td>Storing your account, logs and
+photos; signing you in</td><td>All data at rest, including photos; your email address, password
+hash and sign-ins</td></tr>
 <tr><td>Anthropic PBC (United States)</td><td>AI food analysis, when you ask for it</td>
 <td>The photo or description you submitted</td></tr>
 <tr><td>[OWNER: crash-reporting provider, or remove]</td><td>Diagnosing app crashes</td>
 <td>Device, app version, error details</td></tr>
-<tr><td>[OWNER: email provider, or remove]</td><td>Sending account emails, such as password
-resets</td><td>Your email address and the message</td></tr>
+<tr><td>[OWNER: email provider, e.g. Resend]</td><td>Sending account emails for our sign-in
+provider: confirming your address, password resets, and notices when your password or email
+address changes</td><td>Your email address and the message</td></tr>
+<tr><td>Google LLC, Apple Inc. — only if you sign in with them</td><td>Confirming who you
+are</td><td>They share your email address and, if you allow it, your name; their own privacy
+policies apply</td></tr>
 </table>
 <p>Apple and Google distribute the app and process data under their own policies when you download
 it or update it.</p>
@@ -179,7 +199,9 @@ estimates, calorie and macro targets, estimated one-rep maxes — are estimates 
 not medical, dietary or clinical advice.</p>
 
 <h2>10. Security</h2>
-<p>Data is encrypted in transit (HTTPS). Passwords and sign-in tokens are stored only as hashes.
+<p>Data is encrypted in transit (HTTPS). Passwords are stored only as one-way hashes, by our
+sign-in provider. Signing out, changing your password, or "Sign out other devices" ends those
+sign-ins at once.
 Photos are stored privately with no public address, reachable only through short-lived links issued
 to you. Repeated sign-in, deletion and AI requests are rate limited. [OWNER: confirm encryption at
 rest with your database and storage provider.] No system is perfectly secure; if a breach affects

@@ -13,17 +13,25 @@ bash scripts/e2e.sh            # everything, in dependency order
 bash scripts/e2e.sh ac-02      # one criterion
 ```
 
-It needs three things up:
+It needs four things up:
 
 ```bash
-# 1. the API, reachable from the phone (not localhost — the LAN address)
+# 1. Supabase — the app signs in with it (docs/14); the seeds create the demo account in it
+pnpm supabase start
+eval "$(scripts/supabase-env.sh)"     # in this shell, and the one running e2e.sh
+
+# 2. the API, reachable from the phone (not localhost — the LAN address)
 cd services/api && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-# 2. Metro, so Expo Go can load the bundle
+# 3. Metro, so Expo Go can load the bundle
 cd apps/mobile && npx expo start
 
-# 3. the phone on the same LAN, with USB debugging on
+# 4. the phone on the same LAN, with USB debugging on
 ```
+
+An emulator reaches both the API and Supabase through `adb reverse`, which `e2e.sh`
+sets up (ports 8000 and 54321). A second API for the suite, leaving :8000 alone:
+`API_PORT=8001 bash scripts/e2e.sh`.
 
 `java` is **not on PATH by default on this machine** — Homebrew's `openjdk@17` is
 installed but unlinked. `scripts/e2e.sh` exports `JAVA_HOME` itself; if you invoke

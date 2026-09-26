@@ -272,8 +272,7 @@ async def enforce(
 
     `account` is the email or user id the request is about, when there is one.
     `by_ip=False` counts only the account — for a second call once a handler
-    has learned whose request it is (a refresh token names its user only after
-    it is looked up).
+    has learned whose request it is.
     """
     settings = get_settings()
     if not settings.rate_limits_enabled:

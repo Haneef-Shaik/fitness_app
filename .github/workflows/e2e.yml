@@ -9,6 +9,11 @@ name: Acceptance (E2E)
 # the installed app instead of Expo Go. It was dry-run on the local emulator
 # (docs/09 changelog, 25 Sep); its first run on GitHub is still its first real
 # test. Do not read a missing run as a passing one.
+#
+# Since 26 Sep the app signs in with Supabase Auth (docs/14), so the job runs
+# the same local Supabase stack a laptop does (`pnpm supabase start`): Postgres
+# and its pooler, Auth, Storage. Plain Postgres cannot stand in — there would
+# be nobody to sign in with.
 on:
   workflow_dispatch:
   schedule:
@@ -18,20 +23,7 @@ jobs:
   acceptance:
     name: Acceptance suite on a release APK
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: fitlog
-          POSTGRES_PASSWORD: fitlog
-          POSTGRES_DB: fitlog
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U fitlog -d fitlog"
-          --health-interval 3s --health-timeout 3s --health-retries 20
-    env:
-      DATABASE_URL: postgresql+asyncpg://fitlog:fitlog@localhost:5432/fitlog
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -47,17 +39,31 @@ jobs:
       - working-directory: services/api
         run: uv sync --frozen
 
-      - name: Migrate and start the API on 0.0.0.0
+      # Docker is on the runner. Only what the app and the API use is started.
+      - name: Start the local Supabase stack
+        run: |
+          pnpm exec supabase start -x studio,edge-runtime,logflare,vector,realtime,postgres-meta
+          # Its URLs and keys, for every later step — read from the stack, never stored.
+          scripts/supabase-env.sh | sed -e 's/^export //' -e "s/'//g" >> "$GITHUB_ENV"
+
+      # Migrations over a direct connection (scripts/migrate.sh: never the
+      # transaction pooler); the API itself goes through the pooler, as hosted.
+      - name: Migrate
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@127.0.0.1:54322/postgres
+        run: bash scripts/migrate.sh
+
+      - name: Start the API on 0.0.0.0
         working-directory: services/api
         run: |
-          uv run alembic upgrade head
           uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           for _ in $(seq 1 60); do
             curl -sf http://localhost:8000/v1/openapi.json >/dev/null && break
             sleep 1
           done
 
-      # The flows start from this state, and assert_ac.py signs in as this user.
+      # The flows start from this state, and assert_ac.py signs in as this user
+      # — created, confirmed, in the stack's Supabase Auth.
       - name: Seed the known state
         working-directory: services/api
         run: uv run python scripts/seed_demo.py
@@ -65,7 +71,9 @@ jobs:
       # A release APK rather than Expo Go: Expo Go pins its own SDK version and
       # would have to match this project's (the coupling DR4 was about), and
       # the release build is the one the budgets were measured on. The API is
-      # reached as the emulator's localhost:8000, which e2e.sh `adb reverse`s.
+      # reached as the emulator's localhost:8000 and Supabase as its
+      # localhost:54321, both of which e2e.sh `adb reverse`s; the script reads
+      # the publishable key from the running stack.
       - name: Build the release APK
         env:
           API_URL: http://localhost:8000

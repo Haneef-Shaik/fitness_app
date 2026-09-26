@@ -64,8 +64,11 @@ class TestThePrivacyPolicyCovers:
         "email address", "birth date, sex and height", "Workouts", "Nutrition",
         "Body metrics", "Progress photos", "Food photos", "meal descriptions", "Goals",
         # Who processes it.
-        "Anthropic", "hosting provider", "file-storage provider", "crash-reporting",
-        "email provider",
+        "Anthropic", "hosting provider", "Supabase", "crash-reporting", "email provider",
+        # Signing in (docs/14): who holds the password, and what Google and Apple share.
+        "sign-in provider", "one-way hash", "Continue with Google", "Continue with Apple",
+        # K-09, which App Review 5.1.3 and Play's Health Connect declaration require.
+        "Apple Health", "Health Connect", "never used for advertising",
         # What the law and the stores ask for.
         "How long we keep it", "Delete your account", "16 and over", "Not medical advice",
         "special category", "use your data to train AI models", "EXIF",

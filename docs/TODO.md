@@ -21,11 +21,14 @@ an account, a decision, money or a device.
    `e2e.yml` once. Turn on branch protection.
 2. **Decisions** in [launch plan §0](11-LAUNCH-PLAN.md#phase-0--decisions-the-owner-must-make-first):
    L2 (container host), L5 (barcode scanning — the one parity gap left open), L6 (paid tier /
-   AI quota), L7 (launch scope), L8 (name and trademark). L1 (Supabase) and L3 (email: Resend) are
-   built for.
-3. **Accounts:** Supabase (Pro, staging + production), the container host, Resend (verified sending
-   domain → `EMAIL_FROM`), Sentry, Anthropic key with a spend limit, Expo/EAS (`eas init` → project
-   id, which also switches push on), Play Console ($25), Apple Developer ($99/yr).
+   AI quota), L7 (launch scope), L8 (name and trademark). L1 (Supabase — database, storage **and
+   sign-in**, D30) and L3 (email: Resend) are built for.
+3. **Accounts:** Supabase (Pro, staging + production — with Auth set up by
+   [12-DEPLOYMENT.md §2.1](12-DEPLOYMENT.md): redirect URLs, confirmation, templates), the container
+   host, Resend (a verified sending domain, entered as **Supabase's SMTP** — Supabase sends every
+   auth email), Google OAuth clients and Sign in with Apple (optional — the buttons appear only once
+   configured), Sentry, Anthropic key with a spend limit, Expo/EAS (`eas init` → project id, which
+   also switches push on), Play Console ($25), Apple Developer ($99/yr).
 4. **Hosting** by the runbook, [12-DEPLOYMENT.md](12-DEPLOYMENT.md): secrets, domain + HTTPS,
    `TRUSTED_PROXY_COUNT`, `ADMIN_TOKEN`, backups, **one restore drill**, uptime check, spend alerts.
 5. **The real upload key** — generate, keep out of the repo, back it up twice; then
@@ -54,7 +57,9 @@ an account, a decision, money or a device.
 - [ ] **#28** (TalkBack formatting spans) — re-test on the phone with *Speak text formatting* on.
       Dated **2026-12-15**.
 - [ ] Walk the new screens on the phone once: E-06, E-07, E-12, supersets, K-03, K-04, K-07, K-08,
-      K-10, the imports, and a reset / verify link opened from a real inbox.
+      K-10, the imports — and **the Supabase sign-in on the phone** (docs/14): sign up, the
+      confirmation link, log in, "Forgot password?" by link and by code, sign out and back in,
+      and "Continue with Google" once the owner has its client ids.
 - [ ] **K-09 on real hardware:** Apple Health on an iPhone (both switches, a finished workout
       in the Health app), and one weigh-in from a real smart scale imported on each platform.
       Health Connect's write path and permission sheet are proven in the emulator; its read
@@ -74,4 +79,5 @@ an account, a decision, money or a device.
 - The TalkBack pass was driven by keyboard (Alt+arrows), not by touch gestures — same traversal and
   speech, but touch exploration was not exercised ([how, and why](measurements/talkback-session.md)).
 - Emailed links use the `fitlog://` scheme until the production domain exists for https App Links
-  (security review L8).
+  (security review L8). Since the move to Supabase Auth an app that claimed the scheme would get a
+  PKCE code, useless without the verifier kept on the phone that asked.

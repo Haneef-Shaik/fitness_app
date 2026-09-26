@@ -4826,6 +4826,8 @@ export interface components {
             image_key: string;
             /** Image Url */
             image_url?: string | null;
+            /** Thumbnail Url */
+            thumbnail_url?: string | null;
             /**
              * Taken At
              * Format: date-time

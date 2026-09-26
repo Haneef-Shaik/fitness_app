@@ -162,6 +162,10 @@ class ProgressPhotoOut(BaseModel):
     #: on this API for the local store; the bucket's presigned URL for S3.
     #: Absent when the photo is gone — the response to its own delete.
     image_url: str | None = None
+    #: A small signed copy for grids (Supabase Storage renders it, docs/14
+    #: S10). Absent when thumbnails are not configured or could not be signed;
+    #: show `image_url` then.
+    thumbnail_url: str | None = None
     taken_at: datetime
     local_date: date
     pose: str

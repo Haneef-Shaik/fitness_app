@@ -39,6 +39,7 @@ from app.schemas.envelope import Envelope
 from app.services import summaries
 from app.storage.provider import get_store
 from app.storage.signing import is_own_key
+from app.storage.thumbnails import signed_thumbnails
 
 router = APIRouter(tags=["body"])
 
@@ -260,7 +261,9 @@ def _trailing_mean(values: list[float], index: int) -> float:
 
 # ------------------------------------------------------- I-05 · photographs
 
-def _photo_out(row: ProgressPhoto, *, with_url: bool = True) -> dict:
+def _photo_out(
+    row: ProgressPhoto, *, with_url: bool = True, thumbnail_url: str | None = None,
+) -> dict:
     # Signed per response, after the owner check the query already made: a URL
     # is only ever issued to the person the photo belongs to (BRD §18).
     url = (
@@ -268,7 +271,8 @@ def _photo_out(row: ProgressPhoto, *, with_url: bool = True) -> dict:
         if with_url else None
     )
     return ProgressPhotoOut(
-        id=row.id, image_key=row.image_key, image_url=url, taken_at=row.taken_at,
+        id=row.id, image_key=row.image_key, image_url=url, thumbnail_url=thumbnail_url,
+        taken_at=row.taken_at,
         local_date=row.local_date, pose=row.pose, notes=row.notes,
     ).model_dump(mode="json")
 
@@ -325,7 +329,11 @@ async def list_progress_photos(user: CurrentUser, db: DbSession):
         .order_by(ProgressPhoto.taken_at.desc())
         .limit(200)
     )).all()
-    return ok([_photo_out(r) for r in rows])
+    # After the owner filter above: only this user's photos are signed.
+    thumbs = await signed_thumbnails(
+        [r.image_key for r in rows], get_settings().upload_url_ttl_seconds,
+    )
+    return ok([_photo_out(r, thumbnail_url=thumbs.get(r.image_key)) for r in rows])
 
 
 @router.delete("/progress-photos/{photo_id}", response_model=Envelope[ProgressPhotoOut])

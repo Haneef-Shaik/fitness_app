@@ -289,6 +289,22 @@ describe('I-05 · progress photos', () => {
     expect(screen.queryByTestId('photo-image-p3')).toBeNull();
     expect(screen.getByTestId('delete-photo-p3')).toBeTruthy();
   });
+
+  it('draws the grid from the small copy Storage rendered, when there is one', () => {
+    // A 96 × 128 tile does not need the original (docs/14 S10).
+    const row = { taken_at: '2026-09-01T08:00:00Z', local_date: '2026-09-01', notes: null };
+    const original = 'https://ref.storage.supabase.co/storage/v1/s3/photos/uploads/u/1.jpg?X-Amz-Signature=abc';
+    const thumb = 'https://ref.supabase.co/storage/v1/render/image/sign/photos/uploads/u/1.jpg?token=t';
+    mocks.photos = q([
+      { ...row, id: 'p1', image_key: 'uploads/u/1.jpg', image_url: original, thumbnail_url: thumb, pose: 'front' },
+      { ...row, id: 'p2', image_key: 'uploads/u/2.jpg', image_url: original, thumbnail_url: null, pose: 'side' },
+    ]);
+
+    render(<Photos />);
+
+    expect(screen.getByTestId('photo-image-p1').props.source).toEqual({ uri: thumb });
+    expect(screen.getByTestId('photo-image-p2').props.source).toEqual({ uri: original });
+  });
 });
 
 describe('I-06 · what to track', () => {

@@ -98,6 +98,14 @@ class Settings(BaseSettings):
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
 
+    #: The Supabase project (`https://<ref>.supabase.co`) and its SECRET key
+    #: (Settings → API Keys: `sb_secret_…`, or the legacy `service_role` key).
+    #: Server-only, never in the app. Used for photo thumbnails rendered by
+    #: Storage (docs/14 S10); empty means no thumbnails and the app shows the
+    #: original.
+    supabase_url: str = ""
+    supabase_secret_key: str = ""
+
     # --------------------------------------------------------- crash reports
     #: Empty means crash reporting is off — the default, and what the suite runs.
     sentry_dsn: str = ""

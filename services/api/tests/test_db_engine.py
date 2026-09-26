@@ -147,7 +147,9 @@ class TestSettings:
         with pytest.raises(RuntimeError, match="ssl=require"):
             build_engine(settings)
 
-    def test_the_defaults_are_session_mode_and_a_small_pool(self):
+    def test_the_defaults_are_session_mode_and_a_small_pool(self, monkeypatch):
+        for name in ("DB_POOL_MODE", "DB_POOL_SIZE", "DB_MAX_OVERFLOW"):
+            monkeypatch.delenv(name, raising=False)  # the defaults, not this shell's
         s = Settings(_env_file=None)
 
         assert (s.db_pool_mode, s.db_pool_size, s.db_max_overflow) == ("session", 5, 5)

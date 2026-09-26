@@ -22,6 +22,7 @@ from alembic import command
 from app.api.deps import session_factory
 from app.config import get_settings
 from app.db import get_db
+from app.db_engine import options_from_settings
 from app.main import app
 from app.seed.catalog import seed_catalog
 from app.seed.foods import seed_foods
@@ -42,6 +43,18 @@ settings = get_settings()
 settings.rate_limits_enabled = False
 
 
+def make_engine(url: str, **overrides):
+    """A test engine built the way the API builds its own (app/db_engine.py):
+    the configured pool mode and TLS carried over, `overrides` on top. Tests
+    that open their own engine use this, so a run through Supabase's
+    transaction pooler does not fail on the test's engine instead of the app."""
+    opts = options_from_settings(settings, url=url)
+    pool = {**opts.pool, **overrides}
+    if "pool_size" in overrides:
+        pool.pop("poolclass", None)  # a sized pool was asked for; keep the connect args
+    return create_async_engine(opts.url, connect_args=opts.connect_args, **pool)
+
+
 @pytest_asyncio.fixture(scope="session")
 async def engine():
     """Builds the test schema by RUNNING THE MIGRATIONS, not metadata.create_all.
@@ -58,7 +71,13 @@ async def engine():
     # Start from a genuinely empty schema. Dropping tables is not enough:
     # Postgres ENUM types survive DROP TABLE, and any state left by an earlier
     # create_all run would collide with the migration.
-    reset = create_async_engine(settings.test_database_url, isolation_level="AUTOCOMMIT")
+    # Built the way the API builds its engine (app/db_engine.py), so a run with
+    # DB_POOL_MODE=transaction against Supabase's pooler proves what the
+    # deployed API will do — prepared statements off, NullPool.
+    opts = options_from_settings(settings, url=settings.test_database_url)
+    reset = create_async_engine(
+        opts.url, connect_args=opts.connect_args, isolation_level="AUTOCOMMIT", **opts.pool,
+    )
     async with reset.connect() as conn:
         await conn.execute(text("DROP SCHEMA public CASCADE"))
         await conn.execute(text("CREATE SCHEMA public"))
@@ -68,7 +87,7 @@ async def engine():
     # pytest event loop — so drive it on a worker thread.
     await asyncio.to_thread(command.upgrade, cfg, "head")
 
-    eng = create_async_engine(settings.test_database_url, future=True)
+    eng = create_async_engine(opts.url, connect_args=opts.connect_args, **opts.pool)
 
     # The global catalog is part of the schema contract, not test data: every
     # environment is expected to have it.

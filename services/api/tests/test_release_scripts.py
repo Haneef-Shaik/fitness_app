@@ -7,11 +7,14 @@ while never asking for the application's own secrets.
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import subprocess
 from pathlib import Path
 
+import asyncpg
 import pytest
+from sqlalchemy.engine import make_url
 
 from app.config import get_settings
 
@@ -19,6 +22,27 @@ SCRIPT = Path(__file__).parents[3] / "scripts" / "migrate.sh"
 
 #: Nothing listens here. A run that got past the guard would fail differently.
 CLOSED = "postgresql+asyncpg://nobody:secret@127.0.0.1:1/none"
+
+
+def _data_api_roles(url: str) -> list[str]:
+    """Supabase's public-key roles present in the database the suite runs on:
+    none on plain Postgres, `anon` and `authenticated` on Supabase's."""
+    u = make_url(url)
+
+    async def query() -> list[str]:
+        conn = await asyncpg.connect(
+            host=u.host, port=u.port, user=u.username, password=u.password,
+            database=u.database, statement_cache_size=0,
+        )
+        try:
+            rows = await conn.fetch(
+                "SELECT rolname FROM pg_roles WHERE rolname IN ('anon', 'authenticated') ORDER BY 1"
+            )
+            return [r["rolname"] for r in rows]
+        finally:
+            await conn.close()
+
+    return asyncio.run(query())
 
 
 def _run(**env: str) -> subprocess.CompletedProcess[str]:
@@ -55,12 +79,22 @@ class TestTheGuard:
 class TestARelease:
     @pytest.mark.usefixtures("engine")  # the schema exists, so this is a no-op upgrade
     def test_it_migrates_and_seeds_without_printing_the_password(self):
-        result = _run(DATABASE_URL=get_settings().test_database_url, ENVIRONMENT="test")
+        url = get_settings().test_database_url
+        # The pool mode is a deployment setting the release job has too; without
+        # it a run through Supabase's transaction pooler would test session mode.
+        result = _run(DATABASE_URL=url, ENVIRONMENT="test", DB_POOL_MODE=get_settings().db_pool_mode)
 
         assert result.returncode == 0, result.stdout + result.stderr
         assert "(head)" in result.stdout  # `alembic current` after the upgrade
-        assert "nothing to revoke" in result.stdout  # no Supabase roles locally
+        # On Supabase's Postgres the public-key roles exist and are revoked;
+        # on plain Postgres there is nothing to revoke.
+        roles = _data_api_roles(url)
+        if roles:
+            assert f"Data API roles revoked from public: {', '.join(roles)}" in result.stdout
+        else:
+            assert "nothing to revoke" in result.stdout
         assert "reference data seed" in result.stdout
         # The target is named, the credentials are not.
-        assert "localhost:5433/" in result.stdout
-        assert "fitlog:fitlog@" not in result.stdout + result.stderr
+        target = make_url(url)
+        assert f"{target.host}:{target.port}/" in result.stdout
+        assert f"{target.username}:{target.password}@" not in result.stdout + result.stderr

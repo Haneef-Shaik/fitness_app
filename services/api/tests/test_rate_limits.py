@@ -21,7 +21,8 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from sqlalchemy.ext.asyncio import create_async_engine
+
+from tests.conftest import make_engine
 
 pytestmark = pytest.mark.asyncio
 
@@ -238,7 +239,7 @@ class TestSeveralInstances:
         from app.config import get_settings
         from app.core.ratelimit import Rule, hit
 
-        other = create_async_engine(get_settings().test_database_url)
+        other = make_engine(get_settings().test_database_url)
         try:
             rule = Rule(count=3, seconds=60)
             now = rate_limits.clock.now()
@@ -284,8 +285,8 @@ class TestSeveralInstances:
         from app.config import get_settings
         from app.core.ratelimit import enforce
 
-        tiny = create_async_engine(get_settings().test_database_url,
-                                   pool_size=1, max_overflow=0, pool_timeout=2)
+        tiny = make_engine(get_settings().test_database_url,
+                           pool_size=1, max_overflow=0, pool_timeout=2)
         request = Request({"type": "http", "method": "POST", "path": "/", "headers": [],
                            "query_string": b"", "client": ("192.0.2.9", 1)})
         try:

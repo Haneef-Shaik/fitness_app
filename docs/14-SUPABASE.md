@@ -1,0 +1,87 @@
+# Supabase — database, storage and auth
+
+**Decision (26 Sep 2026, owner):** Supabase is FitLog's platform for **Postgres, Storage and Auth**,
+including **Google and Apple sign-in** and **photo thumbnails** from Storage's image
+transformations. This supersedes L1's "FitLog keeps its own auth" — the database and storage half
+of L1 stands as built.
+
+What does **not** change: the FitLog API stays the only way to FitLog's data. The app uses
+Supabase's client **for signing in and nothing else** — no Data API, no RLS, no Realtime — because
+every write has to pass the API's rules (the offline outbox, idempotency keys, the workout
+invariants). `scripts/migrate.sh` keeps revoking the Data API's grants on every release.
+
+---
+
+## Decisions
+
+| # | Decision | Why |
+|---|----------|-----|
+| S1 | **One identity:** `users.id` = Supabase's `auth.users.id`. The FitLog row is created on the first authenticated request, with the email from the token | No mapping table to drift; every existing foreign key keeps pointing at `users.id` |
+| S2 | **The API verifies Supabase's access token** — signature (the project's JWKS for asymmetric keys, or the legacy HS256 secret), issuer, audience `authenticated`, expiry | Hosted projects sign with asymmetric keys; the local stack signs HS256. Both paths are tested |
+| S3 | **Sign-out is immediate:** a token whose Supabase session no longer exists (`auth.sessions`) is refused, as a revoked refresh family was before | "Sign out other devices" and account deletion must not leave a working token for up to an hour |
+| S4 | **Access tokens live 15 minutes** (`jwt_expiry = 900`), as FitLog's did | Same exposure window as before the move |
+| S5 | **Deleting an account** needs a sign-in in the last 10 minutes (the token's `amr` timestamp) plus the typed confirmation; the API deletes FitLog's data, then the auth user through the Admin API (service-role key, server only) | Google and Apple users have no password to re-enter; a recent sign-in works for every method |
+| S6 | **The web deletion page** (Play's requirement) proves the address with a one-time code emailed by Supabase, then deletes | Works for password, Google and Apple accounts alike |
+| S7 | **Google:** native Google Sign-In → `signInWithIdToken`. **Apple:** native on iOS (`expo-apple-authentication`) → `signInWithIdToken`; not offered on Android. A button shows only when its provider is configured | Native flows are what both stores expect; Apple requires Sign in with Apple on iOS once Google is offered (App Store 4.8) |
+| S8 | **Email confirmation stays off** at launch, as A-06 decided (an unverified account keeps full use). It is one dashboard switch — *Authentication → Providers → Email → Confirm email* — if the owner wants it on | Product decision unchanged; Google and Apple addresses are verified by the provider anyway |
+| S9 | **Auth email** (reset, confirm, change address, one-time codes) is sent by Supabase through the project's SMTP (Resend) | FitLog's own mail sender is no longer needed for auth |
+| S10 | **Thumbnails** come from Storage's image transformation (signed render URLs with width/quality); the original upload is unchanged | Lists and grids stop downloading full-size photos |
+
+## Phases
+
+1. **Local Supabase, database and storage** — `pnpm supabase start` (Docker). Migrations and the
+   Data-API hardening against Supabase's Postgres through its transaction-mode pooler; the full API
+   suite; photo uploads through Storage's S3 endpoint.
+2. **Thumbnails** — signed render URLs from Storage.
+3. **Auth, server** — token verification (S2, S3), provisioning (S1), deletion (S5, S6); the
+   API's own login, refresh, reset, verification and password endpoints removed.
+4. **Auth, app** — `@supabase/supabase-js` for sign-in only, the session in the device keychain;
+   email and password, Google, Apple; reset and change-address links back into the app.
+5. **Proof** — the acceptance suite on the emulator against the local stack; this doc, the runbook
+   (docs/12) and the launch plan updated.
+
+## Running it locally
+
+```bash
+pnpm install                      # the Supabase CLI is a root dev dependency
+pnpm supabase start               # Docker: Postgres, pooler, Auth, Storage, Studio, Mailpit
+pnpm supabase status              # URLs and keys for the local stack
+```
+
+Studio: <http://127.0.0.1:54323> · emails the stack sends: <http://127.0.0.1:54324>.
+
+## Status
+
+### Phase 1 — database and storage: done (26 Sep)
+
+Proven against a local Supabase (CLI 2.118, Postgres 17.6, Storage 1.77):
+
+| Check | Result |
+|---|---|
+| The API suite on Supabase's Postgres, direct | 1,054 pass |
+| The API suite **through the transaction-mode pooler** (`DB_POOL_MODE=transaction`) | 1,054 pass |
+| `scripts/migrate.sh` through the pooler: migrations, Data API lockdown, reference data | at head; `anon`, `authenticated` revoked; 7,838 foods, 297 exercises |
+| The Data API with the public anon key, on `users`, `foods`, `exercises` | `42501 permission denied` on each |
+| The storage tests against Storage's S3 endpoint | 42 pass (moto: 41 + 1 skipped) |
+
+What it found — none of it visible to the fakes the suite used before:
+
+- **Deleting photos failed on Supabase Storage.** botocore sends `DeleteObjects` without a
+  `Content-Type`, and Storage then reads no body at all. The store now says `application/xml`; a
+  test pins the header.
+- **An expired signed URL is a 400 on Supabase, 403 on AWS.** Expiry is enforced; the test now
+  accepts either refusal and requires the "expired" code.
+- **The suite could not run through a pooler.** Its own engines, the limiter's engine under test,
+  and the release-script test's environment all bypassed the pool mode. Every test engine is now
+  built like the API's (`make_engine`), and a scratch database is dropped `WITH (FORCE)` because the
+  pooler holds its own connection to it.
+
+Run it yourself:
+
+```bash
+pnpm supabase start
+docker exec supabase_db_fitlog psql -U postgres -c "CREATE DATABASE fitlog_test"   # once
+DB_POOL_MODE=transaction \
+TEST_DATABASE_URL=postgresql+asyncpg://postgres.pooler-dev:postgres@127.0.0.1:54329/postgres \
+  uv run --directory services/api pytest
+```

@@ -54,6 +54,7 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 11 | [Launch Plan](11-LAUNCH-PLAN.md) | **Everything between the release gate and a published app** — gaps, accounts, hosting, store builds, content, beta. |
 | 12 | [Deployment runbook](12-DEPLOYMENT.md) | **Hosting it** — Supabase, the container host, secrets, migrations, backups and the restore drill, rollback. |
 | 13 | [Store listing & compliance](13-STORE-LISTING.md) | **Submitting it** — listing copy, Data Safety, Health apps declaration, App Privacy labels, reviewer notes. |
+| 14 | [Supabase](14-SUPABASE.md) | Database, storage and auth on Supabase: decisions, phases, what was proven locally |
 | — | [prompts/](prompts/) | **Goal prompts** — one paste-ready prompt per goal, G0…G10. |
 | — | [TODO.md](TODO.md) | **Active work** — the current milestone's tasks in execution order. |
 | — | [data-sources.md](data-sources.md) | Where every seeded food and exercise comes from, the licences, and the attribution owed. |

@@ -43,3 +43,10 @@ jest.mock('@expo/vector-icons/Ionicons', () => {
     React.createElement(Text, { testID: testID ?? `icon-${name}` }, name);
   return { __esModule: true, default: Icon };
 });
+
+// Supabase Auth (docs/14): the steerable fake in src/lib/__mocks__/supabase.ts —
+// no test reaches a network — reset to "nobody signed in" before each test.
+jest.mock('@/lib/supabase');
+beforeEach(() => {
+  (jest.requireMock('@/lib/supabase') as typeof import('@/lib/__mocks__/supabase')).fakeAuth.reset();
+});

@@ -38,74 +38,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/auth/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register */
-        post: operations["register_v1_auth_register_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Login */
-        post: operations["login_v1_auth_login_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Refresh */
-        post: operations["refresh_v1_auth_refresh_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Logout */
-        post: operations["logout_v1_auth_logout_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/auth/me": {
         parameters: {
             query?: never;
@@ -113,40 +45,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Me */
+        /**
+         * Me
+         * @description The first call after a sign-in, which also creates the FitLog account on
+         *     a first sign-in (app/auth/provision.py).
+         */
         get: operations["me_v1_auth_me_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/sessions/revoke-others": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Revoke Other Sessions
-         * @description K-02 "Sign out other devices": every refresh-token family but the caller's.
-         *
-         *     The caller's family comes from its access token's `sid`, not from a refresh
-         *     token in the body — so the app can call this like any other authenticated
-         *     route, and a 401 here refreshes and retries rather than ending the session.
-         *     Local workout drafts on the other devices are untouched: they are on the
-         *     devices, and upload when those devices sign back in.
-         *
-         *     A pending email change dies with the other sessions: this is the button a
-         *     worried owner presses, and a change link someone else asked for must not
-         *     survive it (K-02).
-         */
-        post: operations["revoke_other_sessions_v1_auth_sessions_revoke_others_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1858,17 +1764,18 @@ export interface paths {
          * Delete Account
          * @description Removes the account and everything in it. There is no undo.
          *
-         *     The password is required again: a delete reachable by a stolen session
-         *     token is a delete somebody else can perform. It is rate limited like a
-         *     login for the same reason — it is a place to guess a password — with the
-         *     per-account half keyed by the **signed-in account's id**, not its email.
-         *     The web page's budget is keyed by the email it is given, which anybody can
-         *     type: sharing it would let a stranger post a few bogus attempts an hour and
-         *     stop the owner deleting their account in the app, which both stores require.
+         *     Who is asking must have signed in within the last ten minutes — a password,
+         *     Google or Apple, re-entered (the token's `amr`) — because a delete a stolen
+         *     session could perform is a delete somebody else can perform, and Google and
+         *     Apple accounts have no password to ask for. An older sign-in is a 403
+         *     REAUTH_REQUIRED: the app signs the person in again and retries. Rate
+         *     limited per signed-in account, never per email, so a stranger cannot spend
+         *     the owner's budget.
          *
-         *     A wrong password is a **422 on the field**, not a 401: the session is
-         *     fine, and a 401 would send the app to refresh it and resend the same
-         *     wrong password.
+         *     FitLog's data goes first and is committed; then the Supabase sign-in. If the
+         *     second step fails, the account has no data left and a retry finishes it
+         *     (the purge finds nothing; an already-deleted sign-in is fine) — never data
+         *     left behind a deleted sign-in.
          *
          *     Immediate, not the 30-day grace K-07 sketches `[ASSUMPTION]`: a grace
          *     period needs a scheduled purge and a cancel-on-login path, and an account
@@ -2016,164 +1923,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/auth/password/forgot": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Forgot Password
-         * @description Always the same 200 and the same body (A-05: existence is never disclosed).
-         *
-         *     The handler does no work at all: the lookup, the new link and the mail all
-         *     happen after the response, in `_send_reset_link`. So neither the answer nor
-         *     its timing depends on whether the address has an account — a known one
-         *     would otherwise take a delete, an insert and a commit longer to answer.
-         */
-        post: operations["forgot_password_v1_auth_password_forgot_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/password/reset": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reset Password
-         * @description Sets the password and signs every device out (A-05).
-         *
-         *     The link is checked first: an expired one needs a new email whatever the
-         *     password, so it is the more useful thing to hear. A refused password raises
-         *     after the link was spent, which rolls the spend back — the same link works
-         *     on the next try.
-         */
-        post: operations["reset_password_v1_auth_password_reset_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/email/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Verify Email
-         * @description Opens an A-06 link — or a K-02 change link, which moves the account.
-         *
-         *     Needs no session: the link is often opened on another device, or after
-         *     signing out, and the token is proof enough.
-         */
-        post: operations["verify_email_v1_auth_email_verify_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/auth/email/resend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Resend Verification
-         * @description A-06 "Resend link". Signed in, so a failure is allowed to say so.
-         */
-        post: operations["resend_verification_v1_auth_email_resend_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/account/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change Password
-         * @description Signs every other device out and keeps this one, with a fresh pair.
-         *
-         *     Every family is revoked — this device's too — and the caller gets a pair in
-         *     a new family. That keeps the caller signed in without the server having to
-         *     know which refresh token is theirs, and leaves nothing from before the
-         *     change alive anywhere.
-         */
-        post: operations["change_password_v1_account_password_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/account/email": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Change Email
-         * @description Sends a link to the NEW address; the account moves when it is opened.
-         *
-         *     Applying on verification rather than at once is the safer of the two: a typo
-         *     here would otherwise move the account to an inbox nobody reads — and with
-         *     it every future reset link. Until then `/auth/me` reports `pending_email`.
-         *
-         *     The CURRENT address is warned at once. Someone who has the password can ask
-         *     for this; the warning reaches the owner while the change is still pending,
-         *     and a reset, a password change or "sign out other devices" kills it.
-         */
-        post: operations["change_email_v1_account_email_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
          * AccountDeleteIn
-         * @description The password travels in the body, never in the URL, where access logs
-         *     and proxies keep it.
+         * @description Who is asking is the bearer's sign-in, which must be recent (docs/14, S5):
+         *     a password, Google or Apple, re-entered in the last few minutes.
          */
         AccountDeleteIn: {
-            /** Password */
-            password: string;
             /** Confirmation */
             confirmation: string;
         };
@@ -2317,24 +2076,6 @@ export interface components {
             low_confidence_threshold: number;
             quota: components["schemas"]["QuotaOut"];
         };
-        /**
-         * AuthOut
-         * @description Register and login return the new user alongside a fresh token pair.
-         */
-        AuthOut: {
-            /** Access Token */
-            access_token: string;
-            /** Refresh Token */
-            refresh_token: string;
-            /**
-             * Token Type
-             * @default Bearer
-             */
-            token_type: string;
-            /** Expires In */
-            expires_in: number;
-            user: components["schemas"]["UserRefOut"];
-        };
         /** AveragesOut */
         AveragesOut: {
             /** Calories */
@@ -2463,23 +2204,6 @@ export interface components {
         CategoryOrderIn: {
             /** Ids */
             ids: string[];
-        };
-        /** ChangeEmailIn */
-        ChangeEmailIn: {
-            /**
-             * New Email
-             * Format: email
-             */
-            new_email: string;
-            /** Password */
-            password: string;
-        };
-        /** ChangePasswordIn */
-        ChangePasswordIn: {
-            /** Current Password */
-            current_password: string;
-            /** New Password */
-            new_password: string;
         };
         /**
          * CheckinOut
@@ -2809,21 +2533,6 @@ export interface components {
             /** Formula Version */
             formula_version: string;
         };
-        /** EmailChangeOut */
-        EmailChangeOut: {
-            /** Pending Email */
-            pending_email: string;
-        };
-        /**
-         * EmailVerifiedOut
-         * @description The account's address after the link — the new one, for a K-02 change.
-         */
-        EmailVerifiedOut: {
-            /** Email */
-            email: string;
-            /** Email Verified */
-            email_verified: boolean;
-        };
         /** Envelope[AccountDeletedOut] */
         Envelope_AccountDeletedOut_: {
             /** Success */
@@ -2850,13 +2559,6 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["AnalysisSettingsOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
-        /** Envelope[AuthOut] */
-        Envelope_AuthOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["AuthOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[BodyMetricOut] */
@@ -2906,20 +2608,6 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["DeletedOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
-        /** Envelope[EmailChangeOut] */
-        Envelope_EmailChangeOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["EmailChangeOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
-        /** Envelope[EmailVerifiedOut] */
-        Envelope_EmailVerifiedOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["EmailVerifiedOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[ExerciseOut] */
@@ -3006,13 +2694,6 @@ export interface components {
             data?: components["schemas"]["NutritionRangeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
-        /** Envelope[PasswordResetOut] */
-        Envelope_PasswordResetOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["PasswordResetOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
         /** Envelope[PhotosDeletedOut] */
         Envelope_PhotosDeletedOut_: {
             /** Success */
@@ -3069,13 +2750,6 @@ export interface components {
             data?: components["schemas"]["RecipeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
-        /** Envelope[RequestedOut] */
-        Envelope_RequestedOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["RequestedOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
         /** Envelope[ServiceStatusOut] */
         Envelope_ServiceStatusOut_: {
             /** Success */
@@ -3097,32 +2771,11 @@ export interface components {
             data?: components["schemas"]["SessionOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
-        /** Envelope[SessionsRevokedOut] */
-        Envelope_SessionsRevokedOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["SessionsRevokedOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
         /** Envelope[SetOut] */
         Envelope_SetOut_: {
             /** Success */
             success: boolean;
             data?: components["schemas"]["SetOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
-        /** Envelope[SignedOutOut] */
-        Envelope_SignedOutOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["SignedOutOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
-        /** Envelope[TokenPair] */
-        Envelope_TokenPair_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["TokenPair"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[Union[PreviousOccurrenceOut, NoneType]] */
@@ -3137,13 +2790,6 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["UploadSignOut"] | null;
-            error?: components["schemas"]["ErrorOut"] | null;
-        };
-        /** Envelope[VerificationSentOut] */
-        Envelope_VerificationSentOut_: {
-            /** Success */
-            success: boolean;
-            data?: components["schemas"]["VerificationSentOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[WorkoutAnalyticsOut] */
@@ -3645,14 +3291,6 @@ export interface components {
             /** Grams */
             grams: number;
         };
-        /** ForgotPasswordIn */
-        ForgotPasswordIn: {
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-        };
         /**
          * FrequencyCellOut
          * @description One square of G-05's week x muscle heatmap.
@@ -3836,16 +3474,6 @@ export interface components {
              */
             set_count: number;
         };
-        /** LoginIn */
-        LoginIn: {
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /** Password */
-            password: string;
-        };
         /** MacroTargetsOut */
         MacroTargetsOut: {
             /** Calories */
@@ -3879,10 +3507,8 @@ export interface components {
             email: string;
             /** Status */
             status: string;
-            /** Email Verified */
-            email_verified: boolean;
-            /** Pending Email */
-            pending_email?: string | null;
+            /** Provider */
+            provider?: string | null;
         };
         /** MealCategoryIn */
         MealCategoryIn: {
@@ -4318,11 +3944,6 @@ export interface components {
             data?: components["schemas"]["SessionOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
             meta?: components["schemas"]["Meta"] | null;
-        };
-        /** PasswordResetOut */
-        PasswordResetOut: {
-            /** Password Reset */
-            password_reset: boolean;
         };
         /** PersonalRecordOut */
         PersonalRecordOut: {
@@ -5015,38 +4636,6 @@ export interface components {
              */
             achieved_at: string;
         };
-        /** RefreshIn */
-        RefreshIn: {
-            /** Refresh Token */
-            refresh_token: string;
-        };
-        /** RegisterIn */
-        RegisterIn: {
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-            /** Password */
-            password: string;
-            /** Display Name */
-            display_name?: string | null;
-        };
-        /**
-         * RequestedOut
-         * @description The same body whether or not an account exists (A-05 no enumeration).
-         */
-        RequestedOut: {
-            /** Requested */
-            requested: boolean;
-        };
-        /** ResetPasswordIn */
-        ResetPasswordIn: {
-            /** Token */
-            token: string;
-            /** New Password */
-            new_password: string;
-        };
         /** ServiceStatusOut */
         ServiceStatusOut: {
             /** Maintenance */
@@ -5226,14 +4815,6 @@ export interface components {
             notes?: string | null;
         };
         /**
-         * SessionsRevokedOut
-         * @description How many other devices were signed out.
-         */
-        SessionsRevokedOut: {
-            /** Revoked */
-            revoked: number;
-        };
-        /**
          * SetBatchItemOut
          * @description One outcome from the outbox flush. A malformed item fails alone.
          */
@@ -5340,11 +4921,6 @@ export interface components {
             /** Note */
             note: string | null;
         };
-        /** SignedOutOut */
-        SignedOutOut: {
-            /** Signed Out */
-            signed_out: boolean;
-        };
         /** SplitOut */
         SplitOut: {
             /** Days */
@@ -5386,20 +4962,6 @@ export interface components {
             text: string;
             /** Client Id */
             client_id?: string | null;
-        };
-        /** TokenPair */
-        TokenPair: {
-            /** Access Token */
-            access_token: string;
-            /** Refresh Token */
-            refresh_token: string;
-            /**
-             * Token Type
-             * @default Bearer
-             */
-            token_type: string;
-            /** Expires In */
-            expires_in: number;
         };
         /** TrainingCardOut */
         TrainingCardOut: {
@@ -5456,13 +5018,6 @@ export interface components {
             /** Max Bytes */
             max_bytes: number;
         };
-        /** UserRefOut */
-        UserRefOut: {
-            /** Id */
-            id: string;
-            /** Email */
-            email: string;
-        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -5475,18 +5030,6 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
-        };
-        /** VerificationSentOut */
-        VerificationSentOut: {
-            /** Sent */
-            sent: boolean;
-            /** Email Verified */
-            email_verified: boolean;
-        };
-        /** VerifyEmailIn */
-        VerifyEmailIn: {
-            /** Token */
-            token: string;
         };
         /**
          * VolumeBucketOut
@@ -5578,138 +5121,6 @@ export interface operations {
             };
         };
     };
-    register_v1_auth_register_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_AuthOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    login_v1_auth_login_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_AuthOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    refresh_v1_auth_refresh_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_TokenPair_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    logout_v1_auth_logout_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_SignedOutOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     me_v1_auth_me_get: {
         parameters: {
             query?: never;
@@ -5726,26 +5137,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_MeOut_"];
-                };
-            };
-        };
-    };
-    revoke_other_sessions_v1_auth_sessions_revoke_others_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_SessionsRevokedOut_"];
                 };
             };
         };
@@ -9211,191 +8602,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_DeletedOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    forgot_password_v1_auth_password_forgot_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ForgotPasswordIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_RequestedOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    reset_password_v1_auth_password_reset_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ResetPasswordIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_PasswordResetOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    verify_email_v1_auth_email_verify_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VerifyEmailIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_EmailVerifiedOut_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    resend_verification_v1_auth_email_resend_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_VerificationSentOut_"];
-                };
-            };
-        };
-    };
-    change_password_v1_account_password_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangePasswordIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_TokenPair_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    change_email_v1_account_email_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangeEmailIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Envelope_EmailChangeOut_"];
                 };
             };
             /** @description Validation Error */

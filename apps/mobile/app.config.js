@@ -9,6 +9,12 @@
  *   FITLOG_BUILD_NUMBER   a positive integer that only ever goes up; becomes
  *                         Android's versionCode and iOS's buildNumber
  *
+ * And the sign-in providers (docs/14 S7), when the owner has created them:
+ *
+ *   GOOGLE_IOS_URL_SCHEME the iOS client's reversed id (com.googleusercontent.
+ *                         apps.…), which Google Sign-In's plugin requires; the
+ *                         app's client ids travel as EXPO_PUBLIC_GOOGLE_*.
+ *
  * Unset, app.json's values stand, as they always have for development.
  */
 module.exports = ({ config }) => {
@@ -34,6 +40,13 @@ module.exports = ({ config }) => {
       }],
       // Health Connect's client needs API 26; nothing else here needs less.
       ['expo-build-properties', { android: { minSdkVersion: 26 } }],
+      // docs/14 S7. Sign in with Apple's entitlement (iOS only).
+      'expo-apple-authentication',
+      // Google Sign-In's iOS URL scheme. Only once there is one: the plugin
+      // refuses to run without it, and Android needs no plugin at all.
+      ...(process.env.GOOGLE_IOS_URL_SCHEME
+        ? [['@react-native-google-signin/google-signin', { iosUrlScheme: process.env.GOOGLE_IOS_URL_SCHEME }]]
+        : []),
     ],
     // Placeholder artwork from scripts/make-icons.py until the real icon exists;
     // replacing the PNGs is the whole change.
@@ -41,6 +54,7 @@ module.exports = ({ config }) => {
     ios: {
       ...config.ios,
       ...(build ? { buildNumber: build } : {}),
+      usesAppleSignIn: true,
       infoPlist: {
         ...config.ios?.infoPlist,
         // HTTPS only, no custom cryptography: exempt from export documentation,

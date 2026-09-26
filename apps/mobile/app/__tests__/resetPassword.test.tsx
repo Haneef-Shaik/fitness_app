@@ -1,15 +1,18 @@
 /**
- * A-05 · Reset password — the half that opens from the email.
+ * A-05 · Reset password — the half that follows the email.
  *
- * `fitlog://reset-password?token=…` arrives with the token; a phone that would
- * not open the link arrives without one, and the code is pasted instead. Either
- * way the new password follows sign-up's rule, and a completed reset leaves
- * this device signed out — the server has ended every session — on the login
- * screen with a note saying why (A-05 → A-04).
+ * The email's link signs this phone in (app/auth/callback.tsx) and lands here;
+ * an email read on another device, where the link cannot work (PKCE), gives a
+ * six-digit code instead, typed here while signed out. Either way the new
+ * password follows sign-up's rule, and every OTHER device is signed out —
+ * this one stays in (docs/14). Signed in any OTHER way, the screen sets
+ * nothing: an unlocked phone must not change the password without the old one.
  */
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
-import { ApiError } from '@/lib/api';
+import * as supabaseModule from '@/lib/supabase';
+
+const { fakeAuth, supabase } = supabaseModule as unknown as typeof import('@/lib/__mocks__/supabase');
 
 const mockReplace = jest.fn();
 let mockParams: Record<string, string> = {};
@@ -22,16 +25,11 @@ jest.mock('expo-router', () => ({
 const mockResetTo = jest.fn();
 jest.mock('@/lib/navigation', () => ({ resetTo: (...a: unknown[]) => mockResetTo(...a) }));
 
-const mockReset = jest.fn(async (_t: string, _p: string): Promise<unknown> => ({ password_reset: true }));
-jest.mock('@/lib/api-account', () => ({
-  ...jest.requireActual('@/lib/api-account'),
-  recoveryApi: { resetPassword: (t: string, p: string) => mockReset(t, p) },
-}));
-
-const mockSignOut = jest.fn(async () => {});
-const mockSession = { status: 'signed-out', email: null as string | null };
+const mockAdopt = jest.fn(async (_s: unknown, _o?: unknown) => {});
+const mockFinish = jest.fn();
+const mockSession = { status: 'ready', recovering: true };
 jest.mock('@/lib/session', () => ({
-  useSession: () => ({ ...mockSession, signOut: mockSignOut }),
+  useSession: () => ({ ...mockSession, adoptSession: mockAdopt, finishRecovery: mockFinish }),
 }));
 
 import ResetPassword from '../reset-password';
@@ -42,7 +40,6 @@ function fill(password = GOOD, confirm = password) {
   fireEvent.changeText(screen.getByTestId('reset-new'), password);
   fireEvent.changeText(screen.getByTestId('reset-confirm'), confirm);
 }
-
 const submit = async () => {
   await act(async () => { fireEvent.press(screen.getByLabelText('Update password')); });
 };
@@ -50,113 +47,139 @@ const submit = async () => {
 beforeEach(() => {
   jest.clearAllMocks();
   mockParams = {};
-  mockSession.status = 'signed-out';
-  mockReset.mockResolvedValue({ password_reset: true });
+  mockSession.status = 'ready';
+  mockSession.recovering = true;
+  fakeAuth.signIn({ email: 'haneef@example.com' });
 });
 
-it('uses the token from the link, and does not ask for a code', async () => {
-  mockParams = { token: 'tok-from-link' };
-  render(<ResetPassword />);
-  expect(screen.queryByTestId('reset-code')).toBeNull();
+describe('signed in by the link', () => {
+  it('sets the new password, signs every other device out, and carries on in the app', async () => {
+    render(<ResetPassword />);
+    expect(screen.queryByTestId('reset-code')).toBeNull();
 
-  fill();
-  await submit();
+    fill();
+    await submit();
 
-  expect(mockReset).toHaveBeenCalledWith('tok-from-link', GOOD);
-});
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith({ password: GOOD });
+    expect(supabase.auth.signOut).toHaveBeenCalledWith({ scope: 'others' });
+    expect(mockFinish).toHaveBeenCalled();
+    expect(mockResetTo).toHaveBeenCalledWith('/');
+  });
 
-it('takes a pasted code when there was no link', async () => {
-  render(<ResetPassword />);
-  fireEvent.changeText(screen.getByTestId('reset-code'), '  pasted-code \n');
-  fill();
-  await submit();
+  it('does not claim the other devices are out when they could not be signed out', async () => {
+    supabase.auth.signOut.mockResolvedValueOnce({
+      error: Object.assign(new Error('Failed to fetch'), { name: 'AuthRetryableFetchError' }),
+    } as never);
+    render(<ResetPassword />);
+    fill();
+    await submit();
 
-  expect(mockReset).toHaveBeenCalledWith('pasted-code', GOOD);
-});
+    expect(screen.getByTestId('reset-others-left')).toBeTruthy();
+    expect(mockResetTo).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByTestId('reset-continue'));
+    expect(mockResetTo).toHaveBeenCalledWith('/');
+  });
 
-it('asks for the code before calling anyone', async () => {
-  render(<ResetPassword />);
-  fill();
-  await submit();
+  it("applies sign-up's rule before a round trip", async () => {
+    render(<ResetPassword />);
+    fill('short');
+    await submit();
 
-  expect(mockReset).not.toHaveBeenCalled();
-  expect(screen.getByText('Paste the code from the email.')).toBeTruthy();
-});
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled();
+    expect(screen.getByText('Use at least 10 characters.')).toBeTruthy();
+  });
 
-it("applies sign-up's rule before a round trip", async () => {
-  mockParams = { token: 't' };
-  render(<ResetPassword />);
-  fill('short');
-  await submit();
+  it('says when the two passwords differ', async () => {
+    render(<ResetPassword />);
+    fill(GOOD, `${GOOD}x`);
+    await submit();
 
-  expect(mockReset).not.toHaveBeenCalled();
-  expect(screen.getByText('Use at least 10 characters.')).toBeTruthy();
-});
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled();
+    expect(screen.getByText("The passwords don't match.")).toBeTruthy();
+  });
 
-it('says when the two passwords differ', async () => {
-  mockParams = { token: 't' };
-  render(<ResetPassword />);
-  fill(GOOD, `${GOOD}x`);
-  await submit();
+  it("puts Supabase's refusal under the password it is about", async () => {
+    supabase.auth.updateUser.mockResolvedValueOnce({
+      data: { user: null }, error: Object.assign(new Error('weak'), { code: 'weak_password' }),
+    } as never);
+    render(<ResetPassword />);
+    fill('letmein12345');
+    await submit();
 
-  expect(mockReset).not.toHaveBeenCalled();
-  expect(screen.getByText("The passwords don't match.")).toBeTruthy();
-});
+    expect(screen.getByText(/Choose a stronger password/)).toBeTruthy();
+    expect(mockResetTo).not.toHaveBeenCalled();
+  });
 
-it("puts the server's refusal under the password it is about", async () => {
-  mockParams = { token: 't' };
-  mockReset.mockRejectedValue(new ApiError(
-    'VALIDATION_FAILED', 'That password is too common.', 422,
-    { new_password: 'That password is too common.' },
-  ));
-  render(<ResetPassword />);
-  fill('letmein1234');
-  await submit();
-
-  expect(screen.getByText('That password is too common.')).toBeTruthy();
-});
-
-it('describes strength in words, not only bars', () => {
-  render(<ResetPassword />);
-  fireEvent.changeText(screen.getByTestId('reset-new'), 'short');
-  expect(screen.getByLabelText('Password strength: Too short')).toBeTruthy();
-  fireEvent.changeText(screen.getByTestId('reset-new'), GOOD);
-  expect(screen.getByLabelText('Password strength: Strong')).toBeTruthy();
-});
-
-it('lands on log in with a note once the password is changed', async () => {
-  mockParams = { token: 't' };
-  render(<ResetPassword />);
-  fill();
-  await submit();
-
-  expect(mockSignOut).not.toHaveBeenCalled();
-  expect(mockResetTo).toHaveBeenCalledWith({
-    pathname: '/login', params: { notice: 'password-updated' },
+  it('describes strength in words, not only bars', () => {
+    render(<ResetPassword />);
+    fireEvent.changeText(screen.getByTestId('reset-new'), 'short');
+    expect(screen.getByLabelText('Password strength: Too short')).toBeTruthy();
+    fireEvent.changeText(screen.getByTestId('reset-new'), GOOD);
+    expect(screen.getByLabelText('Password strength: Strong')).toBeTruthy();
   });
 });
 
-it('signs this device out first when it was signed in — its session has ended', async () => {
-  mockParams = { token: 't' };
-  mockSession.status = 'ready';
-  render(<ResetPassword />);
-  fill();
-  await submit();
-
-  expect(mockSignOut).toHaveBeenCalledTimes(1);
-  expect(mockResetTo).toHaveBeenCalled();
+describe('signed in, but not by a reset', () => {
+  it('sets nothing, and sends the person where the old password is asked for', () => {
+    mockSession.recovering = false;
+    render(<ResetPassword />);
+    expect(screen.queryByTestId('reset-new')).toBeNull();
+    fireEvent.press(screen.getByTestId('reset-go-security'));
+    expect(mockReplace).toHaveBeenCalledWith('/settings/security');
+  });
 });
 
-it('offers a new link when this one has expired or was used', async () => {
-  mockParams = { token: 'old' };
-  mockReset.mockRejectedValue(new ApiError(
-    'LINK_EXPIRED', 'This link has expired or was already used. Request a new one.', 400,
-  ));
-  render(<ResetPassword />);
-  fill();
-  await submit();
+describe('signed out, with the code from the email', () => {
+  beforeEach(() => { mockSession.status = 'signed-out'; });
 
-  expect(screen.getByText(/This link has expired/)).toBeTruthy();
-  fireEvent.press(screen.getByLabelText('Request a new link'));
-  expect(mockReplace).toHaveBeenCalledWith('/forgot-password');
+  it('carries the address from the request screen', () => {
+    mockParams = { email: 'haneef@example.com' };
+    render(<ResetPassword />);
+    expect(screen.getByTestId('reset-email').props.value).toBe('haneef@example.com');
+    expect(screen.queryByTestId('reset-new')).toBeNull();
+  });
+
+  it('signs this phone in with the code, and then asks for the password', async () => {
+    mockParams = { email: 'haneef@example.com' };
+    render(<ResetPassword />);
+    fireEvent.changeText(screen.getByTestId('reset-code'), ' 123 456 ');
+    await act(async () => { fireEvent.press(screen.getByTestId('reset-verify')); });
+
+    expect(supabase.auth.verifyOtp).toHaveBeenCalledWith({
+      email: 'haneef@example.com', token: '123456', type: 'recovery',
+    });
+    expect(mockAdopt).toHaveBeenCalledWith(
+      expect.objectContaining({ access_token: expect.any(String) }), { recovery: true },
+    );
+  });
+
+  it('says a wrong or old code plainly, under the code', async () => {
+    mockParams = { email: 'haneef@example.com' };
+    render(<ResetPassword />);
+    fireEvent.changeText(screen.getByTestId('reset-code'), '999999');
+    await act(async () => { fireEvent.press(screen.getByTestId('reset-verify')); });
+
+    expect(screen.getByText(/That code is not right, or has expired/)).toBeTruthy();
+    expect(mockAdopt).not.toHaveBeenCalled();
+  });
+
+  it('asks for the address and a six-digit code before calling anyone', async () => {
+    render(<ResetPassword />);
+    await act(async () => { fireEvent.press(screen.getByTestId('reset-verify')); });
+    expect(screen.getByText('Enter your email address.')).toBeTruthy();
+    expect(screen.getByText('Enter the 6-digit code from the email.')).toBeTruthy();
+
+    fireEvent.changeText(screen.getByTestId('reset-email'), 'haneef@example.com');
+    fireEvent.changeText(screen.getByTestId('reset-code'), '12ab');
+    await act(async () => { fireEvent.press(screen.getByTestId('reset-verify')); });
+
+    expect(supabase.auth.verifyOtp).not.toHaveBeenCalled();
+    expect(screen.getByText('Enter the 6-digit code from the email.')).toBeTruthy();
+  });
+
+  it('offers a new email', () => {
+    render(<ResetPassword />);
+    fireEvent.press(screen.getByTestId('reset-request-new'));
+    expect(mockReplace).toHaveBeenCalledWith('/forgot-password');
+  });
 });

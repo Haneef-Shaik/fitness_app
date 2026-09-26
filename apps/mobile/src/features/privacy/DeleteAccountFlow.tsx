@@ -3,8 +3,10 @@
  *
  *   1. What goes, with "Download my data first" offered right there: losing
  *      data you meant to keep is the worst outcome of this screen (K-07).
- *   2. Type DELETE and the password. The button stays disabled until both are
- *      there; the server checks both again.
+ *   2. Type DELETE. The server checks it again, and asks for a sign-in from the
+ *      last ten minutes (docs/14 S5): if this one is older, the screen asks the
+ *      person to confirm it is them — their password, or Google or Apple — and
+ *      then deletes. A stolen, unlocked phone is not enough.
  *   3. There is no step 3 on this screen: the account is gone, the session
  *      ends, and the welcome screen says so (farewell.ts).
  *
@@ -17,7 +19,8 @@ import { View } from 'react-native';
 import { Button, Card, Field, Text } from '@/ui';
 import { TextInput } from '@/ui/TextInput';
 import { ApiError } from '@/lib/api';
-import { accountApi } from '@/lib/api-account';
+import { accountApi, needsFreshSignIn } from '@/lib/api-account';
+import { AuthProblem } from '@/features/auth/supabaseAuth';
 import { store } from '@/lib/db';
 import { useSession } from '@/lib/session';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
@@ -37,7 +40,10 @@ export function DeleteAccountFlow({ onExport, webUrl }: {
   webUrl: string;
 }) {
   const { c } = useTheme();
-  const { signOut } = useSession();
+  const { signOut, reauthenticate, provider } = useSession();
+  const external = provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : null;
+  // The server wants a fresher sign-in before it deletes.
+  const [signIn, setSignIn] = useState(false);
   const [step, setStep] = useState<Step>('idle');
   const [typed, setTyped] = useState('');
   const [password, setPassword] = useState('');
@@ -45,26 +51,36 @@ export function DeleteAccountFlow({ onExport, webUrl }: {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [general, setGeneral] = useState<string | null>(null);
 
-  const ready = typed === WORD && password.length > 0;
+  const ready = typed === WORD && (!signIn || external !== null || password.length > 0);
 
   const cancel = () => {
-    setStep('idle'); setTyped(''); setPassword(''); setErrors({}); setGeneral(null);
+    setStep('idle'); setTyped(''); setPassword(''); setErrors({}); setGeneral(null); setSignIn(false);
   };
+
+  const remove = () => deleteAccountEverywhere({
+    remove: accountApi.delete,
+    store,
+    releaseWorkout: () => useSessionStore.setState({ draft: null, recoveryCandidate: null }),
+    cancelReminders: () => applyReminders([]),
+    removeExports: () => removeExportCopies(),
+    signOut,
+  });
+  // Nothing to set after it: the session has ended and AuthGate has moved on.
 
   const submit = async () => {
     setBusy(true); setErrors({}); setGeneral(null);
     try {
-      await deleteAccountEverywhere(password, {
-        remove: accountApi.delete,
-        store,
-        releaseWorkout: () => useSessionStore.setState({ draft: null, recoveryCandidate: null }),
-        cancelReminders: () => applyReminders([]),
-        removeExports: () => removeExportCopies(),
-        signOut,
-      });
-      // Nothing to set: the session has ended and AuthGate has moved on.
+      if (signIn) {
+        await reauthenticate(external ? undefined : password);
+        setSignIn(false);
+      }
+      await remove();
     } catch (e) {
-      if (e instanceof ApiError && Object.keys(e.fields).length > 0) {
+      if (needsFreshSignIn(e)) {
+        setSignIn(true);
+      } else if (e instanceof AuthProblem) {
+        if (e.field === 'password') setErrors({ password: e.message }); else setGeneral(e.message);
+      } else if (e instanceof ApiError && Object.keys(e.fields).length > 0) {
         setErrors(e.fields);
       } else {
         setGeneral(failureMessage(e));
@@ -126,20 +142,32 @@ export function DeleteAccountFlow({ onExport, webUrl }: {
         />
       </Field>
 
-      <Field label="Your password" error={errors.password}>
-        <TextInput
-          value={password} onChangeText={setPassword}
-          accessibilityLabel="Your password" testID="delete-account-password"
-          secureTextEntry autoCapitalize="none" textContentType="password"
-          autoComplete="password"
-          style={[input, { borderColor: errors.password ? c.crit : c.line }]}
-        />
-      </Field>
+      {signIn ? (
+        <View testID="delete-account-sign-in" style={{ marginBottom: space.base }}>
+          <Text variant="body" tone="ink2" style={{ marginBottom: space.sm }}>
+            {external
+              ? `For your safety, sign in with ${external} again to delete your account.`
+              : 'For your safety, enter your password to delete your account.'}
+          </Text>
+          {external ? null : (
+            <Field label="Your password" error={errors.password}>
+              <TextInput
+                value={password} onChangeText={setPassword}
+                accessibilityLabel="Your password" testID="delete-account-password"
+                secureTextEntry autoCapitalize="none" textContentType="password"
+                autoComplete="password"
+                style={[input, { borderColor: errors.password ? c.crit : c.line }]}
+              />
+            </Field>
+          )}
+        </View>
+      ) : null}
 
       <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.sm }}>
         <Button title="Cancel" kind="ghost" style={{ flex: 1 }} onPress={cancel} disabled={busy} />
         <Button
-          title="Delete my account permanently" kind="danger" style={{ flex: 2 }}
+          title={signIn && external ? `Sign in with ${external} and delete` : 'Delete my account permanently'}
+          kind="danger" style={{ flex: 2 }}
           testID="delete-account-confirm-button"
           disabled={!ready} loading={busy} onPress={submit}
         />

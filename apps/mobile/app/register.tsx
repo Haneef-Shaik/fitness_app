@@ -9,9 +9,11 @@ import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Field, Text } from '@/ui';
 import { useTheme, space, radius, font } from '@/theme';
 import { useSession } from '@/lib/session';
-import { ApiError } from '@/lib/api';
 import { MIN_PASSWORD_LENGTH } from '@/features/auth/password';
 import { PasswordStrength } from '@/features/auth/PasswordStrength';
+import { Notice } from '@/features/auth/Notice';
+import { ProviderButtons } from '@/features/auth/ProviderButtons';
+import { AuthProblem, resendConfirmation } from '@/features/auth/supabaseAuth';
 
 export default function Register() {
   const { c } = useTheme();
@@ -21,19 +23,28 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [general, setGeneral] = useState<string | null>(null);
+  // S8: the account exists and its confirmation email is out.
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [resent, setResent] = useState(false);
 
   async function submit() {
     setBusy(true); setErrors({}); setGeneral(null);
     try {
-      await signUp(email.trim(), password);
-      resetTo('/');
+      const { confirm } = await signUp(email.trim(), password);
+      if (confirm) setSentTo(email.trim());
+      else resetTo('/');
     } catch (e) {
-      if (e instanceof ApiError) {
-        setErrors(e.fields);
-        // Only show a banner when the server did not attribute it to a field.
-        if (Object.keys(e.fields).length === 0) setGeneral(e.message);
-      } else setGeneral('Could not reach the server. Check your connection.');
+      const problem = e instanceof AuthProblem ? e : new AuthProblem('Could not reach FitLog. Check your connection.');
+      if (problem.field) setErrors({ [problem.field]: problem.message });
+      else setGeneral(problem.message);
     } finally { setBusy(false); }
+  }
+
+  async function resend() {
+    if (!sentTo) return;
+    try { await resendConfirmation(sentTo); setResent(true); } catch (e) {
+      setGeneral(e instanceof AuthProblem ? e.message : 'That did not work. Try again.');
+    }
   }
 
   const input = {
@@ -51,7 +62,22 @@ export default function Register() {
             <Text variant="h2" tone="ink">‹</Text>
           </Pressable>
 
-          <Text variant="h1" style={{ marginTop: space.sm, marginBottom: space.lg }}>Create your account</Text>
+          <Text variant="h1" style={{ marginTop: space.sm, marginBottom: space.lg }}>
+            {sentTo ? 'Check your email' : 'Create your account'}
+          </Text>
+
+          {sentTo ? (
+            <View style={{ gap: space.base }} testID="register-check-email">
+              <Notice tone="good">
+                {`We sent a link to ${sentTo}. Open it on this phone to confirm your address — then you're in.`}
+              </Notice>
+              <Text variant="caption" tone="ink3">It can take a minute to arrive; check your spam folder too.</Text>
+              <Button title={resent ? 'Sent again' : 'Send the link again'} kind="ghost"
+                disabled={resent} onPress={() => void resend()} testID="register-resend" />
+              <Button title="Back to log in" kind="ghost" onPress={() => router.replace('/login')} />
+            </View>
+          ) : (<>
+          <ProviderButtons onProblem={setGeneral} />
 
           {general ? (
             <View style={{ borderWidth: 1, borderColor: c.crit, borderRadius: radius.card, padding: 12, marginBottom: space.base }}>
@@ -89,6 +115,7 @@ export default function Register() {
               Already have an account? <Text variant="caption" tone="ink2">Log in</Text>
             </Text>
           </Pressable>
+          </>)}
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenSafeArea>

@@ -17,7 +17,7 @@ invariants). `scripts/migrate.sh` keeps revoking the Data API's grants on every 
 | # | Decision | Why |
 |---|----------|-----|
 | S1 | **One identity:** `users.id` = Supabase's `auth.users.id`. The FitLog row is created on the first authenticated request, with the email from the token | No mapping table to drift; every existing foreign key keeps pointing at `users.id` |
-| S2 | **The API verifies Supabase's access token** — signature (the project's JWKS for asymmetric keys, or the legacy HS256 secret), issuer, audience `authenticated`, expiry | Hosted projects sign with asymmetric keys; the local stack signs HS256. Both paths are tested |
+| S2 | **The API verifies Supabase's access token** — signature (the project's JWKS for asymmetric keys, or the legacy HS256 secret), issuer, audience `authenticated`, expiry | Current projects and the local stack sign with asymmetric keys (ES256, published as JWKS); older hosted projects with a shared HS256 secret. Both paths are tested |
 | S3 | **Sign-out is immediate:** a token whose Supabase session no longer exists (`auth.sessions`) is refused, as a revoked refresh family was before | "Sign out other devices" and account deletion must not leave a working token for up to an hour |
 | S4 | **Access tokens live 15 minutes** (`jwt_expiry = 900`), as FitLog's did | Same exposure window as before the move |
 | S5 | **Deleting an account** needs a sign-in in the last 10 minutes (the token's `amr` timestamp) plus the typed confirmation; the API deletes FitLog's data, then the auth user through the Admin API (service-role key, server only) | Google and Apple users have no password to re-enter; a recent sign-in works for every method |
@@ -127,3 +127,63 @@ DB_POOL_MODE=transaction \
 TEST_DATABASE_URL=postgresql+asyncpg://postgres.pooler-dev:postgres@127.0.0.1:54329/postgres \
   uv run --directory services/api pytest
 ```
+
+### Phase 4 — auth, app: done (26 Sep)
+
+The app signs in with Supabase Auth and sends its access token to the FitLog API; nothing else in it
+talks to Supabase.
+
+| What | How |
+|---|---|
+| **The client** (`src/lib/supabase.ts`) | `@supabase/supabase-js`, **PKCE**, the session in the keychain (SecureStore, in 1,800-character pieces — Android's store is only promised ~2 KB a value); refreshed while the app is in front, stopped behind it |
+| **The session** (`src/lib/session.tsx`) | the same four states as before. **Offline is not signed out** (O10): a stored sign-in that cannot be refreshed for want of signal opens the app on the last account; only an *answer* from Supabase ends it. An ended sign-in is said over the open screen (L-05), and signs back in with the password, Google or Apple |
+| **The API client** (`src/lib/api.ts`) | a 401 asks Supabase for one refresh, shared by every request refused at once (a refresh token presented twice ends the sign-in), then replays once |
+| **Sign-up** (A-03) | email and password → "Check your email" (S8), with the link sent again on request; the link signs the phone in (`app/auth/callback.tsx`). Opened on another device, it still confirms the address — log in on the phone |
+| **Log in** (A-04) | a wrong password under the password; an address not yet confirmed offers its link again |
+| **Reset** (A-05) | the email carries a link **and a 6-digit code**: the link works only on the phone that asked (PKCE), so an email read on a laptop is not a dead end — "I have a code" takes it. The new password signs every other device out |
+| **Security** (K-02) | changing the password or address asks for the current password first; an address changes once links at **both** addresses are opened (the first says "halfway", not "failed"). Google and Apple accounts see how they signed in instead of forms that cannot work |
+| **Deleting** (K-07) | typed DELETE; a sign-in older than 10 minutes gets REAUTH_REQUIRED, and the screen asks for the password — or Google / Apple — and retries |
+| **Google, Apple** (S7) | `ProviderButtons`: native Google Sign-In, and Apple's own button on iOS only, each shown only when configured. Without client ids the build shows the email form alone |
+| **Emails** | Supabase's templates in `supabase/templates/`: confirm, reset (link + code), one-time code, and security notices when a password or an address changes |
+
+Proven against the local stack (Auth, Mailpit): the reset email carries both, a wrong code is
+refused (`otp_expired`) and the right one signs in; a password under 10 characters is refused; a
+changed password emails a notice; an address change needs both links, the first redirecting with
+`?message=` and the second with a PKCE `?code=`. App suite: **1,311 tests, 127 files** — the
+Supabase client replaced by a steerable fake (`src/lib/__mocks__/supabase.ts`), with tests for every
+new screen and state.
+
+**A review of the app's auth code (26 Sep) found 2 high, 3 medium and 4 low; all fixed, each with a
+test**, checked against auth-js 2.117's source:
+
+- **High — the new-password form trusted any signed-in phone.** `fitlog://reset-password` opened on
+  an unlocked phone set a new password without the old one (and so could then pass the deletion
+  re-check). It now shows only after a reset link — known from the `redirectType` Supabase recorded
+  when the reset was asked for, not from anything in the link — or the reset code.
+- **High — signing out offline did not.** With an expired token and no signal, supabase-js's
+  `signOut()` returns an error and **keeps** the session; the next online launch signed the same
+  person back in. The app now forgets the stored session itself, and a refresh already in flight
+  cannot bring it back.
+- **Medium — an offline cold start sat on the splash for ~25 s**: `getSession()` retries an expired
+  token's refresh with backoff before answering. The app waits 3 s, then opens on the stored
+  sign-in, and loads the account when a refresh succeeds or the app returns to the front.
+- **Medium — after an offline start, the account was unknown for the rest of the run**, so the
+  session-expired dialog could not sign back in. The stored session now supplies the address and how
+  they signed in.
+- **Medium — re-signing in with Google or Apple accepted a different account**, switching whose data
+  was on screen (and a deletion would have deleted the other account). It is refused; Google's
+  chooser is now always shown, and forgotten on sign-out.
+- **Low:** Apple's one-time name reaches the account (a token refreshed after it is saved); "other
+  devices signed out" is no longer claimed when they could not be; a spent link with the API out of
+  reach signs in offline instead of "that link did not work"; a link's own error text is never shown
+  (anyone can write a link).
+- **Kept deliberately:** sign-up says when an address already has an account. Supabase hides it;
+  without it, someone who forgot they had an account waits for an email that never comes. Sign-up is
+  rate-limited by Supabase Auth.
+- **Inherent to native Google sign-in:** on Android, choosing the phone's Google account needs no
+  password, so for a Google account "sign in again" proves the phone, not the person. The deletion
+  re-check (S5) is as strong as the sign-in method.
+
+**Owner items:** the Google OAuth clients and the Apple capability (docs/12 §2.1); until then the
+buttons are simply absent. Local runs: `eval "$(scripts/supabase-api-env.sh)"` gives the API the
+local stack's settings.

@@ -427,7 +427,7 @@ Fields below are **additions/refinements** the BRD schema needs to satisfy its o
 | Table | Addition | Why |
 |-------|----------|-----|
 | `users` | `deleted_at` | §18 account deletion, with soft-delete grace |
-| `account_tokens` (new, m9) | `user_id`, `purpose` (`password_reset` \| `verify_email` \| `change_email`), `token_hash` (SHA-256, unique), `email`, `expires_at`, `used_at` | A-05/A-06/K-02 emailed single-use links. Only the hash is stored, as for refresh tokens. At most one row per user and purpose — issuing deletes the older ones. `email` is the address the link went to: the new address for a change, and how a link to an address the account has left is refused. Credentials, not data: absent from the export, deleted with the account |
+| ~~`account_tokens`~~ (m9, **dropped in m18**) | — | A-05/A-06/K-02's emailed links are Supabase Auth's since 26 Sep ([14-SUPABASE.md](14-SUPABASE.md)); so are the password hash and the refresh tokens |
 | `user_profiles` | `birth_date`, `sex`, `dashboard_layout jsonb`, `logging_field_prefs jsonb` | TDEE inputs (§9 activity_level is alone insufficient); §15 customization |
 | `user_profiles` | `daily_calorie_target`, `protein/carbs/fat_g_target` | §15 custom targets; §11 day metrics need a target |
 | `user_profiles` | `training_experience`, `training_days_per_week`, `session_minutes`, `equipment`, `checkin_interval_days` (G10) | Onboarding's training answers drive the starter-program ranking; the check-in interval drives when the next check-in is due |
@@ -547,7 +547,7 @@ Base `/{version}` = `/v1`. All responses use the envelope from the house pattern
 
 | Domain | Endpoints |
 |--------|-----------|
-| Auth | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `GET /auth/me` (+ `email_verified`, `pending_email`), `POST /auth/password/forgot` (always the same 200), `/auth/password/reset` (revokes every refresh token), `/auth/email/verify` (A-06, and applies a K-02 email change), `/auth/email/resend` (signed in; 429 within 60 s), `/auth/sessions/revoke-others` (signed in; keeps the caller's family, named by the access token's `sid`) |
+| Auth | **Signing in is Supabase Auth's** ([14-SUPABASE.md](14-SUPABASE.md)): sign-up, login, refresh, sign-out, reset, email confirmation and change, "sign out other devices". The API keeps `GET /auth/me` — who the bearer is, creating the FitLog account on a first sign-in (S1) — and `POST /account/delete` (a sign-in in the last 10 minutes, S5) |
 | Account security (K-02) | `POST /account/password` (current + new; revokes every family, returns a fresh pair), `POST /account/email` (password + new address; applies when the link sent there is opened) |
 | Profile | `GET|PATCH /profile`, `GET|PATCH /profile/preferences`, `GET|PATCH /profile/dashboard` |
 | Goals | `GET|POST /goals`, `GET|PATCH|DELETE /goals/:id` |
@@ -595,7 +595,7 @@ Base `/{version}` = `/v1`. All responses use the envelope from the house pattern
 | At rest | DB encryption at rest; bucket SSE; secrets in a manager, never in source |
 | Images | Private bucket. **No public URL pattern exists.** Reads use short-TTL signed GETs issued per request after an authz check. Object keys are random UUIDs — never `user_id/date` |
 | Authorization | Per-resource policy check on every fitness/nutrition resource; deny by default; no IDOR-able sequential IDs (UUIDs) |
-| Auth tokens | Short-lived access JWT held in memory + a rotating refresh token in the **device keychain** (`expo-secure-store`) — returned in the response body and sent in the request body, **never a cookie**: a native client cannot use one ([D10](08-PROJECT-CHARTER.md#6-decision-log)). Refresh-token reuse detection revokes the whole family, which is what replaces the cookie's protection |
+| Auth tokens | Supabase's access token (15 minutes, verified against the project's JWKS, refused once its sign-in has ended — S2, S3), held in memory; Supabase's session in the **device keychain** (`expo-secure-store`, in chunks), refreshed by `supabase-js` — **never a cookie**: a native client cannot use one ([D10](08-PROJECT-CHARTER.md#6-decision-log)). Refresh-token reuse ends the sign-in, which is what replaces the cookie's protection |
 | AI auditability | `food_analyses` / `food_analysis_items` retained with confidence and model name; `user_corrected` preserved (§18) |
 | Deletion | `POST /account/delete` → soft-delete + grace period → hard purge of rows **and** all object-storage assets. Individual image deletion is immediate. |
 | Export | `GET /account/export` produces a complete JSON/CSV archive |

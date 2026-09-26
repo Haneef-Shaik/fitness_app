@@ -3,8 +3,11 @@
  * silently: envelope unwrapping, the 401 refresh dance, and the LAN host
  * derivation that decides whether a physical phone can reach the API at all.
  */
-import { ApiError, api, auth, setAccessToken } from '../api';
-import * as storage from '../storage';
+import { ApiError, api, getAccessToken, setAccessToken } from '../api';
+import * as supabaseModule from '../supabase';
+
+// The fake jest.setup.ts installs in place of Supabase (src/lib/__mocks__).
+const { fakeAuth, supabase } = supabaseModule as unknown as typeof import('../__mocks__/supabase');
 
 type FetchMock = jest.Mock<Promise<unknown>, [string, RequestInit?]>;
 
@@ -82,110 +85,83 @@ describe('envelope unwrapping (I9)', () => {
 });
 
 describe('401 → refresh → retry', () => {
-  it('refreshes once and replays the original request', async () => {
-    await storage.setRefreshToken('old-refresh');
+  // Supabase Auth refreshes the session (docs/14); the FitLog API only says 401.
+  const unauthorised = (message = 'nope') =>
+    failEnvelope(401, { code: 'unauthorized', message, request_id: 'r' });
 
+  it('refreshes once and replays the original request with the new token', async () => {
+    fakeAuth.signIn();
+    setAccessToken('old-access');
     fetchMock
-      .mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'nope', request_id: 'r' }))
-      .mockResolvedValueOnce(okEnvelope({ access_token: 'new-access', refresh_token: 'new-refresh', expires_in: 900 }))
+      .mockResolvedValueOnce(unauthorised())
       .mockResolvedValueOnce(okEnvelope({ timezone: 'Europe/London' }));
 
     await expect(api.get('/profile')).resolves.toEqual({ timezone: 'Europe/London' });
 
-    expect(fetchMock).toHaveBeenCalledTimes(3);
-    expect(fetchMock.mock.calls[1]![0]).toContain('/auth/refresh');
-    // The rotated token must be persisted, or the next cold start signs the user out.
-    await expect(storage.getRefreshToken()).resolves.toBe('new-refresh');
+    expect(supabase.auth.refreshSession).toHaveBeenCalledTimes(1);
+    const replay = fetchMock.mock.calls[1]![1] as RequestInit;
+    expect((replay.headers as Record<string, string>).authorization).toMatch(/^Bearer access-refreshed-/);
   });
 
-  it('clears the session when the refresh itself fails', async () => {
-    // Reuse detection revokes the whole family — this session is finished.
-    await storage.setRefreshToken('stale');
-
-    fetchMock
-      .mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'nope', request_id: 'r' }))
-      .mockResolvedValueOnce(failEnvelope(401, { code: 'token_reused', message: 'revoked', request_id: 'r2' }));
+  it('surfaces the ORIGINAL error when the sign-in was ended, and drops the token', async () => {
+    fakeAuth.signIn();
+    fakeAuth.revoke();
+    setAccessToken('old-access');
+    fetchMock.mockResolvedValueOnce(unauthorised());
 
     const e = (await api.get('/profile').catch((x: unknown) => x)) as ApiError;
     expect(e).toBeInstanceOf(ApiError);
-    expect(e.code).toBe('unauthorized'); // the ORIGINAL error, not the refresh failure
-    await expect(storage.getRefreshToken()).resolves.toBeNull();
+    expect(e.code).toBe('unauthorized');
+    expect(getAccessToken()).toBeNull();
   });
 
-  it('does not try to refresh when there is no refresh token', async () => {
-    await storage.clearRefreshToken();
-    fetchMock.mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'nope', request_id: 'r' }));
+  it('does not replay when nobody is signed in', async () => {
+    fetchMock.mockResolvedValueOnce(unauthorised());
 
     await expect(api.get('/profile')).rejects.toBeInstanceOf(ApiError);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('never refreshes in response to an auth endpoint failing', async () => {
-    // A bad password must surface as a bad password, not as a refresh loop.
-    await storage.setRefreshToken('present');
-    fetchMock.mockResolvedValueOnce(failEnvelope(401, { code: 'bad_credentials', message: 'no', request_id: 'r' }));
-
-    const e = (await auth.login('a@b.c', 'wrong').catch((x: unknown) => x)) as ApiError;
-    expect(e.code).toBe('bad_credentials');
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
-  it.each([
-    ['/auth/password/forgot'], ['/auth/password/reset'], ['/auth/email/verify'],
-  ])('never refreshes for %s either — its 401 is about the body, not the session', async (path) => {
-    await storage.setRefreshToken('present');
-    fetchMock.mockResolvedValueOnce(failEnvelope(401, { code: 'x', message: 'no', request_id: 'r' }));
-
-    await expect(api.post(path, {})).rejects.toBeInstanceOf(ApiError);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
-  it.each([
-    ['/auth/me'], ['/auth/email/resend'], ['/auth/sessions/revoke-others'],
-  ])('refreshes for %s, which acts on the signed-in account (A-06, K-02)', async (path) => {
-    // These live under /auth/ but carry no credentials in the body: a 401 is
-    // an expired access token, and must refresh like any other call.
-    await storage.setRefreshToken('r1');
+  it('refreshes for /auth/me like any other call — it carries no credentials of its own', async () => {
+    fakeAuth.signIn();
     fetchMock
-      .mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'no', request_id: 'r' }))
-      .mockResolvedValueOnce(okEnvelope({ access_token: 'a2', refresh_token: 'r2' }))
-      .mockResolvedValueOnce(okEnvelope({ ok: true }));
+      .mockResolvedValueOnce(unauthorised())
+      .mockResolvedValueOnce(okEnvelope({ id: 'u1' }));
 
-    await expect(api.post(path)).resolves.toEqual({ ok: true });
-    expect(fetchMock.mock.calls[1]![0]).toContain('/auth/refresh');
+    await expect(api.get('/auth/me')).resolves.toEqual({ id: 'u1' });
+    expect(supabase.auth.refreshSession).toHaveBeenCalledTimes(1);
   });
 
   it('refreshes ONCE when several requests 401 together', async () => {
     // Observed for real: a screen fires several queries, they all 401, each
     // refreshes with the same token, the first rotates it and reuse detection
-    // revokes the family. The user is signed out mid-workout.
-    await storage.setRefreshToken('shared');
-
-    const unauthorised = () =>
-      failEnvelope(401, { code: 'unauthorized', message: 'nope', request_id: 'r' });
-
-    fetchMock.mockImplementation(async (url: string) => {
-      if (url.includes('/auth/refresh')) {
-        return okEnvelope({ access_token: 'a2', refresh_token: 'r2', expires_in: 900 });
-      }
-      // 401 until a refresh has happened, then fine.
-      return (await storage.getRefreshToken()) === 'r2' ? okEnvelope({ ok: true }) : unauthorised();
-    });
+    // ends the sign-in. The user is signed out mid-workout.
+    fakeAuth.signIn();
+    setAccessToken('old-access');
+    fetchMock.mockImplementation(async () =>
+      (getAccessToken() ?? '').startsWith('access-refreshed-') ? okEnvelope({ ok: true }) : unauthorised());
 
     await Promise.all([api.get('/profile'), api.get('/goals'), api.get('/programs')]);
 
-    const refreshCalls = fetchMock.mock.calls.filter(([u]) => String(u).includes('/auth/refresh'));
-    expect(refreshCalls).toHaveLength(1);
+    expect(supabase.auth.refreshSession).toHaveBeenCalledTimes(1);
   });
 
   it('gives up after one refresh rather than looping', async () => {
-    await storage.setRefreshToken('r1');
+    fakeAuth.signIn();
     fetchMock
-      .mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'a', request_id: 'r' }))
-      .mockResolvedValueOnce(okEnvelope({ access_token: 'a2', refresh_token: 'r2', expires_in: 900 }))
-      .mockResolvedValueOnce(failEnvelope(401, { code: 'unauthorized', message: 'b', request_id: 'r' }));
+      .mockResolvedValueOnce(unauthorised('a'))
+      .mockResolvedValueOnce(unauthorised('b'));
 
     await expect(api.get('/profile')).rejects.toBeInstanceOf(ApiError);
-    expect(fetchMock).toHaveBeenCalledTimes(3); // not 4, not infinite
+    expect(fetchMock).toHaveBeenCalledTimes(2); // not 3, not infinite
+  });
+
+  it('refreshes for a cursor-paged read too', async () => {
+    fakeAuth.signIn();
+    fetchMock
+      .mockResolvedValueOnce(unauthorised())
+      .mockResolvedValueOnce(jsonResponse({ success: true, data: [1], meta: { has_more: false } }));
+
+    await expect(api.getPaged('/history')).resolves.toEqual({ data: [1], meta: { has_more: false } });
   });
 });

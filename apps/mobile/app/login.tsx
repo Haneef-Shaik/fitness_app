@@ -9,8 +9,9 @@ import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Field, Text } from '@/ui';
 import { useTheme, space, radius, font, target } from '@/theme';
 import { useSession } from '@/lib/session';
-import { ApiError } from '@/lib/api';
 import { Notice } from '@/features/auth/Notice';
+import { ProviderButtons } from '@/features/auth/ProviderButtons';
+import { AuthProblem, resendConfirmation } from '@/features/auth/supabaseAuth';
 
 export default function Login() {
   const { c } = useTheme();
@@ -22,20 +23,28 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [general, setGeneral] = useState<string | null>(null);
-
+  // S8: an account whose address is not confirmed yet cannot sign in; offer the link again.
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [resent, setResent] = useState(false);
 
   async function submit() {
-    setBusy(true); setErrors({}); setGeneral(null);
+    setBusy(true); setErrors({}); setGeneral(null); setUnconfirmed(false); setResent(false);
     try {
       await signIn(email.trim(), password);
       resetTo('/');
     } catch (e) {
-      if (e instanceof ApiError) {
-        setErrors(e.fields);
-        // Only show a banner when the server did not attribute it to a field.
-        if (Object.keys(e.fields).length === 0) setGeneral(e.message);
-      } else setGeneral('Could not reach the server. Check your connection.');
+      const problem = e instanceof AuthProblem ? e : new AuthProblem('Could not reach FitLog. Check your connection.');
+      if (problem.code === 'email_not_confirmed') setUnconfirmed(true);
+      // A field's problem under the field; anything else as a banner.
+      if (problem.field && problem.code !== 'email_not_confirmed') setErrors({ [problem.field]: problem.message });
+      else setGeneral(problem.message);
     } finally { setBusy(false); }
+  }
+
+  async function resend() {
+    try { await resendConfirmation(email); setResent(true); } catch (e) {
+      setGeneral(e instanceof AuthProblem ? e.message : 'That did not work. Try again.');
+    }
   }
 
   const input = {
@@ -61,9 +70,26 @@ export default function Login() {
             </View>
           ) : null}
 
+          {notice === 'confirmed' ? (
+            <View style={{ marginBottom: space.base }}>
+              <Notice tone="good" testID="login-notice">Email confirmed. Log in to carry on.</Notice>
+            </View>
+          ) : null}
+
+          <ProviderButtons onProblem={setGeneral} />
+
           {general ? (
-            <View style={{ borderWidth: 1, borderColor: c.crit, borderRadius: radius.card, padding: 12, marginBottom: space.base }}>
+            <View style={{ borderWidth: 1, borderColor: c.crit, borderRadius: radius.card, padding: 12, marginBottom: space.base }}
+              testID="login-error">
               <Text variant="caption" tone="crit">{general}</Text>
+              {unconfirmed ? (
+                <Pressable onPress={() => void resend()} accessibilityRole="button" testID="login-resend"
+                  style={{ minHeight: target.min, justifyContent: 'center' }}>
+                  <Text variant="caption" tone="ink2">
+                    {resent ? 'Sent — check your inbox.' : 'Send the confirmation link again'}
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
           ) : null}
 

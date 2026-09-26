@@ -5,10 +5,11 @@
  *   { success, data, error: { code, message, fields, request_id } }
  * The client unwraps it and throws ApiError, so callers never inspect `success`.
  */
-import type { Goal, GoalIn, GoalPatch, Me, Profile, ProfilePatch, TokenPair } from '@fitlog/api-types';
+import type { Goal, GoalIn, GoalPatch, Me, Profile, ProfilePatch } from '@fitlog/api-types';
+import { isAuthRetryableFetchError } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
-import { clearRefreshToken, getRefreshToken, setRefreshToken } from './storage';
+import { supabase } from './supabase';
 
 function defaultBase(): string {
   // NOTE: babel-preset-expo INLINES EXPO_PUBLIC_* at build time — this compiles to
@@ -140,23 +141,6 @@ async function rawPaged<T>(path: string): Promise<Page<T>> {
   return { data: (json?.data ?? []) as T, meta: json?.meta };
 }
 
-/**
- * Routes where a 401 answers the credentials in the BODY — a wrong password, a
- * dead refresh token, a spent link — and says nothing about the access token.
- * Refreshing and retrying one would turn "wrong password" into a refresh loop.
- *
- * A list rather than every `/auth/` route: resend and sign-out-others (A-06,
- * K-02) act on the signed-in account, and `/auth/me` is read from screens long
- * after sign-in, so an expired access token there must refresh like anywhere.
- */
-const CREDENTIAL_ROUTES = [
-  '/auth/login', '/auth/register', '/auth/refresh', '/auth/logout',
-  '/auth/password/', '/auth/email/verify',
-];
-
-const answersCredentials = (path: string) =>
-  CREDENTIAL_ROUTES.some((route) => path.startsWith(route));
-
 /** Runs the request; on a 401 it tries one silent refresh before surfacing the error. */
 async function request<T>(
   method: Method, path: string, body?: unknown, extraHeaders?: Record<string, string>,
@@ -164,7 +148,7 @@ async function request<T>(
   try {
     return await raw<T>(method, path, body, extraHeaders);
   } catch (err) {
-    if (!(err instanceof ApiError) || err.status !== 401 || answersCredentials(path)) throw err;
+    if (!(err instanceof ApiError) || err.status !== 401) throw err;
     const refreshed = await tryRefresh();
     if (!refreshed) throw err;
     return raw<T>(method, path, body, extraHeaders);
@@ -174,13 +158,12 @@ async function request<T>(
 /**
  * A refresh in flight, shared by every caller.
  *
- * Without this, a screen that fires several queries at once produces several
- * simultaneous 401s, each of which refreshes independently with the SAME refresh
- * token. The first rotates it; the rest present a token that has just been
- * replaced, and reuse detection — correctly — revokes the entire family and
- * signs the user out. Observed in the logger, where three queries 401 together.
- *
- * Single-flighting makes the concurrent case behave like the sequential one.
+ * A screen that fires several queries at once gets several 401s together; each
+ * refreshing on its own would present the same refresh token several times,
+ * and Supabase — like FitLog before it — treats a reused refresh token as
+ * stolen and ends the session. Observed in the logger, where three queries
+ * 401 together. Single-flighting makes the concurrent case behave like the
+ * sequential one.
  */
 let refreshInFlight: Promise<boolean> | null = null;
 
@@ -195,30 +178,23 @@ export function onSessionRevoked(listener: (() => void) | null): void {
 }
 
 async function performRefresh(): Promise<boolean> {
-  const token = await getRefreshToken();
-  if (!token) return false;
-  try {
-    const data = await raw<TokenPair>('POST', '/auth/refresh', { refresh_token: token });
-    setAccessToken(data.access_token);
-    await setRefreshToken(data.refresh_token);
+  // Supabase Auth holds the session (lib/supabase.ts); a 401 from the FitLog
+  // API means its access token went stale or its sign-in ended.
+  const { data, error } = await supabase.auth.refreshSession();
+  if (data.session) {
+    setAccessToken(data.session.access_token);
     return true;
-  } catch (e) {
-    // ONLY an auth rejection means the family is gone. Everything else — a 5xx,
-    // or a `fetch` that rejected outright because the phone has no signal —
-    // says nothing about whether this session is still valid.
-    //
-    // Catching all of it and clearing the token deleted the account from the
-    // device for being offline: the user was signed out of a workout in
-    // progress and could not log back in until they had reception. Found on a
-    // phone, trying to relaunch the app with the server unreachable.
-    const revoked = e instanceof ApiError && (e.status === 401 || e.status === 403);
-    if (revoked) {
-      await clearRefreshToken();
-      setAccessToken(null);
-      revokedListener?.();
-    }
-    return false;
   }
+  // ONLY an answer from Supabase means the sign-in is over. No answer at all
+  // — the phone has no signal — says nothing about whether it is still valid,
+  // and signing out for it ejected someone from a workout in progress (found
+  // on a phone, relaunching with the server unreachable). supabase-js keeps
+  // the stored session on a retryable failure for the same reason.
+  if (error && !isAuthRetryableFetchError(error)) {
+    setAccessToken(null);
+    revokedListener?.();
+  }
+  return false;
 }
 
 async function tryRefresh(): Promise<boolean> {
@@ -254,17 +230,13 @@ export const api = {
  * server's OpenAPI document and gated in CI. Nothing here is hand-typed: a
  * hand-written response shape is drift with extra steps (D3b).
  */
-export type { Goal, Me, Profile, TokenPair };
+export type { Goal, Me, Profile };
 
-interface AuthResult extends TokenPair { user: { id: string; email: string } }
-
+/** Signing in, out and everything between is Supabase's (lib/supabase.ts);
+ *  the API only says who the bearer is — and creates the account on a first
+ *  sign-in. */
 export const auth = {
-  register: (email: string, password: string) =>
-    api.post<AuthResult>('/auth/register', { email, password }),
-  login: (email: string, password: string) =>
-    api.post<AuthResult>('/auth/login', { email, password }),
   me: () => api.get<Me>('/auth/me'),
-  logout: (refresh_token: string) => api.post('/auth/logout', { refresh_token }),
 };
 
 export const profileApi = {

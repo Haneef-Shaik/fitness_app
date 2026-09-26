@@ -1,108 +1,80 @@
 /**
  * Losing the network must not lose the account.
  *
- * `performRefresh` caught everything and cleared the refresh token, on the
- * reasoning that reuse detection may have revoked the family. That is true of a
- * 401. It is not true of a phone with no signal — and `fetch` rejects with a
- * plain TypeError there, which landed in the same catch.
+ * The first refresh code caught everything and signed out, on the reasoning
+ * that reuse detection may have ended the sign-in. That is true when the
+ * server answers no. It is not true of a phone with no signal — and there the
+ * failure looked the same.
  *
- * So opening the app in a basement gym deleted the stored token, signed the user
- * out of a workout in progress, and left them unable to log back in until they
- * had reception. Found while trying to prove the offline flow on a device: the
- * app could not be relaunched with the server unreachable without being ejected
- * to the login screen.
+ * So opening the app in a basement gym signed the user out of a workout in
+ * progress, and left them unable to log back in until they had reception.
+ * Found while proving the offline flow on a device. Supabase Auth holds the
+ * session now (docs/14); the rule is the same: only an answer means "over".
  */
-import { api, onSessionRevoked } from '../api';
+import { api, getAccessToken, onSessionRevoked, setAccessToken } from '../api';
+import * as supabaseModule from '../supabase';
 
-const mockTokens = { value: null as string | null };
-jest.mock('../storage', () => ({
-  getRefreshToken: jest.fn(async () => mockTokens.value),
-  setRefreshToken: jest.fn(async (t: string) => { mockTokens.value = t; }),
-  clearRefreshToken: jest.fn(async () => { mockTokens.value = null; }),
-}));
+// The fake jest.setup.ts installs in place of Supabase (src/lib/__mocks__).
+const { fakeAuth, supabase } = supabaseModule as unknown as typeof import('../__mocks__/supabase');
 
 const asResponse = (status: number, body: unknown) => ({
   ok: status >= 200 && status < 300,
   status,
   json: async () => body,
 });
+const unauthorised = () => asResponse(401, { success: false, error: { code: 'UNAUTHORIZED', message: 'no' } });
 
-beforeEach(() => { mockTokens.value = 'stored-refresh-token'; });
+beforeEach(() => {
+  jest.clearAllMocks();
+  fakeAuth.signIn();
+  setAccessToken('stale-access');
+});
+afterEach(() => onSessionRevoked(null));
 
-describe('a refresh that fails because the server cannot be reached', () => {
-  it('keeps the token, so the session survives being offline', async () => {
-    // This is how fetch fails with no network: it rejects, it does not respond.
-    global.fetch = jest.fn(async () => { throw new TypeError('Network request failed'); }) as never;
-
-    await expect(api.tryRefresh()).resolves.toBe(false);
-
-    expect(mockTokens.value).toBe('stored-refresh-token');
-  });
-
-  it('keeps the token when the server is up but broken', async () => {
-    // A 500 says nothing about whether this session is still valid.
-    global.fetch = jest.fn(async () => asResponse(500, { success: false, error: {} })) as never;
+describe('a refresh that fails because Supabase cannot be reached', () => {
+  it('keeps the sign-in, and tells nobody it ended', async () => {
+    fakeAuth.offline = true;
+    const heard = jest.fn();
+    onSessionRevoked(heard);
 
     await expect(api.tryRefresh()).resolves.toBe(false);
 
-    expect(mockTokens.value).toBe('stored-refresh-token');
+    expect(fakeAuth.session).not.toBeNull();
+    expect(getAccessToken()).toBe('stale-access');
+    expect(heard).not.toHaveBeenCalled();
   });
 });
 
-describe('a refresh the server actively rejects', () => {
-  it('clears the token — reuse detection has revoked the family', async () => {
-    global.fetch = jest.fn(async () =>
-      asResponse(401, { success: false, error: { code: 'INVALID_TOKEN' } })) as never;
+describe('a refresh Supabase refuses — the sign-in was ended elsewhere', () => {
+  it('drops the token and tells the app (L-05)', async () => {
+    fakeAuth.revoke();
+    const heard = jest.fn();
+    onSessionRevoked(heard);
 
     await expect(api.tryRefresh()).resolves.toBe(false);
 
-    expect(mockTokens.value).toBeNull();
-  });
-
-  it('clears the token on a 403 too', async () => {
-    global.fetch = jest.fn(async () =>
-      asResponse(403, { success: false, error: { code: 'FORBIDDEN' } })) as never;
-
-    await api.tryRefresh();
-
-    expect(mockTokens.value).toBeNull();
+    expect(getAccessToken()).toBeNull();
+    expect(heard).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('a refresh that works', () => {
-  it('stores the rotated token', async () => {
-    global.fetch = jest.fn(async () => asResponse(200, {
-      success: true, data: { access_token: 'new-access', refresh_token: 'rotated' },
-    })) as never;
-
+  it('uses the new access token', async () => {
     await expect(api.tryRefresh()).resolves.toBe(true);
-
-    expect(mockTokens.value).toBe('rotated');
-  });
-});
-
-describe('L-05 · the app hears when a session ends', () => {
-  afterEach(() => onSessionRevoked(null));
-
-  it('is told once the server rejects the refresh', async () => {
-    const heard = jest.fn();
-    onSessionRevoked(heard);
-    global.fetch = jest.fn(async () =>
-      asResponse(401, { success: false, error: { code: 'INVALID_TOKEN' } })) as never;
-
-    await api.tryRefresh();
-
-    expect(heard).toHaveBeenCalledTimes(1);
+    expect(getAccessToken()).toMatch(/^access-refreshed-/);
   });
 
-  it('is not told when the phone is merely offline', async () => {
-    const heard = jest.fn();
-    onSessionRevoked(heard);
-    global.fetch = jest.fn(async () => { throw new TypeError('Network request failed'); }) as never;
+  it('retries the refused request once with it', async () => {
+    const seen: (string | undefined)[] = [];
+    global.fetch = jest.fn(async (_url: string, init: { headers: Record<string, string> }) => {
+      seen.push(init.headers.authorization);
+      return seen.length === 1 ? unauthorised() : asResponse(200, { success: true, data: { ok: 1 } });
+    }) as never;
 
-    await api.tryRefresh();
+    await expect(api.get('/profile')).resolves.toEqual({ ok: 1 });
 
-    expect(heard).not.toHaveBeenCalled();
+    expect(seen[0]).toBe('Bearer stale-access');
+    expect(seen[1]).toMatch(/^Bearer access-refreshed-/);
   });
 });
 

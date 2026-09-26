@@ -3,8 +3,8 @@
  *
  * Three things have to happen, in an order that matters:
  *
- *   1. the server deletes the account — and if it refuses (wrong password,
- *      offline, rate limited), NOTHING on the phone is touched;
+ *   1. the server deletes the account — and if it refuses (a sign-in too old
+ *      to delete with, offline, rate limited), NOTHING on the phone is touched;
  *   2. this device forgets that account's unfinished workout and queued
  *      writes — they belong to an account that no longer exists, and sending
  *      them would fail for ever in the Sync Center;
@@ -40,9 +40,9 @@ beforeEach(() => { takeFarewell(); });
 
 it('deletes on the server, then forgets this device, then signs out', async () => {
   const { deps, calls } = harness();
-  await deleteAccountEverywhere('correct-horse-battery', deps);
+  await deleteAccountEverywhere(deps);
 
-  expect(deps.remove).toHaveBeenCalledWith('correct-horse-battery');
+  expect(deps.remove).toHaveBeenCalledTimes(1);
   expect(calls).toEqual([
     'remove', 'clearDraft', 'discard:1', 'discard:2', 'release', 'cancelReminders',
     'removeExports', 'signOut',
@@ -57,7 +57,7 @@ it('a session the server no longer knows is signed out, without claiming a delet
   const expired = new ApiError('UNAUTHORIZED', 'Log back in to carry on.', 401);
   const { deps, store } = harness({ remove: jest.fn(async () => { throw expired; }) });
 
-  await deleteAccountEverywhere('pw', deps);
+  await deleteAccountEverywhere(deps);
 
   expect(deps.signOut).toHaveBeenCalled();
   expect(store.clearDraft).not.toHaveBeenCalled();
@@ -93,7 +93,7 @@ it('stops the reminders a deleted account scheduled, and survives failing to', a
   deps.cancelReminders.mockRejectedValueOnce(new Error('no permission'));
   const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-  await deleteAccountEverywhere('pw', deps);
+  await deleteAccountEverywhere(deps);
 
   expect(deps.cancelReminders).toHaveBeenCalled();
   expect(deps.signOut).toHaveBeenCalled();
@@ -102,17 +102,18 @@ it('stops the reminders a deleted account scheduled, and survives failing to', a
 
 it('leaves the welcome screen a sentence to say', async () => {
   const { deps } = harness();
-  await deleteAccountEverywhere('pw', deps);
+  await deleteAccountEverywhere(deps);
   expect(takeFarewell()).toMatch(/account .*has been deleted/i);
   // Said once, not every time the welcome screen appears.
   expect(takeFarewell()).toBeNull();
 });
 
 it('touches nothing on the phone when the server refuses', async () => {
-  const refusal = new Error('That password is not right.');
+  // REAUTH_REQUIRED (docs/14 S5): the screen signs them in again and retries.
+  const refusal = new ApiError('REAUTH_REQUIRED', 'Sign in again to delete your account.', 403);
   const { deps, store } = harness({ remove: jest.fn(async () => { throw refusal; }) });
 
-  await expect(deleteAccountEverywhere('wrong', deps)).rejects.toBe(refusal);
+  await expect(deleteAccountEverywhere(deps)).rejects.toBe(refusal);
   expect(store.clearDraft).not.toHaveBeenCalled();
   expect(store.discard).not.toHaveBeenCalled();
   expect(deps.signOut).not.toHaveBeenCalled();
@@ -126,7 +127,7 @@ it('still signs out if forgetting the device half fails', async () => {
   store.clearDraft.mockRejectedValueOnce(new Error('database is locked'));
   const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-  await deleteAccountEverywhere('pw', deps);
+  await deleteAccountEverywhere(deps);
 
   expect(deps.signOut).toHaveBeenCalled();
   expect(store.discard).toHaveBeenCalledTimes(2);

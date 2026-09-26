@@ -2,13 +2,13 @@
  * The password rule every "choose a password" field shares — A-03 sign up,
  * A-05 reset and K-02 change — so the three can never disagree.
  *
- * The SERVER is the authority (`password_problem` in services/api, which also
- * refuses a short list of common passwords). This mirrors only the length, so a
- * too-short password is caught before a round trip; anything the server
- * refuses still arrives as a field error and is shown the same way.
+ * Supabase Auth is the authority (docs/14): `minimum_password_length` in
+ * supabase/config.toml, and — hosted — its leaked-password check. This mirrors
+ * only the length, so a too-short password is caught before a round trip;
+ * anything Supabase refuses still arrives as a field error, shown the same way.
  */
 
-/** Mirrors `password_problem` in services/api/app/core/security.py. */
+/** Mirrors `minimum_password_length` in supabase/config.toml. */
 export const MIN_PASSWORD_LENGTH = 10;
 
 export interface Strength {

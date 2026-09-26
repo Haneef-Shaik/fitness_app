@@ -165,13 +165,16 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+# FitLog has no website to return to: every email link opens the app
+# (apps/mobile/app/auth/callback.tsx). Hosted, the same two settings.
+site_url = "fitlog://auth/callback"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+additional_redirect_urls = ["fitlog://**"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
-jwt_expiry = 3600
+# docs/14 S4: 15 minutes, as FitLog's own tokens were. Hosted: JWT Keys → access token expiry.
+jwt_expiry = 900
 # JWT issuer URL. If not set, defaults to auth.external_url.
 # jwt_issuer = ""
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
@@ -188,7 +191,8 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+# FitLog's rule, which the app mirrors (apps/mobile/src/features/auth/password.ts).
+minimum_password_length = 10
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -257,11 +261,28 @@ otp_expiry = 3600
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
-# Uncomment to customize notification email template
-# [auth.email.notification.password_changed]
-# enabled = true
-# subject = "Your password has been changed"
-# content_path = "./supabase/templates/password_changed_notification.html"
+# Security notices (docs/14): whoever changed the password or the address, the
+# owner hears of it — the only warning a hijacked account gives its owner.
+[auth.email.notification.password_changed]
+enabled = true
+subject = "Your FitLog password was changed"
+content_path = "./supabase/templates/password_changed_notification.html"
+
+[auth.email.notification.email_changed]
+enabled = true
+subject = "Your FitLog email address was changed"
+content_path = "./supabase/templates/email_changed_notification.html"
+
+# A-05: the reset email carries a code as well as the link. The link only
+# works on the phone that asked (PKCE); opened on a laptop, the code is typed
+# into the app instead.
+[auth.email.template.recovery]
+subject = "Reset your FitLog password"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.confirmation]
+subject = "Confirm your FitLog account"
+content_path = "./supabase/templates/confirmation.html"
 
 # FitLog's one-time-code email: the default Magic Link template has no code in
 # it, and the web deletion page asks for one (docs/14, S6).
@@ -334,6 +355,17 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+# S7. Native Google Sign-In hands Supabase an ID token (signInWithIdToken);
+# client_id lists every client the app signs in with — web, then iOS — and
+# iOS's SDK adds its own nonce, hence skip_nonce_check. Off until the owner
+# has the client ids (docs/12-DEPLOYMENT.md).
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = true
+
+# S7. Sign in with Apple, native on iOS (the app's bundle id is the client id).
 [auth.external.apple]
 enabled = false
 client_id = ""

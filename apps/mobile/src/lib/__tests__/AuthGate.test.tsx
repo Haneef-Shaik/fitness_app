@@ -94,8 +94,8 @@ describe('it must not bounce someone off a screen they chose', () => {
     }
   });
 
-  it('leaves the emailed-link screens alone — their links arrive signed out (A-05, A-06)', () => {
-    for (const path of ['/forgot-password', '/reset-password', '/verify-email']) {
+  it('leaves the emailed-link screens alone — their links arrive signed out (A-05, A-06, docs/14)', () => {
+    for (const path of ['/forgot-password', '/reset-password', '/auth/callback']) {
       jest.clearAllMocks();
       mockRoute.path = path;
       mockSession.status = 'signed-out';

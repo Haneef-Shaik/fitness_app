@@ -1,0 +1,117 @@
+# The Google Play phone screenshots (docs/13-STORE-LISTING.md §1), in listing
+# order. Run it through scripts/store-screenshots.sh, which seeds the account,
+# gives the emulator a 9:16 screen and a clean status bar, and puts the files in
+# docs/store/screenshots/android/.
+#
+# Signs in with its own steps, not sign-in.yaml: a nested flow's env defaults
+# win over the values a caller passes, so sign-in.yaml always signs in as the
+# demo account — which collects whatever the acceptance flows log.
+appId: com.fitlog.app
+name: Store screenshots (Play phone set)
+# BENCH_ID comes from the script (-e). It has no default here on purpose: a
+# flow's own env wins over -e, so a default would always be the value used.
+env:
+  EMAIL: store@fitlog.app
+  PASSWORD: fitlogstore1234
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- tapOn: "I already have one"
+- tapOn:
+    id: login-email
+- inputText: ${EMAIL}
+- hideKeyboard
+- tapOn:
+    id: login-password
+- inputText: ${PASSWORD}
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: dashboard-date
+    timeout: 30000
+
+# 1 · "Log a set in seconds" — last time's numbers above the entry.
+- tapOn:
+    id: tab-train
+- tapOn:
+    id: train-start-today
+- extendedWaitUntil:
+    visible:
+      id: previous-performance
+    timeout: 20000
+- tapOn:
+    id: entry-load-input
+- eraseText
+- inputText: "85"
+# At 1080×1920 the keyboard covers the reps field; a tap there types a digit.
+- hideKeyboard
+- tapOn:
+    id: entry-reps-input
+- eraseText
+- inputText: "6"
+- hideKeyboard
+- tapOn: "Save set 1"
+- extendedWaitUntil:
+    visible: "Set 1, 85 kilograms for 6 reps\\. Synced"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: previous-performance
+    direction: UP
+    timeout: 5000
+- takeScreenshot: 01-log-a-set
+# Discarded, so the history and "previous chest day" below stay as seeded.
+- tapOn: "Discard"
+- tapOn: "Discard"
+- extendedWaitUntil:
+    notVisible: "Discard this workout?"
+    timeout: 15000
+
+# 2 · "Find your last session without the date" (F-05).
+- openLink: fitlog://train/history/previous?muscle=chest
+- extendedWaitUntil:
+    visible:
+      id: previous-occurrence
+    timeout: 20000
+- takeScreenshot: 02-previous-chest-day
+
+# 3 · "Know what's left today."
+- tapOn:
+    id: tab-nutrition
+- extendedWaitUntil:
+    visible: "Breakfast"
+    timeout: 20000
+- takeScreenshot: 03-food-diary
+
+# 4 · "Describe it — you confirm." Foods the dev stub sizes plausibly (its roti
+# is 120 g); the analysis is left unconfirmed.
+- tapOn: "\\+ Food"
+- tapOn:
+    id: go-describe
+- tapOn:
+    id: describe-text
+- inputText: "Grilled chicken breast, rice and a side salad"
+- hideKeyboard
+- tapOn:
+    id: describe-submit
+- extendedWaitUntil:
+    visible: ".*Amount \\(g\\)"
+    timeout: 60000
+- takeScreenshot: 04-describe-and-confirm
+
+# 5 · "See the trend, not the noise" (I-03).
+- openLink: fitlog://progress/weight
+- extendedWaitUntil:
+    visible:
+      id: trend-line
+    timeout: 20000
+- takeScreenshot: 05-weight-trend
+
+# 6 · "Know you're progressing" (G-03).
+- openLink: fitlog://train/analytics/${BENCH_ID}
+- extendedWaitUntil:
+    visible:
+      id: progression-line
+    timeout: 20000
+- takeScreenshot: 06-progression

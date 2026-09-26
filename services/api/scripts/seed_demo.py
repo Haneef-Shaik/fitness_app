@@ -38,7 +38,7 @@ SPLIT = {
     "Push — Chest, Shoulders & Triceps": [
         ("Barbell Bench Press", 4, 6, 8, 80.0, 180),
         ("Overhead Press", 3, 8, 10, 45.0, 120),
-        ("Cable Triceps Pushdown", 3, 10, 12, 30.0, 75),
+        ("Triceps Pushdown", 3, 10, 12, 30.0, 75),
     ],
     "Pull — Back & Biceps": [
         ("Deadlift", 3, 3, 5, 140.0, 240),
@@ -276,4 +276,6 @@ async def main() -> int:
         return 0
 
 
-sys.exit(asyncio.run(main()))
+if __name__ == "__main__":
+    # Guarded so seed_screenshots.py can reuse the program and catalog helpers.
+    sys.exit(asyncio.run(main()))

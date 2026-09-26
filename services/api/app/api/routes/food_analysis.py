@@ -62,29 +62,46 @@ router = APIRouter(tags=["ai-nutrition"])
 
 # ------------------------------------------------------------ presentation
 
-def _item_out(item: FoodAnalysisItem, food_names: dict[uuid.UUID, str]) -> AnalysisItemOut:
+def _item_out(item: FoodAnalysisItem, foods: dict[uuid.UUID, Food]) -> AnalysisItemOut:
+    """What H-08 shows for one item — the numbers confirming it will save.
+
+    A matched item is saved with its food's macros at the chosen quantity
+    (`_resolve_macros`, H7.2), so that is what it proposes too: showing the
+    model's figures under "matched to …" was a review of one number and a log
+    of another. The model's own answer stays on the row, untouched (AC-10).
+    """
+    food = foods.get(item.resolved_food_id) if item.resolved_food_id else None
+    if food is not None:
+        grams = num(item.estimated_quantity)
+        # The same default `_resolve_macros` uses when no quantity is given.
+        macros = snapshot_from_food(food, grams if grams is not None else 100.0)
+    else:
+        macros = {
+            "calories": num(item.proposed_calories), "protein_g": num(item.proposed_protein_g),
+            "carbs_g": num(item.proposed_carbs_g), "fat_g": num(item.proposed_fat_g),
+        }
     return AnalysisItemOut(
         id=item.id,
         detected_name=item.detected_name,
         estimated_quantity=num(item.estimated_quantity),
         estimated_unit=item.estimated_unit,
         confidence=num(item.confidence),
-        proposed_calories=num(item.proposed_calories),
-        proposed_protein_g=num(item.proposed_protein_g),
-        proposed_carbs_g=num(item.proposed_carbs_g),
-        proposed_fat_g=num(item.proposed_fat_g),
+        proposed_calories=macros["calories"],
+        proposed_protein_g=macros["protein_g"],
+        proposed_carbs_g=macros["carbs_g"],
+        proposed_fat_g=macros["fat_g"],
         resolved_food_id=item.resolved_food_id,
-        resolved_food_name=food_names.get(item.resolved_food_id) if item.resolved_food_id else None,
+        resolved_food_name=food.name if food is not None else None,
         low_confidence=item.low_confidence,
     )
 
 
 async def _analysis_out(db: DbSession, analysis: FoodAnalysis) -> dict:
     food_ids = [i.resolved_food_id for i in analysis.items if i.resolved_food_id]
-    names: dict[uuid.UUID, str] = {}
+    foods: dict[uuid.UUID, Food] = {}
     if food_ids:
         rows = (await db.scalars(select(Food).where(Food.id.in_(food_ids)))).all()
-        names = {f.id: f.name for f in rows}
+        foods = {f.id: f for f in rows}
 
     return AnalysisOut(
         id=analysis.id,
@@ -98,7 +115,7 @@ async def _analysis_out(db: DbSession, analysis: FoodAnalysis) -> dict:
         notes=analysis.notes,
         confirmed_meal_id=analysis.confirmed_meal_id,
         created_at=analysis.created_at,
-        items=[_item_out(i, names) for i in analysis.items],
+        items=[_item_out(i, foods) for i in analysis.items],
     ).model_dump(mode="json")
 
 

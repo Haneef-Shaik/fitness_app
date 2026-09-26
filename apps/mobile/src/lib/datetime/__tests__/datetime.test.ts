@@ -1,4 +1,4 @@
-import { formatDayLabel, formatServerDate, hasTimeZoneSupport } from '../index';
+import { formatClockTime, formatDayLabel, formatServerDate, hasTimeZoneSupport } from '../index';
 
 describe('I7 — the client displays days, it never decides them', () => {
   it('formats an instant in the profile zone, not the device zone', () => {
@@ -49,5 +49,21 @@ describe("formatting the SERVER's local_date", () => {
   it('passes anything unparseable straight through', () => {
     expect(formatServerDate('not-a-date')).toBe('not-a-date');
     expect(formatServerDate('')).toBe('');
+  });
+});
+
+describe('formatClockTime — a time of day in the profile zone', () => {
+  // A 07:05 weigh-in in India used to read "01:35": the ISO string's UTC time,
+  // sliced out (found on the store-screenshot account).
+  const instant = new Date('2026-09-26T01:35:00Z');
+
+  it('shows the wall clock of the profile zone, not UTC', () => {
+    expect(formatClockTime(instant, 'Asia/Kolkata')).toBe('07:05');
+    expect(formatClockTime(instant, 'UTC')).toBe('01:35');
+  });
+
+  it('degrades to a time rather than throwing on a zone it cannot use', () => {
+    expect(formatClockTime(instant, 'Not/AZone')).toMatch(/^\d{2}:\d{2}$/);
+    expect(formatClockTime(instant)).toMatch(/^\d{2}:\d{2}$/);
   });
 });

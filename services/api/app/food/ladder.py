@@ -30,6 +30,11 @@ substitutes somebody else's recipe for the one that was eaten.
   powder). That is what keeps "Nani's Sunday curry" unresolved.
 
 An exact name or alias match always beats the resolver's own ordering.
+
+**A restaurant's menu item is never a loose match.** USDA carries fast-food and
+restaurant rows ("McDONALD'S, Side Salad"), and "a side salad" covers every word
+of one. Logging it would file somebody's own salad as a McDonald's one, so a
+menu item is taken only when the name says so exactly ("McDonald's side salad").
 """
 from __future__ import annotations
 
@@ -48,6 +53,9 @@ _FILLER = frozenset({
 
 _QUANTITY = re.compile(r"\b\d+(?:\.\d+)?\s*(?:g|kg|ml|l|oz|lb)?\b", re.IGNORECASE)
 _NON_WORD = re.compile(r"[^a-z0-9\s]+")
+
+#: Food groups that are a restaurant's menu, not a food (USDA's own groups).
+MENU_CATEGORIES = frozenset({"Fast Foods", "Restaurant Foods"})
 
 #: A rung this short stops being a search and starts being a wildcard.
 MIN_RUNG_LENGTH = 3
@@ -154,4 +162,8 @@ def _best(matches: list, query: str, *, exact_only: bool = False):
             return candidate
     if exact_only:
         return None
-    return next((c for c in matches if _covers(c, query)), None)
+    return next(
+        (c for c in matches
+         if _covers(c, query) and getattr(c, "category", None) not in MENU_CATEGORIES),
+        None,
+    )

@@ -15,7 +15,8 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { Line } from '@/ui/charts';
 import { delta, weight } from '@/features/body/format';
-import { useBodyMetrics, useBodySeries, useDeleteBodyMetric } from '@/lib/query/hooks';
+import { useBodyMetrics, useBodySeries, useDeleteBodyMetric, useProfile } from '@/lib/query/hooks';
+import { formatClockTime } from '@/lib/datetime';
 import { space } from '@/theme';
 
 const RANGES = [
@@ -37,6 +38,8 @@ export default function WeightTrend() {
   const series = useBodySeries('body_weight', { from });
   const entries = useBodyMetrics('body_weight', { from });
   const remove = useDeleteBodyMetric();
+  // Times are the profile's wall clock, like its days (I7) — not the UTC in the ISO string.
+  const timeZone = useProfile().data?.timezone;
 
   return (
     <ScreenScaffold
@@ -59,7 +62,9 @@ export default function WeightTrend() {
                 <Button
                   key={r.value}
                   title={r.label}
-                  kind="ghost"
+                  // Which range is on screen has to be visible, not remembered.
+                  kind={range === r.value ? 'primary' : 'ghost'}
+                  accessibilityState={{ selected: range === r.value }}
                   size="sm"
                   style={{ flex: 1 }}
                   testID={`range-${r.value}`}
@@ -109,7 +114,7 @@ export default function WeightTrend() {
                     <View style={{ flex: 1 }}>
                       <Text variant="body">{weight(row.value, row.unit)}</Text>
                       <Text variant="caption" tone="ink3">
-                        {row.local_date} · {row.measured_at.slice(11, 16)}
+                        {row.local_date} · {formatClockTime(new Date(row.measured_at), timeZone)}
                       </Text>
                     </View>
                     {data.points.some(

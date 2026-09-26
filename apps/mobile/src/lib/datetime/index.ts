@@ -45,6 +45,26 @@ export function formatDayLabel(instant: Date, timeZone: string): string {
   }
 }
 
+/**
+ * "07:05" — an instant's time of day in the profile's zone, 24-hour.
+ *
+ * Never the ISO string's own time, which is UTC. Degrades like
+ * `formatDayLabel`: the device's zone if the one given cannot be used, then
+ * UTC, and never a throw.
+ */
+export function formatClockTime(instant: Date, timeZone?: string): string {
+  const opts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' };
+  try {
+    return new Intl.DateTimeFormat('en-GB', timeZone ? { ...opts, timeZone } : opts).format(instant);
+  } catch {
+    try {
+      return new Intl.DateTimeFormat('en-GB', opts).format(instant);
+    } catch {
+      return instant.toISOString().slice(11, 16);
+    }
+  }
+}
+
 /** `2026-09-22` → `22 Sept`. Input is the SERVER's local_date, never recomputed. */
 export function formatServerDate(localDate: string): string {
   const parts = localDate.split('-');

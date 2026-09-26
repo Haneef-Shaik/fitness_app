@@ -71,18 +71,31 @@ Related: privacy policy and terms drafts are served by the API at `/legal/privac
 - Google Play: **Health & Fitness**
 - App Store: primary **Health & Fitness**, secondary **Food & Drink**
 
-### Screenshots (owner, with help from the E2E flows)
-Required sizes: Play — phone screenshots (min 2, 16:9 or 9:16, 320–3840 px) and a 1024×500 feature
-graphic; App Store — 6.9" (1320×2868) and 6.5" (1284×2778) iPhone sets. Suggested six, in order:
-1. The set logger mid-workout, previous performance visible — "Log a set in seconds"
-2. Previous chest day (F-05) — "Find your last session without the date"
-3. The food diary with remaining calories/protein — "Know what's left today"
-4. AI review with confidence and edit — "Photo to estimate — you confirm"
-5. Weight trend (I-03) — "See the trend, not the noise"
-6. Exercise progression / PRs (G-03, G-04) — "Know you're progressing"
+### Screenshots
+Required sizes: Play — phone screenshots (min 2, 16:9 or 9:16, 320–3840 px, long side at most twice
+the short) and a 1024×500 feature graphic; App Store — 6.9" (1320×2868) and 6.5" (1284×2778) iPhone
+sets.
 
-The Maestro flows in `apps/mobile/.maestro/` reach every one of these screens on a seeded account
-(`scripts/seed_demo.py`), so screenshots can be taken from the emulator run.
+**The Play phone set is taken** — six at 1080×1920 in
+[`docs/store/screenshots/android/`](store/screenshots/android/), from the release build on an
+emulator, by `bash scripts/store-screenshots.sh` (re-run it after any UI change). It seeds its own
+account (`services/api/scripts/seed_screenshots.py`: eight weeks of Push / Pull / Legs imported
+through the real Strong importer, a weigh-in most mornings, two-thirds of today's food), makes the
+screen 9:16 and freezes the status bar. In order, with suggested captions:
+
+1. `01-log-a-set` — the logger mid-workout, last time's sets above the entry — "Log a set in seconds"
+2. `02-previous-chest-day` — F-05 — "Find your last chest day without the date"
+3. `03-food-diary` — 1,566 of 2,340 kcal, 774 left — "Know what's left today"
+4. `04-describe-and-confirm` — the AI review, each item matched and editable — "Describe it — you confirm"
+5. `05-weight-trend` — I-03, the 7-day average under the daily line — "See the trend, not the noise"
+6. `06-progression` — bench e1RM over eight weeks — "Know you're progressing"
+
+Shot 4 comes from the development AI stub. The two items in view are matched to catalog foods, so
+their figures are the catalog's, not invented — but the item names and portions are the stub's, so
+re-take it against staging with the real provider before submitting.
+
+Still to make: the **feature graphic** (needs the real icon and name, L8) and **both iPhone sets**
+(need the iOS build — Android screenshots are not used for the App Store).
 
 ---
 

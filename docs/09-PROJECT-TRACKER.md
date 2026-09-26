@@ -16,7 +16,7 @@
 | | |
 |---|---|
 | **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
-| **Tests passing** | **2,417** — 133 TS domain, **1,050** Python *(4 skipped)*, **1,234 client** |
+| **Tests passing** | **2,430** — 133 TS domain, **1,054** Python *(4 skipped)*, **1,243 client** |
 | **API endpoints live** | **125** operations across **98** paths, all with declared response shapes (D17) |
 | **App screens built** | **76** route screens *(G11 added the launch surfaces: A-05, A-06, K-02, K-03, K-04, K-07, K-08, K-10, L-04, feedback, imports; E-06, E-07, E-12, E-13 and L-05, L-06, L-08 as sheets and overlays)* |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
@@ -249,9 +249,9 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 
 | Metric | Now | Target |
 |--------|-----|--------|
-| Tests passing | **2,417** — 1,234 client, 1,050 API (+4 skipped), 133 domain | grows with each milestone |
+| Tests passing | **2,430** — 1,243 client, 1,054 API (+4 skipped), 133 domain | grows with each milestone |
 | Domain coverage | 100% of specified formulas | 100% |
-| API integration tests | **1,050** | every endpoint, happy + failure |
+| API integration tests | **1,054** | every endpoint, happy + failure |
 | Migration guards | **3** — drift check, destructive round trip, and a test asserting the append-only triggers are still **in a migration** (without it, deleting them would leave a green suite and a promise nothing keeps) | kept green |
 | Migrations | **18** — M1–M7 and the two m8s as before, then G11's **m9–m17** (logging preferences, feedback, imported sessions, push tokens, supersets, the food catalog and exercise instructions, account tokens, rate-limit counters, push tokens following the sign-in); the chain is linear after merging four parallel branches | kept reversible, and the drift check and destructive round trip run in CI |
 | Mutation checks | **96** verified catches — **G9 added 17**: the canonical weigh-in in both directions, ordering by written rather than measured, unit conversion skipped, the local date taken from the device clock, four write paths that forget to invalidate a summary, the timezone re-bucket and its cache clear, an unconfirmed item reaching the dashboard's calories, progress clamped, progress reported as zero when unmeasured, a borrowed baseline, a naive streak, and six on the screens. **Three survived and each exposed a real gap**: the timezone test was time-of-day dependent (two profiles **25 hours apart** always differ, one profile only sometimes does); a summary column nothing read could not have its invalidation tested, so the body card now reads it; and `invalidate_all` on a timezone change was unjustified until T4 was actually implemented | every guard and shared-vector change |
@@ -324,6 +324,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | 22 Sep | Follow-up sweep: `docs/02` and `wireframes/01` specified a **cookie** refresh token, contradicting **D10** and the code; `docs/07` answered Q2 with a **PWA**, contradicting **D1**; `docs/05` and six wireframes wrote accessibility in **ARIA/CSS**. All corrected; the gate grew three checks |
 | 26 Sep | **G11 — launch readiness.** [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md) written from the BRD, PRD and a market comparison, then worked through: MVP gaps (E-06, E-07, E-12, K-03, K-04, L-04–L-08, mid-workout skip/reorder/swap), a **data-loss fix** (mid-session deletes, added exercises, edits and notes never reached the server; Finish now waits for the queue), accounts (A-05, A-06, K-02), privacy (K-07 + web deletion, K-08, K-10, draft policies), rate limiting, production infrastructure (Supabase-ready engine, S3 store, Docker, CD, Sentry, runbook), **Expo SDK 57 / target API 36** with a signed AAB, 7,838 foods and 297 exercises, supersets, Strong/Hevy/MFP import, push, feedback, product metrics. A whole-branch security review: 2 high, 3 medium, 8 low, all fixed; plus commits now land before the response, and the outbox is FIFO across backoff |
 | 26 Sep | **K-09 — Apple Health / Health Connect.** Weight in, workouts out, each behind its own switch and its own OS permission. Proven on the release APK in the emulator against the real Health Connect: the permission sheet names only Weight and Exercise, and a finished workout shows up there as strength training. iOS is configured (entitlement, usage strings) but not yet run on an iPhone |
+| 26 Sep | **Store screenshots found five defects.** Seeding a believable account and looking at it the way a store visitor would: every **line chart started at zero**, so eight weeks of 83 → 79.9 kg and a bench e1RM climb both drew as flat lines; weigh-in **times were UTC** (07:05 in India read 01:35); the weight screen gave **no sign of the selected range**; the **AI review showed the model's macros for an item matched to a catalog food, while confirm saved the food's** (195 kcal reviewed, ~300 logged); and "a side salad" was matched to **McDONALD'S, Side Salad**. All fixed with tests. The demo seed had also been silently dropping the Push day's triceps exercise (a name not in the catalog). The Play phone set is in `docs/store/screenshots/android/`, re-taken by `scripts/store-screenshots.sh` |
 
 
 ---

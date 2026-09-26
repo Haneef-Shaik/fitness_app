@@ -67,7 +67,11 @@ env:
     text: "Photo taken on.*"
     index: 0
 # Multiple selection is on (up to three photos), so the picker waits for Add.
-- tapOn: "(Add|Done|Select).*"
+# Whole labels only. `(Add|Done|Select).*` also matched the photo's own
+# "Selected" tick once the picker grew one (Android 16, 26 Sep) — the tap
+# un-ticked the photo and the flow waited for an upload that never started.
+# The confirm button has been "Add (1)" and is now "Done".
+- tapOn: "(Add|Done|Select)( \\(\\d+\\))?"
 
 - extendedWaitUntil:
     visible: "1 photo added"

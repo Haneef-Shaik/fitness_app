@@ -234,13 +234,12 @@ def limiter_options(url: str, *, from_app_engine: bool) -> EngineOptions:
     mode's disabled statement caches. Against Supabase with SSL enforced, every
     login would have failed at the limiter (G11 security review).
     """
-    if not from_app_engine:
-        # The suite's own engine, on a local database: nothing to carry over.
-        return EngineOptions(url=url, connect_args={}, pool={
-            "pool_pre_ping": True, "pool_size": POOL_SIZE, "max_overflow": MAX_OVERFLOW,
-        })
     settings = get_settings()
-    opts = options_from_settings(settings)
+    # The app's engine: its settings URL, which still carries the TLS mode the
+    # bound URL lost. Any other engine (the suite's) is built from its own URL —
+    # with the same pool mode, so a suite run through Supabase's transaction
+    # pooler tests the limiter the way production runs it.
+    opts = options_from_settings(settings) if from_app_engine else options_from_settings(settings, url=url)
     if "poolclass" in opts.pool:        # NullPool: transaction mode, keep it
         return opts
     return EngineOptions(url=opts.url, connect_args=opts.connect_args, pool={

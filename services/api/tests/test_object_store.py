@@ -124,7 +124,12 @@ class TestTheS3Store:
 
         await asyncio.sleep(2.5)
 
-        assert (await _get(url)).status_code == 403
+        # Refused as expired: AWS and MinIO answer 403 (AccessDenied, "Request
+        # has expired"), Supabase 400 with an Expired… code. Either is a refusal;
+        # a 200 would be the bug.
+        response = await _get(url)
+        assert response.status_code in (400, 403)
+        assert "xpired" in response.text
 
     async def test_the_content_type_is_stored_with_the_object(self, s3_store, s3_endpoint):
         await s3_store.put("uploads/u1/a.png", b"\x89PNG\r\n\x1a\n", "image/png")
@@ -132,6 +137,23 @@ class TestTheS3Store:
         head = s3_endpoint.client().head_object(Bucket=s3_store.bucket, Key="uploads/u1/a.png")
 
         assert head["ContentType"] == "image/png"
+
+    async def test_a_batch_delete_says_its_body_is_xml(self, s3_store):
+        """Supabase Storage reads no DeleteObjects body without the header, so
+        deleting an account's photos failed there (found 26 Sep). moto does not
+        care, so the header itself is what is checked."""
+        sent: list[str] = []
+
+        def capture(request, **_):
+            value = request.headers.get("Content-Type")  # bytes once prepared
+            sent.append(value.decode() if isinstance(value, bytes) else str(value))
+
+        s3_store._client.meta.events.register("before-send.s3.DeleteObjects", capture)
+        await s3_store.put("uploads/u9/a.jpg", JPEG, "image/jpeg")
+
+        await s3_store.delete_prefix("uploads/u9/")
+
+        assert sent == ["application/xml"]
 
     async def test_delete_prefix_pages_through_more_than_one_listing(
         self, s3_store, monkeypatch

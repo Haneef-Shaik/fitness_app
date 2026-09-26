@@ -12,11 +12,15 @@ request the API is serving — the set-commits included.
 or a public policy; the only way to read an object without the keys is a
 presigned GET that expires.
 
-Three settings exist because Supabase is S3-*compatible*, not S3:
+Four things differ because Supabase is S3-*compatible*, not S3:
   - path-style addressing (`<endpoint>/<bucket>/<key>`) — its docs require it;
   - checksums only when an operation demands them — botocore ≥ 1.36 sends a
     CRC32 on every PUT by default, and Supabase does not support checksums;
-  - SigV4, which is what it verifies, presigned URLs included.
+  - SigV4, which is what it verifies, presigned URLs included;
+  - DeleteObjects must say its body is XML. botocore sends no Content-Type, and
+    Supabase then reads no body at all ("must have required property 'Body'"),
+    so deleting an account's photos failed — found against a local Supabase
+    (26 Sep), never by moto. AWS and MinIO accept the header as well.
 """
 from __future__ import annotations
 
@@ -32,6 +36,11 @@ from botocore.exceptions import ClientError
 PAGE_SIZE = 1000
 
 _MISSING = frozenset({"NoSuchKey", "404", "NotFound"})
+
+
+def _xml_body(request: Any, **_: Any) -> None:
+    """DeleteObjects' body is XML; Supabase will not read it unless told so."""
+    request.headers["Content-Type"] = "application/xml"
 
 
 def _config(path_style: bool) -> Config:
@@ -86,6 +95,7 @@ class S3ObjectStore:
             aws_secret_access_key=secret_access_key,
             config=_config(path_style=bool(endpoint_url)),
         )
+        self._client.meta.events.register("before-sign.s3.DeleteObjects", _xml_body)
 
     async def put(self, key: str, data: bytes, content_type: str) -> None:
         await asyncio.to_thread(

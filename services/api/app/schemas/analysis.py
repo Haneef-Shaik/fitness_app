@@ -22,6 +22,8 @@ class AnalysisItemOut(BaseModel):
     estimated_quantity: float | None = None
     estimated_unit: str
     confidence: float | None = None
+    #: What confirming saves at `estimated_quantity`: the matched food's macros
+    #: when there is one (H7.2), the model's own otherwise.
     proposed_calories: float | None = None
     proposed_protein_g: float | None = None
     proposed_carbs_g: float | None = None

@@ -344,6 +344,24 @@ describe('I-03 · weight trend', () => {
     render(<WeightTrend />);
     expect(screen.getByText(/pale line is the 7-day average/)).toBeTruthy();
   });
+
+  it("shows each entry's time on the profile's clock, not UTC", () => {
+    mocks.profile = q({ preferred_unit_system: 'metric', timezone: 'Asia/Kolkata' });
+    mocks.metrics = q([
+      { id: 'm1', metric_key: 'body_weight', value: 79.9, unit: 'kg',
+        measured_at: '2026-09-26T01:35:00Z', local_date: '2026-09-26', notes: null },
+    ]);
+    render(<WeightTrend />);
+    expect(screen.getByText('2026-09-26 · 07:05')).toBeTruthy();
+  });
+
+  it('shows which range is selected', () => {
+    render(<WeightTrend />);
+    expect(screen.getByTestId('range-90').props.accessibilityState.selected).toBe(true);
+    fireEvent.press(screen.getByTestId('range-30'));
+    expect(screen.getByTestId('range-30').props.accessibilityState.selected).toBe(true);
+    expect(screen.getByTestId('range-90').props.accessibilityState.selected).toBe(false);
+  });
 });
 
 describe('J-01 … J-04 · goals', () => {

@@ -181,6 +181,43 @@ class TestImageAnalysis:
         analysis = _data(await auth_client.get(f"/v1/food-analysis/{started['id']}"))
         assert analysis["items"][0]["resolved_food_id"] is not None
 
+    async def test_a_matched_item_shows_the_numbers_confirming_will_save(
+        self, auth_client, worker, gateway, db
+    ):
+        """Confirm saves a matched food's own macros (H7.2), so the review has to
+        show those — it showed the model's, and "matched to Salmon, cooked" sat
+        over rice's 195 kcal while ~300 was saved (found on the store account)."""
+        gateway.result = AnalysisResult(
+            schema_version=SCHEMA_VERSION, model_name="stub/text",
+            items=[AnalysisItem(
+                detected_name="Whole Egg", estimated_quantity=150, estimated_unit="g",
+                confidence=0.9, proposed_calories=999, proposed_protein_g=1,
+                proposed_carbs_g=1, proposed_fat_g=1,
+            )],
+            notes=None,
+        )
+        started = _data(await auth_client.post("/v1/food-analysis/text",
+                                               json={"text": "eggs"}), 202)
+        await worker.drain()
+
+        item = _data(await auth_client.get(f"/v1/food-analysis/{started['id']}"))["items"][0]
+        assert item["resolved_food_name"] == "Whole Egg"
+        # 150 g of the catalog's egg (143 kcal, 12.6 g protein per 100 g).
+        assert item["proposed_calories"] == pytest.approx(214.5)
+        assert item["proposed_protein_g"] == pytest.approx(18.9)
+
+        meal = _data(await auth_client.post(
+            f"/v1/food-analysis/{started['id']}/confirm",
+            json={"meal_type": "breakfast",
+                  "items": [{"analysis_item_id": item["id"], "include": True}]},
+            headers={"Idempotency-Key": str(uuid.uuid4())},
+        ), 201)
+        assert meal["items"][0]["calories"] == pytest.approx(item["proposed_calories"])
+
+        # The model's own answer is still on record, untouched (AC-10, benchmarks).
+        row = await db.scalar(select(FoodAnalysisItem).where(FoodAnalysisItem.id == uuid.UUID(item["id"])))
+        assert float(row.proposed_calories) == pytest.approx(999)
+
     async def test_an_unresolved_item_keeps_the_models_macros_and_is_flagged(
         self, auth_client, worker, gateway
     ):

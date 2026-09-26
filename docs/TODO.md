@@ -34,7 +34,9 @@ an account, a decision, money or a device.
    support email, and a landing page; then the store forms drafted in
    [13-STORE-LISTING.md](13-STORE-LISTING.md).
 7. **Artwork:** the real icon (replace the placeholders from `apps/mobile/scripts/make-icons.py`)
-   and store screenshots.
+   and the Play feature graphic. The Android phone screenshots exist
+   (`docs/store/screenshots/android/`, re-taken by `scripts/store-screenshots.sh`); the iPhone
+   sets wait for the iOS build.
 8. **Beta:** TestFlight, and Google Play's **12 testers × 14 days** closed test — start it the day a
    build talks to staging.
 

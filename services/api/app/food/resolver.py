@@ -51,6 +51,9 @@ class Candidate:
     #: Other names for the same food. The ladder needs them to tell an exact
     #: match ("chapati" is an alias of "Roti / Chapati") from a partial one.
     aliases: tuple[str, ...] = ()
+    #: The catalog's food group. The ladder needs it to keep an unattended
+    #: match off a restaurant's menu ("a side salad" is not McDonald's).
+    category: str | None = None
 
 
 @runtime_checkable

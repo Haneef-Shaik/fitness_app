@@ -52,6 +52,7 @@ def _as_candidate(food: Food) -> Candidate:
         serving_grams=float(food.serving_grams) if food.serving_grams is not None else None,
         serving_label=food.serving_label,
         aliases=tuple(food.aliases or ()),
+        category=food.category,
     )
 
 

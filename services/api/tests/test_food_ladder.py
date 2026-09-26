@@ -80,3 +80,41 @@ class TestAgainstTheCatalog:
         food = await db.scalar(select(Food).where(Food.id == food_id))
         # Not "Egg Noodles" or anything else that merely contains the word.
         assert food.name == "Whole Egg"
+
+
+class _Catalog:
+    """A resolver that answers every rung with the same hits, best first."""
+
+    def __init__(self, *candidates) -> None:
+        self.candidates = list(candidates)
+
+    async def search(self, query: str, *, limit: int = 20) -> list:
+        return self.candidates[:limit]
+
+
+def _hit(name: str, category: str | None = None):
+    import uuid
+
+    from app.food.resolver import Candidate, FoodRef
+
+    return Candidate(ref=FoodRef(id=uuid.uuid4()), name=name, brand=None, calories=20,
+                     protein_g=1, carbs_g=3, fat_g=0, category=category)
+
+
+class TestRestaurantItems:
+    """"a side salad" matched "McDONALD'S, Side Salad" — the only hit covering
+    both words — and would have logged a menu item as someone's own salad
+    (found on the store-screenshot account)."""
+
+    async def test_an_unnamed_dish_never_lands_on_a_restaurant_menu(self):
+        menu = _hit("McDONALD'S, Side Salad", "Fast Foods")
+        assert await resolve_detected_name(_Catalog(menu), "A side salad") is None
+
+    async def test_a_generic_food_beats_a_menu_item(self):
+        menu = _hit("McDONALD'S, Side Salad", "Fast Foods")
+        garden = _hit("Salad, side, garden", "Vegetables and Vegetable Products")
+        assert await resolve_detected_name(_Catalog(menu, garden), "side salad") == garden.ref.id
+
+    async def test_naming_the_restaurant_still_finds_it(self):
+        menu = _hit("McDONALD'S, Side Salad", "Fast Foods")
+        assert await resolve_detected_name(_Catalog(menu), "McDonald's side salad") == menu.ref.id

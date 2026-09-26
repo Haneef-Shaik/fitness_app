@@ -13,6 +13,7 @@ import { View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Text } from '../index';
 import { space, useTheme } from '../../theme';
+import { lineDomain } from './lineDomain';
 
 export interface LinePoint {
   label: string;
@@ -32,10 +33,9 @@ export function Line({ data, height = 150, comparison, format, testID }: LinePro
   const { c } = useTheme();
   const show = format ?? ((v: number) => Math.round(v).toLocaleString('en-US'));
 
-  const all = [...data, ...(comparison ?? [])].map((p) => p.value);
-  const min = Math.min(...all, 0);
-  const max = Math.max(...all, 1);
-  const span = max - min || 1;
+  // Fitted to the data, not from zero: a line shows change by position.
+  const { min, max } = lineDomain([...data, ...(comparison ?? [])].map((p) => p.value));
+  const span = max - min;
 
   const W = 320;
   const H = height - 28;

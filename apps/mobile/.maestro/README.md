@@ -47,6 +47,7 @@ Maestro by hand you have to.
 | `offline-3-drain` | The queue drains unattended, with no duplicates | **I8** |
 | `measure-*` | Not criteria — the H4.3 / release measurements | **D16** |
 | `sign-in` | Prelude. Not run on its own | |
+| `store-screenshots` | Not a criterion — the Play phone screenshots, via `scripts/store-screenshots.sh` | |
 
 **Which app.** Every flow takes `APP_ID`: `host.exp.exponent` (the default —
 Expo Go, loading the bundle from Metro over the LAN) or `com.fitlog.app` (an
@@ -112,6 +113,15 @@ re-routes. A `runFlow: when: visible:` evaluated immediately afterwards still
 sees the old screen, skips the branch, and the flow walks on signed out until
 the first query 401s into "Something went wrong". Follow it with an
 `extendedWaitUntil` on the screen you expect.
+
+**A flow's own `env` beats `-e`.** The header's `env:` values are applied after
+the ones passed on the command line, so `-e EMAIL=…` into a flow that declares
+`EMAIL` is silently ignored — and a nested `runFlow` keeps the nested file's
+defaults too, which is why `sign-in.yaml` always signs in as the demo account.
+A value the caller must supply gets no default in the header.
+
+**`takeScreenshot` needs `--test-output-dir`** to be findable: the files land in
+`<dir>/<run>/<flow>/takeScreenshot/`, not in the working directory.
 
 **Selectors are regexes.** `+ New` is not a literal — the `+` is a quantifier and
 the match silently fails. Escape it: `"\\+ New"`. Same for any `(`, `)`, `[`, `.`

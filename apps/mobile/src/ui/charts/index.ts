@@ -16,5 +16,6 @@ export { HorizontalBar, type BarRow } from './HorizontalBar';
 export { Heatmap, type HeatmapRow } from './Heatmap';
 export { DotStrip, type Dot, type DotState } from './DotStrip';
 export { Line, type LinePoint } from './Line';
+export { lineDomain, type Domain } from './lineDomain';
 export { StatTile } from './StatTile';
 export { Meter } from './Meter';

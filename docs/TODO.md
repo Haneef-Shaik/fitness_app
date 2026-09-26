@@ -46,9 +46,12 @@ an account, a decision, money or a device.
       VoiceOver pass.
 - [ ] **Tap-to-set p95 on SDK 57** — re-run `scripts/measure-p95.sh` on the phone; G10 measured
       67.4 ms on SDK 52.
-- [ ] **#15b** (Shift+Tab into a text field) and **#28** (TalkBack formatting spans) — the SDK 57
-      upgrade carries react-native#48547; re-test both on the phone. Dated **2026-12-15**, now
-      testable early.
+- [x] **#15b** Shift+Tab into a text field — **fixed and verified** (26 Sep) on the emulator's
+      hardware keyboard: RN 0.86 lets a field take focus itself, so the old focus bridge was
+      removed (it had become a second, invisible stop going backwards). Sign-in and the logger's
+      load / reps: one stop per field, both directions, typing lands.
+- [ ] **#28** (TalkBack formatting spans) — re-test on the phone with *Speak text formatting* on.
+      Dated **2026-12-15**.
 - [ ] Walk the new screens on the phone once: E-06, E-07, E-12, supersets, K-03, K-04, K-07, K-08,
       K-10, the imports, and a reset / verify link opened from a real inbox.
 - [ ] **K-09 on real hardware:** Apple Health on an iPhone (both switches, a finished workout

@@ -1,13 +1,16 @@
 /**
- * The app's TextInput: React Native's, reachable by a hardware keyboard.
+ * The app's TextInput: React Native's, named for TalkBack and laid out by a frame.
  *
- * On Android, RN 0.76's TextInput refuses every focus request from the OS —
- * `ReactEditText.requestFocus` is a deliberate no-op — so Tab could never
- * enter a text field (found on a phone in G10: the set logger's load and reps
- * were unreachable). A JS `focus()` is the one route the platform accepts, so a
- * focusable wrapper takes the keyboard's focus and hands it to the input.
+ * Keyboard focus is the input's own. On RN 0.76 it was not —
+ * `ReactEditText.requestFocus` was a deliberate no-op, so Tab could never enter
+ * a text field (G10, on a phone), and a focusable wrapper took the keyboard's
+ * focus and handed it over from JS. RN 0.86 carries the upstream fix
+ * (react-native#48547), and that wrapper became a second, invisible stop: on
+ * the emulator (26 Sep) every Shift+Tab into a field landed on a grey box that
+ * took no typing. So the frame is never a keyboard stop, and nothing here moves
+ * focus.
  *
- * On Android it also carries the field's NAME where TalkBack reads it. TalkBack
+ * On Android the input also carries the field's NAME where TalkBack reads it. TalkBack
  * names a text field by its hint and ignores its contentDescription — which is
  * what `accessibilityLabel` becomes — so in G10's TalkBack session the load
  * field was announced "—, 80, Edit box" (its placeholder) and the grams field
@@ -18,12 +21,11 @@
  * Screens import this one, never TextInput from 'react-native'
  * (`keyboardInput.test.tsx` enforces it).
  */
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useState } from 'react';
 import {
-  DeviceEventEmitter, Platform, StyleSheet, Text, TextInput as RNTextInput, View,
-  findNodeHandle, type TextInputProps, type TextStyle, type ViewStyle,
+  Platform, StyleSheet, Text, TextInput as RNTextInput, View,
+  type TextInputProps, type TextStyle, type ViewStyle,
 } from 'react-native';
-import { HW_FOCUS_EVENT } from './focusRing';
 import { useTheme } from '../theme';
 
 /**
@@ -80,28 +82,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
   }, forwarded,
 ) {
   const { c } = useTheme();
-  const wrapper = useRef<View | null>(null);
-  const input = useRef<RNTextInput | null>(null);
-  const setInput = useCallback((node: RNTextInput | null) => {
-    input.current = node;
-    if (typeof forwarded === 'function') forwarded(node);
-    else if (forwarded) forwarded.current = node;
-  }, [forwarded]);
-
-  useEffect(() => {
-    let previous: number | undefined;
-    const sub = DeviceEventEmitter.addListener(
-      HW_FOCUS_EVENT, (e: { eventType?: string; tag?: number }) => {
-        if (e.eventType !== 'focus') return;
-        const mine = wrapper.current ? findNodeHandle(wrapper.current) : null;
-        const inner = input.current ? findNodeHandle(input.current) : null;
-        // Coming back out of the input (Shift+Tab) must be allowed to leave.
-        if (mine != null && e.tag === mine && previous !== inner) input.current?.focus();
-        previous = e.tag;
-      },
-    );
-    return () => sub.remove();
-  }, []);
 
   // Uncontrolled fields report emptiness through onChangeText; controlled ones
   // through `value`.
@@ -120,16 +100,14 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextIn
   const drawn = moved && overlay && empty ? overlayStyle(inner, Boolean(rest.multiline)) : null;
   return (
     <View
-      ref={wrapper}
-      testID="keyboard-bridge"
-      focusable
-      // Only a keyboard stop: a screen reader goes straight to the input.
+      testID="field-frame"
+      // Layout only: neither a keyboard stop nor something a reader visits.
       importantForAccessibility="no"
       accessible={false}
       style={outer}
     >
       <RNTextInput
-        ref={setInput}
+        ref={forwarded}
         {...rest}
         accessibilityLabel={accessibilityLabel}
         placeholder={hint}

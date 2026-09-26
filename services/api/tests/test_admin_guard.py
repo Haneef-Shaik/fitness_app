@@ -106,13 +106,11 @@ class TestStartup:
     def _prod(self, **overrides) -> Settings:
         base = {
             "environment": "production",
-            "jwt_secret": "j" * 48,
             "upload_signing_secret": "u" * 48,
             "admin_token": TOKEN,
-            # A production that can send mail — A-05/A-06's own startup rule.
-            "email_provider": "resend",
-            "email_api_key": "re_" + "k" * 30,
-            "email_from": "FitLog <no-reply@fitlog.example>",
+            # A production people can sign in to and delete from (docs/14).
+            "supabase_url": "https://ref.supabase.co",
+            "supabase_secret_key": "sb_secret_" + "k" * 30,
         }
         return Settings(**{**base, **overrides})
 
@@ -138,7 +136,7 @@ class TestStartup:
 
     def test_the_existing_production_rules_still_hold(self):
         # Moved into validate_settings from get_settings; still enforced.
-        with pytest.raises(RuntimeError, match="JWT_SECRET"):
-            validate_settings(self._prod(jwt_secret="dev-only-change-me"))
+        with pytest.raises(RuntimeError, match="SUPABASE_URL"):
+            validate_settings(self._prod(supabase_url=""))
         with pytest.raises(RuntimeError, match="UPLOAD_SIGNING_SECRET"):
             validate_settings(self._prod(upload_signing_secret="dev-only-change-me"))

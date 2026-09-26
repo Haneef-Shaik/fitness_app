@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, select
 
-from app.api.deps import CurrentFamily, CurrentUser, DbSession
+from app.api.deps import CurrentSession, CurrentUser, DbSession
 from app.api.envelope import ok
 from app.models import PushToken
 from app.schemas.envelope import DeletedOut, Envelope
@@ -27,18 +27,18 @@ class PushTokenOut(BaseModel):
 
 @router.put("/push-token", response_model=Envelope[PushTokenOut])
 async def register_push_token(
-    body: PushTokenIn, user: CurrentUser, family: CurrentFamily, db: DbSession,
+    body: PushTokenIn, user: CurrentUser, session: CurrentSession, db: DbSession,
 ):
     """Idempotent. A token already on file for another account moves to this
     one — the phone changed hands (or accounts), and the old account's news must
     stop arriving on it."""
     row = await db.scalar(select(PushToken).where(PushToken.token == body.token))
     if row is None:
-        db.add(PushToken(user_id=user.id, token=body.token, platform=body.platform, family_id=family))
+        db.add(PushToken(user_id=user.id, token=body.token, platform=body.platform, session_id=session))
     else:
         row.user_id = user.id
         row.platform = body.platform
-        row.family_id = family
+        row.session_id = session
     await db.flush()
     return ok({"token": body.token, "platform": body.platform})
 

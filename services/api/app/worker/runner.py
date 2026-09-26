@@ -21,7 +21,7 @@ import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app import healthcheck
@@ -56,6 +56,12 @@ log = logging.getLogger("fitlog.worker")
 #: that is killed mid-job must not strand the work forever.
 LOCK_TIMEOUT_SECONDS = 300
 MAX_ATTEMPTS = 3
+
+
+_ENDED_SIGN_INS = text(
+    "DELETE FROM push_tokens t WHERE t.user_id = :uid AND (t.session_id IS NULL "
+    "OR NOT EXISTS (SELECT 1 FROM auth.sessions s WHERE s.id = t.session_id))"
+)
 
 
 class AnalysisWorker:
@@ -151,6 +157,11 @@ class AnalysisWorker:
             analysis = await session.get(FoodAnalysis, analysis_id)
             if analysis is None or analysis.input_type != AnalysisInputType.image:
                 return
+            # A phone whose sign-in has ended — signed out, or signed out from
+            # another device — must stop hearing about the account (docs/14 S3).
+            # Its token is removed here, where it would otherwise be used.
+            await session.execute(_ENDED_SIGN_INS, {"uid": analysis.user_id})
+            await session.commit()
             tokens = (await session.scalars(
                 select(PushToken.token).where(PushToken.user_id == analysis.user_id)
             )).all()

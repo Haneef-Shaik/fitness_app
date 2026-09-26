@@ -16,7 +16,7 @@ NOW = datetime(2030, 6, 1, 12, tzinfo=UTC)   # after anything other tests create
 
 
 async def _user(db, days_ago: int) -> User:
-    u = User(email=f"m-{uuid.uuid4().hex[:10]}@example.com", password_hash="x",
+    u = User(email=f"m-{uuid.uuid4().hex[:10]}@example.com", 
              created_at=NOW - timedelta(days=days_ago))
     db.add(u)
     await db.flush()

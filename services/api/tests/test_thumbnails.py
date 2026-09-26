@@ -17,9 +17,9 @@ import pytest
 
 from app.config import get_settings
 from app.storage import thumbnails
+from tests.auth import SUPABASE_URL as SUPABASE  # the suite's project: tokens are its
+from tests.auth import sign_up
 from tests.test_signed_reads import _data, _jpeg_with_gps, _photo, _upload
-
-SUPABASE = "https://ref.supabase.co"
 
 
 class _Storage:
@@ -81,7 +81,7 @@ class TestTheGrid:
 
         # A second account with a photo of its own, listed by its owner only.
         other = client.__class__(transport=client._transport, base_url=client.base_url)
-        r = await other.post("/v1/auth/register", json={
+        r = await sign_up(other, json={
             "email": "thumbs-other@example.com", "password": "correct-horse-battery"})
         other.headers["authorization"] = f"Bearer {r.json()['data']['access_token']}"
         theirs = await _upload(other, _jpeg_with_gps())
@@ -115,8 +115,8 @@ class TestNeverInTheWay:
         assert photo["thumbnail_url"] is None
         assert photo["image_url"]
 
-    async def test_without_a_supabase_project_nothing_is_asked(self, auth_client, s3_storage, monkeypatch):
-        monkeypatch.setattr(get_settings(), "supabase_url", "")
+    async def test_without_the_secret_key_nothing_is_asked(self, auth_client, s3_storage, monkeypatch):
+        monkeypatch.setattr(get_settings(), "supabase_secret_key", "")
         await _photo(auth_client, await _upload(auth_client, _jpeg_with_gps()))
 
         [photo] = await _listing(auth_client)

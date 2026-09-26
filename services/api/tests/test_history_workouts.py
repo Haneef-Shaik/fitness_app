@@ -23,6 +23,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -113,8 +115,7 @@ class TestTheListItself:
     async def test_never_another_users_history(self, auth_client, client):
         await _make_history(auth_client, 2)
         other = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         body = _body(await auth_client.get(

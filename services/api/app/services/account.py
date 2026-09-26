@@ -64,8 +64,6 @@ _DELETE_ORDER = (
     "DELETE FROM daily_summaries WHERE user_id = :uid",
     "DELETE FROM fitness_goals WHERE user_id = :uid",
     "DELETE FROM calorie_targets WHERE user_id = :uid",
-    "DELETE FROM refresh_tokens WHERE user_id = :uid",
-    "DELETE FROM account_tokens WHERE user_id = :uid",
     "DELETE FROM feedback WHERE user_id = :uid",
     "DELETE FROM push_tokens WHERE user_id = :uid",
     "DELETE FROM user_profiles WHERE user_id = :uid",
@@ -82,7 +80,9 @@ async def purge_account(db: AsyncSession, user_id: uuid.UUID) -> int:
     """Removes the account and everything in it. There is no undo.
 
     Returns how many progress photos went, which the app reports back. The
-    caller has already checked the password; this does not ask again.
+    caller has already established who is asking (a recent sign-in in the app,
+    an emailed code on the web page); this does not ask again. The Supabase
+    sign-in is removed by the caller, after this commits (app/auth/admin.py).
     """
     # The files, before the rows that name them — a row is how we know a file
     # exists, so losing the row first orphans the file forever.

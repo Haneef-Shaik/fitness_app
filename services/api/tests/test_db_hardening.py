@@ -37,7 +37,7 @@ class TestTheRevoke:
                 revoked = await revoke_data_api_grants(conn, roles=(role,))
 
                 assert revoked == [role]
-                for table in ("users", "refresh_tokens", "progress_photos"):
+                for table in ("users", "push_tokens", "progress_photos"):
                     for privilege in ("SELECT", "INSERT", "UPDATE", "DELETE"):
                         assert not await _can(conn, role, table, privilege), (table, privilege)
             finally:

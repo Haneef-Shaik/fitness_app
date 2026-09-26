@@ -12,6 +12,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -69,7 +71,7 @@ async def test_overdue_when_the_interval_has_passed(auth_client):
 
 async def test_only_your_own(auth_client, client):
     await _metric(auth_client, "body_weight", 80, "kg", "2026-09-01")
-    other = await client.post("/v1/auth/register", json={
+    other = await sign_up(client, json={
         "email": "other-checkins@example.com", "password": "correct-horse-battery"})
     client.headers["authorization"] = f"Bearer {other.json()['data']['access_token']}"
     assert (await client.get("/v1/body/checkins")).json()["data"]["checkins"] == []

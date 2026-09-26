@@ -296,7 +296,7 @@ async def test_a_deployed_api_insists_on_https(client, monkeypatch):
 
 
 async def test_an_oversized_body_is_refused_before_it_is_read(client):
-    r = await client.post("/v1/auth/login", content=b"{}",
+    r = await client.post("/v1/feedback", content=b"{}",
                           headers={"content-type": "application/json", "content-length": str(50 * 1024 * 1024)})
     assert r.status_code == 413
     assert r.json()["error"]["code"] == "PAYLOAD_TOO_LARGE"

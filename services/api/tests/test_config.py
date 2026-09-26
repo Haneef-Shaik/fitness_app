@@ -21,12 +21,12 @@ S3 = {
 
 def _deployed(environment: str = "production", **overrides) -> Settings:
     base = {
-        "environment": environment, "jwt_secret": GOOD_SECRET,
+        "environment": environment,
         "upload_signing_secret": GOOD_SECRET, **S3,
-        # The rest of a deployable configuration: the operator token and a
-        # provider that really sends mail (both refused otherwise).
-        "admin_token": "a" * 48, "email_provider": "resend",
-        "email_api_key": "re_" + "k" * 30, "email_from": "FitLog <no-reply@fitlog.example>",
+        # The rest of a deployable configuration: the operator token and the
+        # Supabase project people sign in to (both refused otherwise).
+        "admin_token": "a" * 48,
+        "supabase_url": "https://ref.supabase.co", "supabase_secret_key": "sb_secret_" + "k" * 30,
     }
     return Settings(_env_file=None, **{**base, **overrides})
 
@@ -42,9 +42,16 @@ class TestADeployedEnvironment:
         with pytest.raises(RuntimeError, match="STORAGE_BACKEND must be s3"):
             validate(_deployed(environment, storage_backend="local"))
 
-    def test_the_development_jwt_secret_is_refused(self, environment):
-        with pytest.raises(RuntimeError, match="JWT_SECRET"):
-            validate(_deployed(environment, jwt_secret="dev-only-change-me"))
+    @pytest.mark.parametrize("url", ["", "http://ref.supabase.co", "http://127.0.0.1:54321"])
+    def test_the_supabase_project_must_be_an_https_address(self, environment, url):
+        # Every signed-in request is verified against its keys (docs/14 S2).
+        with pytest.raises(RuntimeError, match="SUPABASE_URL"):
+            validate(_deployed(environment, supabase_url=url))
+
+    def test_the_secret_key_is_required(self, environment):
+        # Without it an account cannot be deleted, which both stores require.
+        with pytest.raises(RuntimeError, match="SUPABASE_SECRET_KEY"):
+            validate(_deployed(environment, supabase_secret_key=""))
 
     def test_the_development_upload_secret_is_refused(self, environment):
         with pytest.raises(RuntimeError, match="UPLOAD_SIGNING_SECRET"):

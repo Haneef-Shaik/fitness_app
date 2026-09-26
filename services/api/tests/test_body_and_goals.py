@@ -16,6 +16,8 @@ from datetime import UTC, datetime
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -125,8 +127,7 @@ class TestWeighIns:
         mine = await _weigh(auth_client, 78.4, datetime(2026, 9, 21, 7, 30, tzinfo=UTC))
 
         email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         theirs = _data(await client.get("/v1/body-metrics",

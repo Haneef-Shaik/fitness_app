@@ -21,6 +21,7 @@ from sqlalchemy import select, text
 
 from app.ai.gateway import AnalysisItem, AnalysisResult
 from app.models import FoodAnalysisItem
+from tests.auth import sign_up
 
 pytestmark = pytest.mark.asyncio
 
@@ -126,8 +127,7 @@ class TestTextAnalysis:
         await worker.drain()
 
         email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         theirs = await client.get(f"/v1/food-analysis/{started['id']}",

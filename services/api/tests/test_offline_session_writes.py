@@ -16,6 +16,8 @@ import uuid
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -156,8 +158,7 @@ async def test_another_users_set_cannot_be_deleted_by_client_id(auth_client, cli
     await _post_set(auth_client, se_id, {"reps": 5, "load_kg": 100}, client_id=cid)
 
     stranger = f"other-{uuid.uuid4().hex[:8]}@example.com"
-    token = _data(await client.post(
-        "/v1/auth/register", json={"email": stranger, "password": "correct-horse-battery"}
+    token = _data(await sign_up(client, json={"email": stranger, "password": "correct-horse-battery"}
     ), 201)["access_token"]
     r = await auth_client.delete(
         f"/v1/workout-sessions/{s['id']}/sets/by-client/{cid}",

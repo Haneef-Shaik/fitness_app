@@ -8,10 +8,9 @@ DELETE_CONFIRMATION = "DELETE"
 
 
 class AccountDeleteIn(BaseModel):
-    """The password travels in the body, never in the URL, where access logs
-    and proxies keep it."""
+    """Who is asking is the bearer's sign-in, which must be recent (docs/14, S5):
+    a password, Google or Apple, re-entered in the last few minutes."""
 
-    password: str = Field(min_length=1, max_length=200)
     #: Must be exactly "DELETE". Checked by the server as well as the screen, so
     #: no client can skip the step a person was meant to take.
     confirmation: str = Field(max_length=40)

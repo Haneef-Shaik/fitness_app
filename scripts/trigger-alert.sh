@@ -51,9 +51,8 @@ curl -sf "http://127.0.0.1:$PORT/health" >/dev/null || die "the API never came u
 ok "up"
 
 EMAIL="alert-$(date +%s)@example.com"
-TOKEN=$(curl -sS -X POST "$BASE/auth/register" -H 'content-type: application/json' \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"correct-horse-battery\"}" \
-  | jsonq 'd["data"]["access_token"]')
+# Signing in is Supabase Auth's (docs/14): made there, then used here.
+TOKEN=$(python3 "$ROOT/scripts/supabase_signin.py" "$EMAIL" correct-horse-battery --create)
 AUTH=(-H "authorization: Bearer $TOKEN" -H 'content-type: application/json')
 
 EX=$(curl -sS "$BASE/exercises?limit=1" "${AUTH[@]}" | jsonq 'd["data"][0]["id"]')

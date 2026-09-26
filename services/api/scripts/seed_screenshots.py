@@ -30,6 +30,7 @@ from zoneinfo import ZoneInfo
 
 import httpx
 from seed_demo import SPLIT, _catalog, _seed_program
+from supabase_signin import access_token
 
 BASE = os.environ.get("FITLOG_API", "http://localhost:8000").rstrip("/")
 EMAIL = os.environ.get("STORE_EMAIL", "store@fitlog.app")
@@ -129,11 +130,12 @@ def cid(*parts: object) -> str:
 
 
 async def _sign_in(c: httpx.AsyncClient) -> dict[str, str]:
-    r = await c.post("/v1/auth/register", json={"email": EMAIL, "password": PASSWORD})
-    if r.status_code != 201:
-        r = await c.post("/v1/auth/login", json={"email": EMAIL, "password": PASSWORD})
-    r.raise_for_status()
-    return {"authorization": f"Bearer {r.json()['data']['access_token']}"}
+    # Supabase Auth (docs/14): made there if missing; the first call makes the
+    # FitLog account.
+    token = access_token(EMAIL, PASSWORD, create=True, metadata={"display_name": "Alex"})
+    h = {"authorization": f"Bearer {token}"}
+    (await c.get("/v1/auth/me", headers=h)).raise_for_status()
+    return h
 
 
 async def _food(c: httpx.AsyncClient, h: dict[str, str], query: str) -> str:

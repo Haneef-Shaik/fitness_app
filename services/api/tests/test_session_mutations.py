@@ -10,6 +10,8 @@ import uuid
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -70,7 +72,7 @@ async def test_patching_another_users_session_exercise_is_refused(auth_client, c
     s = await _session(auth_client, 1)
     se_id = s["exercises"][0]["id"]
 
-    other = _data(await client.post("/v1/auth/register", json={
+    other = _data(await sign_up(client, json={
         "email": f"o-{uuid.uuid4().hex[:8]}@example.com", "password": "correct-horse-battery",
     }), 201)
     client.headers["authorization"] = f"Bearer {other['access_token']}"

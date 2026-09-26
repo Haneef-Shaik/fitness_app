@@ -76,6 +76,12 @@ jest.mock('@/lib/query/hooks', () => ({
 }));
 
 let mockPermission: 'granted' | 'denied' = 'granted';
+let mockPermissionState: { status: string; canAskAgain: boolean } = { status: 'granted', canAskAgain: true };
+jest.mock('@/features/permissions/primer', () => ({
+  ...jest.requireActual('@/features/permissions/primer'),
+  checkPermission: jest.fn(async () => mockPermissionState),
+  requestPermission: jest.fn(async () => mockPermissionState),
+}));
 const mockApply = jest.fn(async (list: unknown[]) => list.length);
 jest.mock('@/features/reminders/schedule', () => ({
   ensurePermission: jest.fn(async () => mockPermission),
@@ -87,6 +93,7 @@ import Notifications from '../notifications';
 import Search from '../search';
 import Quick from '../quick';
 import Photos from '../progress/photos';
+import { API_BASE } from '@/lib/api';
 import Fields from '../progress/fields';
 import MeasurementDetail from '../progress/measurements/[key]';
 
@@ -99,6 +106,8 @@ beforeEach(() => {
   mocks.series = q({ metric_key: 'waist_cm', unit: 'cm', points: [], change: null, latest: null });
   mocks.photos = q([]);
   mocks.dashboard = q({ training: { active_session_id: null } });
+  mockPermission = 'granted';
+  mockPermissionState = { status: 'granted', canAskAgain: true };
 });
 
 describe('B-02 · customising the dashboard', () => {
@@ -170,6 +179,18 @@ describe('B-04 · reminders (G10: they send now)', () => {
     await waitFor(() => expect(mockApply).toHaveBeenLastCalledWith([
       expect.objectContaining({ id: 'workout-0' }), expect.objectContaining({ id: 'workout-3' }),
     ]));
+  });
+
+  it('L-06 · says what reminders are for before the phone asks for the first time', async () => {
+    mockPermissionState = { status: 'undetermined', canAskAgain: true };
+    render(<Notifications />);
+    fireEvent.press(screen.getByTestId('reminder-workout'));
+
+    await waitFor(() => expect(screen.getByTestId('permission-continue')).toBeTruthy());
+    expect(mockPrefs.reminders).toBeUndefined();
+
+    fireEvent.press(screen.getByTestId('permission-continue'));
+    await waitFor(() => expect(mockPrefs.reminders).toEqual({ workout: true }));
   });
 
   it('refused permission leaves it off, and says how to change that', async () => {
@@ -245,6 +266,28 @@ describe('I-05 · progress photos', () => {
   it('offers a first photo rather than an empty grid', () => {
     render(<Photos />);
     expect(screen.getByText('No photos yet')).toBeTruthy();
+  });
+
+  it('loads each photo from the URL the server signed, never one built from its key', () => {
+    // Nothing serves `/v1/uploads/<key>` without a signature: the bucket is
+    // private, and the local store checks its HMAC.
+    const row = { taken_at: '2026-09-01T08:00:00Z', local_date: '2026-09-01', notes: null };
+    const bucket = 'https://ref.storage.supabase.co/storage/v1/s3/photos/uploads/u/1.jpg?X-Amz-Signature=abc';
+    mocks.photos = q([
+      { ...row, id: 'p1', image_key: 'uploads/u/1.jpg', image_url: bucket, pose: 'front' },
+      { ...row, id: 'p2', image_key: 'uploads/u/2.jpg',
+        image_url: '/v1/uploads/uploads/u/2.jpg?exp=9&sig=s', pose: 'side' },
+      { ...row, id: 'p3', image_key: 'uploads/u/3.jpg', image_url: null, pose: 'back' },
+    ]);
+
+    render(<Photos />);
+
+    expect(screen.getByTestId('photo-image-p1').props.source).toEqual({ uri: bucket });
+    expect(screen.getByTestId('photo-image-p2').props.source.uri)
+      .toBe(`${API_BASE}/v1/uploads/uploads/u/2.jpg?exp=9&sig=s`);
+    // No URL, no broken image: the row still offers Delete.
+    expect(screen.queryByTestId('photo-image-p3')).toBeNull();
+    expect(screen.getByTestId('delete-photo-p3')).toBeTruthy();
   });
 });
 

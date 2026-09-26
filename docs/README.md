@@ -14,6 +14,7 @@ The tracker is the only place that claims current status; everything else descri
 |-----------------|------|
 | See the current status | [Project Tracker](09-PROJECT-TRACKER.md) |
 | Pick up the next task | [TODO.md](TODO.md) |
+| Get the app published | [Launch Plan](11-LAUNCH-PLAN.md) |
 | Know what to build next, and what to hand the next person | [Execution Goals](10-EXECUTION-GOALS.md) |
 | Understand why this exists and what "done" means | [Project Charter](08-PROJECT-CHARTER.md) |
 | See the actual UI | [design/index.html](design/index.html) — open in a browser |
@@ -50,8 +51,12 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |
 | 09 | [Project Tracker](09-PROJECT-TRACKER.md) | **Live status** — milestones, blockers. |
 | 10 | [Execution Goals](10-EXECUTION-GOALS.md) | **How the work is sequenced** — eleven goals, each with an entry gate and an explicit handoff to the next. |
+| 11 | [Launch Plan](11-LAUNCH-PLAN.md) | **Everything between the release gate and a published app** — gaps, accounts, hosting, store builds, content, beta. |
+| 12 | [Deployment runbook](12-DEPLOYMENT.md) | **Hosting it** — Supabase, the container host, secrets, migrations, backups and the restore drill, rollback. |
+| 13 | [Store listing & compliance](13-STORE-LISTING.md) | **Submitting it** — listing copy, Data Safety, Health apps declaration, App Privacy labels, reviewer notes. |
 | — | [prompts/](prompts/) | **Goal prompts** — one paste-ready prompt per goal, G0…G10. |
 | — | [TODO.md](TODO.md) | **Active work** — the current milestone's tasks in execution order. |
+| — | [data-sources.md](data-sources.md) | Where every seeded food and exercise comes from, the licences, and the attribution owed. |
 | — | [wireframes/](wireframes/) | Page-by-page: layout, every control, every state. |
 | — | [design/](design/) | The UI as running code — 103 screens, 12 domains. |
 
@@ -128,6 +133,12 @@ cd services/api    && uv run pytest    # Python domain + API integration
 
 The API tests need the ephemeral test database:
 `docker compose -f infra/docker-compose.yml up -d db-test`
+
+### Hosting it
+
+**[12-DEPLOYMENT.md](12-DEPLOYMENT.md)** — the runbook: Supabase (Postgres + photo storage), the
+API and worker as two services from one Docker image, migrations as a release step, GitHub
+environments, crash reporting, backups and the restore drill, rollback.
 
 ---
 

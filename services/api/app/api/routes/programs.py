@@ -10,6 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, DbSession, authorize
 from app.api.envelope import ok
+from app.api.visibility import visible_to
 from app.core.errors import Conflict, NotFound, ValidationFailed
 from app.domain.programs import TrainingProfile, rank_templates
 from app.models import (
@@ -169,7 +170,11 @@ async def duplicate_program(program_id: uuid.UUID, user: CurrentUser, db: DbSess
                 order_index=pe.order_index, target_sets=pe.target_sets,
                 target_reps_min=pe.target_reps_min, target_reps_max=pe.target_reps_max,
                 target_load=pe.target_load, load_unit=pe.load_unit,
-                rest_seconds=pe.rest_seconds,
+                # A copy is the whole prescription: a plank's hold time and a
+                # superset were both lost here before G11.
+                target_duration_seconds=pe.target_duration_seconds,
+                target_distance_m=pe.target_distance_m,
+                rest_seconds=pe.rest_seconds, superset_group=pe.superset_group,
             ))
     await db.flush()
     return ok(await _serialise(db, await _load_program(db, copy.id)), status_code=201)
@@ -272,7 +277,9 @@ async def set_day_exercises(
 
     ids = {e.exercise_id for e in body}
     if ids:
-        found = set((await db.scalars(select(Exercise.id).where(Exercise.id.in_(ids)))).all())
+        found = set((await db.scalars(
+            select(Exercise.id).where(Exercise.id.in_(ids), visible_to(user))
+        )).all())
         if missing := ids - found:
             raise ValidationFailed(
                 "One of those exercises does not exist.",

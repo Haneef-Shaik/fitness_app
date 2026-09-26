@@ -26,12 +26,20 @@ import { RecoveryGate } from '@/features/workout-session/RecoveryGate';
 import { SyncShell } from '@/features/sync/SyncBanner';
 import { TabBar } from '@/ui/shell/TabBar';
 import { ActiveSessionBar } from '@/ui/shell/ActiveSessionBar';
+import { SessionExpiredDialog } from '@/ui/shell/SessionExpiredDialog';
+import { MaintenanceOverlay } from '@/features/status/ServiceNotices';
 import { ReminderSync } from '@/features/reminders/useReminderSync';
+import { PushSync } from '@/features/push/PushSync';
 import { showsTabBar } from '@/ui/shell/tabs';
 import { BottomInsetHandled } from '@/ui/topInset';
 import { createIdentityHandler, dropCachedReads } from '@/lib/identity';
 import { applyInvalidation, kindForDelivery } from '@/lib/query/invalidation';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
+import { initCrashReporting, wrapRoot } from '@/lib/crashReporting';
+
+// First, so a crash while the app starts is reported too. A no-op unless the
+// build was given EXPO_PUBLIC_SENTRY_DSN (docs/12 §8).
+initCrashReporting();
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -64,11 +72,13 @@ function Root() {
       {/* 00 §4 ④: while a workout is open, on every tab, above the tab bar. */}
       {tabs ? <ActiveSessionBar /> : null}
       {tabs ? <TabBar /> : null}
+      {/* L-08: above everything, and dismissible — logging never needed the server. */}
+      <MaintenanceOverlay />
     </View>
   );
 }
 
-export default function Layout() {
+function Layout() {
   // Whose session this is. `undefined` until the session has decided.
   const [account, setAccount] = useState<string | null | undefined>(undefined);
   const onIdentityChange = useMemo(() => {
@@ -138,13 +148,19 @@ export default function Layout() {
             <AuthGate />
             {/* B-04: scheduled reminders follow the program and the next check-in. */}
             <ReminderSync />
+            {/* "Your meal estimate is ready" — registered only if already allowed. */}
+            <PushSync />
             <Root />
             {/* Asked once per ACCOUNT, once that account is known — an unfinished
                 workout belongs to the account that started it (G10). */}
             <RecoveryGate key={account ?? 'nobody'} enabled={Boolean(account)} />
+            {/* L-05: over whatever screen is open, never instead of it. */}
+            <SessionExpiredDialog />
           </SessionProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
   );
 }
+
+export default wrapRoot(Layout);

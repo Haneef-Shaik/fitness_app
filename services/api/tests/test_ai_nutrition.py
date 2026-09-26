@@ -584,6 +584,33 @@ class TestAnalysisHistory:
         assert analysis["image_key"] is None
         assert analysis["status"] == "completed"
 
+    async def test_deleting_food_photos_leaves_progress_photos_alone(
+        self, auth_client, worker, uploaded_image, storage
+    ):
+        """Found building K-07: this swept the user's whole upload folder.
+
+        Progress photos live under the same prefix, so "delete all food
+        photos" deleted every progress picture's FILE and left its row behind,
+        pointing at nothing. Deleting everything is K-07's separate action.
+        """
+        _data(await auth_client.post("/v1/progress-photos", json={"image_key": uploaded_image},
+                                     headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
+        signed = _data(await auth_client.post("/v1/uploads/sign", json={
+            "content_type": "image/jpeg", "byte_size": 4096,
+        }), 201)
+        jpeg = b"\xff\xd8" + b"\xff\xdb\x00\x43" + bytes(65) + b"\xff\xd9"
+        await auth_client.put(signed["upload_url"], content=jpeg,
+                              headers={"content-type": "image/jpeg"})
+        _data(await auth_client.post("/v1/food-analysis/image",
+                                     json={"image_key": signed["key"]}), 202)
+        await worker.drain()
+
+        out = _data(await auth_client.delete("/v1/food-analyses/images"))
+
+        assert out["photos_deleted"] == 1
+        assert not await storage.exists(signed["key"])
+        assert await storage.exists(uploaded_image), "a progress photo was deleted"
+
 
 # ------------------------------------------- the REAL gateway, genuinely dead
 

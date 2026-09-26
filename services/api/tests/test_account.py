@@ -208,6 +208,7 @@ class TestExport:
         """
         await _populate(auth_client)
         await _with_analysis(auth_client, worker)
+        assert (await auth_client.post("/v1/feedback", json={"message": "hi"})).status_code == 201
 
         archive = _data(await auth_client.get("/v1/account/export"))
         covered = set(archive.get("_tables", []))
@@ -221,7 +222,10 @@ class TestExport:
                   **await _child_row_counts(db, user_id)}
         populated = {name for name, n in counts.items() if n > 0}
 
-        missing = populated - covered - {"users", "refresh_tokens", "daily_summaries"}
+        # Credentials, not data: an emailed link (account_tokens) is a password
+        # while it lives, exactly as a refresh token is.
+        credentials = {"users", "refresh_tokens", "account_tokens", "push_tokens"}
+        missing = populated - covered - credentials - {"daily_summaries"}
         assert not missing, f"these tables have rows and are not in the export: {missing}"
 
     async def test_it_declares_its_own_format_and_version(self, auth_client):
@@ -272,8 +276,7 @@ class TestDelete:
                   **await _child_row_counts(db, user_id)}
         assert sum(before.values()) > 0, "nothing was populated, so this proves nothing"
 
-        _data(await auth_client.delete("/v1/account",
-                                       params={"confirm": "correct-horse-battery"}))
+        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
 
         db.expire_all()
         after = {**await _user_row_counts(db, user_id),
@@ -297,8 +300,7 @@ class TestDelete:
         before = await _child_row_counts(db, user_id)
         assert before["food_analysis_items"] > 0
 
-        _data(await auth_client.delete("/v1/account",
-                                       params={"confirm": "correct-horse-battery"}))
+        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
 
         db.expire_all()
         assert (await _child_row_counts(db, user_id))["food_analysis_items"] == 0
@@ -310,15 +312,14 @@ class TestDelete:
         }, headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
         assert await storage.exists(uploaded_image)
 
-        _data(await auth_client.delete("/v1/account",
-                                       params={"confirm": "correct-horse-battery"}))
+        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
 
         assert not await storage.exists(uploaded_image)
 
     async def test_it_refuses_without_the_password(self, auth_client, db):
         await _populate(auth_client)
 
-        r = await auth_client.delete("/v1/account", params={"confirm": "wrong-password"})
+        r = await auth_client.post("/v1/account/delete", json={"password": "wrong-password", "confirmation": "DELETE"})
         assert r.status_code in (401, 422), r.text
 
         from app.models import User
@@ -327,8 +328,7 @@ class TestDelete:
     async def test_the_account_cannot_be_used_afterwards(self, auth_client, client):
         await _populate(auth_client)
 
-        _data(await auth_client.delete("/v1/account",
-                                       params={"confirm": "correct-horse-battery"}))
+        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
 
         # The token outlives the row it names, so every route has to 401.
         assert (await auth_client.get("/v1/dashboard")).status_code == 401
@@ -347,8 +347,7 @@ class TestDelete:
             "start_date": "2026-09-01",
         }, headers=auth), 201)
 
-        _data(await auth_client.delete("/v1/account",
-                                       params={"confirm": "correct-horse-battery"}))
+        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
 
         assert len(_data(await client.get("/v1/goals", headers=auth))) == 1
 
@@ -390,3 +389,172 @@ class TestTheSchemaCarriesItsShare:
         # If this ever became CASCADE, deleting an analysis would silently take
         # a user's confirmed meal items with it.
         assert fk.ondelete == "RESTRICT"
+
+
+# ------------------------------------------------------------- launch: K-07
+
+class TestDeleteByPost:
+    """`POST /v1/account/delete` — the password in the body, never in the URL.
+
+    `DELETE /v1/account?confirm=<password>` put the password in the query
+    string, which is the part of a request that access logs, proxies and
+    crash reporters keep. The new route is what the app calls; the old one
+    stays, deprecated, for any build that still sends it.
+    """
+
+    async def test_it_leaves_nothing_behind(self, auth_client, worker, db):
+        await _populate(auth_client)
+        await _with_analysis(auth_client, worker)
+
+        from app.models import User
+        user_id = (await db.scalar(
+            select(User).order_by(User.created_at.desc()).limit(1)
+        )).id
+
+        out = _data(await auth_client.post("/v1/account/delete", json={
+            "password": "correct-horse-battery", "confirmation": "DELETE",
+        }))
+        assert out["deleted"] is True
+
+        db.expire_all()
+        after = {**await _user_row_counts(db, user_id),
+                 **await _child_row_counts(db, user_id)}
+        assert not {n: c for n, c in after.items() if c}, after
+        assert (await auth_client.get("/v1/dashboard")).status_code == 401
+
+    async def test_a_wrong_password_is_a_field_error_and_not_a_401(self, auth_client, db):
+        """A 401 tells the app its session died: it refreshes and sends the
+        same wrong password again. The session is fine — the field is wrong."""
+        r = await auth_client.post("/v1/account/delete", json={
+            "password": "not-my-password", "confirmation": "DELETE",
+        })
+        assert r.status_code == 422, r.text
+        assert r.json()["error"]["fields"]["password"]
+        assert (await auth_client.get("/v1/auth/me")).status_code == 200
+
+    @pytest.mark.parametrize("word", ["delete", "DELETE ME", ""])
+    async def test_the_typed_confirmation_is_checked_by_the_server_too(self, auth_client, word):
+        # The screen asks for it; the server asking too means no client can
+        # skip the step a person was meant to take.
+        r = await auth_client.post("/v1/account/delete", json={
+            "password": "correct-horse-battery", "confirmation": word,
+        })
+        assert r.status_code == 422, r.text
+        assert "confirmation" in r.json()["error"]["fields"]
+        assert (await auth_client.get("/v1/auth/me")).status_code == 200
+
+    async def test_the_password_never_travels_in_a_url(self, client):
+        # The legacy `DELETE /v1/account?confirm=<password>` is gone: an access
+        # log would have kept the password (G11 security review).
+        spec = (await client.get("/v1/openapi.json")).json()
+        assert "delete" not in spec["paths"].get("/v1/account", {})
+        post = spec["paths"]["/v1/account/delete"]["post"]
+        assert "requestBody" in post
+        assert not post.get("parameters"), "the password must not be a parameter"
+
+
+async def _another_upload(client) -> str:
+    signed = (await client.post("/v1/uploads/sign", json={
+        "content_type": "image/jpeg", "byte_size": 4096,
+    })).json()["data"]
+    jpeg = b"\xff\xd8" + b"\xff\xdb\x00\x43" + bytes(65) + b"\xff\xd9"
+    put = await client.put(signed["upload_url"], content=jpeg,
+                           headers={"content-type": "image/jpeg"})
+    assert put.status_code == 200, put.text
+    return signed["key"]
+
+
+class TestDeletePhotos:
+    """`DELETE /v1/account/photos` — K-07's "Delete my uploaded photos".
+
+    Every stored image goes, whatever it was for: progress photos (with their
+    rows — there is nothing left of a picture once it is gone), food photos
+    (the analysis record stays, as H-18 has always promised), and uploads that
+    never became either.
+    """
+
+    async def _three_kinds(self, client, worker, uploaded_image) -> dict:
+        _data(await client.post("/v1/progress-photos", json={"image_key": uploaded_image},
+                                headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
+        food_key = await _another_upload(client)
+        started = _data(await client.post("/v1/food-analysis/image",
+                                          json={"image_key": food_key}), 202)
+        await worker.drain()
+        orphan = await _another_upload(client)
+        return {"progress": uploaded_image, "food": food_key, "orphan": orphan,
+                "analysis_id": started["id"]}
+
+    async def test_every_stored_image_goes(self, auth_client, worker, storage, uploaded_image):
+        keys = await self._three_kinds(auth_client, worker, uploaded_image)
+
+        out = _data(await auth_client.delete("/v1/account/photos"))
+
+        assert out == {"files_deleted": 3, "progress_photos_deleted": 1, "analyses_kept": 1}
+        for key in ("progress", "food", "orphan"):
+            assert not await storage.exists(keys[key]), f"the {key} image survived"
+
+    async def test_the_rows_that_named_them_are_updated(
+        self, auth_client, worker, storage, uploaded_image
+    ):
+        keys = await self._three_kinds(auth_client, worker, uploaded_image)
+        _data(await auth_client.delete("/v1/account/photos"))
+
+        # A progress photo IS its image; the row goes with it.
+        assert _data(await auth_client.get("/v1/progress-photos")) == []
+        # An analysis is the audit trail (BRD §18); only its photo goes.
+        analysis = _data(await auth_client.get(f"/v1/food-analysis/{keys['analysis_id']}"))
+        assert analysis["image_key"] is None
+        assert analysis["status"] == "completed"
+
+    async def test_confirmed_nutrition_is_kept(self, auth_client, worker, storage, uploaded_image):
+        """K-07: deleting food photos "keeps the confirmed nutrition"."""
+        started = _data(await auth_client.post("/v1/food-analysis/image",
+                                               json={"image_key": uploaded_image}), 202)
+        await worker.drain()
+        analysis = _data(await auth_client.get(f"/v1/food-analysis/{started['id']}"))
+        meal = _data(await auth_client.post(
+            f"/v1/food-analysis/{started['id']}/confirm",
+            json={"meal_type": "lunch", "items": [
+                {"analysis_item_id": analysis["items"][0]["id"], "include": True},
+            ]}, headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
+
+        _data(await auth_client.delete("/v1/account/photos"))
+
+        assert _data(await auth_client.get(f"/v1/meals/{meal['id']}"))["items"]
+
+    async def test_it_is_idempotent(self, auth_client, worker, storage, uploaded_image):
+        await self._three_kinds(auth_client, worker, uploaded_image)
+        _data(await auth_client.delete("/v1/account/photos"))
+
+        again = _data(await auth_client.delete("/v1/account/photos"))
+        assert again == {"files_deleted": 0, "progress_photos_deleted": 0, "analyses_kept": 0}
+
+    async def test_nothing_to_delete_is_not_an_error(self, auth_client, storage):
+        out = _data(await auth_client.delete("/v1/account/photos"))
+        assert out["files_deleted"] == 0
+
+    async def test_another_users_photos_survive(self, auth_client, client, storage, uploaded_image):
+        _data(await auth_client.post("/v1/progress-photos", json={"image_key": uploaded_image},
+                                     headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
+
+        r = await client.post("/v1/auth/register", json={
+            "email": f"bystander-{uuid.uuid4().hex[:8]}@example.com",
+            "password": "correct-horse-battery",
+        })
+        token = r.json()["data"]["access_token"]
+        _data(await client.delete("/v1/account/photos",
+                                  headers={"authorization": f"Bearer {token}"}))
+
+        assert await storage.exists(uploaded_image)
+        assert len(_data(await auth_client.get("/v1/progress-photos"))) == 1
+
+
+async def test_the_export_names_the_users_own_exercises(auth_client):
+    """Sessions point at exercises by id; custom ones must travel with them."""
+    group = _data(await auth_client.get("/v1/muscle-groups"))[0]["id"]
+    _data(await auth_client.post("/v1/exercises", json={
+        "name": "My Odd Lift", "equipment": "other",
+        "muscles": [{"muscle_group_id": group, "role": "primary"}],
+    }), 201)
+    archive = _data(await auth_client.get("/v1/account/export"))
+    assert [e["name"] for e in archive["custom_exercises"]] == ["My Odd Lift"]

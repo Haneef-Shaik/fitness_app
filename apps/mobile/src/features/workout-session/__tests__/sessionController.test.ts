@@ -11,7 +11,7 @@ import type { SessionStore } from '../../../lib/db/types';
 import { configurePersistence, useSessionStore } from '../store/sessionStore';
 // Static, not dynamic: jest hoists the mocks above this anyway, and a dynamic
 // import needs --experimental-vm-modules under this runner.
-import { flushAndReconcile, onDelivered, outbox } from '../sessionController';
+import { flushAndReconcile, onDelivered, outbox, unsentFor } from '../sessionController';
 
 const TRACKS = { load: true, reps: true, duration: false, distance: false };
 
@@ -160,6 +160,22 @@ describe('what the sync dot says', () => {
     expect(dotFor(bad)).toBe('failed');
   });
 
+  it('an edit still queued keeps the dot on Waiting, though the set itself landed', async () => {
+    const key = '77777777-7777-4777-8777-777777777777';
+    await startWithSets([key]);
+    await flushAndReconcile();
+    expect(dotFor(key)).toBe('synced');
+
+    useSessionStore.getState().editSet(key, { rpe: 9 });
+    await new Promise((r) => setTimeout(r, 0));
+    const edit = (await mockStore.allEntries()).find((e) => e.method === 'PATCH')!;
+    mockSendResults.set(edit.idempotencyKey, { ok: false, retryable: true, unreachable: true });
+
+    await flushAndReconcile();
+
+    expect(dotFor(key)).toBe('pending');
+  });
+
   it('does nothing at all when there is no draft', async () => {
     await expect(flushAndReconcile()).resolves.toBeUndefined();
   });
@@ -199,5 +215,31 @@ describe('delivery reaches the app shell', () => {
     await flushAndReconcile();
 
     expect(heard).toEqual([]);
+  });
+});
+
+describe('finishing waits for the queue', () => {
+  it('counts nothing once every write for the session has landed', async () => {
+    await startWithSets(['88888888-8888-4888-8888-888888888888']);
+
+    await expect(unsentFor('s1')).resolves.toBe(0);
+  });
+
+  it('counts a write still waiting on the network', async () => {
+    // Finishing with a set still queued made the server close the workout
+    // first, and then refuse the set: "That workout is finished."
+    const key = '99999999-9999-4999-8999-999999999999';
+    mockSendResults.set(key, { ok: false, retryable: true, unreachable: true });
+    await startWithSets([key]);
+
+    await expect(unsentFor('s1')).resolves.toBe(1);
+  });
+
+  it('does not count a write that failed for good — that one is the Sync Center\'s', async () => {
+    const key = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    mockSendResults.set(key, { ok: false, retryable: false, message: 'rejected' });
+    await startWithSets([key]);
+
+    await expect(unsentFor('s1')).resolves.toBe(0);
   });
 });

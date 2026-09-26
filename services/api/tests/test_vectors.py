@@ -47,7 +47,10 @@ def test_constants_match_contract():
 
 @pytest.mark.parametrize("case", VECTORS["volume"], ids=lambda c: c["name"])
 def test_volume(case):
-    assert total_volume_kg(_set(s) for s in case["sets"]) == pytest.approx(
+    got = total_volume_kg(
+        (_set(s) for s in case["sets"]), include_warmups=case.get("include_warmups", False)
+    )
+    assert got == pytest.approx(
         case["expected_volume_kg"], abs=TOL
     )
 

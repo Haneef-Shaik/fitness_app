@@ -13,6 +13,7 @@ import { Text } from 'react-native';
 import { SessionProvider, useSession } from '../session';
 
 const mockApi = { tryRefresh: jest.fn() };
+let mockRevoked: (() => void) | null = null;
 const mockAuth = { me: jest.fn(), login: jest.fn(), register: jest.fn(), logout: jest.fn() };
 const mockProfileApi = { get: jest.fn() };
 const mockSetAccessToken = jest.fn();
@@ -22,6 +23,7 @@ jest.mock('../api', () => ({
   get auth() { return mockAuth; },
   get profileApi() { return mockProfileApi; },
   setAccessToken: (...a: unknown[]) => mockSetAccessToken(...a),
+  onSessionRevoked: (fn: (() => void) | null) => { mockRevoked = fn; },
 }));
 
 const mockTokens = { value: null as string | null, account: null as string | null };
@@ -139,6 +141,66 @@ describe('signing in', () => {
   });
 });
 
+describe('the account behind the session (A-06, K-02)', () => {
+  type Session = ReturnType<typeof useSession>;
+  let session: Session;
+  function Account() {
+    session = useSession();
+    return <Text testID="state">{`${session.emailVerified}|${session.pendingEmail ?? '-'}`}</Text>;
+  }
+  const mount = async () => {
+    mockTokens.value = 'stored';
+    mockApi.tryRefresh.mockResolvedValue(true);
+    render(<SessionProvider><Account /></SessionProvider>);
+  };
+
+  it('knows whether the email is verified, and a change still waiting', async () => {
+    mockAuth.me.mockResolvedValue({
+      id: 'acct-a', email: 'a@b.com', status: 'active',
+      email_verified: false, pending_email: 'new@b.com',
+    });
+    await mount();
+    await waitFor(() => expect(state()).toBe('false|new@b.com'));
+  });
+
+  it('says nothing about verification until the server has', async () => {
+    // An older server, or a session restored offline, must not show the
+    // "Verify your email" banner on a guess.
+    await mount();
+    await waitFor(() => expect(state()).toBe('null|-'));
+  });
+
+  it('re-reads the account on demand — the banner goes once the link is opened', async () => {
+    mockAuth.me.mockResolvedValue({
+      id: 'acct-a', email: 'a@b.com', status: 'active', email_verified: false, pending_email: null,
+    });
+    await mount();
+    await waitFor(() => expect(state()).toBe('false|-'));
+
+    mockAuth.me.mockResolvedValue({
+      id: 'acct-a', email: 'a@b.com', status: 'active', email_verified: true, pending_email: null,
+    });
+    await act(async () => { await session.refreshAccount(); });
+
+    expect(state()).toBe('true|-');
+  });
+
+  it("adopts a password change's fresh pair, so this device stays signed in", async () => {
+    await mount();
+    await waitFor(() => expect(mockAuth.me).toHaveBeenCalled());
+
+    await act(async () => {
+      await session.adoptTokens({
+        access_token: 'fresh-access', refresh_token: 'fresh-refresh',
+        token_type: 'Bearer', expires_in: 900,
+      });
+    });
+
+    expect(mockSetAccessToken).toHaveBeenLastCalledWith('fresh-access');
+    expect(mockTokens.value).toBe('fresh-refresh');
+  });
+});
+
 describe('signing out', () => {
   it('clears the token even when the server call fails', async () => {
     // A failed logout must not leave a token on the device.
@@ -212,5 +274,46 @@ describe('whose data this is (found on a phone in G10)', () => {
     await act(async () => { await api!.signOut(); });
     expect(mockIdentity).toHaveBeenLastCalledWith(null);
     expect(mockTokens.account).toBeNull();
+  });
+});
+
+describe('L-05 · a session that ends while the app is open', () => {
+  function ExpiryProbe() {
+    const { status, expired, reauthenticate } = useSession();
+    return (
+      <>
+        <Text testID="expiry">{`${status}|${expired ? 'expired' : 'live'}`}</Text>
+        <Text testID="reauth" onPress={() => { void reauthenticate('pw-long-enough'); }}>go</Text>
+      </>
+    );
+  }
+
+  async function signedIn() {
+    mockTokens.value = 'stored';
+    mockApi.tryRefresh.mockResolvedValue(true);
+    render(<SessionProvider><ExpiryProbe /></SessionProvider>);
+    await waitFor(() => expect(screen.getByTestId('expiry').props.children).toBe('ready|live'));
+  }
+
+  it('keeps the screen and asks to sign in again, rather than ejecting to login', async () => {
+    await signedIn();
+
+    act(() => { mockRevoked?.(); });
+
+    // Still `ready`: the screen underneath — a workout, a half-typed meal — stays.
+    expect(screen.getByTestId('expiry').props.children).toBe('ready|expired');
+  });
+
+  it('signing in again as the same person carries on where they were', async () => {
+    await signedIn();
+    act(() => { mockRevoked?.(); });
+    mockAuth.login.mockResolvedValue({
+      access_token: 'a', refresh_token: 'r', user: { id: 'acct-a', email: 'a@b.com' },
+    });
+
+    await act(async () => { screen.getByTestId('reauth').props.onPress(); });
+
+    await waitFor(() => expect(screen.getByTestId('expiry').props.children).toBe('ready|live'));
+    expect(mockAuth.login).toHaveBeenCalledWith('a@b.com', 'pw-long-enough');
   });
 });

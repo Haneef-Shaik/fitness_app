@@ -1,0 +1,135 @@
+name: Deploy one environment
+
+# Called by deploy.yml, once for staging and once for production, so the two
+# releases cannot drift apart. Secrets come from the GitHub Environment named by
+# `environment` (docs/12-DEPLOYMENT.md §6):
+#
+#   DATABASE_URL            secret  session pooler URL, ?ssl=require — migrations + seed
+#   DEPLOY_HOOK_URL         secret  POSTed to redeploy the API service
+#   WORKER_DEPLOY_HOOK_URL  secret  optional — POSTed to redeploy the worker service
+#   API_BASE_URL            var     optional — https://api.example.com, polled until
+#                                   /health reports this release
+#
+# Every step is skipped when its secret is absent: no secrets, no deploy, and a
+# notice saying so rather than a failure.
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      image:
+        type: string
+        required: true
+      sha:
+        type: string
+        required: true
+      migrate:
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  release:
+    name: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.API_BASE_URL }}
+    permissions:
+      contents: read
+      packages: write
+    # Secrets cannot appear in `if:`; as job env they can be tested per step.
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+      WORKER_DEPLOY_HOOK_URL: ${{ secrets.WORKER_DEPLOY_HOOK_URL }}
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      ENVIRONMENT: ${{ inputs.environment }}
+      IMAGE: ${{ inputs.image }}
+      SHA: ${{ inputs.sha }}
+    steps:
+      - name: Nothing configured for this environment
+        if: env.DATABASE_URL == '' && env.DEPLOY_HOOK_URL == ''
+        run: >-
+          echo "::notice::No DATABASE_URL or DEPLOY_HOOK_URL in the '${ENVIRONMENT}'
+          environment: the image ${IMAGE}:${SHA} was built and nothing was deployed.
+          docs/12-DEPLOYMENT.md §6 sets them."
+
+      # ------------------------------------------------ 1 · migrate (release step)
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL != '' && inputs.migrate
+        with:
+          ref: ${{ inputs.sha }}
+
+      - uses: astral-sh/setup-uv@v5
+        if: env.DATABASE_URL != '' && inputs.migrate
+        with:
+          enable-cache: true
+
+      - name: Install the API (no dev dependencies)
+        if: env.DATABASE_URL != '' && inputs.migrate
+        working-directory: services/api
+        run: uv sync --frozen --no-dev
+
+      - name: Migrate and seed
+        if: env.DATABASE_URL != '' && inputs.migrate
+        env:
+          # Reached for production only through the environment's reviewer.
+          CONFIRM_PRODUCTION: ${{ inputs.environment == 'production' && '1' || '0' }}
+        run: bash scripts/migrate.sh
+
+      - name: Deploying without migrating
+        if: env.DATABASE_URL == '' && env.DEPLOY_HOOK_URL != ''
+        run: >-
+          echo "::warning::No DATABASE_URL in '${ENVIRONMENT}': deploying without running
+          migrations. The host must run 'alembic upgrade head' as its release command."
+
+      - name: A rollback — migrations skipped
+        if: ${{ !inputs.migrate }}
+        run: >-
+          echo "::notice::migrate=false: releasing ${IMAGE}:${SHA} onto the schema as it
+          is. Forward-only migrations mean it is never rolled back (docs/12 §13)."
+
+      # ------------------------------------------------------------ 2 · release
+      - uses: docker/login-action@v3
+        if: env.DEPLOY_HOOK_URL != ''
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Point the ${{ inputs.environment }} tag at this image
+        if: env.DEPLOY_HOOK_URL != ''
+        # A host that pulls `:staging` / `:production` gets this digest on its
+        # next deploy; the SHA tag stays, so a rollback is a tag move.
+        run: docker buildx imagetools create --tag "${IMAGE}:${ENVIRONMENT}" "${IMAGE}:${SHA}"
+
+      - name: Call the host's deploy hook
+        if: env.DEPLOY_HOOK_URL != ''
+        run: |
+          body=$(printf '{"image":"%s:%s","sha":"%s","environment":"%s"}' "$IMAGE" "$SHA" "$SHA" "$ENVIRONMENT")
+          # The URLs are secrets (they carry the host's key): never echoed.
+          for hook in "$DEPLOY_HOOK_URL" "${WORKER_DEPLOY_HOOK_URL:-}"; do
+            [ -n "$hook" ] || continue
+            curl -fsS -X POST --retry 3 --max-time 30 \
+              -H 'content-type: application/json' -d "$body" "$hook" > /dev/null
+          done
+          echo "deploy hooks called for ${IMAGE}:${SHA}"
+
+      - name: Wait for the new release to answer
+        if: env.DEPLOY_HOOK_URL != '' && env.API_BASE_URL != ''
+        run: |
+          want="fitlog-api@${SHA}"
+          got=""
+          for _ in $(seq 1 60); do
+            got=$(curl -fsS --max-time 10 "${API_BASE_URL}/health" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["data"].get("release") or "")' \
+              || true)
+            if [ "$got" = "$want" ]; then echo "live: $want"; exit 0; fi
+            sleep 10
+          done
+          echo "::error::${API_BASE_URL}/health reports '${got}', not '${want}', after 10 minutes"
+          exit 1

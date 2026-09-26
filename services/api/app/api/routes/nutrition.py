@@ -39,6 +39,7 @@ from app.schemas.nutrition import (
     FoodIn,
     FoodOut,
     FoodPatch,
+    FoodPortionOut,
     MealIn,
     MealItemOut,
     MealItemPatch,
@@ -76,9 +77,18 @@ def _food_out(food: Food) -> dict:
         id=food.id, name=food.name, brand=food.brand,
         calories=_num(food.calories), protein_g=_num(food.protein_g),
         carbs_g=_num(food.carbs_g), fat_g=_num(food.fat_g), fiber_g=_num(food.fiber_g),
+        sugar_g=_num(food.sugar_g), saturated_fat_g=_num(food.saturated_fat_g),
+        sodium_mg=_num(food.sodium_mg),
         serving_grams=_num(food.serving_grams), serving_label=food.serving_label,
+        portions=[
+            FoodPortionOut(label=p.label, grams=float(p.grams)) for p in food.portions
+        ],
         source=food.source.value if hasattr(food.source, "value") else str(food.source),
         is_custom=food.owner_user_id is not None,
+        category=food.category,
+        dataset=food.dataset,
+        source_note=food.source_note,
+        attribution=food.dataset_info.attribution if food.dataset_info else None,
     ).model_dump(mode="json")
 
 
@@ -208,7 +218,12 @@ async def get_food(food_id: uuid.UUID, user: CurrentUser, db: DbSession):
 @router.post("/foods", status_code=201, response_model=Envelope[FoodOut])
 async def create_food(body: FoodIn, user: CurrentUser, db: DbSession):
     """A user's own food. `source=user`, so it is never mistaken for catalog."""
-    food = Food(owner_user_id=user.id, source=FoodSource.user, **body.model_dump())
+    # `portions` and `dataset_info` set explicitly: a new row's relationships
+    # would otherwise lazy-load on first touch, which an async session refuses.
+    food = Food(
+        owner_user_id=user.id, source=FoodSource.user, portions=[], dataset_info=None,
+        **body.model_dump(),
+    )
     db.add(food)
     await db.flush()
     return ok(_food_out(food), status_code=201)

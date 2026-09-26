@@ -54,7 +54,7 @@ workout on this device. It'll still be here when you sign back in."
 ---
 
 ## K-02 · Account & Security
-**Route** `/settings/account` · **Type** Stacked · **Priority** P0
+**Route** `/settings/security` (built there; `/settings/account` in the original route table) · **Type** Stacked · **Priority** P0
 
 ```
 │  EMAIL                                       │
@@ -76,6 +76,21 @@ so before confirming. **Delete my account** → K-07.
 **Edge cases.** The current device's row cannot be signed out from here (Sign out in K-01 does that).
 Signing out everywhere else does not touch local workout drafts. If the password was changed on
 another device, this device's next request gets a 401 → L-05.
+
+**As built (launch).**
+- **Change email** applies only when the link sent to the new address is opened (A-06's route) —
+  a typo must not move the account, and every future reset link, to an inbox nobody reads. Until
+  then the row reads "Waiting for you to confirm {new}". The current address is warned the
+  moment a change is asked for; a password reset, a password change or "sign out other
+  devices" kills the pending change, so an owner who reacts to the warning stops it. Once it
+  lands, links sent to the old address die and the old address is emailed again.
+- **Change password** keeps this device signed in with a fresh token pair and revokes every other
+  sign-in; a wrong current password is a field error (422), not a 401.
+- **Sign out other devices** asks first, then says how many devices it signed out. The caller's
+  sign-in is identified by the access token's `sid` claim.
+- **Not yet built:** the per-device "Signed in on" list and "Last changed" — the server records no
+  device name or password date yet — and "Delete my account" (K-07 has the endpoint, not the screen).
+- An unverified address shows "Not verified yet" with Resend; nothing is locked by it (A-06).
 
 ---
 

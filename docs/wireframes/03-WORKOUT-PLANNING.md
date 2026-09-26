@@ -529,6 +529,11 @@ at least two." Global (non-custom) exercise → edit is disabled with "This is a
 load PRs — the PR tiles are **driven by the tracked fields**. An archived exercise shows an
 "Archived" banner with Restore; its history remains fully readable.
 
+**How to do it** (added with the 297-exercise library). Below the muscles and above the records:
+`exercises.instructions` — two to four plain sentences (setup, movement, one cue). It sits above the
+records because the person who needs it most has never logged the exercise, and for them everything
+below is empty. A custom exercise without notes shows no section at all.
+
 ---
 
 ## D-03 · Create / Edit Custom Exercise

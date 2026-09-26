@@ -26,7 +26,11 @@ PROTECTED = ("food_analysis_items", "food_analyses")
 #: forgotten outranks an audit trail about them — and it is the only place in
 #: the product that may. Adding a second entry here should require the same
 #: argument, which is why it is a list of one rather than a pattern.
-DELETION_EXEMPT = {"app/api/routes/account.py"}
+#:
+#: It moved from `app/api/routes/account.py` at launch, when the web deletion
+#: page became a second caller: the exemption follows the one implementation,
+#: and is still exactly one file.
+DELETION_EXEMPT = {"app/services/account.py"}
 
 _MUTATING_SQL = re.compile(
     r"\b(update|delete\s+from)\s+(food_analysis_items|food_analyses)\b",

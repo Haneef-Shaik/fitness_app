@@ -15,6 +15,14 @@ MealTypeT = Annotated[str, Field(min_length=1, max_length=40)]
 ItemSourceT = Literal["manual", "text_ai", "image_ai"]
 
 
+class FoodPortionOut(BaseModel):
+    """A household measure: "1 katori (small bowl)" = 150 g. A way to enter
+    grams on H-05, never a second basis for the nutrition."""
+
+    label: str
+    grams: float
+
+
 class FoodOut(BaseModel):
     """A food. Nutrition is **per 100 g** — always, and the field names say so
     nowhere, so this docstring has to."""
@@ -27,10 +35,24 @@ class FoodOut(BaseModel):
     carbs_g: float | None = None
     fat_g: float | None = None
     fiber_g: float | None = None
+    #: Label nutrients beyond the macros, per 100 g. Shown on H-05's details;
+    #: not part of a meal item's snapshot.
+    sugar_g: float | None = None
+    saturated_fat_g: float | None = None
+    sodium_mg: float | None = None
     serving_grams: float | None = None
     serving_label: str | None = None
+    #: H-05's presets, most useful first. Empty for most custom foods.
+    portions: list[FoodPortionOut] = Field(default_factory=list)
     source: str
     is_custom: bool = False
+    category: str | None = None
+    #: Where the numbers came from — the dataset slug, the record within it
+    #: ("FDC 171477", or the recipe a dish was calculated from), and the
+    #: attribution its licence asks to be shown. NULL for a user's own food.
+    dataset: str | None = None
+    source_note: str | None = None
+    attribution: str | None = None
 
 
 class FoodIn(BaseModel):
@@ -41,6 +63,9 @@ class FoodIn(BaseModel):
     carbs_g: float | None = Field(default=None, ge=0)
     fat_g: float | None = Field(default=None, ge=0)
     fiber_g: float | None = Field(default=None, ge=0)
+    sugar_g: float | None = Field(default=None, ge=0)
+    saturated_fat_g: float | None = Field(default=None, ge=0)
+    sodium_mg: float | None = Field(default=None, ge=0)
     serving_grams: float | None = Field(default=None, gt=0)
     serving_label: str | None = Field(default=None, max_length=60)
 
@@ -53,6 +78,9 @@ class FoodPatch(BaseModel):
     carbs_g: float | None = Field(default=None, ge=0)
     fat_g: float | None = Field(default=None, ge=0)
     fiber_g: float | None = Field(default=None, ge=0)
+    sugar_g: float | None = Field(default=None, ge=0)
+    saturated_fat_g: float | None = Field(default=None, ge=0)
+    sodium_mg: float | None = Field(default=None, ge=0)
     serving_grams: float | None = Field(default=None, gt=0)
     serving_label: str | None = Field(default=None, max_length=60)
 

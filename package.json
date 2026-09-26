@@ -9,6 +9,18 @@
   "pnpm": {
     "overrides": {
       "strip-ansi>ansi-regex": "^5.0.1"
+    },
+    "packageExtensions": {
+      "react-native-drawer-layout": {
+        "peerDependenciesMeta": {
+          "react-native-reanimated": {
+            "optional": true
+          },
+          "react-native-gesture-handler": {
+            "optional": true
+          }
+        }
+      }
     }
   }
 }

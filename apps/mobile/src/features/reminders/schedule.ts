@@ -59,7 +59,10 @@ function configureDisplay(N: NotificationsModule): void {
   if (displayConfigured) return;
   displayConfigured = true;
   N.setNotificationHandler({
-    handleNotification: async () => ({ shouldShowAlert: true, shouldPlaySound: false, shouldSetBadge: false }),
+    // SDK 53 split the old `shouldShowAlert` into these two; both on is what it meant.
+    handleNotification: async () => ({
+      shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false,
+    }),
   });
 }
 

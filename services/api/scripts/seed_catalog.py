@@ -12,15 +12,25 @@ from pathlib import Path
 # Run directly (`uv run python scripts/seed_catalog.py`) as well as via -m.
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from app.db import SessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from app.config import Settings
+from app.db_engine import build_engine
 from app.seed import seed_all
 from app.seed.catalog import SEED_VERSION
 
 
 async def main() -> int:
-    async with SessionLocal() as db:
-        result = await seed_all(db)
-        await db.commit()
+    # Settings(), not get_settings(): like a migration, seeding needs the
+    # database and nothing else, so the release job carries only DATABASE_URL
+    # (docs/12 §5). The engine is the API's, TLS rule included.
+    engine = build_engine(Settings(), pooled=False)
+    try:
+        async with async_sessionmaker(engine, class_=AsyncSession)() as db:
+            result = await seed_all(db)
+            await db.commit()
+    finally:
+        await engine.dispose()
     print(f"reference data seed v{SEED_VERSION}")
     for kind, added in sorted(result.items()):
         print(f"  {kind + ' added:':22} {added}")

@@ -33,10 +33,12 @@ from sqlalchemy import (
     Index,
     Integer,
     Numeric,
+    SmallInteger,
     String,
     Time,
     UniqueConstraint,
 )
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -49,8 +51,14 @@ class FoodSource(str, enum.Enum):
 
     `provider` exists so a third-party source can be told apart from the
     internal catalog **without** its identifier becoming the primary key —
-    Q1 is still open, and the provider is an implementation detail behind the
-    resolver, not the identity of the row.
+    the provider is an implementation detail behind the resolver, not the
+    identity of the row.
+
+    Q1 was answered "internal catalog, grown by seed", so `provider` now means
+    *imported from a published third-party dataset* (USDA FoodData Central),
+    with `external_ref = "fdc:<id>"`. `internal` is what FitLog itself wrote:
+    the starter foods and the Indian dishes, whose own sources are cited per
+    row in `source_note`. Nothing is ever fetched live.
     """
 
     internal = "internal"
@@ -113,6 +121,33 @@ class ItemSource(str, enum.Enum):
     image_ai = "image_ai"
 
 
+class FoodDataset(Base, TimestampMixin):
+    """Where a catalog row's numbers were published, and on what terms.
+
+    One row per dataset, not per food: the licence and the attribution a
+    dataset asks for are properties of the release, and repeating them on
+    8,000 rows would be 8,000 chances to disagree. A food points here; its own
+    `external_ref` and `source_note` say WHICH record of the dataset it is.
+
+    Seeded with the catalog (`app/seed/foods.py`), and the text is what
+    H-05's "Details & source" shows — so the attribution the licence asks for
+    travels with every food rather than living only in a document.
+    """
+
+    __tablename__ = "food_datasets"
+
+    slug: Mapped[str] = mapped_column(String(40), primary_key=True)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    publisher: Mapped[str] = mapped_column(String(200), nullable=False)
+    #: The release the rows came from — "April 2018", "2026-04-30".
+    version: Mapped[str | None] = mapped_column(String(40))
+    licence: Mapped[str] = mapped_column(String(80), nullable=False)
+    licence_url: Mapped[str | None] = mapped_column(String(255))
+    #: The sentence to show wherever the data is shown.
+    attribution: Mapped[str] = mapped_column(String(500), nullable=False)
+    url: Mapped[str | None] = mapped_column(String(255))
+
+
 class Food(Base, TimestampMixin):
     """A canonical food. Nutrition is **per 100 g**, always (I6)."""
 
@@ -134,9 +169,15 @@ class Food(Base, TimestampMixin):
     carbs_g: Mapped[float | None] = mapped_column(Numeric(8, 2))
     fat_g: Mapped[float | None] = mapped_column(Numeric(8, 2))
     fiber_g: Mapped[float | None] = mapped_column(Numeric(8, 2))
+    # The label nutrients beyond the four macros. Shown on H-05, never summed
+    # into a day: `meal_items` snapshots the macros only, and widening that
+    # snapshot is a decision about the diary, not about the catalog.
+    sugar_g: Mapped[float | None] = mapped_column(Numeric(8, 2))
+    saturated_fat_g: Mapped[float | None] = mapped_column(Numeric(8, 2))
+    sodium_mg: Mapped[float | None] = mapped_column(Numeric(8, 2))
 
     # A helpful default for the picker: "1 slice = 32 g". Not a second unit for
-    # the nutrition columns.
+    # the nutrition columns. `portions` holds the full list; this is its first.
     serving_grams: Mapped[float | None] = mapped_column(Numeric(8, 2))
     serving_label: Mapped[str | None] = mapped_column(String(60))
 
@@ -148,10 +189,74 @@ class Food(Base, TimestampMixin):
     external_ref: Mapped[str | None] = mapped_column(String(120))
     archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
+    # ---- catalog metadata (seeded rows; a user's own food leaves these empty)
+
+    #: Which published dataset the numbers came from. NULL for a user's food.
+    dataset: Mapped[str | None] = mapped_column(
+        String(40),
+        ForeignKey("food_datasets.slug", ondelete="RESTRICT", name="fk_foods_dataset"),
+    )
+    #: Which record of it, in words a person can check: "FDC 2707427 (Dal)", or
+    #: the recipe a dish was calculated from. The per-row citation.
+    source_note: Mapped[str | None] = mapped_column(String(300))
+    category: Mapped[str | None] = mapped_column(String(80))
+    #: The names people actually type (02 §6, §5.2 step 2): "chapati" for a
+    #: roti, "dahi" for curd. Searched alongside the name.
+    aliases: Mapped[list[str]] = mapped_column(
+        ARRAY(String(80)), default=list, server_default="{}", nullable=False
+    )
+    #: A prior on how commonly the food is logged, so "egg" lands on an egg and
+    #: not on "Egg, white, dried, stabilized, glucose reduced". Set by the seed,
+    #: never by a user; higher surfaces first. See `app/food/internal.py`.
+    search_weight: Mapped[int] = mapped_column(
+        SmallInteger, default=0, server_default="0", nullable=False
+    )
+
+    portions: Mapped[list[FoodPortion]] = relationship(
+        back_populates="food", cascade="all, delete-orphan", lazy="selectin",
+        order_by="FoodPortion.sort_order",
+    )
+    dataset_info: Mapped[FoodDataset | None] = relationship(lazy="joined")
+
     __table_args__ = (
         Index("ix_foods_name", "name"),
         Index("ix_foods_owner", "owner_user_id"),
+        # Trigram index (pg_trgm, m9) for the typo-tolerant fallback
+        # (`name %> query`) and name ILIKE, neither of which a b-tree serves.
+        # The ranked word-prefix search also reads aliases, so it scans —
+        # ~10 ms over the seeded ~7,800 rows, measured.
+        Index(
+            "ix_foods_name_trgm", "name",
+            postgresql_using="gin", postgresql_ops={"name": "gin_trgm_ops"},
+        ),
         UniqueConstraint("source", "external_ref", name="uq_food_external_ref"),
+    )
+
+
+class FoodPortion(Base, TimestampMixin):
+    """A household measure with its weight: "1 katori = 150 g", "1 large = 50 g".
+
+    H-05's presets. A portion is a way to *enter* grams, never a second basis
+    for the nutrition: the food stays per 100 g and the item stores grams, so
+    a portion can be corrected without touching anything already logged.
+    """
+
+    __tablename__ = "food_portions"
+
+    id: Mapped[uuid.UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    food_id: Mapped[uuid.UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("foods.id", ondelete="CASCADE"), nullable=False
+    )
+    label: Mapped[str] = mapped_column(String(80), nullable=False)
+    grams: Mapped[float] = mapped_column(Numeric(8, 2), nullable=False)
+    sort_order: Mapped[int] = mapped_column(SmallInteger, default=0, nullable=False)
+
+    food: Mapped[Food] = relationship(back_populates="portions")
+
+    __table_args__ = (
+        # The label is the portion's identity within a food — what makes the
+        # seed idempotent, and what stops "1 cup" appearing twice in a picker.
+        UniqueConstraint("food_id", "label", name="uq_food_portion_label"),
     )
 
 

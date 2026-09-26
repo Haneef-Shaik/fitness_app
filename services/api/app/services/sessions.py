@@ -28,6 +28,7 @@ from app.models import (
     SessionExercise,
     SessionStatus,
     SetType,
+    UserProfile,
     WorkoutSession,
     WorkoutSet,
 )
@@ -167,11 +168,16 @@ async def finish_session(db: AsyncSession, session: WorkoutSession) -> dict:
     session.completed_at = now
     session.duration_seconds = max(0, int((now - session.started_at).total_seconds()))
 
+    # K-04 / D6 — the stored total follows the user's current preference, and
+    # `services.volume.recount` restates it if they change their mind.
+    include_warmups = bool(await db.scalar(
+        select(UserProfile.warmups_in_volume).where(UserProfile.user_id == session.user_id)
+    ))
     total = 0.0
     for se in session.exercises:
         for s in se.sets:
             annotate_set(s)
-            total += set_volume_kg(to_domain(s))
+            total += set_volume_kg(to_domain(s), include_warmups=include_warmups)
     session.total_volume_kg = round(total, 2)
     await db.flush()
 

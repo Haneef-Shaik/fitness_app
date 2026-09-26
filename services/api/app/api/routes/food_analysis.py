@@ -15,16 +15,19 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, time, timedelta
 from typing import Annotated
+from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Request
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
+from app.ai.stub import MODEL_NAME as STUB_MODEL_NAME
 from app.api.deps import CurrentUser, DbSession
 from app.api.envelope import ok
 from app.api.routes.nutrition import meal_out
 from app.config import get_settings
 from app.core.errors import Conflict, NotFound, QuotaExceeded, ValidationFailed
+from app.core.ratelimit import enforce
 from app.domain.dates import to_local_date
 from app.food.categories import assert_category
 from app.food.snapshot import num, snapshot_from_food
@@ -42,6 +45,7 @@ from app.models import (
 from app.schemas.analysis import (
     AnalysisItemOut,
     AnalysisOut,
+    AnalysisSettingsOut,
     ConfirmIn,
     ImageAnalysisIn,
     QuotaOut,
@@ -51,6 +55,7 @@ from app.schemas.envelope import Envelope
 from app.schemas.nutrition import MealOut
 from app.services import summaries
 from app.storage.provider import get_store
+from app.storage.signing import is_own_key
 
 router = APIRouter(tags=["ai-nutrition"])
 
@@ -119,11 +124,15 @@ async def _quota_state(db: DbSession, user_id: uuid.UUID) -> QuotaOut:
     """Today's usage, on the user's own day (**I7**).
 
     A quota that resets at UTC midnight resets in the middle of dinner for half
-    the world.
+    the world. The day is bounded by **local** midnights: an earlier version
+    took the local date and then its midnight in UTC, so for Kolkata the reset
+    fell at 05:30 and the small hours counted towards the day before (found
+    building K-08, which prints the time).
     """
     tz = await _timezone_of(db, user_id)
+    zone = ZoneInfo(tz)
     today = to_local_date(datetime.now(UTC), tz)
-    start = datetime.combine(today, time.min).replace(tzinfo=UTC)
+    start = datetime.combine(today, time.min, tzinfo=zone)
 
     used = await db.scalar(
         select(func.count()).select_from(FoodAnalysis)
@@ -133,7 +142,7 @@ async def _quota_state(db: DbSession, user_id: uuid.UUID) -> QuotaOut:
 
     return QuotaOut(
         used=used, limit=limit, remaining=max(0, limit - used),
-        resets_at=datetime.combine(today + timedelta(days=1), time.min).replace(tzinfo=UTC),
+        resets_at=datetime.combine(today + timedelta(days=1), time.min, tzinfo=zone),
     )
 
 
@@ -165,12 +174,40 @@ async def read_quota(user: CurrentUser, db: DbSession):
     return ok((await _quota_state(db, user.id)).model_dump(mode="json"))
 
 
+#: How K-08 names each provider. The stub is named for what it is, so a
+#: development build never claims a photo went somewhere it did not.
+PROVIDER_NAMES = {"anthropic": "Anthropic", "stub": "None — built-in test stub"}
+
+
+@router.get("/food-analysis/settings", response_model=Envelope[AnalysisSettingsOut])
+async def read_settings(user: CurrentUser, db: DbSession):
+    """K-08 — usage, who analyses the photos, and what low confidence means.
+
+    From configuration rather than from the gateway object, so the answer is
+    the one the worker will act on and the page never has to construct a
+    client to describe it.
+    """
+    settings = get_settings()
+    stub = settings.ai_provider == "stub"
+    return ok(AnalysisSettingsOut(
+        provider=settings.ai_provider,
+        provider_name=PROVIDER_NAMES.get(settings.ai_provider, settings.ai_provider),
+        model=STUB_MODEL_NAME if stub else settings.ai_model,
+        sends_to_provider=not stub,
+        low_confidence_threshold=settings.ai_low_confidence_threshold,
+        quota=await _quota_state(db, user.id),
+    ).model_dump(mode="json"))
+
+
 @router.post("/food-analysis/text", status_code=202, response_model=Envelope[AnalysisOut])
-async def analyse_text(body: TextAnalysisIn, user: CurrentUser, db: DbSession):
+async def analyse_text(body: TextAnalysisIn, request: Request, user: CurrentUser, db: DbSession):
     """**AC-08.** Returns 202 and an id; the worker does the rest."""
     if (existing := await _replay(db, user.id, body.client_id)) is not None:
         return ok(await _analysis_out(db, existing), status_code=202)
 
+    # After the replay check: an outbox re-sending a job it already made is
+    # not a new request for a model, and must not spend a burst allowance.
+    await enforce(db, request, "ai", account=str(user.id))
     await _assert_quota(db, user.id)
 
     analysis = FoodAnalysis(
@@ -185,14 +222,16 @@ async def analyse_text(body: TextAnalysisIn, user: CurrentUser, db: DbSession):
 
 
 @router.post("/food-analysis/image", status_code=202, response_model=Envelope[AnalysisOut])
-async def analyse_image(body: ImageAnalysisIn, user: CurrentUser, db: DbSession):
+async def analyse_image(body: ImageAnalysisIn, request: Request, user: CurrentUser, db: DbSession):
     """**AC-09.** The key must be one this user uploaded and that exists."""
     if (existing := await _replay(db, user.id, body.client_id)) is not None:
         return ok(await _analysis_out(db, existing), status_code=202)
 
+    await enforce(db, request, "ai", account=str(user.id))
+
     # Keys are namespaced by owner, so this is both an existence check and an
     # ownership check.
-    if not body.image_key.startswith(f"uploads/{user.id}/"):
+    if not is_own_key(body.image_key, user.id):
         raise ValidationFailed("That image is not yours.", fields={"image_key": body.image_key})
     if not await get_store().exists(body.image_key):
         raise ValidationFailed("That image was never uploaded.",
@@ -236,6 +275,12 @@ async def delete_all_images(user: CurrentUser, db: DbSession):
     The photographs go; the **records stay**. What was analysed and what was
     saved is the audit trail, and deleting it would remove a user's own evidence
     of what the model claimed.
+
+    **Only the photos analyses name.** This used to sweep the user's whole
+    upload folder, which is where progress photos live too — so deleting food
+    photos deleted every progress picture's file and left its row pointing at
+    nothing (found building K-07). Deleting everything is K-07's own action,
+    `DELETE /v1/account/photos`.
     """
     rows = (await db.scalars(
         select(FoodAnalysis).where(
@@ -243,7 +288,14 @@ async def delete_all_images(user: CurrentUser, db: DbSession):
         )
     )).all()
 
-    removed = await get_store().delete_prefix(f"uploads/{user.id}")
+    store = get_store()
+    removed = 0
+    for key in {analysis.image_key for analysis in rows}:
+        # Only a key of the shape we issue to this user: a row written before
+        # that was checked must not be able to name somebody else's file.
+        if is_own_key(key, user.id) and await store.exists(key):
+            await store.delete(key)
+            removed += 1
     for analysis in rows:
         analysis.image_key = None
     await db.flush()

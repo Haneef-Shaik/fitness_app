@@ -1,16 +1,35 @@
-/** A-02 Welcome */
+/**
+ * A-02 Welcome
+ *
+ * "By continuing you agree to the Terms and Privacy Policy" has to lead to
+ * them (launch): both are links, opened in the browser from `src/lib/legal.ts`.
+ * It is also where someone lands after deleting their account, and says so
+ * once (`features/privacy/farewell.ts`).
+ */
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { useState } from 'react';
+import { Linking, View } from 'react-native';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import { Button, Card, Text } from '@/ui';
+import { legalLinks } from '@/lib/legal';
+import { takeFarewell } from '@/features/privacy/farewell';
 import { useTheme, space, radius } from '@/theme';
 
 export default function Welcome() {
   const { c } = useTheme();
+  const [farewell] = useState(takeFarewell);
+  const links = legalLinks();
+  const link = (url: string) => () => { void Linking.openURL(url); };
+
   return (
     <ScreenSafeArea style={{ flex: 1, backgroundColor: c.page }}>
       <View style={{ flex: 1, padding: space.lg, justifyContent: 'space-between' }}>
         <View>
+          {farewell ? (
+            <Card testID="account-deleted" style={{ marginBottom: space.lg }}>
+              <Text variant="body" accessibilityLiveRegion="polite">{farewell}</Text>
+            </Card>
+          ) : null}
           <View style={{
             width: 52, height: 52, borderRadius: 17, backgroundColor: c.accent,
             alignItems: 'center', justifyContent: 'center',
@@ -51,7 +70,17 @@ export default function Welcome() {
           <Button title="Create account" onPress={() => router.push('/register')} />
           <Button title="I already have one" kind="ghost" size="sm" onPress={() => router.push('/login')} />
           <Text variant="caption" tone="ink3" style={{ textAlign: 'center', marginTop: 4 }}>
-            By continuing you agree to the Terms and Privacy Policy.
+            By continuing you agree to the{' '}
+            <Text variant="caption" tone="accent" accessibilityRole="link"
+              style={{ textDecorationLine: 'underline' }} onPress={link(links.terms)}>
+              Terms
+            </Text>
+            {' '}and{' '}
+            <Text variant="caption" tone="accent" accessibilityRole="link"
+              style={{ textDecorationLine: 'underline' }} onPress={link(links.privacy)}>
+              Privacy Policy
+            </Text>
+            .
           </Text>
         </View>
       </View>

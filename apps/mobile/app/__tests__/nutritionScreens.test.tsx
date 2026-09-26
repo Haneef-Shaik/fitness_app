@@ -265,6 +265,52 @@ describe('H-05 · the portion', () => {
     // and freezes the result. Sending macros here could disagree with the food.
     expect(body.items[0]).not.toHaveProperty('calories');
   });
+
+  it('falls back to the single serving when a food has no portions', () => {
+    render(<FoodDetail />);
+    fireEvent.press(screen.getByTestId('portion-preset-0'));
+    // "1 scoop" is 40 g of 380 kcal/100 g oats → 152.
+    expect(screen.getByText('152')).toBeTruthy();
+  });
+});
+
+describe('H-05 · household portions and the source', () => {
+  const DAL = {
+    ...OATS, id: 'f2', name: 'Dal (lentil curry)', calories: 145, protein_g: 8.6,
+    carbs_g: 19.2, fat_g: 4.3, fiber_g: 7.5, sugar_g: 1.7, saturated_fat_g: 2.5, sodium_mg: 309,
+    serving_label: '1 katori (small bowl)', serving_grams: 150,
+    portions: [{ label: '1 katori (small bowl)', grams: 150 }, { label: '1 cup', grams: 240 }],
+    dataset: 'fitlog_indian', source_note: 'USDA FNDDS 2021-2023, FDC 2707427 (Dal)',
+    attribution: 'Values from USDA FoodData Central (FNDDS 2021-2023, SR Legacy; public domain).',
+  };
+
+  beforeEach(() => {
+    jest.spyOn(jest.requireMock('@/lib/query/hooks') as { useFood: () => unknown }, 'useFood')
+      .mockReturnValue(q(DAL));
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  it('offers every household measure, and a tap fills the grams', () => {
+    render(<FoodDetail />);
+    expect(screen.getByTestId('portion-preset-1')).toBeTruthy();
+
+    fireEvent.press(screen.getByLabelText('1 cup, 240 g'));
+
+    expect(screen.getByTestId('portion-grams').props.value).toBe('240');
+    // 145 kcal per 100 g → 348 for the cup. The preset is grams, not a new unit.
+    expect(screen.getByText('348')).toBeTruthy();
+  });
+
+  it('names where the numbers came from, one tap away', () => {
+    render(<FoodDetail />);
+    expect(screen.queryByTestId('food-details')).toBeNull();
+
+    fireEvent.press(screen.getByTestId('food-details-toggle'));
+
+    expect(screen.getByText(/USDA FoodData Central/)).toBeTruthy();
+    expect(screen.getByText(/FDC 2707427/)).toBeTruthy();
+    expect(screen.getByLabelText('Sodium, 309 mg')).toBeTruthy();
+  });
 });
 
 describe('H-13 · quick add', () => {

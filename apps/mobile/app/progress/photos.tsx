@@ -16,11 +16,12 @@ import { Image, View } from 'react-native';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { usePermissionGate } from '@/features/permissions/PermissionPrimer';
 import { uploadPhoto } from '@/features/nutrition/uploadPhoto';
 import {
   useCreateProgressPhoto, useDeleteProgressPhoto, useProgressPhotos,
 } from '@/lib/query/hooks';
-import { API_BASE } from '@/lib/api';
+import { resolveApiUrl } from '@/lib/api';
 import { radius, space } from '@/theme';
 
 const POSES = ['front', 'side', 'back'] as const;
@@ -31,6 +32,8 @@ export default function ProgressPhotos() {
   const remove = useDeleteProgressPhoto();
   const [pose, setPose] = useState<(typeof POSES)[number]>('front');
   const [busy, setBusy] = useState(false);
+  // L-06: the OS is asked only after FitLog has said what the camera is for.
+  const { gate, element: primer } = usePermissionGate();
   const [error, setError] = useState<string | null>(null);
 
   const add = async (launch: () => Promise<ImagePicker.ImagePickerResult>) => {
@@ -82,7 +85,7 @@ export default function ProgressPhotos() {
             style={{ flex: 1 }}
             disabled={busy}
             testID="photo-camera"
-            onPress={() => add(() => ImagePicker.launchCameraAsync({ quality: 1 }))}
+            onPress={() => { void gate('camera', () => { void add(() => ImagePicker.launchCameraAsync({ quality: 1 })); }); }}
           />
           <Button
             title="From library"
@@ -90,7 +93,7 @@ export default function ProgressPhotos() {
             style={{ flex: 1 }}
             disabled={busy}
             testID="photo-library"
-            onPress={() => add(() => ImagePicker.launchImageLibraryAsync({ quality: 1 }))}
+            onPress={() => { void gate('photos', () => { void add(() => ImagePicker.launchImageLibraryAsync({ quality: 1 })); }); }}
           />
         </View>
 
@@ -110,11 +113,16 @@ export default function ProgressPhotos() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
               {rows.map((photo) => (
                 <View key={String(photo.id)} style={{ gap: 4 }}>
-                  <Image
-                    source={{ uri: `${API_BASE}/v1/uploads/${photo.image_key}` }}
-                    accessibilityLabel={`${photo.pose}, ${photo.local_date}`}
-                    style={{ width: 96, height: 128, borderRadius: radius.btn }}
-                  />
+                  {/* The server's signed, expiring URL — never one built from
+                      the key, which nothing serves without a signature. */}
+                  {photo.image_url ? (
+                    <Image
+                      source={{ uri: resolveApiUrl(photo.image_url) }}
+                      accessibilityLabel={`${photo.pose}, ${photo.local_date}`}
+                      testID={`photo-image-${photo.id}`}
+                      style={{ width: 96, height: 128, borderRadius: radius.btn }}
+                    />
+                  ) : null}
                   <Pill kind="mute">{photo.pose}</Pill>
                   <Text variant="caption" tone="ink3">{photo.local_date}</Text>
                   <Button
@@ -130,6 +138,7 @@ export default function ProgressPhotos() {
           )}
         </DataBoundary>
       </View>
+      {primer}
     </ScreenScaffold>
   );
 }

@@ -192,3 +192,40 @@ class TestSignedUploads:
         put = await auth_client.put(signed["upload_url"], content=b"\xff\xd8" + b"x" * 5000,
                                     headers={"content-type": "image/jpeg"})
         assert put.status_code == 413, put.text
+
+
+class TestKeysAreTheShapeTheServerIssued:
+    """A key is only ever one the server made: `uploads/<you>/<32 hex>.<ext>`.
+
+    "Starts with uploads/<you>/" was the check, and `uploads/<you>/../<them>/…`
+    starts with that too. The store keeps a key inside its root, not inside the
+    owner's folder — so the check belongs where a key is accepted. Found in
+    review of K-07, whose photo deletion now deletes key by key.
+    """
+
+    @pytest.mark.parametrize("route", ["/v1/food-analysis/image", "/v1/progress-photos"])
+    async def test_a_key_that_climbs_out_of_your_folder_is_refused(
+        self, auth_client, storage, route
+    ):
+        me = _data(await auth_client.get("/v1/auth/me"))["id"]
+        victim = f"uploads/00000000-0000-0000-0000-000000000000/{'a' * 32}.jpg"
+        await storage.put(victim, b"\xff\xd8\xff\xd9", "image/jpeg")
+
+        r = await auth_client.post(route, json={
+            "image_key": f"uploads/{me}/../00000000-0000-0000-0000-000000000000/{'a' * 32}.jpg",
+        })
+        assert r.status_code in (403, 422), r.text
+        assert await storage.exists(victim)
+
+    def test_the_shape_check(self):
+        import uuid
+
+        from app.storage.signing import is_own_key, new_key
+
+        owner = uuid.uuid4()
+        assert is_own_key(new_key(owner, ".jpg"), owner)
+        assert is_own_key(new_key(owner, ".png"), owner)
+        assert not is_own_key(new_key(uuid.uuid4(), ".jpg"), owner)
+        assert not is_own_key(f"uploads/{owner}/../x/{'a' * 32}.jpg", owner)
+        assert not is_own_key(f"uploads/{owner}/{'a' * 32}.jpg/../../etc", owner)
+        assert not is_own_key(f"uploads/{owner}/notes.txt", owner)

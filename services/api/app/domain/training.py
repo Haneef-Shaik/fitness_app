@@ -33,19 +33,25 @@ class PersonalRecords:
     estimated_1rm_kg: float | None
 
 
-def set_volume_kg(s: WorkoutSet) -> float:
-    """load × reps. Completed, non-warm-up sets only (BRD §10, decision D6)."""
+def set_volume_kg(s: WorkoutSet, *, include_warmups: bool = False) -> float:
+    """load × reps. Completed sets only; warm-ups only when the user counts them
+    (BRD §10, decision D6 — excluded by default, toggled in K-04)."""
     if not s.completed:
         return 0.0
-    if s.set_type == "warmup":
+    if s.set_type == "warmup" and not include_warmups:
         return 0.0
     if s.load_kg is None or s.reps is None:
         return 0.0
     return s.load_kg * s.reps
 
 
-def total_volume_kg(sets: Iterable[WorkoutSet]) -> float:
-    return sum(set_volume_kg(s) for s in sets)
+def total_volume_kg(sets: Iterable[WorkoutSet], *, include_warmups: bool = False) -> float:
+    return sum(set_volume_kg(s, include_warmups=include_warmups) for s in sets)
+
+
+def counts_toward_volume(s: WorkoutSet, *, include_warmups: bool = False) -> bool:
+    """Whether a set is one of the sets a volume figure is made of."""
+    return s.completed and (include_warmups or s.set_type != "warmup")
 
 
 def weighted_volume_kg(

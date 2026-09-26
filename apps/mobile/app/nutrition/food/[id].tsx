@@ -19,6 +19,7 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { grams, kcal } from '@/features/nutrition/format';
 import { useCategoryOptions } from '@/features/nutrition/useCategoryOptions';
+import { PortionPresets, SourceDetails } from '@/features/nutrition/FoodDetails';
 import { FilterChips } from '@/ui/FilterChips';
 import { useFood, useLogMeal } from '@/lib/query/hooks';
 import { radius, space, useTheme } from '@/theme';
@@ -88,15 +89,9 @@ export default function FoodDetail() {
                   color: c.ink, backgroundColor: c.sunken,
                 }}
               />
-              {f.serving_label && f.serving_grams ? (
-                <Button
-                  title={`${f.serving_label} — ${grams(f.serving_grams)}`}
-                  kind="ghost"
-                  size="sm"
-                  style={{ marginTop: space.sm }}
-                  onPress={() => setAmount(String(f.serving_grams))}
-                />
-              ) : null}
+              {/* Household measures — "1 katori", "1 large egg" — each a
+                  shortcut to grams, never a second unit (see FoodDetails). */}
+              <PortionPresets food={f} onPick={(g) => setAmount(String(g))} />
             </View>
 
             <Card testID="portion-preview">
@@ -121,6 +116,8 @@ export default function FoodDetail() {
                 testID="meal-type"
               />
             </View>
+
+            <SourceDetails food={f} />
 
             <Button
               title={log.isPending ? 'Adding…' : 'Add to diary'}

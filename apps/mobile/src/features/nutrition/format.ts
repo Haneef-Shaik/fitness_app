@@ -71,3 +71,19 @@ export function mealTypeLabel(
 export function count(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`;
 }
+
+/**
+ * K-08's "resets in 5 h 12 min", to the AI quota's `resets_at`.
+ *
+ * A countdown, not a clock time: the reset is the PROFILE's midnight (I7) and
+ * the phone may be in another zone, where a clock time would be wrong and a
+ * countdown is not. Null when it has passed or is more than a day away — the
+ * server's clock and this one disagree, and a wrong number is worse than none.
+ */
+export function untilReset(resetsAt: string, now: Date = new Date()): string | null {
+  const ms = new Date(resetsAt).getTime() - now.getTime();
+  if (!Number.isFinite(ms) || ms <= 0 || ms > 24 * 3_600_000) return null;
+  const minutes = Math.ceil(ms / 60_000);
+  const hours = Math.floor(minutes / 60);
+  return hours > 0 ? `in ${hours} h ${minutes % 60} min` : `in ${minutes} min`;
+}

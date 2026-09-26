@@ -12,7 +12,7 @@
  * app could not be relaunched with the server unreachable without being ejected
  * to the login screen.
  */
-import { api } from '../api';
+import { api, onSessionRevoked } from '../api';
 
 const mockTokens = { value: null as string | null };
 jest.mock('../storage', () => ({
@@ -78,5 +78,43 @@ describe('a refresh that works', () => {
     await expect(api.tryRefresh()).resolves.toBe(true);
 
     expect(mockTokens.value).toBe('rotated');
+  });
+});
+
+describe('L-05 · the app hears when a session ends', () => {
+  afterEach(() => onSessionRevoked(null));
+
+  it('is told once the server rejects the refresh', async () => {
+    const heard = jest.fn();
+    onSessionRevoked(heard);
+    global.fetch = jest.fn(async () =>
+      asResponse(401, { success: false, error: { code: 'INVALID_TOKEN' } })) as never;
+
+    await api.tryRefresh();
+
+    expect(heard).toHaveBeenCalledTimes(1);
+  });
+
+  it('is not told when the phone is merely offline', async () => {
+    const heard = jest.fn();
+    onSessionRevoked(heard);
+    global.fetch = jest.fn(async () => { throw new TypeError('Network request failed'); }) as never;
+
+    await api.tryRefresh();
+
+    expect(heard).not.toHaveBeenCalled();
+  });
+});
+
+describe('the last refused request is remembered for a problem report', () => {
+  it('keeps its request id, and only the id', async () => {
+    const { lastFailedRequestId } = jest.requireActual('../api') as typeof import('../api');
+    global.fetch = jest.fn(async () => asResponse(422, {
+      success: false, error: { code: 'VALIDATION_FAILED', message: 'no', request_id: 'req_x1' },
+    })) as never;
+
+    await expect(api.post('/meals', { secret: 'my dinner' })).rejects.toThrow('no');
+
+    expect(lastFailedRequestId()).toBe('req_x1');
   });
 });

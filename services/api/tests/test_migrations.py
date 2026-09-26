@@ -51,7 +51,9 @@ async def test_downgrade_then_upgrade_round_trips():
     """
     base = get_settings().test_database_url
     admin_url = base.rsplit("/", 1)[0] + "/postgres"
-    scratch_name = "fitlog_test_migrations"
+    # Named after the test database, so two suites pointed at two test
+    # databases on one server do not drop each other's scratch copy mid-run.
+    scratch_name = base.rsplit("/", 1)[1].split("?")[0] + "_migrations"
     scratch_url = base.rsplit("/", 1)[0] + f"/{scratch_name}"
 
     admin = create_async_engine(admin_url, isolation_level="AUTOCOMMIT")

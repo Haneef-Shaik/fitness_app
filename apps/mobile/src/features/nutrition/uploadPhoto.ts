@@ -13,7 +13,9 @@
  * modified client simply does not run this file, and a photo of someone's
  * kitchen carries the coordinates of their home.
  */
-import * as FileSystem from 'expo-file-system';
+// `/legacy`: since SDK 54 the package root is the new File API, and
+// getInfoAsync/uploadAsync imported from it throw at runtime.
+import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { API_BASE, getAccessToken } from '@/lib/api';
 import { analysisApi } from '@/lib/api-analysis';
@@ -34,7 +36,9 @@ export async function preparePhoto(uri: string): Promise<PreparedPhoto> {
     { compress: JPEG_QUALITY, format: ImageManipulator.SaveFormat.JPEG },
   );
 
-  const info = await FileSystem.getInfoAsync(result.uri, { size: true });
+  // The legacy API dropped the `size` option: a file:// URI (which the
+  // manipulator always returns) always reports its size.
+  const info = await FileSystem.getInfoAsync(result.uri);
   return {
     uri: result.uri,
     byteSize: info.exists && 'size' in info ? info.size : 0,

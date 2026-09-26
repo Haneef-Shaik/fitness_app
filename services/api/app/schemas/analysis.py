@@ -105,4 +105,26 @@ class QuotaOut(BaseModel):
     used: int
     limit: int
     remaining: int
+    #: The user's next local midnight (I7), with its UTC offset.
     resets_at: datetime
+
+
+class AnalysisSettingsOut(BaseModel):
+    """K-08 · what a person is told about the AI before they use it (launch).
+
+    Read from configuration, so the disclosure is where photos actually go —
+    not a sentence in the app that drifts when the provider changes.
+    """
+
+    #: "anthropic", or "stub" when no provider is configured.
+    provider: str
+    #: How K-08 names the provider to a person.
+    provider_name: str
+    #: The model that analyses photos and descriptions.
+    model: str
+    #: Whether a submitted photo or description leaves our servers. False only
+    #: for the development stub.
+    sends_to_provider: bool
+    #: Items below this confidence start unticked on H-08 (N04.3).
+    low_confidence_threshold: float
+    quota: QuotaOut

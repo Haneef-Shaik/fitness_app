@@ -66,3 +66,16 @@ To check that the containment actually holds, rather than trusting that it does:
 It starts both processes with the AI endpoint pointed at a closed port, then logs a whole workout
 over HTTP and reads history, analytics and the nutrition diary. Everything works; the analysis
 fails with `ai_unavailable` and nothing else notices.
+
+### Hosted
+
+The same two processes ship as **one Docker image** (`services/api/Dockerfile`): the default
+command is the API, `python -m app.worker` is the worker. Postgres and photo storage are Supabase;
+`scripts/migrate.sh` is the release step; `.github/workflows/deploy.yml` builds, migrates and
+deploys staging, then production behind a reviewer. Every setting, and every click, is in the
+runbook: **[docs/12-DEPLOYMENT.md](docs/12-DEPLOYMENT.md)**.
+
+```bash
+docker build -t fitlog-api services/api
+docker run -p 8000:8000 -e DATABASE_URL=postgresql+asyncpg://fitlog:fitlog@host.docker.internal:5432/fitlog fitlog-api
+```

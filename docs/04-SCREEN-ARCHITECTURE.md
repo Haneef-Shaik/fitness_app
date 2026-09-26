@@ -346,8 +346,9 @@ PUBLIC
   /welcome                             A-02
   /login                               A-04
   /register                            A-03
-  /reset-password                      A-05  (+ ?token= for the reset step)
-  /verify-email                        A-06
+  /forgot-password                     A-05  request step (?email= carried from A-04)
+  /reset-password                      A-05  reset step (?token= from the emailed link, or a pasted code)
+  /verify-email                        A-06  (?token= from the emailed link; also finishes a K-02 email change)
 
 ONBOARDING (authenticated, profile incomplete)
   /onboarding/[step]                   A-07  step ∈ basics|units|activity|goal|targets|schedule
@@ -413,7 +414,7 @@ APP SHELL (authenticated)
   /progress/goals/[goalId]/edit        J-02
 
   /settings                            K-01
-  /settings/account                    K-02
+  /settings/security                   K-02  (built at this path; was /settings/account)
   /settings/units                      K-03
   /settings/logging                    K-04
   /settings/dashboard                  K-05 → B-02

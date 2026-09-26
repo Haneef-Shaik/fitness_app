@@ -7,7 +7,7 @@
  * the URL is signed for. Signing for the original and uploading the resized one
  * would work, and would mean the limit protects nothing.
  */
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { JPEG_QUALITY, MAX_EDGE, preparePhoto, uploadPhoto } from '../uploadPhoto';
 import { analysisApi } from '@/lib/api-analysis';
@@ -17,7 +17,7 @@ jest.mock('expo-image-manipulator', () => ({
   SaveFormat: { JPEG: 'jpeg' },
 }));
 
-jest.mock('expo-file-system', () => ({
+jest.mock('expo-file-system/legacy', () => ({
   getInfoAsync: jest.fn(() => Promise.resolve({ exists: true, size: 123456 })),
   uploadAsync: jest.fn(() => Promise.resolve({ status: 200, body: '' })),
   FileSystemUploadType: { BINARY_CONTENT: 'binary' },
@@ -60,7 +60,7 @@ describe('preparing', () => {
     // signature must cover.
     expect(prepared.uri).toBe('file:///small.jpg');
     expect(prepared.byteSize).toBe(123456);
-    expect(FileSystem.getInfoAsync).toHaveBeenCalledWith('file:///small.jpg', { size: true });
+    expect(FileSystem.getInfoAsync).toHaveBeenCalledWith('file:///small.jpg');
   });
 });
 

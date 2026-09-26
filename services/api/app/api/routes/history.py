@@ -19,7 +19,12 @@ from app.api.deps import CurrentUser, DbSession
 from app.api.envelope import ok
 from app.core.errors import NotFound, ValidationFailed
 from app.domain.muscles import muscle_subtree_ids
-from app.domain.training import estimated_1rm_kg, evaluate_records, total_volume_kg
+from app.domain.training import (
+    counts_toward_volume,
+    estimated_1rm_kg,
+    evaluate_records,
+    total_volume_kg,
+)
 from app.models import (
     Exercise,
     ExerciseMuscle,
@@ -40,6 +45,7 @@ from app.schemas.history import (
     HistoryItemOut,
     PreviousOccurrenceOut,
 )
+from app.services.volume import warmups_counted
 
 router = APIRouter(tags=["history"])
 
@@ -289,6 +295,7 @@ async def compare_sessions(
     G-02 to agree — which they can only do while there is one definition.
     """
     ids = _parse_session_ids(sessions)
+    warmups = await warmups_counted(db, user.id)
 
     rows = (await db.scalars(
         select(WorkoutSession)
@@ -316,7 +323,7 @@ async def compare_sessions(
             # Through the adapter: `load_kg` is Numeric, so the raw ORM rows
             # carry Decimal and the domain sums in float.
             sets = [domain_set(s) for s in se.sets]
-            ex_volume = total_volume_kg(sets)
+            ex_volume = total_volume_kg(sets, include_warmups=warmups)
             records = evaluate_records(sets)
             # The heaviest PR-eligible set, which is what F-06 labels "best set".
             best = max(
@@ -325,7 +332,7 @@ async def compare_sessions(
                 key=lambda s: (s.load_kg, s.reps or 0),
                 default=None,
             )
-            working = [s for s in sets if s.completed and s.set_type != "warmup"]
+            working = [s for s in sets if counts_toward_volume(s, include_warmups=warmups)]
             counted += len(working)
             volume += ex_volume
             grid.setdefault(se.exercise_id, {})[session.id] = ComparisonCellOut(

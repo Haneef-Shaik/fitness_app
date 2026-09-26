@@ -1,0 +1,193 @@
+<p class="draft" role="note">DRAFT — must be reviewed by the owner/legal counsel before publishing.
+Every [OWNER: …] marker below is a decision that has not been made yet.</p>
+
+<h1>Privacy Policy</h1>
+<p><strong>Effective date:</strong> [OWNER: date of publication]<br>
+<strong>Who we are:</strong> FitLog is operated by [OWNER: legal name of the operator, registered
+address, and company number if any] ("we", "us"). We are the controller of the personal data
+described here.<br>
+<strong>Contact:</strong> {{support_email}}</p>
+
+<div class="card">
+<h2>The short version</h2>
+<ul>
+<li>FitLog keeps what you log — workouts, meals, body measurements, goals and photos — so it can
+show you how they change. That is the only thing we use it for.</li>
+<li>We do not sell your data, show you ads, or use your data to train AI models.</li>
+<li>Food photos and meal descriptions are sent to our AI provider, Anthropic, <em>only</em> when you
+ask for an analysis. The result is an estimate that you review before anything is saved.</li>
+<li>You can download everything, delete your photos, or delete your whole account at any time —
+in the app, or on the web at <a href="{{delete_url}}">{{delete_url}}</a>. Deletion is immediate and
+permanent.</li>
+<li>FitLog is for people aged 16 and over. It is not a medical service.</li>
+</ul>
+</div>
+
+<h2>1. What we collect</h2>
+<h3>Your account</h3>
+<ul>
+<li>Your email address and the date you joined.</li>
+<li>Your password — stored only as a one-way hash (Argon2). We never see or store the password
+itself.</li>
+<li>Sign-in sessions on your devices, stored as hashes so a leaked database cannot be used to sign
+in as you.</li>
+</ul>
+<h3>Your profile</h3>
+<ul>
+<li>Display name, <strong>birth date, sex and height</strong>, activity level, training experience,
+days per week and session length you train, the equipment you have, your units, time zone and week
+start, your calorie and macro targets (and the history of past targets), and how often you want
+check-ins.</li>
+<li>We use your birth date, sex, height and activity level to estimate an energy target when you ask
+for one, and your birth date to confirm you are 16 or over.</li>
+</ul>
+<h3>What you log</h3>
+<ul>
+<li><strong>Workouts:</strong> programs, planned days, exercises (including any you create), workout
+sessions, sets (weight, repetitions, effort ratings), notes and personal records.</li>
+<li><strong>Nutrition:</strong> meals, the foods and amounts in them, foods and recipes you create,
+and your meal categories.</li>
+<li><strong>Body metrics:</strong> body weight, measurements and any notes you add.</li>
+<li><strong>Progress photos</strong> you take or choose in the app.</li>
+<li><strong>Goals</strong> you set and how they progress.</li>
+</ul>
+<h3>Food analysis</h3>
+<ul>
+<li><strong>Food photos</strong> and <strong>meal descriptions</strong> you submit for analysis, and the
+analysis itself: the foods the model identified, its estimated amounts, calories and macros, its
+confidence, the model's name and version, and whether you saved, changed or discarded the result.
+We keep that record so you can always see what the AI claimed and what you actually logged.</li>
+</ul>
+<h3>Technical data</h3>
+<ul>
+<li>The IP address a request comes from, used to limit repeated sign-in and deletion attempts and
+AI requests (see <em>Security</em>). Counters are keyed by address and expire within 24 hours.</li>
+<li>Server logs of requests: the time, the route, the response code and a request ID — the reference
+you can quote to support. Our logging rules exclude email addresses, what you typed, photos and
+tokens. [OWNER: confirm log retention, e.g. 30 days.]</li>
+<li>Crash and error reports from the app, if crash reporting is enabled: device model, operating
+system, app version and the error. [OWNER: name the crash-reporting provider, or delete this item if
+none is used.]</li>
+</ul>
+<h3>What we do not collect</h3>
+<ul>
+<li><strong>Location.</strong> The app removes location and camera metadata (EXIF) from photos before
+upload, and our server removes it again on arrival.</li>
+<li>Your contacts, advertising identifiers, or data from other apps. FitLog does not connect to
+Apple Health, Google Fit or wearables at this time.</li>
+</ul>
+
+<h2>2. Health information</h2>
+<p>Much of what you log — body measurements, progress photos, what you eat, how you train — is
+information about your health. In the UK and EU this is "special category" data. We process it
+only because you choose to enter it in order to use FitLog, and on the basis of your
+<strong>explicit consent</strong>, which you give when you create an account and enter it. You can
+withdraw consent at any time by deleting the data or your account.
+[OWNER / LEGAL: confirm the lawful basis for each jurisdiction you publish in, and whether a
+separate consent step is needed at sign-up.]</p>
+
+<h2>3. How we use it</h2>
+<ul>
+<li>To provide FitLog: store what you log, sync it between your devices, and calculate your
+history, charts, personal records and targets.</li>
+<li>To analyse food photos and descriptions when you ask (section 4).</li>
+<li>To keep the service secure: authenticate you, detect reuse of stolen sessions, and limit
+repeated attempts.</li>
+<li>To answer you when you contact support.</li>
+<li>To meet legal obligations.</li>
+</ul>
+<p>We do <strong>not</strong> sell or rent your data, use it for advertising or profiling, or use it to
+train artificial-intelligence models.</p>
+
+<h2>4. AI food analysis</h2>
+<p>When — and only when — you tap to analyse a meal photo or a written description, that photo or
+text is sent to <strong>Anthropic PBC</strong>, which provides the Claude model that identifies the
+foods and estimates their amounts. We send the photo or text and nothing else: not your name, email,
+or other logs. The result is shown to you for review; <strong>nothing is saved to your diary until
+you confirm it</strong>, and you can change or discard anything.</p>
+<p>Anthropic processes this content on our behalf as a service provider. [OWNER: confirm your
+agreement with Anthropic — its data-processing terms, how long it retains API inputs and outputs,
+and whether zero-data-retention applies — and state it here. Anthropic's commercial terms say API
+inputs are not used to train its models by default; verify that is current at publication.]</p>
+<p>AI results are <strong>estimates</strong> and are often imperfect. The confidence shown is how sure
+the model is that it recognised a food, not how accurate the calories are.</p>
+<p>There is a daily limit on analyses. You can always log meals by hand instead, and nothing is sent
+to Anthropic unless you ask for an analysis.</p>
+
+<h2>5. Who else processes your data</h2>
+<p>We use a small number of service providers ("processors"), bound by contracts to use your data
+only to provide their service to us:</p>
+<table>
+<tr><th scope="col">Provider</th><th scope="col">What for</th><th scope="col">Data</th></tr>
+<tr><td>[OWNER: hosting provider, and region]</td><td>Running the FitLog servers</td>
+<td>All data, in transit and while processed</td></tr>
+<tr><td>[OWNER: database and file-storage provider, and region]</td><td>Storing your account, logs
+and photos</td><td>All data at rest, including photos</td></tr>
+<tr><td>Anthropic PBC (United States)</td><td>AI food analysis, when you ask for it</td>
+<td>The photo or description you submitted</td></tr>
+<tr><td>[OWNER: crash-reporting provider, or remove]</td><td>Diagnosing app crashes</td>
+<td>Device, app version, error details</td></tr>
+<tr><td>[OWNER: email provider, or remove]</td><td>Sending account emails, such as password
+resets</td><td>Your email address and the message</td></tr>
+</table>
+<p>Apple and Google distribute the app and process data under their own policies when you download
+it or update it.</p>
+<p><strong>International transfers.</strong> [OWNER / LEGAL: list where each provider stores data and
+the transfer mechanism used for data leaving the UK/EEA, e.g. the UK IDTA or EU Standard
+Contractual Clauses.]</p>
+
+<h2>6. How long we keep it</h2>
+<ul>
+<li><strong>Everything you log</strong> is kept until you delete it, or until you delete your account.</li>
+<li><strong>Food photos</strong> are kept until you delete them (in the app: Profile → Data and privacy →
+Delete my uploaded photos, or Food analyses → Delete all photos) or delete your account. Deleting a
+food photo keeps the analysis record and any meal you saved from it. [OWNER: decide whether food
+photos should be deleted automatically after a period, e.g. 90 days.]</li>
+<li><strong>Analysis records</strong> are kept as your audit trail until you delete your account.</li>
+<li><strong>Rate-limit counters</strong> expire within 24 hours.</li>
+<li><strong>Server logs:</strong> [OWNER: e.g. 30 days].</li>
+<li><strong>Backups:</strong> [OWNER: e.g. deleted data may remain in encrypted backups for up to 35
+days, until they are overwritten; it is not restored except to recover from a disaster.]</li>
+</ul>
+
+<h2>7. Your choices and rights</h2>
+<ul>
+<li><strong>Download your data:</strong> Profile → Data and privacy → Download my data gives you a
+copy of everything you logged, in JSON. Photos are listed by reference; the image files themselves
+are not in the file. [OWNER: decide whether the export should include the photo files.]</li>
+<li><strong>Correct it:</strong> edit anything you logged, and your profile, in the app.</li>
+<li><strong>Delete your photos:</strong> Profile → Data and privacy → Delete my uploaded photos.</li>
+<li><strong>Delete your account:</strong> in the app, Profile → Data and privacy → Delete my account;
+or, without the app, at <a href="{{delete_url}}">{{delete_url}}</a>. Deletion is immediate and
+permanent and removes every record and every stored photo.</li>
+</ul>
+<p>Depending on where you live (for example under the UK GDPR, the EU GDPR or California law), you
+may also have the right to access, correct, restrict or object to our processing of your data, to
+data portability, and to complain to your data-protection authority — in the UK, the Information
+Commissioner's Office. Contact us at {{support_email}} to exercise any right; we will answer within
+one month. [OWNER / LEGAL: add an EU representative if you have no EU establishment and serve EU
+users; review US state laws for your audience.]</p>
+
+<h2>8. Age</h2>
+<p>FitLog is for people aged <strong>16 and over</strong>. The app will not accept a birth date under
+16, and we do not knowingly collect data from anyone younger. If you believe someone under 16 has an
+account, contact us and we will delete it.</p>
+
+<h2>9. Not medical advice</h2>
+<p>FitLog is a tracking tool, not a medical device or a health service. Its figures — AI food
+estimates, calorie and macro targets, estimated one-rep maxes — are estimates for your information,
+not medical, dietary or clinical advice.</p>
+
+<h2>10. Security</h2>
+<p>Data is encrypted in transit (HTTPS). Passwords and sign-in tokens are stored only as hashes.
+Photos are stored privately with no public address, reachable only through short-lived links issued
+to you. Repeated sign-in, deletion and AI requests are rate limited. [OWNER: confirm encryption at
+rest with your database and storage provider.] No system is perfectly secure; if a breach affects
+your data we will tell you and the regulator as the law requires.</p>
+
+<h2>11. Changes</h2>
+<p>If we change this policy we will update the effective date above and, for significant changes,
+tell you in the app before they take effect.</p>
+
+<h2>12. Contact</h2>
+<p>{{support_email}}<br>[OWNER: postal address of the operator]</p>

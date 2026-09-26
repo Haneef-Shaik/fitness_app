@@ -30,6 +30,32 @@ jest.mock('expo-router', () => ({
 jest.mock('expo-image-picker', () => ({
   launchCameraAsync: (...a: unknown[]) => mockCamera(...a),
   launchImageLibraryAsync: (...a: unknown[]) => mockLibrary(...a),
+  // L-06 asks these first; granted unless a test says otherwise.
+  getCameraPermissionsAsync: async () => mockCameraPermission,
+  requestCameraPermissionsAsync: async () => mockCameraPermission,
+  getMediaLibraryPermissionsAsync: async () => ({ granted: true, status: 'granted', canAskAgain: true }),
+  requestMediaLibraryPermissionsAsync: async () => ({ granted: true, status: 'granted', canAskAgain: true }),
+}));
+
+let mockCameraPermission: { granted: boolean; status: string; canAskAgain: boolean } =
+  { granted: true, status: 'granted', canAskAgain: true };
+
+const mockRegister = jest.fn(async () => 'registered');
+jest.mock('@/features/push/push', () => ({ registerForPush: () => mockRegister() }));
+jest.mock('@/features/permissions/primer', () => {
+  const actual = jest.requireActual('@/features/permissions/primer');
+  // Notifications granted here; the camera keeps the real check, which the
+  // picker mock above answers.
+  return {
+    ...actual,
+    checkPermission: (kind: string) => (kind === 'notifications'
+      ? Promise.resolve({ status: 'granted', canAskAgain: true })
+      : actual.checkPermission(kind)),
+  };
+});
+
+jest.mock('@/features/status/useServiceStatus', () => ({
+  useServiceStatus: () => ({ data: { maintenance: false, message: null, ai: 'ok' }, refetch: jest.fn() }),
 }));
 
 jest.mock('@/features/nutrition/uploadPhoto', () => ({
@@ -291,6 +317,22 @@ describe('H-08 · reviewing', () => {
     // The job keeps running server-side.
     expect(mockReplace).toHaveBeenCalledWith('/nutrition');
   });
+
+  it('offers to notify when a photo is ready — and says when it will', async () => {
+    mocks.analysis = q({ ...COMPLETED, status: 'processing', items: [] });
+    render(<Review />);
+
+    fireEvent.press(screen.getByTestId('analysis-notify'));
+
+    await waitFor(() => expect(screen.getByTestId('analysis-notify-on')).toBeTruthy());
+    expect(mockRegister).toHaveBeenCalled();
+  });
+
+  it('does not offer it for text, which is back before anyone leaves', () => {
+    mocks.analysis = q({ ...COMPLETED, input_type: 'text', status: 'processing', items: [] });
+    render(<Review />);
+    expect(screen.queryByTestId('analysis-notify')).toBeNull();
+  });
 });
 
 describe('H-09 · photographing', () => {
@@ -324,6 +366,30 @@ describe('H-09 · photographing', () => {
     await waitFor(() => expect(screen.getByTestId('photo-error')).toBeTruthy());
     // Still there. Nobody retakes their dinner.
     expect(screen.getByTestId('photo-remove-0')).toBeTruthy();
+  });
+
+  it('L-06 · explains the camera before the phone asks, and only then asks', async () => {
+    mockCameraPermission = { granted: false, status: 'undetermined', canAskAgain: true };
+    render(<Photo />);
+
+    fireEvent.press(screen.getByTestId('photo-camera'));
+
+    await waitFor(() => expect(screen.getByTestId('permission-continue')).toBeTruthy());
+    expect(mockCamera).not.toHaveBeenCalled();
+    mockCameraPermission = { granted: true, status: 'granted', canAskAgain: true };
+    fireEvent.press(screen.getByTestId('permission-continue'));
+    await waitFor(() => expect(mockCamera).toHaveBeenCalled());
+  });
+
+  it('L-06 · a camera the phone will not ask about again points to Settings', async () => {
+    mockCameraPermission = { granted: false, status: 'denied', canAskAgain: false };
+    render(<Photo />);
+
+    fireEvent.press(screen.getByTestId('photo-camera'));
+
+    await waitFor(() => expect(screen.getByTestId('permission-settings')).toBeTruthy());
+    expect(mockCamera).not.toHaveBeenCalled();
+    mockCameraPermission = { granted: true, status: 'granted', canAskAgain: true };
   });
 
   it('does not become a dead screen when the picker is refused', async () => {

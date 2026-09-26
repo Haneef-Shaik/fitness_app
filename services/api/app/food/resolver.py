@@ -48,6 +48,9 @@ class Candidate:
     fat_g: float | None
     serving_grams: float | None = None
     serving_label: str | None = None
+    #: Other names for the same food. The ladder needs them to tell an exact
+    #: match ("chapati" is an alias of "Roti / Chapati") from a partial one.
+    aliases: tuple[str, ...] = ()
 
 
 @runtime_checkable

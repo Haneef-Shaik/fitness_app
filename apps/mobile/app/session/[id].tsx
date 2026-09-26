@@ -13,7 +13,8 @@ import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
 import type { Exercise, PersonalRecord } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
-import { useExercises, usePreviousPerformance } from '@/lib/query/hooks';
+import { useExercises, usePreviousPerformance, useProfile } from '@/lib/query/hooks';
+import { PlateCalculatorSheet } from '@/features/workout-session/components/PlateCalculatorSheet';
 import { uuid } from '@/lib/uuid';
 import { font, radius, space, useTheme } from '@/theme';
 import { useSessionStore } from '@/features/workout-session/store/sessionStore';
@@ -24,10 +25,15 @@ import { PreviousPerformanceStrip } from '@/features/workout-session/components/
 import { DiscardDialog } from '@/features/workout-session/components/DiscardDialog';
 import { FinishSummary } from '@/features/workout-session/components/FinishSummary';
 import { ExercisePicker } from '@/features/exercises/ExercisePicker';
-import { flushAndReconcile } from '@/features/workout-session/sessionController';
+import { flushAndReconcile, unsentFor } from '@/features/workout-session/sessionController';
+import { AdvancedSetSheet } from '@/features/workout-session/components/AdvancedSetSheet';
+import { NotesSheet } from '@/features/workout-session/components/NotesSheet';
+import { ExerciseMenuSheet } from '@/features/workout-session/components/ExerciseMenuSheet';
+import { cleanNote, EMPTY_ADVANCED, type AdvancedValue } from '@/features/workout-session/advanced';
 import { summarise, type SessionSummary } from '@/features/workout-session/summary';
 import { savedAnnouncement, setRowLabel, syncWords } from '@/features/workout-session/a11y';
 import { targetFor } from '@/features/workout-session/restTimer';
+import { groupLetter, groupWithNext, membersOf, roundStep } from '@/features/workout-session/supersets';
 import { commitTimings } from '@/features/workout-session/commitTiming';
 
 /**
@@ -44,7 +50,26 @@ import { count } from '@/features/nutrition/format';
 
 const EMPTY: SetEntryValue = {
   reps: null, loadKg: null, durationSeconds: null, distanceM: null, setType: 'working',
+  rpe: null, rir: null, note: null,
 };
+
+/** A set's short badge: its number, or what kind of set it is. */
+function badge(s: DraftSet): string {
+  if (s.setType === 'warmup') return 'W';
+  if (s.setType === 'drop') return 'D';
+  if (s.setType === 'failure') return 'F';
+  return String(s.setIndex + 1);
+}
+
+/** Which sheet is open: E-06 for the next set or a committed one, or E-07. */
+type Open =
+  | { sheet: 'advanced-next' }
+  | { sheet: 'advanced-edit'; setClientId: string; setNumber: number }
+  | { sheet: 'session-notes' }
+  | { sheet: 'exercise-notes' }
+  | { sheet: 'plates' }
+  | { sheet: 'exercise-menu' }
+  | null;
 
 function SyncDot({ state }: { state: DraftSet['syncState'] }) {
   const { c } = useTheme();
@@ -68,32 +93,42 @@ function SyncDot({ state }: { state: DraftSet['syncState'] }) {
  * every child again — "Set 1, 80 kilograms for 8 reps", "1", "80 × 8",
  * "640 kg", "Synced", "Delete set 1": six swipes a set (G10 TalkBack session).
  */
-const SetRow = memo(function SetRow({ set: s, onDelete }: { set: DraftSet; onDelete: (clientId: string) => void }) {
+const SetRow = memo(function SetRow({ set: s, onDelete, onEdit, countWarmups }: {
+  set: DraftSet; onDelete: (clientId: string) => void; onEdit: (s: DraftSet) => void;
+  countWarmups: boolean;
+}) {
   const { c } = useTheme();
   return (
     <View
       style={{
         flexDirection: 'row', alignItems: 'center', gap: space.md,
         paddingVertical: space.sm, borderBottomWidth: 1, borderColor: c.line,
-        opacity: s.setType === 'warmup' ? 0.6 : 1,
+        opacity: s.setType === 'warmup' && !countWarmups ? 0.6 : 1,
       }}
     >
-      <View
-        accessible
+      <Pressable
+        onPress={() => onEdit(s)}
+        accessibilityRole="button"
         accessibilityLabel={setRowLabel(s)}
+        accessibilityHint="Opens the set to change its type, effort or note"
+        testID={`set-row-${s.setIndex}`}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.md }}
       >
         <Text variant="caption" tone="ink3" style={{ width: 22 }}>
-          {s.setType === 'warmup' ? 'W' : s.setIndex + 1}
+          {badge(s)}
         </Text>
         <Text variant="body" style={{ flex: 1, fontFamily: font.dataSemi }}>
           {s.loadKg ?? '—'} × {s.reps ?? '—'}
+          {s.rpe != null ? <Text variant="caption" tone="ink3">{`  @${s.rpe}`}</Text> : null}
+          {s.note ? <Text variant="caption" tone="ink3">{'  ✎'}</Text> : null}
         </Text>
         <Text variant="caption" tone="ink3">
-          {contribution(s) > 0 ? `${Math.round(contribution(s))} kg` : '—'}
+          {contribution(s, { includeWarmups: countWarmups }) > 0
+            ? `${Math.round(contribution(s, { includeWarmups: countWarmups }))} kg`
+            : '—'}
         </Text>
         <SyncDot state={s.syncState} />
-      </View>
+      </Pressable>
       <Pressable
         onPress={() => onDelete(s.clientId)}
         accessibilityRole="button"
@@ -113,11 +148,21 @@ export default function ActiveSession() {
   const draft = useSessionStore((s) => s.draft);
   const commitSet = useSessionStore((s) => s.commitSet);
   const deleteSet = useSessionStore((s) => s.deleteSet);
+  const editSet = useSessionStore((s) => s.editSet);
+  const setNotes = useSessionStore((s) => s.setNotes);
+  const patchExercise = useSessionStore((s) => s.patchExercise);
+  const removeExercise = useSessionStore((s) => s.removeExercise);
+  const reorderExercises = useSessionStore((s) => s.reorderExercises);
+  const swapExercise = useSessionStore((s) => s.swapExercise);
   const prefill = useSessionStore((s) => s.prefill);
   const addExercise = useSessionStore((s) => s.addExercise);
   const adopt = useSessionStore((s) => s.adopt);
 
   const catalog = useExercises({ limit: 200 });
+  // K-04. Absent while loading or offline — the logger then behaves as it always
+  // did, which is the defaults.
+  const prefs = useProfile().data;
+  const countWarmups = prefs?.warmups_in_volume ?? false;
   const finish = useFinishSession();
   const cancel = useCancelSession();
 
@@ -128,6 +173,12 @@ export default function ActiveSession() {
   const [discarding, setDiscarding] = useState(false);
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
+  // The picker either adds (the default) or swaps the exercise being replaced.
+  const [swapping, setSwapping] = useState<string | null>(null);
+  const [open, setOpen] = useState<Open>(null);
+  const [editing, setEditing] = useState<AdvancedValue>(EMPTY_ADVANCED);
+  const [finishError, setFinishError] = useState<string | null>(null);
+  const [finishing, setFinishing] = useState(false);
   const [timing, setTiming] = useState<ReturnType<typeof commitTimings.report> | null>(null);
   const [finished, setFinished] = useState<
     { records: PersonalRecord[]; summary: SessionSummary } | null
@@ -193,6 +244,8 @@ export default function ActiveSession() {
       durationSeconds: p.durationSeconds ?? null,
       distanceM: p.distanceM ?? null,
       setType: 'working',
+      // Effort and notes belong to one set; they never carry over to the next.
+      rpe: null, rir: null, note: null,
     });
     setError(null);
   }, [exercise?.clientId, exercise?.sets.length, prefill]);
@@ -237,6 +290,9 @@ export default function ActiveSession() {
       loadKg: value.loadKg,
       durationSeconds: value.durationSeconds,
       distanceM: value.distanceM,
+      rpe: value.rpe ?? null,
+      rir: value.rir ?? null,
+      note: cleanNote(value.note ?? null),
     });
 
     if (!result.ok) { setError(result.error ?? 'That set could not be saved.'); return; }
@@ -252,20 +308,65 @@ export default function ActiveSession() {
     AccessibilityInfo.announceForAccessibility(savedAnnouncement(exercise.sets.length + 1, value));
     if (SHOW_TIMING) setTimeout(() => setTiming(commitTimings.report()), 0);
 
-    const restSeconds = Number(exercise.targetSnapshot?.['rest_seconds'] ?? 0);
-    if (restSeconds > 0) setRest({ target: targetFor(new Date(), restSeconds), total: restSeconds });
+    // E-13: inside a superset, the next set is the partner's, and the rest
+    // waits for the end of the round.
+    const step = roundStep(draft, activeIdx);
+    if (step.next !== activeIdx) setActiveIdx(step.next);
+
+    // The plan's rest first; K-04's default when the plan gives none.
+    const restSeconds = Number(exercise.targetSnapshot?.['rest_seconds'] ?? 0)
+      || (prefs?.default_rest_seconds ?? 0);
+    if (step.restNow && restSeconds > 0) {
+      setRest({ target: targetFor(new Date(), restSeconds), total: restSeconds });
+    }
 
     void flushAndReconcile();
   };
 
   const doFinish = async () => {
-    if (!draft) return;
-    // Snapshot the numbers BEFORE finishing: `finish` clears the draft, and
-    // summarising afterwards reads whatever is left, which showed 3 sets for a
-    // 6-set workout. E-08 is meant to be instant, not merely fast.
-    const snapshot = summarise(draft, new Date());
-    const result = await finish(id);
-    setFinished({ records: (result.records ?? []) as PersonalRecord[], summary: snapshot });
+    if (!draft || finishing) return;
+    setFinishing(true);
+    setFinishError(null);
+    try {
+      // The server refuses sets for a finished workout, so every queued change
+      // has to land first — otherwise the last sets are lost to "That workout
+      // is finished". Offline, finishing waits; the workout stays open and safe.
+      const waiting = await unsentFor(draft.sessionId);
+      if (waiting > 0) {
+        setFinishError(
+          `${count(waiting, 'change')} still waiting to upload. Finish once you're back online — `
+          + 'everything is saved on this phone.',
+        );
+        return;
+      }
+      // Snapshot the numbers BEFORE finishing: `finish` clears the draft, and
+      // summarising afterwards reads whatever is left, which showed 3 sets for a
+      // 6-set workout. E-08 is meant to be instant, not merely fast.
+      const snapshot = summarise(draft, new Date(), { includeWarmups: countWarmups });
+      const result = await finish(id);
+      setFinished({ records: (result.records ?? []) as PersonalRecord[], summary: snapshot });
+    } catch (e) {
+      setFinishError(e instanceof Error && e.message ? e.message : "The workout couldn't be finished. Try again.");
+    } finally {
+      setFinishing(false);
+    }
+  };
+
+  const openEdit = (s: DraftSet) => {
+    setEditing({ setType: s.setType, rpe: s.rpe, rir: s.rir, note: s.note ?? null });
+    setOpen({ sheet: 'advanced-edit', setClientId: s.clientId, setNumber: s.setIndex + 1 });
+  };
+
+  const closeAdvanced = () => {
+    if (open?.sheet === 'advanced-edit') {
+      const s = exercise?.sets.find((x) => x.clientId === open.setClientId);
+      const note = cleanNote(editing.note);
+      if (s && (s.setType !== editing.setType || s.rpe !== editing.rpe
+        || s.rir !== editing.rir || (s.note ?? null) !== note)) {
+        editSet(s.clientId, { setType: editing.setType, rpe: editing.rpe, rir: editing.rir, note });
+      }
+    }
+    setOpen(null);
   };
 
   return (
@@ -285,6 +386,15 @@ export default function ActiveSession() {
               : 'No exercises yet'}
           </Text>
         </View>
+        <Pressable
+          onPress={() => setOpen({ sheet: 'session-notes' })}
+          accessibilityRole="button"
+          accessibilityLabel={draft.notes ? 'Workout notes, has a note' : 'Workout notes'}
+          hitSlop={10}
+          testID="session-notes"
+        >
+          <Text variant="caption" tone={draft.notes ? 'accent' : 'ink2'}>Notes</Text>
+        </Pressable>
         <Pressable
           onPress={() => setDiscarding(true)}
           accessibilityRole="button"
@@ -337,12 +447,33 @@ export default function ActiveSession() {
                     }}
                   >
                     <Text variant="caption" style={{ color: i === activeIdx ? c.accentInk : c.ink2 }}>
-                      {e.exerciseName ?? 'Exercise'} · {e.sets.length}
+                      {groupLetter(draft, i) ? `${groupLetter(draft, i)} · ` : ''}{e.exerciseName ?? 'Exercise'} · {e.sets.length}
                     </Text>
                   </Pressable>
                 ))}
               </View>
             </ScrollView>
+
+            {exercise ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+                {exercise.skipped ? <Pill>Skipped</Pill> : null}
+                {groupLetter(draft, activeIdx) ? (
+                  <Pill kind="accent">
+                    {`Superset ${groupLetter(draft, activeIdx)} · ${membersOf(draft, activeIdx).indexOf(activeIdx) + 1} of ${membersOf(draft, activeIdx).length}`}
+                  </Pill>
+                ) : null}
+                <View style={{ flex: 1 }} />
+                <Pressable
+                  onPress={() => setOpen({ sheet: 'exercise-menu' })}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Options for ${exercise.exerciseName ?? 'this exercise'}`}
+                  hitSlop={10}
+                  testID="exercise-options"
+                >
+                  <Text variant="caption" tone="ink2">Options ⋯</Text>
+                </Pressable>
+              </View>
+            ) : null}
 
             {/* ① Previous performance — always on screen, never behind a tap. */}
             <PreviousPerformanceStrip
@@ -367,7 +498,10 @@ export default function ActiveSession() {
               <View accessibilityRole="list" testID="today-sets">
                 <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Today</Text>
                 {exercise.sets.map((s) => (
-                  <SetRow key={s.clientId} set={s} onDelete={deleteSet} />
+                  <SetRow
+                    key={s.clientId} set={s} onDelete={deleteSet} onEdit={openEdit}
+                    countWarmups={countWarmups}
+                  />
                 ))}
                 {exercise.sets.some((s) => s.syncState === 'failed') ? (
                   <Text variant="caption" tone="crit" style={{ marginTop: space.sm }} testID="sync-failed">
@@ -386,9 +520,29 @@ export default function ActiveSession() {
                 value={value}
                 onChange={setValue}
                 onCommit={commit}
+                onMore={() => setOpen({ sheet: 'advanced-next' })}
+                onPlates={() => setOpen({ sheet: 'plates' })}
+                showRpe={prefs?.show_rpe ?? false}
+                showRir={prefs?.show_rir ?? false}
+                loadStep={prefs?.load_step_kg ?? 2.5}
                 error={error}
                 commitLabel={`Save set ${exercise.sets.filter((s) => s.setType !== 'warmup').length + 1}`}
               />
+            ) : null}
+
+            {exercise ? (
+              <Pressable
+                onPress={() => setOpen({ sheet: 'exercise-notes' })}
+                accessibilityRole="button"
+                accessibilityLabel={exercise.notes
+                  ? `Notes for ${exercise.exerciseName ?? 'this exercise'}: ${exercise.notes}`
+                  : `Add a note for ${exercise.exerciseName ?? 'this exercise'}`}
+                testID="exercise-notes"
+              >
+                <Text variant="caption" tone="ink3" numberOfLines={2}>
+                  {exercise.notes ? `✎ ${exercise.notes}` : '✎ Add a note for this exercise'}
+                </Text>
+              </Pressable>
             ) : null}
           </>
         )}
@@ -399,7 +553,10 @@ export default function ActiveSession() {
           onPress={() => { setPicked([]); setPicking(true); }}
         />
 
-        <Button title="Finish workout" onPress={doFinish} testID="finish-workout" />
+        {finishError ? (
+          <Text variant="caption" tone="crit" testID="finish-error">{finishError}</Text>
+        ) : null}
+        <Button title="Finish workout" onPress={doFinish} loading={finishing} testID="finish-workout" />
 
         {SHOW_TIMING && timing ? (
           // H4.3 is a number someone has to write down, so it has to be readable
@@ -421,14 +578,15 @@ export default function ActiveSession() {
 
       <ExercisePicker
         visible={picking}
-        onClose={() => setPicking(false)}
+        onClose={() => { setPicking(false); setSwapping(null); }}
+        max={swapping ? 1 : undefined}
         selected={picked}
         onChange={setPicked}
         alreadyPresent={draft.exercises.map((e) => e.exerciseId)}
         onCommit={(ids) => {
-          for (const exerciseId of ids) {
+          const toNew = (exerciseId: string) => {
             const cat = byId.get(exerciseId);
-            addExercise({
+            return {
               clientId: uuid(),
               exerciseId,
               exerciseName: cat?.name ?? null,
@@ -436,9 +594,103 @@ export default function ActiveSession() {
                 load: cat?.tracks_load ?? true, reps: cat?.tracks_reps ?? true,
                 duration: cat?.tracks_duration ?? false, distance: cat?.tracks_distance ?? false,
               },
-            });
+            };
+          };
+          if (swapping && ids[0]) {
+            swapExercise(swapping, toNew(ids[0]));
+          } else {
+            for (const exerciseId of ids) addExercise(toNew(exerciseId));
           }
+          setSwapping(null);
           setPicking(false);
+        }}
+      />
+
+      <AdvancedSetSheet
+        visible={open?.sheet === 'advanced-next' || open?.sheet === 'advanced-edit'}
+        title={open?.sheet === 'advanced-edit'
+          ? `Set ${open.setNumber} · ${exercise?.exerciseName ?? 'Exercise'}`
+          : `Next set · ${exercise?.exerciseName ?? 'Exercise'}`}
+        value={open?.sheet === 'advanced-edit' ? editing : {
+          setType: value.setType, rpe: value.rpe ?? null, rir: value.rir ?? null, note: value.note ?? null,
+        }}
+        onChange={(next) => {
+          if (open?.sheet === 'advanced-edit') setEditing(next);
+          else setValue((v) => ({ ...v, ...next }));
+        }}
+        onDone={closeAdvanced}
+        onDelete={open?.sheet === 'advanced-edit'
+          ? () => { deleteSet(open.setClientId); setOpen(null); }
+          : undefined}
+      />
+
+      <PlateCalculatorSheet
+        visible={open?.sheet === 'plates'}
+        loadKg={value.loadKg}
+        imperial={prefs?.preferred_unit_system === 'imperial'}
+        barKg={prefs?.bar_weight_kg}
+        platesKg={prefs?.plate_inventory_kg}
+        onUse={(loadKg) => { setValue((v) => ({ ...v, loadKg })); setOpen(null); }}
+        onClose={() => setOpen(null)}
+      />
+
+      {exercise ? (
+        <ExerciseMenuSheet
+          visible={open?.sheet === 'exercise-menu'}
+          name={exercise.exerciseName ?? 'Exercise'}
+          setCount={exercise.sets.length}
+          skipped={exercise.skipped}
+          canMoveEarlier={activeIdx > 0}
+          canMoveLater={activeIdx < draft.exercises.length - 1}
+          onMove={(d) => {
+            const ids = draft.exercises.map((e) => e.clientId);
+            const j = activeIdx + d;
+            [ids[activeIdx], ids[j]] = [ids[j]!, ids[activeIdx]!];
+            reorderExercises(ids);
+            setActiveIdx(j);
+          }}
+          onToggleSkip={() => { patchExercise(exercise.clientId, { skipped: !exercise.skipped }); setOpen(null); }}
+          inSuperset={exercise.supersetGroup != null}
+          canSupersetWithNext={activeIdx < draft.exercises.length - 1}
+          onSuperset={() => {
+            if (exercise.supersetGroup != null) {
+              patchExercise(exercise.clientId, { supersetGroup: null });
+            } else {
+              const group = groupWithNext(draft, activeIdx);
+              const partner = draft.exercises[activeIdx + 1];
+              if (group !== null && partner) {
+                patchExercise(exercise.clientId, { supersetGroup: group });
+                if (partner.supersetGroup !== group) patchExercise(partner.clientId, { supersetGroup: group });
+              }
+            }
+            setOpen(null);
+          }}
+          onSwap={() => { setOpen(null); setSwapping(exercise.clientId); setPicked([]); setPicking(true); }}
+          onRemove={() => {
+            removeExercise(exercise.clientId);
+            setActiveIdx((i) => Math.max(0, Math.min(i, draft.exercises.length - 2)));
+            setOpen(null);
+          }}
+          onNotes={() => setOpen({ sheet: 'exercise-notes' })}
+          onHistory={() => { setOpen(null); router.push(`/train/exercises/${exercise.exerciseId}`); }}
+          onClose={() => setOpen(null)}
+        />
+      ) : null}
+
+      <NotesSheet
+        visible={open?.sheet === 'session-notes' || open?.sheet === 'exercise-notes'}
+        title={open?.sheet === 'exercise-notes'
+          ? `Notes · ${exercise?.exerciseName ?? 'Exercise'}`
+          : 'Workout notes'}
+        initial={open?.sheet === 'exercise-notes' ? exercise?.notes ?? null : draft.notes}
+        showTags={open?.sheet !== 'exercise-notes'}
+        onDone={(note) => {
+          if (open?.sheet === 'exercise-notes' && exercise) {
+            if (note !== exercise.notes) patchExercise(exercise.clientId, { notes: note });
+          } else if (note !== draft.notes) {
+            setNotes(note);
+          }
+          setOpen(null);
         }}
       />
 

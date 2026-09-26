@@ -19,6 +19,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image, View } from 'react-native';
 import { Button, Card, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { AiDegradedNotice } from '@/features/status/ServiceNotices';
+import { usePermissionGate } from '@/features/permissions/PermissionPrimer';
 import { uploadPhoto } from '@/features/nutrition/uploadPhoto';
 import { useAnalyseImage, useAnalysisQuota } from '@/lib/query/hooks';
 import { radius, space } from '@/theme';
@@ -28,6 +30,8 @@ export const MAX_PHOTOS = 4;
 export default function Photo() {
   const [uris, setUris] = useState<readonly string[]>([]);
   const [busy, setBusy] = useState(false);
+  // L-06: the OS is asked only after FitLog has said what the camera is for.
+  const { gate, element: primer } = usePermissionGate();
   const [error, setError] = useState<string | null>(null);
   const submit = useAnalyseImage();
   const quota = useAnalysisQuota();
@@ -51,6 +55,7 @@ export default function Photo() {
   return (
     <ScreenScaffold title="Photograph your meal">
       <View style={{ gap: space.lg }}>
+        <AiDegradedNotice />
         {exhausted ? (
           <Card>
             {/* Stated on entry, before a photo is taken (02 §5.4). */}
@@ -82,7 +87,7 @@ export default function Photo() {
             style={{ flex: 1 }}
             disabled={full || exhausted}
             testID="photo-camera"
-            onPress={() => add(() => ImagePicker.launchCameraAsync({ quality: 1 }))}
+            onPress={() => { void gate('camera', () => { void add(() => ImagePicker.launchCameraAsync({ quality: 1 })); }); }}
           />
           <Button
             title="From library"
@@ -90,9 +95,9 @@ export default function Photo() {
             style={{ flex: 1 }}
             disabled={full || exhausted}
             testID="photo-library"
-            onPress={() => add(() => ImagePicker.launchImageLibraryAsync({
+            onPress={() => { void gate('photos', () => { void add(() => ImagePicker.launchImageLibraryAsync({
               quality: 1, allowsMultipleSelection: true, selectionLimit: MAX_PHOTOS,
-            }))}
+            })); }); }}
           />
         </View>
 
@@ -158,6 +163,7 @@ export default function Photo() {
           }}
         />
       </View>
+      {primer}
     </ScreenScaffold>
   );
 }

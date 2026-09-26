@@ -6,11 +6,6 @@
     "orientation": "default",
     "scheme": "fitlog",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#0E0F11",
-      "resizeMode": "contain"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.fitlog.app"
@@ -33,10 +28,21 @@
         "expo-image-picker",
         {
           "photosPermission": "FitLog uses your photos to estimate what is in a meal you have already eaten.",
-          "cameraPermission": "FitLog uses the camera to photograph a meal so it can estimate the nutrition."
+          "cameraPermission": "FitLog uses the camera to photograph a meal so it can estimate the nutrition.",
+          "microphonePermission": false
         }
       ],
-      "./plugins/withReleaseSigning"
+      "./plugins/withReleaseSigning",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0E0F11",
+          "resizeMode": "contain"
+        }
+      ],
+      "expo-status-bar",
+      "@sentry/react-native/expo"
     ],
     "experiments": {
       "typedRoutes": true

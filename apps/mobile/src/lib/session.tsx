@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { auth, profileApi, setAccessToken, type Profile } from './api';
+import {
+  auth, onSessionRevoked, profileApi, setAccessToken, type Me, type Profile, type TokenPair,
+} from './api';
 import {
   clearAccountId, clearRefreshToken, getAccountId, getRefreshToken, setAccountId, setRefreshToken,
 } from './storage';
@@ -10,11 +12,23 @@ type Status = 'loading' | 'signed-out' | 'onboarding' | 'ready';
 interface SessionValue {
   status: Status;
   email: string | null;
+  /** A-06. `null` until the server has said — never shown as unverified on a guess. */
+  emailVerified: boolean | null;
+  /** K-02. The address an email change is waiting on, until its link is opened. */
+  pendingEmail: string | null;
   profile: Profile | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  /** L-05 — the server ended the session while a screen was open. */
+  expired: boolean;
+  /** Signs the same account back in, leaving whatever screen is open in place. */
+  reauthenticate: (password: string) => Promise<void>;
+  /** Re-reads the account (email, verification) after A-06 or a K-02 change. */
+  refreshAccount: () => Promise<void>;
+  /** K-02: a password change hands this device a fresh pair; keep it signed in. */
+  adoptTokens: (pair: TokenPair) => Promise<void>;
 }
 
 const Ctx = createContext<SessionValue>(null as never);
@@ -31,16 +45,25 @@ export function SessionProvider({ children, onIdentityChange }: {
 }) {
   const [status, setStatus] = useState<Status>('loading');
   const [email, setEmail] = useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [expired, setExpired] = useState(false);
   const identity = React.useRef(onIdentityChange);
   identity.current = onIdentityChange;
   const announce = useCallback((id: string | null) => { identity.current?.(id); }, []);
+
+  const showAccount = useCallback((me: Me) => {
+    setEmail(me.email);
+    setEmailVerified(me.email_verified ?? null);
+    setPendingEmail(me.pending_email ?? null);
+  }, []);
 
   const load = useCallback(async () => {
     const me = await auth.me();
     await setAccountId(me.id);
     announce(me.id);
-    setEmail(me.email);
+    showAccount(me);
     const p = await profileApi.get();
     setProfile(p);
     setStatus(p.onboarding_completed ? 'ready' : 'onboarding');
@@ -78,11 +101,22 @@ export function SessionProvider({ children, onIdentityChange }: {
         // showing whose account it was. Clear the identity with the status.
         announce(null);
         setEmail(null);
+        setEmailVerified(null);
+        setPendingEmail(null);
         setProfile(null);
         setStatus('signed-out');
       }
     })();
   }, [load, announce]);
+
+  // L-05. Only a session that was in use can expire; at cold start a rejected
+  // refresh is simply "signed out", which the effect above already decides.
+  const live = React.useRef(false);
+  live.current = status === 'ready' || status === 'onboarding';
+  useEffect(() => {
+    onSessionRevoked(() => { if (live.current) setExpired(true); });
+    return () => onSessionRevoked(null);
+  }, []);
 
   const afterAuth = useCallback(async (res: { access_token: string; refresh_token: string; user: { email: string } }) => {
     setAccessToken(res.access_token);
@@ -92,7 +126,12 @@ export function SessionProvider({ children, onIdentityChange }: {
   }, [load]);
 
   const value = useMemo<SessionValue>(() => ({
-    status, email, profile,
+    status, email, emailVerified, pendingEmail, profile, expired,
+    reauthenticate: async (password) => {
+      if (!email) throw new Error('No account to sign back in to.');
+      await afterAuth(await auth.login(email, password));
+      setExpired(false);
+    },
     signIn: async (e, p) => afterAuth(await auth.login(e, p)),
     signUp: async (e, p) => afterAuth(await auth.register(e, p)),
     signOut: async () => {
@@ -104,14 +143,23 @@ export function SessionProvider({ children, onIdentityChange }: {
       // The unfinished workout stays on the device for this account (K-01);
       // it is only hidden until they sign back in.
       announce(null);
-      setProfile(null); setEmail(null); setStatus('signed-out');
+      setExpired(false);
+      setProfile(null); setEmail(null); setEmailVerified(null); setPendingEmail(null);
+      setStatus('signed-out');
     },
     refreshProfile: async () => {
       const p = await profileApi.get();
       setProfile(p);
       setStatus(p.onboarding_completed ? 'ready' : 'onboarding');
     },
-  }), [status, email, profile, afterAuth, announce]);
+    refreshAccount: async () => { showAccount(await auth.me()); },
+    adoptTokens: async (pair) => {
+      // Every token this device held before the change is revoked server-side;
+      // the stored one must be replaced before anything tries to refresh it.
+      setAccessToken(pair.access_token);
+      await setRefreshToken(pair.refresh_token);
+    },
+  }), [status, email, emailVerified, pendingEmail, profile, expired, afterAuth, announce, showAccount]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -11,10 +11,19 @@ export function syncWords(state: DraftSet['syncState']): string {
   return state === 'synced' ? 'Synced' : state === 'failed' ? 'Not uploaded' : 'Waiting to sync';
 }
 
+const TYPE_WORDS: Record<DraftSet['setType'], string> = {
+  warmup: ', warm-up', working: '', drop: ', drop set', failure: ', to failure',
+};
+
 /** How a committed set row is read: one stop, sync state included. */
 export function setRowLabel(s: DraftSet): string {
-  return `Set ${s.setIndex + 1}${s.setType === 'warmup' ? ', warm-up' : ''}, `
-    + `${s.loadKg ?? '—'} kilograms for ${s.reps === null ? '— reps' : plural(s.reps, 'rep', 'reps')}. ${syncWords(s.syncState)}`;
+  const effort = [
+    s.rpe != null ? `RPE ${s.rpe}` : null,
+    s.rir != null ? `${s.rir} in reserve` : null,
+  ].filter(Boolean).join(', ');
+  return `Set ${s.setIndex + 1}${TYPE_WORDS[s.setType]}, `
+    + `${s.loadKg ?? '—'} kilograms for ${s.reps === null ? '— reps' : plural(s.reps, 'rep', 'reps')}`
+    + `${effort ? `, ${effort}` : ''}${s.note ? ', has a note' : ''}. ${syncWords(s.syncState)}`;
 }
 
 export interface SavedSet {

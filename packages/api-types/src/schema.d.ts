@@ -21,7 +21,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health */
+        /**
+         * Health
+         * @description Liveness for the host and the image's HEALTHCHECK. Touches no database:
+         *     a database blip should not get every replica restarted at once.
+         *
+         *     `release` is how a deploy confirms the new build is the one answering
+         *     (`.github/workflows/deploy.yml`), rather than trusting that the hook worked.
+         */
         get: operations["health_health_get"];
         put?: never;
         post?: never;
@@ -110,6 +117,36 @@ export interface paths {
         get: operations["me_v1_auth_me_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/sessions/revoke-others": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke Other Sessions
+         * @description K-02 "Sign out other devices": every refresh-token family but the caller's.
+         *
+         *     The caller's family comes from its access token's `sid`, not from a refresh
+         *     token in the body — so the app can call this like any other authenticated
+         *     route, and a 401 here refreshes and retries rather than ending the session.
+         *     Local workout drafts on the other devices are untouched: they are on the
+         *     devices, and upload when those devices sign back in.
+         *
+         *     A pending email change dies with the other sessions: this is the button a
+         *     worried owner presses, and a change link someone else asked for must not
+         *     survive it (K-02).
+         */
+        post: operations["revoke_other_sessions_v1_auth_sessions_revoke_others_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -583,6 +620,33 @@ export interface paths {
          *     the row is never briefly inconsistent with its own values.
          */
         patch: operations["patch_set_v1_workout_sets__set_id__patch"];
+        trace?: never;
+    };
+    "/v1/workout-sessions/{session_id}/sets/by-client/{client_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Set By Client Id
+         * @description The logger's ✕, queued offline. **Idempotent**: a replayed delete of a set
+         *     that is already gone reports `deleted: false` rather than failing, so it can
+         *     never strand itself in the Sync Center.
+         */
+        delete: operations["delete_set_by_client_id_v1_workout_sessions__session_id__sets_by_client__client_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Set By Client Id
+         * @description The logger's edit, queued offline. It names the set by the id the phone
+         *     gave it at commit (I8), because the server's id never reaches the draft.
+         */
+        patch: operations["patch_set_by_client_id_v1_workout_sessions__session_id__sets_by_client__client_id__patch"];
         trace?: never;
     };
     "/v1/workout-sessions/{session_id}/finish": {
@@ -1346,6 +1410,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/food-analysis/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Settings
+         * @description K-08 — usage, who analyses the photos, and what low confidence means.
+         *
+         *     From configuration rather than from the gateway object, so the answer is
+         *     the one the worker will act on and the page never has to construct a
+         *     client to describe it.
+         */
+        get: operations["read_settings_v1_food_analysis_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/food-analysis/text": {
         parameters: {
             query?: never;
@@ -1440,6 +1528,12 @@ export interface paths {
          *     The photographs go; the **records stay**. What was analysed and what was
          *     saved is the audit trail, and deleting it would remove a user's own evidence
          *     of what the model claimed.
+         *
+         *     **Only the photos analyses name.** This used to sweep the user's whole
+         *     upload folder, which is where progress photos live too — so deleting food
+         *     photos deleted every progress picture's file and left its row pointing at
+         *     nothing (found building K-07). Deleting everything is K-07's own action,
+         *     `DELETE /v1/account/photos`.
          */
         delete: operations["delete_all_images_v1_food_analyses_images_delete"];
         options?: never;
@@ -1686,6 +1780,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Feedback
+         * @description "Send feedback" reports, newest first, each with the request id that
+         *     finds it in the server log.
+         */
+        get: operations["list_feedback_v1_admin_feedback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/product-metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Product Metrics
+         * @description PRD §6, from the service's own tables — no tracking SDK (launch plan, phase 8).
+         */
+        get: operations["read_product_metrics_v1_admin_product_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/account/export": {
         parameters: {
             query?: never;
@@ -1710,7 +1845,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/account": {
+    "/v1/account/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Delete Account
+         * @description Removes the account and everything in it. There is no undo.
+         *
+         *     The password is required again: a delete reachable by a stolen session
+         *     token is a delete somebody else can perform. It is rate limited like a
+         *     login for the same reason — it is a place to guess a password — with the
+         *     per-account half keyed by the **signed-in account's id**, not its email.
+         *     The web page's budget is keyed by the email it is given, which anybody can
+         *     type: sharing it would let a stranger post a few bogus attempts an hour and
+         *     stop the owner deleting their account in the app, which both stores require.
+         *
+         *     A wrong password is a **422 on the field**, not a 401: the session is
+         *     fine, and a 401 would send the app to refresh it and resend the same
+         *     wrong password.
+         *
+         *     Immediate, not the 30-day grace K-07 sketches `[ASSUMPTION]`: a grace
+         *     period needs a scheduled purge and a cancel-on-login path, and an account
+         *     that says "deleted" while its data still exists is the worse failure.
+         */
+        post: operations["delete_account_v1_account_delete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/photos": {
         parameters: {
             query?: never;
             header?: never;
@@ -1721,13 +1892,14 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Delete Account
-         * @description Removes the account and everything in it. There is no undo.
+         * Delete Photos
+         * @description K-07's "Delete my uploaded photos" — every stored image, idempotently.
          *
-         *     The password is required again: a delete reachable by a stolen session token
-         *     is a delete somebody else can perform.
+         *     No password: nothing here is irreversible in a way the account delete is,
+         *     the screen confirms first, and a person's own photos should be easy to
+         *     take back.
          */
-        delete: operations["delete_account_v1_account_delete"];
+        delete: operations["delete_photos_v1_account_photos_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1750,10 +1922,268 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Service Status */
+        get: operations["service_status_v1_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send Feedback */
+        post: operations["send_feedback_v1_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/workouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Workout History */
+        post: operations["import_workout_history_v1_imports_workouts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/nutrition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Nutrition History */
+        post: operations["import_nutrition_history_v1_imports_nutrition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/devices/push-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Register Push Token
+         * @description Idempotent. A token already on file for another account moves to this
+         *     one — the phone changed hands (or accounts), and the old account's news must
+         *     stop arriving on it.
+         */
+        put: operations["register_push_token_v1_devices_push_token_put"];
+        post?: never;
+        /**
+         * Unregister Push Token
+         * @description On sign-out. Only this account's own token can be removed.
+         */
+        delete: operations["unregister_push_token_v1_devices_push_token_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/password/forgot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgot Password
+         * @description Always the same 200 and the same body (A-05: existence is never disclosed).
+         *
+         *     The handler does no work at all: the lookup, the new link and the mail all
+         *     happen after the response, in `_send_reset_link`. So neither the answer nor
+         *     its timing depends on whether the address has an account — a known one
+         *     would otherwise take a delete, an insert and a commit longer to answer.
+         */
+        post: operations["forgot_password_v1_auth_password_forgot_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset Password
+         * @description Sets the password and signs every device out (A-05).
+         *
+         *     The link is checked first: an expired one needs a new email whatever the
+         *     password, so it is the more useful thing to hear. A refused password raises
+         *     after the link was spent, which rolls the spend back — the same link works
+         *     on the next try.
+         */
+        post: operations["reset_password_v1_auth_password_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/email/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify Email
+         * @description Opens an A-06 link — or a K-02 change link, which moves the account.
+         *
+         *     Needs no session: the link is often opened on another device, or after
+         *     signing out, and the token is proof enough.
+         */
+        post: operations["verify_email_v1_auth_email_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/email/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resend Verification
+         * @description A-06 "Resend link". Signed in, so a failure is allowed to say so.
+         */
+        post: operations["resend_verification_v1_auth_email_resend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Password
+         * @description Signs every other device out and keeps this one, with a fresh pair.
+         *
+         *     Every family is revoked — this device's too — and the caller gets a pair in
+         *     a new family. That keeps the caller signed in without the server having to
+         *     know which refresh token is theirs, and leaves nothing from before the
+         *     change alive anywhere.
+         */
+        post: operations["change_password_v1_account_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change Email
+         * @description Sends a link to the NEW address; the account moves when it is opened.
+         *
+         *     Applying on verification rather than at once is the safer of the two: a typo
+         *     here would otherwise move the account to an inbox nobody reads — and with
+         *     it every future reset link. Until then `/auth/me` reports `pending_email`.
+         *
+         *     The CURRENT address is warned at once. Someone who has the password can ask
+         *     for this; the warning reaches the owner while the change is still pending,
+         *     and a reset, a password change or "sign out other devices" kills it.
+         */
+        post: operations["change_email_v1_account_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AccountDeleteIn
+         * @description The password travels in the body, never in the URL, where access logs
+         *     and proxies keep it.
+         */
+        AccountDeleteIn: {
+            /** Password */
+            password: string;
+            /** Confirmation */
+            confirmation: string;
+        };
+        /** AccountDeletedOut */
+        AccountDeletedOut: {
+            /** Deleted */
+            deleted: boolean;
+            /** Photos Deleted */
+            photos_deleted: number;
+        };
         /**
          * AdherenceOut
          * @description G-06's meter, from **PRD W07.7** via `app.domain.adherence`.
@@ -1866,6 +2296,26 @@ export interface components {
              * @default []
              */
             items: components["schemas"]["AnalysisItemOut"][];
+        };
+        /**
+         * AnalysisSettingsOut
+         * @description K-08 · what a person is told about the AI before they use it (launch).
+         *
+         *     Read from configuration, so the disclosure is where photos actually go —
+         *     not a sentence in the app that drifts when the provider changes.
+         */
+        AnalysisSettingsOut: {
+            /** Provider */
+            provider: string;
+            /** Provider Name */
+            provider_name: string;
+            /** Model */
+            model: string;
+            /** Sends To Provider */
+            sends_to_provider: boolean;
+            /** Low Confidence Threshold */
+            low_confidence_threshold: number;
+            quota: components["schemas"]["QuotaOut"];
         };
         /**
          * AuthOut
@@ -2013,6 +2463,23 @@ export interface components {
         CategoryOrderIn: {
             /** Ids */
             ids: string[];
+        };
+        /** ChangeEmailIn */
+        ChangeEmailIn: {
+            /**
+             * New Email
+             * Format: email
+             */
+            new_email: string;
+            /** Password */
+            password: string;
+        };
+        /** ChangePasswordIn */
+        ChangePasswordIn: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
         };
         /**
          * CheckinOut
@@ -2342,6 +2809,28 @@ export interface components {
             /** Formula Version */
             formula_version: string;
         };
+        /** EmailChangeOut */
+        EmailChangeOut: {
+            /** Pending Email */
+            pending_email: string;
+        };
+        /**
+         * EmailVerifiedOut
+         * @description The account's address after the link — the new one, for a K-02 change.
+         */
+        EmailVerifiedOut: {
+            /** Email */
+            email: string;
+            /** Email Verified */
+            email_verified: boolean;
+        };
+        /** Envelope[AccountDeletedOut] */
+        Envelope_AccountDeletedOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["AccountDeletedOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[AdherenceOut] */
         Envelope_AdherenceOut_: {
             /** Success */
@@ -2354,6 +2843,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["AnalysisOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[AnalysisSettingsOut] */
+        Envelope_AnalysisSettingsOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["AnalysisSettingsOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[AuthOut] */
@@ -2412,6 +2908,20 @@ export interface components {
             data?: components["schemas"]["DeletedOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[EmailChangeOut] */
+        Envelope_EmailChangeOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["EmailChangeOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[EmailVerifiedOut] */
+        Envelope_EmailVerifiedOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["EmailVerifiedOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[ExerciseOut] */
         Envelope_ExerciseOut_: {
             /** Success */
@@ -2431,6 +2941,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["ExerciseStatsOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[FeedbackOut] */
+        Envelope_FeedbackOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["FeedbackOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[FoodOut] */
@@ -2489,6 +3006,20 @@ export interface components {
             data?: components["schemas"]["NutritionRangeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[PasswordResetOut] */
+        Envelope_PasswordResetOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["PasswordResetOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[PhotosDeletedOut] */
+        Envelope_PhotosDeletedOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["PhotosDeletedOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[PreviousPerformanceOut] */
         Envelope_PreviousPerformanceOut_: {
             /** Success */
@@ -2517,6 +3048,13 @@ export interface components {
             data?: components["schemas"]["ProgressPhotoOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[PushTokenOut] */
+        Envelope_PushTokenOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["PushTokenOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[QuotaOut] */
         Envelope_QuotaOut_: {
             /** Success */
@@ -2531,6 +3069,20 @@ export interface components {
             data?: components["schemas"]["RecipeOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
+        /** Envelope[RequestedOut] */
+        Envelope_RequestedOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["RequestedOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[ServiceStatusOut] */
+        Envelope_ServiceStatusOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["ServiceStatusOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
         /** Envelope[SessionFinishOut] */
         Envelope_SessionFinishOut_: {
             /** Success */
@@ -2543,6 +3095,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["SessionOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[SessionsRevokedOut] */
+        Envelope_SessionsRevokedOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["SessionsRevokedOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[SetOut] */
@@ -2578,6 +3137,13 @@ export interface components {
             /** Success */
             success: boolean;
             data?: components["schemas"]["UploadSignOut"] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[VerificationSentOut] */
+        Envelope_VerificationSentOut_: {
+            /** Success */
+            success: boolean;
+            data?: components["schemas"]["VerificationSentOut"] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[WorkoutAnalyticsOut] */
@@ -2621,6 +3187,14 @@ export interface components {
             success: boolean;
             /** Data */
             data?: components["schemas"]["BodyMetricOut"][] | null;
+            error?: components["schemas"]["ErrorOut"] | null;
+        };
+        /** Envelope[list[FeedbackOut]] */
+        Envelope_list_FeedbackOut__: {
+            /** Success */
+            success: boolean;
+            /** Data */
+            data?: components["schemas"]["FeedbackOut"][] | null;
             error?: components["schemas"]["ErrorOut"] | null;
         };
         /** Envelope[list[MealCategoryOut]] */
@@ -2787,6 +3361,8 @@ export interface components {
              * @default kg
              */
             default_unit: string;
+            /** Instructions */
+            instructions?: string | null;
         };
         /** ExerciseOut */
         ExerciseOut: {
@@ -2823,6 +3399,8 @@ export interface components {
             tracks_distance: boolean;
             /** Default Unit */
             default_unit: string;
+            /** Instructions */
+            instructions?: string | null;
             /**
              * Muscles
              * @default []
@@ -2851,6 +3429,8 @@ export interface components {
             tracks_distance?: boolean | null;
             /** Default Unit */
             default_unit?: string | null;
+            /** Instructions */
+            instructions?: string | null;
         };
         /**
          * ExerciseProgressionOut
@@ -2907,6 +3487,46 @@ export interface components {
              */
             e1rm_series: components["schemas"]["E1rmPointOut"][];
         };
+        /** FeedbackIn */
+        FeedbackIn: {
+            /**
+             * Category
+             * @default problem
+             * @enum {string}
+             */
+            category: "problem" | "idea" | "other";
+            /** Message */
+            message: string;
+            /** App Version */
+            app_version?: string | null;
+            /** Platform */
+            platform?: string | null;
+            /** Request Id */
+            request_id?: string | null;
+        };
+        /** FeedbackOut */
+        FeedbackOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Category */
+            category: string;
+            /** Message */
+            message: string;
+            /** App Version */
+            app_version: string | null;
+            /** Platform */
+            platform: string | null;
+            /** Request Id */
+            request_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** FoodIn */
         FoodIn: {
             /** Name */
@@ -2923,6 +3543,12 @@ export interface components {
             fat_g?: number | null;
             /** Fiber G */
             fiber_g?: number | null;
+            /** Sugar G */
+            sugar_g?: number | null;
+            /** Saturated Fat G */
+            saturated_fat_g?: number | null;
+            /** Sodium Mg */
+            sodium_mg?: number | null;
             /** Serving Grams */
             serving_grams?: number | null;
             /** Serving Label */
@@ -2953,10 +3579,18 @@ export interface components {
             fat_g?: number | null;
             /** Fiber G */
             fiber_g?: number | null;
+            /** Sugar G */
+            sugar_g?: number | null;
+            /** Saturated Fat G */
+            saturated_fat_g?: number | null;
+            /** Sodium Mg */
+            sodium_mg?: number | null;
             /** Serving Grams */
             serving_grams?: number | null;
             /** Serving Label */
             serving_label?: string | null;
+            /** Portions */
+            portions?: components["schemas"]["FoodPortionOut"][];
             /** Source */
             source: string;
             /**
@@ -2964,6 +3598,14 @@ export interface components {
              * @default false
              */
             is_custom: boolean;
+            /** Category */
+            category?: string | null;
+            /** Dataset */
+            dataset?: string | null;
+            /** Source Note */
+            source_note?: string | null;
+            /** Attribution */
+            attribution?: string | null;
         };
         /** FoodPatch */
         FoodPatch: {
@@ -2981,10 +3623,35 @@ export interface components {
             fat_g?: number | null;
             /** Fiber G */
             fiber_g?: number | null;
+            /** Sugar G */
+            sugar_g?: number | null;
+            /** Saturated Fat G */
+            saturated_fat_g?: number | null;
+            /** Sodium Mg */
+            sodium_mg?: number | null;
             /** Serving Grams */
             serving_grams?: number | null;
             /** Serving Label */
             serving_label?: string | null;
+        };
+        /**
+         * FoodPortionOut
+         * @description A household measure: "1 katori (small bowl)" = 150 g. A way to enter
+         *     grams on H-05, never a second basis for the nutrition.
+         */
+        FoodPortionOut: {
+            /** Label */
+            label: string;
+            /** Grams */
+            grams: number;
+        };
+        /** ForgotPasswordIn */
+        ForgotPasswordIn: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
         };
         /**
          * FrequencyCellOut
@@ -3212,6 +3879,10 @@ export interface components {
             email: string;
             /** Status */
             status: string;
+            /** Email Verified */
+            email_verified: boolean;
+            /** Pending Email */
+            pending_email?: string | null;
         };
         /** MealCategoryIn */
         MealCategoryIn: {
@@ -3546,6 +4217,16 @@ export interface components {
             /** Body Weight Kg */
             body_weight_kg?: number | null;
         };
+        /** NutritionImportIn */
+        NutritionImportIn: {
+            /** Csv */
+            csv: string;
+            /**
+             * Dry Run
+             * @default true
+             */
+            dry_run: boolean;
+        };
         /**
          * NutritionRangeOut
          * @description Averages are over LOGGED days only, and `logged_days` is always beside
@@ -3638,6 +4319,11 @@ export interface components {
             error?: components["schemas"]["ErrorOut"] | null;
             meta?: components["schemas"]["Meta"] | null;
         };
+        /** PasswordResetOut */
+        PasswordResetOut: {
+            /** Password Reset */
+            password_reset: boolean;
+        };
         /** PersonalRecordOut */
         PersonalRecordOut: {
             /**
@@ -3686,6 +4372,18 @@ export interface components {
             formula_version: string;
             /** Achieved On */
             achieved_on?: string | null;
+        };
+        /**
+         * PhotosDeletedOut
+         * @description What "Delete my uploaded photos" did, in the words K-07 reports back.
+         */
+        PhotosDeletedOut: {
+            /** Files Deleted */
+            files_deleted: number;
+            /** Progress Photos Deleted */
+            progress_photos_deleted: number;
+            /** Analyses Kept */
+            analyses_kept: number;
         };
         /** PlanDayIn */
         PlanDayIn: {
@@ -3758,6 +4456,8 @@ export interface components {
             target_distance_m?: number | null;
             /** Rest Seconds */
             rest_seconds?: number | null;
+            /** Superset Group */
+            superset_group?: number | null;
         };
         /** PlanExerciseOut */
         PlanExerciseOut: {
@@ -3786,6 +4486,8 @@ export interface components {
             target_distance_m?: number | null;
             /** Rest Seconds */
             rest_seconds?: number | null;
+            /** Superset Group */
+            superset_group?: number | null;
             /**
              * Id
              * Format: uuid
@@ -3915,6 +4617,35 @@ export interface components {
              * @default 7
              */
             checkin_interval_days: number;
+            /**
+             * Warmups In Volume
+             * @default false
+             */
+            warmups_in_volume: boolean;
+            /**
+             * Show Rpe
+             * @default false
+             */
+            show_rpe: boolean;
+            /**
+             * Show Rir
+             * @default false
+             */
+            show_rir: boolean;
+            /** Default Rest Seconds */
+            default_rest_seconds?: number | null;
+            /**
+             * Load Step Kg
+             * @default 2.5
+             */
+            load_step_kg: number;
+            /**
+             * Bar Weight Kg
+             * @default 20
+             */
+            bar_weight_kg: number;
+            /** Plate Inventory Kg */
+            plate_inventory_kg?: number[];
         };
         /**
          * ProfilePatch
@@ -3957,6 +4688,20 @@ export interface components {
             equipment?: ("full_gym" | "home_gym" | "dumbbells" | "bodyweight") | null;
             /** Checkin Interval Days */
             checkin_interval_days?: number | null;
+            /** Warmups In Volume */
+            warmups_in_volume?: boolean | null;
+            /** Show Rpe */
+            show_rpe?: boolean | null;
+            /** Show Rir */
+            show_rir?: boolean | null;
+            /** Default Rest Seconds */
+            default_rest_seconds?: number | null;
+            /** Load Step Kg */
+            load_step_kg?: number | null;
+            /** Bar Weight Kg */
+            bar_weight_kg?: number | null;
+            /** Plate Inventory Kg */
+            plate_inventory_kg?: number[] | null;
         };
         /** ProgramIn */
         ProgramIn: {
@@ -4079,6 +4824,8 @@ export interface components {
             id: string;
             /** Image Key */
             image_key: string;
+            /** Image Url */
+            image_url?: string | null;
             /**
              * Taken At
              * Format: date-time
@@ -4118,6 +4865,23 @@ export interface components {
              * @default 0
              */
             volume_kg: number;
+        };
+        /** PushTokenIn */
+        PushTokenIn: {
+            /** Token */
+            token: string;
+            /**
+             * Platform
+             * @enum {string}
+             */
+            platform: "ios" | "android";
+        };
+        /** PushTokenOut */
+        PushTokenOut: {
+            /** Token */
+            token: string;
+            /** Platform */
+            platform: string;
         };
         /**
          * QuotaOut
@@ -4266,6 +5030,33 @@ export interface components {
             /** Display Name */
             display_name?: string | null;
         };
+        /**
+         * RequestedOut
+         * @description The same body whether or not an account exists (A-05 no enumeration).
+         */
+        RequestedOut: {
+            /** Requested */
+            requested: boolean;
+        };
+        /** ResetPasswordIn */
+        ResetPasswordIn: {
+            /** Token */
+            token: string;
+            /** New Password */
+            new_password: string;
+        };
+        /** ServiceStatusOut */
+        ServiceStatusOut: {
+            /** Maintenance */
+            maintenance: boolean;
+            /** Message */
+            message?: string | null;
+            /**
+             * Ai
+             * @enum {string}
+             */
+            ai: "ok" | "degraded";
+        };
         /** SessionExerciseIn */
         SessionExerciseIn: {
             /**
@@ -4275,6 +5066,8 @@ export interface components {
             exercise_id: string;
             /** Position */
             position?: number | null;
+            /** Id */
+            id?: string | null;
         };
         /** SessionExerciseOut */
         SessionExerciseOut: {
@@ -4296,6 +5089,8 @@ export interface components {
             notes: string | null;
             /** Skipped */
             skipped: boolean;
+            /** Superset Group */
+            superset_group?: number | null;
             /** Target Snapshot */
             target_snapshot: {
                 [key: string]: unknown;
@@ -4316,6 +5111,8 @@ export interface components {
             notes?: string | null;
             /** Skipped */
             skipped?: boolean | null;
+            /** Superset Group */
+            superset_group?: number | null;
         };
         /**
          * SessionFinishOut
@@ -4425,6 +5222,14 @@ export interface components {
             started_at?: string | null;
             /** Notes */
             notes?: string | null;
+        };
+        /**
+         * SessionsRevokedOut
+         * @description How many other devices were signed out.
+         */
+        SessionsRevokedOut: {
+            /** Revoked */
+            revoked: number;
         };
         /**
          * SetBatchItemOut
@@ -4669,6 +5474,18 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /** VerificationSentOut */
+        VerificationSentOut: {
+            /** Sent */
+            sent: boolean;
+            /** Email Verified */
+            email_verified: boolean;
+        };
+        /** VerifyEmailIn */
+        VerifyEmailIn: {
+            /** Token */
+            token: string;
+        };
         /**
          * VolumeBucketOut
          * @description One column of G-02's volume chart.
@@ -4707,6 +5524,28 @@ export interface components {
              * @default 0
              */
             total_volume_kg: number;
+        };
+        /** WorkoutImportIn */
+        WorkoutImportIn: {
+            /** Csv */
+            csv: string;
+            /**
+             * Format
+             * @default auto
+             * @enum {string}
+             */
+            format: "auto" | "strong" | "hevy";
+            /**
+             * Weight Unit
+             * @default kg
+             * @enum {string}
+             */
+            weight_unit: "kg" | "lb";
+            /**
+             * Dry Run
+             * @default true
+             */
+            dry_run: boolean;
         };
     };
     responses: never;
@@ -4885,6 +5724,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_MeOut_"];
+                };
+            };
+        };
+    };
+    revoke_other_sessions_v1_auth_sessions_revoke_others_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SessionsRevokedOut_"];
                 };
             };
         };
@@ -5967,6 +6826,76 @@ export interface operations {
             header?: never;
             path: {
                 set_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SetOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_set_by_client_id_v1_workout_sessions__session_id__sets_by_client__client_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+                client_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DeletedOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_set_by_client_id_v1_workout_sessions__session_id__sets_by_client__client_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+                client_id: string;
             };
             cookie?: never;
         };
@@ -7401,6 +8330,26 @@ export interface operations {
             };
         };
     };
+    read_settings_v1_food_analysis_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_AnalysisSettingsOut_"];
+                };
+            };
+        };
+    };
     analyse_text_v1_food_analysis_text_post: {
         parameters: {
             query?: never;
@@ -7932,6 +8881,57 @@ export interface operations {
             };
         };
     };
+    list_feedback_v1_admin_feedback_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_FeedbackOut__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_product_metrics_v1_admin_product_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+        };
+    };
     export_account_v1_account_export_get: {
         parameters: {
             query?: never;
@@ -7952,12 +8952,42 @@ export interface operations {
             };
         };
     };
-    delete_account_v1_account_delete: {
+    delete_account_v1_account_delete_post: {
         parameters: {
-            query: {
-                /** @description The account password. */
-                confirm: string;
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountDeleteIn"];
             };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_AccountDeletedOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_photos_v1_account_photos_delete: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -7970,16 +9000,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Envelope_dict_"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["Envelope_PhotosDeletedOut_"];
                 };
             };
         };
@@ -8003,6 +9024,376 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_NutritionRangeOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    service_status_v1_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ServiceStatusOut_"];
+                };
+            };
+        };
+    };
+    send_feedback_v1_feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_FeedbackOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_workout_history_v1_imports_workouts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkoutImportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_nutrition_history_v1_imports_nutrition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NutritionImportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_dict_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_push_token_v1_devices_push_token_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PushTokenOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unregister_push_token_v1_devices_push_token_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DeletedOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    forgot_password_v1_auth_password_forgot_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_RequestedOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_v1_auth_password_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PasswordResetOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_email_v1_auth_email_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyEmailIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_EmailVerifiedOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resend_verification_v1_auth_email_resend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_VerificationSentOut_"];
+                };
+            };
+        };
+    };
+    change_password_v1_account_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_TokenPair_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_email_v1_account_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeEmailIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_EmailChangeOut_"];
                 };
             };
             /** @description Validation Error */

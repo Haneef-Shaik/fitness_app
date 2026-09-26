@@ -91,3 +91,15 @@ async def test_reusing_a_rotated_token_revokes_the_whole_family(client):
     # ...and the token issued from it is dead too.
     after = await client.post("/v1/auth/refresh", json={"refresh_token": second})
     assert after.status_code == 401
+
+
+async def test_an_unknown_email_costs_a_password_check_too(client, monkeypatch):
+    """Answering faster for an unknown address tells a caller which ones exist."""
+    from app.core import security
+
+    spent: list[str] = []
+    real = security.verify_password
+    monkeypatch.setattr(security, "verify_password", lambda raw, h: spent.append(raw) or real(raw, h))
+    r = await client.post("/v1/auth/login", json={"email": "nobody-here@example.com", "password": "guess-guess-guess"})
+    assert r.status_code == 401
+    assert spent == ["guess-guess-guess"]

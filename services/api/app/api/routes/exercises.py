@@ -4,7 +4,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Query
-from sqlalchemy import or_, select
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, DbSession
@@ -51,6 +51,7 @@ def _serialise(ex: Exercise) -> dict:
         tracks_duration=ex.tracks_duration,
         tracks_distance=ex.tracks_distance,
         default_unit=ex.default_unit,
+        instructions=ex.instructions,
         muscles=[
             MuscleRefOut(
                 id=em.muscle_group.id, slug=em.muscle_group.slug,
@@ -102,10 +103,24 @@ async def list_exercises(
         stmt = stmt.where(Exercise.owner_user_id == user.id)
     if not include_archived:
         stmt = stmt.where(Exercise.status == CatalogStatus.active)
+    order = [Exercise.name]
     if q:
-        needle = f"%{q.lower()}%"
-        # Name OR any alias — "bench" must find "Barbell Bench Press".
-        stmt = stmt.where(or_(Exercise.name.ilike(needle), Exercise.aliases.any(q.lower())))
+        term = q.strip().lower()
+        needle = f"%{term}%"
+        alias_text = func.lower(func.array_to_string(Exercise.aliases, " | "))
+        # Name OR any alias — "bench" must find "Barbell Bench Press", and
+        # "hex" must find the trap-bar deadlift through "hex bar deadlift".
+        stmt = stmt.where(or_(Exercise.name.ilike(needle), alias_text.like(needle)))
+        # With 250+ exercises, alphabetical order buried the one asked for:
+        # "rdl" put "Dumbbell Romanian Deadlift" above "Romanian Deadlift".
+        # An exact name or alias first, then names that start with the query.
+        order = [
+            case((or_(func.lower(Exercise.name) == term, Exercise.aliases.any(term)), 0),
+                 else_=1),
+            case((func.lower(Exercise.name).startswith(term), 0), else_=1),
+            func.length(Exercise.name),
+            Exercise.name,
+        ]
     if equipment:
         stmt = stmt.where(Exercise.equipment == equipment)
     if pattern:
@@ -117,7 +132,7 @@ async def list_exercises(
             .where(MuscleGroup.slug == muscle)
         ))
 
-    rows = (await db.scalars(stmt.order_by(Exercise.name).limit(limit).offset(offset))).all()
+    rows = (await db.scalars(stmt.order_by(*order).limit(limit).offset(offset))).all()
     return ok([_serialise(e) for e in rows], meta={"limit": limit, "offset": offset, "count": len(rows)})
 
 

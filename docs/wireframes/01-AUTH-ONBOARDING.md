@@ -189,9 +189,13 @@ their field via `accessibilityHint`. Nothing depends on the strength meter's col
 ---
 
 ## A-05 · Forgot / Reset Password
-**Route** `/reset-password` (+ `?token=`) · **Type** FS · **Priority** P0
+**Route** `/forgot-password` (request, `?email=` carried from A-04) and `/reset-password` (+ `?token=`) · **Type** FS · **Priority** P0
 
-Two states in one route.
+Two states, **built as two routes**: the emailed link `fitlog://reset-password?token=…` lands
+directly on the second, so it has its own path. The email also carries the token on a line of its
+own; "I have a code" on the request screen opens `/reset-password` with a paste field for a phone
+that will not open the link (webmail can strip custom schemes). Both routes, and A-06, are public:
+their links arrive signed out.
 
 ```
 STATE 1 — request                    STATE 2 — set a new password (?token=)
@@ -223,6 +227,15 @@ STATE 1b — sent (always shown, regardless of whether the account exists)
 one currently logged in → sign the current session out first. Reset while a workout session is in
 progress on this device → the local draft survives (it is device-local, not session-local).
 
+**As built.** The link is single-use and lasts 30 minutes; requesting again kills the older link.
+Unknown, used, superseded and expired all return `400 LINK_EXPIRED` with one sentence — telling them
+apart would tell a guesser which tokens existed. A second request inside 60 s is answered
+identically and sends nothing, so the form cannot flood someone's inbox. A completed reset revokes
+**every** session, this device's included, so the app signs out locally and lands on A-04 with
+"Password updated. Log in with your new password." Opening the link also marks the address
+verified (it proves the inbox). The strength meter states its level in words ("Too short" below the
+10-character minimum, then "Good", "Strong") — shared with A-03 and K-02.
+
 ---
 
 ## A-06 · Verify Email
@@ -249,6 +262,15 @@ log a workout because of an unverified email would violate the product's core pr
 
 **Edge cases.** Changing the email restarts verification and revokes any outstanding link.
 Verifying in another tab → this screen detects it on focus and advances automatically.
+
+**As built (launch).** Sign-up sends the link (24 h, single use); `fitlog://verify-email?token=…`
+verifies on arrival, signed in or not, and the code can be pasted instead. Resend is on this screen,
+on a K-01 banner ("Verify your email · Resend") and in K-02, counting down from 60 s. **The grace
+period is not enforced and nothing locks** — not export, not logging, not password reset, which
+emails verified and unverified addresses alike. Whether anything should lock after 7 days is an
+open product decision; until it is taken, verification is informational. Not built: "Open mail app"
+and "Skip for now" (the screen is never forced on anyone, so there is nothing to skip). The same
+link also completes a K-02 email change.
 
 ---
 

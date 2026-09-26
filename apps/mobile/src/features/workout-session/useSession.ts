@@ -28,6 +28,7 @@ export function draftFromServer(s: WorkoutSession): StartDraftInput {
       exerciseId: e.exercise_id,
       exerciseName: e.exercise_name ?? null,
       targetSnapshot: (e.target_snapshot as Record<string, unknown> | null) ?? null,
+      supersetGroup: e.superset_group ?? null,
       // The logger reads the FROZEN snapshot (I1); tracked fields come from the
       // catalog and are filled in by the screen.
       tracks: { load: true, reps: true, duration: false, distance: false },
@@ -65,6 +66,7 @@ export function draftWithSetsFromServer(s: WorkoutSession): SessionDraft {
           distanceM: set.distance_m ?? null,
           rpe: set.rpe ?? null,
           rir: set.rir ?? null,
+          note: set.note ?? null,
           completed: set.completed,
           performedAt: set.performed_at,
           // It came FROM the server, so it is synced by definition.

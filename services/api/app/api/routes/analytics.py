@@ -53,6 +53,7 @@ from app.schemas.analytics import (
     WorkoutAnalyticsOut,
 )
 from app.schemas.envelope import Envelope
+from app.services.volume import warmups_counted
 
 router = APIRouter(tags=["analytics"])
 
@@ -133,9 +134,10 @@ def _sets_of(session) -> list:
     return [domain_set(s) for se in session.exercises for s in se.sets]
 
 
-def _counted(sets) -> list:
-    """Sets that count toward volume — completed, non-warm-up (**I3 / D6**)."""
-    return [s for s in sets if s.completed and s.set_type != "warmup"]
+def _counted(sets, include_warmups: bool = False) -> list:
+    """Sets that count toward volume — completed, and warm-ups only when the user
+    counts them (**I3 / D6**, K-04)."""
+    return [s for s in sets if domain_training.counts_toward_volume(s, include_warmups=include_warmups)]
 
 
 @router.get("/analytics/workouts", response_model=Envelope[WorkoutAnalyticsOut])
@@ -153,6 +155,7 @@ async def workout_volume(
     """
     start, end = _range(date_from, date_to)
     sessions = await _completed_sessions(db, user.id, start, end)
+    warmups = await warmups_counted(db, user.id)
 
     tally: dict[date, dict] = {
         b: {"volume_kg": 0.0, "session_count": 0, "set_count": 0}
@@ -164,8 +167,8 @@ async def workout_volume(
         if bucket not in tally:
             continue
         sets = _sets_of(session)
-        tally[bucket]["volume_kg"] += domain_training.total_volume_kg(sets)
-        tally[bucket]["set_count"] += len(_counted(sets))
+        tally[bucket]["volume_kg"] += domain_training.total_volume_kg(sets, include_warmups=warmups)
+        tally[bucket]["set_count"] += len(_counted(sets, warmups))
         tally[bucket]["session_count"] += 1
 
     buckets = [
@@ -196,6 +199,7 @@ async def muscle_volume(
     """
     start, end = _range(date_from, date_to)
     sessions = await _completed_sessions(db, user.id, start, end)
+    warmups = await warmups_counted(db, user.id)
 
     # exercise_id -> volume, computed ONCE by the domain.
     per_exercise: dict[uuid.UUID, float] = {}
@@ -205,10 +209,10 @@ async def muscle_volume(
             sets = [domain_set(s) for s in se.sets]
             per_exercise[se.exercise_id] = (
                 per_exercise.get(se.exercise_id, 0.0)
-                + domain_training.total_volume_kg(sets)
+                + domain_training.total_volume_kg(sets, include_warmups=warmups)
             )
             per_exercise_sets[se.exercise_id] = (
-                per_exercise_sets.get(se.exercise_id, 0) + len(_counted(sets))
+                per_exercise_sets.get(se.exercise_id, 0) + len(_counted(sets, warmups))
             )
 
     if not per_exercise:

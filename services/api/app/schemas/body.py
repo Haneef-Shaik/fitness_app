@@ -158,6 +158,10 @@ class ProgressPhotoIn(BaseModel):
 class ProgressPhotoOut(BaseModel):
     id: uuid.UUID
     image_key: str
+    #: GET it with no token, until it expires (`UPLOAD_URL_TTL_SECONDS`). A path
+    #: on this API for the local store; the bucket's presigned URL for S3.
+    #: Absent when the photo is gone — the response to its own delete.
+    image_url: str | None = None
     taken_at: datetime
     local_date: date
     pose: str

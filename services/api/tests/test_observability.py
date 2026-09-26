@@ -215,6 +215,10 @@ class TestTheAlertTable:
         """
         from app.observability.metrics import registry
 
+        # Measured as a delta: the registry is process-wide, and other tests
+        # cause real 5xx writes on purpose (an email provider that is down).
+        failed_before = registry.snapshot()["writes_failed"]
+
         # A validation refusal on a write route — a 4xx, several times over.
         for _ in range(5):
             r = await auth_client.post("/v1/goals", json={"goal_type": "nonsense"})
@@ -222,7 +226,7 @@ class TestTheAlertTable:
 
         snapshot = registry.snapshot()
         assert snapshot["writes_total"] >= 5
-        assert snapshot["writes_failed"] == 0
+        assert snapshot["writes_failed"] == failed_before
 
     async def test_the_endpoint_evaluates_against_live_counters(self, auth_client):
         # Not a static document: the same numbers /metrics exports.
@@ -274,3 +278,35 @@ class TestTheAIQueue:
         # Nothing is picking jobs up: the oldest has waited longer than the latency alert.
         assert "ai_queue_waiting" in names({"ai_oldest_pending_seconds": 61})
         assert "ai_queue_waiting" not in names({"ai_oldest_pending_seconds": 5})
+
+
+async def test_every_response_carries_the_basic_security_headers(client):
+    r = await client.get("/health")
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert r.headers["referrer-policy"] == "no-referrer"
+    assert "strict-transport-security" not in r.headers   # not deployed
+
+
+async def test_a_deployed_api_insists_on_https(client, monkeypatch):
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "environment", "staging")
+    r = await client.get("/health")
+    assert r.headers["strict-transport-security"].startswith("max-age=31536000")
+
+
+async def test_an_oversized_body_is_refused_before_it_is_read(client):
+    r = await client.post("/v1/auth/login", content=b"{}",
+                          headers={"content-type": "application/json", "content-length": str(50 * 1024 * 1024)})
+    assert r.status_code == 413
+    assert r.json()["error"]["code"] == "PAYLOAD_TOO_LARGE"
+
+
+async def test_a_path_no_route_matches_is_one_label_not_one_per_path(client):
+    from app.observability.metrics import registry
+
+    for i in range(3):
+        await client.get(f"/v1/no-such-thing-{i}")
+    rendered = registry.render()
+    assert "no-such-thing" not in rendered
+    assert "(unmatched)" in rendered

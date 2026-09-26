@@ -11,7 +11,7 @@ from app.core.errors import NotFound, ValidationFailed
 from app.models import UserProfile
 from app.schemas.envelope import Envelope
 from app.schemas.profile import ProfileOut, ProfilePatch
-from app.services import targets
+from app.services import targets, volume
 from app.services.timezone_change import rebucket
 
 router = APIRouter(prefix="/profile", tags=["profile"])
@@ -42,6 +42,12 @@ async def patch_profile(body: ProfilePatch, user: CurrentUser, db: DbSession):
                 fields={"timezone": "Unknown time zone."},
             ) from None
 
+    recount_volume = (
+        "warmups_in_volume" in changes
+        and changes["warmups_in_volume"] is not None
+        and changes["warmups_in_volume"] != profile.warmups_in_volume
+    )
+
     moving = (
         "timezone" in changes
         and changes["timezone"] is not None
@@ -65,5 +71,8 @@ async def patch_profile(body: ProfilePatch, user: CurrentUser, db: DbSession):
         # comment has claimed was handled since before it was.
         await rebucket(db, user.id, profile.timezone)
         await db.flush()
+
+    if recount_volume:
+        await volume.recount(db, user.id, profile.warmups_in_volume)
 
     return ok(ProfileOut.model_validate(profile).model_dump(mode="json"))

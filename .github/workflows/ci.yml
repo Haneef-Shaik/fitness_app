@@ -88,6 +88,33 @@ jobs:
       - name: Tests with the coverage gate
         run: pnpm --filter @fitlog/mobile test:ci
 
+  image:
+    name: The API image builds and boots
+    runs-on: ubuntu-latest
+    # deploy.yml only runs after this workflow on main, so a Dockerfile broken
+    # in a pull request would otherwise be found after the merge.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: services/api
+          load: true
+          tags: fitlog-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Boots, as the unprivileged user, and answers /health
+        # /health touches no database, so none is needed to prove the boot.
+        run: |
+          docker run -d --name api -p 8000:8000 fitlog-api:ci
+          for _ in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && break
+            sleep 1
+          done
+          curl -sf http://localhost:8000/health | grep -q '"status":"ok"'
+          test "$(docker exec api id -u)" = 10001
+          docker exec api python -m app.healthcheck
+
   contract:
     name: Cross-language contract
     runs-on: ubuntu-latest

@@ -53,12 +53,3 @@ export async function unregisterPush(): Promise<void> {
   } catch { /* best effort — the server also moves a token on the next sign-in */ }
   await setPref(TOKEN_PREF, null);
 }
-
-/** Where a tapped notification goes. Only known kinds navigate anywhere. */
-export function routeFor(data: unknown): string | null {
-  const d = data as { type?: string; analysis_id?: string } | null;
-  if (d?.type === 'analysis' && typeof d.analysis_id === 'string' && /^[0-9a-f-]{36}$/i.test(d.analysis_id)) {
-    return `/nutrition/analysis/${d.analysis_id}`;
-  }
-  return null;
-}

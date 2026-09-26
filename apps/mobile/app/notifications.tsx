@@ -8,7 +8,8 @@
  * that silently does nothing is worse than no toggle.
  *
  * What gets scheduled is `plannedReminders` — the workout reminder follows the
- * active program's days, the check-in one follows the next check-in.
+ * active program's days, the check-in one follows the next check-in, and a
+ * day's reminder is not sent once that day's entry is logged (K-06).
  */
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -16,9 +17,9 @@ import Constants from 'expo-constants';
 import { Button, Card, Text } from '@/ui';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { getPref, setPref } from '@/lib/prefs';
-import { plannedReminders, type ReminderKey } from '@/features/reminders/plan';
+import { phoneClock, plannedReminders, type ReminderKey } from '@/features/reminders/plan';
 import { REMINDERS_PREF, useReminderContext } from '@/features/reminders/useReminderContext';
-import { applyReminders, ensurePermission } from '@/features/reminders/schedule';
+import { applyPlan, applyReminders, ensurePermission } from '@/features/reminders/schedule';
 import { checkPermission } from '@/features/permissions/primer';
 import { PermissionPrimer } from '@/features/permissions/PermissionPrimer';
 import { space } from '@/theme';
@@ -30,10 +31,10 @@ const APP_NAME = Constants?.executionEnvironment === 'storeClient'
   : (Constants?.expoConfig?.name ?? 'FitLog');
 
 const REMINDERS: readonly { key: ReminderKey; label: string; detail: string }[] = [
-  { key: 'workout', label: 'Workout reminder', detail: '5 pm on the days your program plans one' },
-  { key: 'weigh_in', label: 'Weigh-in', detail: '7:30 every morning — before breakfast is when it means most' },
-  { key: 'meal_log', label: 'Log your meals', detail: '8 pm every evening' },
-  { key: 'checkin', label: 'Check-in', detail: '8 am on the day your next check-in is due' },
+  { key: 'workout', label: 'Workout reminder', detail: '5 pm on the days your program plans one, unless you have trained' },
+  { key: 'weigh_in', label: 'Weigh-in', detail: '7:30 every morning, unless you have already weighed in' },
+  { key: 'meal_log', label: 'Log your meals', detail: '8 pm every evening, unless a meal is already logged' },
+  { key: 'checkin', label: 'Check-in', detail: '8 am when your weight and measurements are due — again 2 and 7 days later if not taken' },
 ];
 
 type Switches = Partial<Record<ReminderKey, boolean>>;
@@ -69,7 +70,11 @@ export default function Notifications() {
     setOn(next);
     await setPref(REMINDERS_PREF, next);
     try {
-      await applyReminders(plannedReminders(next, ctx));
+      if (ctx.ready) await applyPlan(async () => plannedReminders(next, ctx, phoneClock()));
+      // Not loaded yet: a plan now would drop the workout and check-in
+      // reminders. The background sync applies this once they load — unless
+      // nothing is left on, which needs nothing loaded.
+      else if (!Object.values(next).some(Boolean)) await applyReminders([]);
     } catch {
       setError("Couldn't set that reminder on this phone. Try again.");
     }
@@ -113,6 +118,11 @@ export default function Notifications() {
         {on.workout && ctx.programWeekdays.length === 0 ? (
           <Text variant="caption" tone="ink3">
             Your program has no days on the calendar, so there is nothing to remind you of yet.
+          </Text>
+        ) : null}
+        {on.checkin && ctx.ready && ctx.nextCheckin === null ? (
+          <Text variant="caption" tone="ink3" testID="reminders-first-checkin">
+            Check-in reminders count from your last check-in. Take your first from Progress and they start from there.
           </Text>
         ) : null}
       </View>

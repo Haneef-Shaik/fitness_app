@@ -86,6 +86,10 @@ const mockApply = jest.fn(async (list: unknown[]) => list.length);
 jest.mock('@/features/reminders/schedule', () => ({
   ensurePermission: jest.fn(async () => mockPermission),
   applyReminders: (list: unknown[]) => mockApply(list),
+  applyPlan: async (plan: () => Promise<unknown[] | null>) => {
+    const list = await plan();
+    return list ? mockApply(list) : null;
+  },
 }));
 
 import Customize from '../home/customize';
@@ -175,10 +179,13 @@ describe('B-04 · reminders (G10: they send now)', () => {
     render(<Notifications />);
     fireEvent.press(screen.getByTestId('reminder-workout'));
     await waitFor(() => expect(mockPrefs.reminders).toEqual({ workout: true }));
-    // One per planned program day — Monday and Thursday — and none for the unscheduled one.
-    await waitFor(() => expect(mockApply).toHaveBeenLastCalledWith([
-      expect.objectContaining({ id: 'workout-0' }), expect.objectContaining({ id: 'workout-3' }),
-    ]));
+    // Only on planned program days — Monday and Thursday — and none for the unscheduled one.
+    await waitFor(() => expect(mockApply).toHaveBeenCalled());
+    const set = mockApply.mock.calls.at(-1)![0] as { kind: string; trigger: { date: string } }[];
+    expect(set.length).toBeGreaterThanOrEqual(3);
+    expect(set.every((r) => r.kind === 'workout')).toBe(true);
+    const weekdays = new Set(set.map((r) => new Date(`${r.trigger.date}T00:00:00Z`).getUTCDay()));
+    expect([...weekdays].sort()).toEqual([1, 4]);
   });
 
   it('L-06 · says what reminders are for before the phone asks for the first time', async () => {

@@ -76,6 +76,21 @@ What it found — none of it visible to the fakes the suite used before:
   built like the API's (`make_engine`), and a scratch database is dropped `WITH (FORCE)` because the
   pooler holds its own connection to it.
 
+### Phase 2 — thumbnails: done (26 Sep)
+
+`GET /v1/progress-photos` now returns a `thumbnail_url` per photo: a **signed render URL** from
+Storage's image transformation (288 × 384, cover, quality 70 — twice the grid's 96 × 128 tile), and
+the grid draws from it; `image_url` stays the original. A 1200 × 1600 test photo renders to about
+**1 KB** against 30 KB.
+
+- Signed one photo per request: Storage's batch-sign endpoint ignores transforms. Twelve at a time,
+  and each URL is reused until half its life is gone, so scrolling back does not re-sign.
+- Needs `SUPABASE_URL` and `SUPABASE_SECRET_KEY` on the server; the secret key never reaches the app.
+  Without them, or if Storage refuses, there is no thumbnail and the grid shows the original.
+- Hosted, image transformations are a **Pro** feature (the runbook already specifies Pro).
+- Tests: `test_thumbnails.py` (8, one of them against real Storage when `SUPABASE_TEST_URL` is set),
+  and the grid test in `shellScreens.test.tsx`.
+
 Run it yourself:
 
 ```bash

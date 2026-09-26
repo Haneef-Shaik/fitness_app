@@ -114,10 +114,12 @@ export default function ProgressPhotos() {
               {rows.map((photo) => (
                 <View key={String(photo.id)} style={{ gap: 4 }}>
                   {/* The server's signed, expiring URL — never one built from
-                      the key, which nothing serves without a signature. */}
-                  {photo.image_url ? (
+                      the key, which nothing serves without a signature. The
+                      small copy Storage renders when there is one (docs/14
+                      S10); the original otherwise. */}
+                  {photo.thumbnail_url || photo.image_url ? (
                     <Image
-                      source={{ uri: resolveApiUrl(photo.image_url) }}
+                      source={{ uri: resolveApiUrl((photo.thumbnail_url || photo.image_url) as string) }}
                       accessibilityLabel={`${photo.pose}, ${photo.local_date}`}
                       testID={`photo-image-${photo.id}`}
                       style={{ width: 96, height: 128, borderRadius: radius.btn }}

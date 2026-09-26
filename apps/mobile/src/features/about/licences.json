@@ -11,17 +11,22 @@
   },
   {
     "name": "@expo/metro-runtime",
-    "version": "4.0.1",
+    "version": "57.0.16",
     "license": "MIT"
   },
   {
     "name": "@expo/vector-icons",
-    "version": "14.0.4",
+    "version": "15.1.1",
+    "license": "MIT"
+  },
+  {
+    "name": "@kingstinct/react-native-healthkit",
+    "version": "16.0.0",
     "license": "MIT"
   },
   {
     "name": "@sentry/react-native",
-    "version": "6.10.0",
+    "version": "7.11.0",
     "license": "MIT"
   },
   {
@@ -31,72 +36,77 @@
   },
   {
     "name": "expo",
-    "version": "52.0.49",
+    "version": "57.0.25",
+    "license": "MIT"
+  },
+  {
+    "name": "expo-build-properties",
+    "version": "57.0.22",
     "license": "MIT"
   },
   {
     "name": "expo-constants",
-    "version": "17.0.8",
+    "version": "57.0.19",
     "license": "MIT"
   },
   {
     "name": "expo-document-picker",
-    "version": "13.0.3",
+    "version": "57.0.2",
     "license": "MIT"
   },
   {
     "name": "expo-file-system",
-    "version": "18.0.12",
+    "version": "57.0.7",
     "license": "MIT"
   },
   {
     "name": "expo-font",
-    "version": "13.0.4",
+    "version": "57.0.4",
     "license": "MIT"
   },
   {
     "name": "expo-image-manipulator",
-    "version": "13.0.6",
+    "version": "57.0.20",
     "license": "MIT"
   },
   {
     "name": "expo-image-picker",
-    "version": "16.0.6",
+    "version": "57.0.20",
     "license": "MIT"
   },
   {
     "name": "expo-linking",
-    "version": "7.0.5",
+    "version": "57.0.11",
     "license": "MIT"
   },
   {
     "name": "expo-notifications",
-    "version": "0.29.14",
+    "version": "57.0.21",
     "license": "MIT"
   },
   {
     "name": "expo-router",
-    "version": "4.0.22",
+    "version": "57.0.23",
     "license": "MIT"
   },
   {
     "name": "expo-secure-store",
-    "version": "14.0.1",
+    "version": "57.0.4",
     "license": "MIT"
   },
   {
     "name": "expo-splash-screen",
-    "version": "0.29.24",
+    "version": "57.0.9",
     "license": "MIT"
   },
   {
     "name": "expo-sqlite",
-    "version": "15.1.4",
+    "version": "57.0.3",
     "license": "MIT"
   },
   {
     "name": "expo-status-bar",
-    "version": "2.0.1",
+    "version": "57.0.1",
     "license": "MIT"
   },
   {
@@ -106,37 +116,47 @@
   },
   {
     "name": "react",
-    "version": "18.3.1",
+    "version": "19.2.3",
     "license": "MIT"
   },
   {
     "name": "react-dom",
-    "version": "18.3.1",
+    "version": "19.2.3",
     "license": "MIT"
   },
   {
     "name": "react-native",
-    "version": "0.76.9",
+    "version": "0.86.3",
+    "license": "MIT"
+  },
+  {
+    "name": "react-native-health-connect",
+    "version": "4.1.3",
+    "license": "MIT"
+  },
+  {
+    "name": "react-native-nitro-modules",
+    "version": "0.37.1",
     "license": "MIT"
   },
   {
     "name": "react-native-safe-area-context",
-    "version": "4.12.0",
+    "version": "5.7.0",
     "license": "MIT"
   },
   {
     "name": "react-native-screens",
-    "version": "4.4.0",
+    "version": "4.26.2",
     "license": "MIT"
   },
   {
     "name": "react-native-svg",
-    "version": "15.8.0",
+    "version": "15.15.4",
     "license": "MIT"
   },
   {
     "name": "react-native-web",
-    "version": "0.19.13",
+    "version": "0.21.3",
     "license": "MIT"
   }
 ]

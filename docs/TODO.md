@@ -7,15 +7,17 @@
 **G11 (26 Sep 2026)** closed every *Build* item of the launch plan that code can close: the MVP
 requirement gaps, account recovery and security, privacy and legal surfaces, rate limiting,
 production infrastructure, the Expo SDK 57 upgrade (target API 36), the Play App Bundle, the food
-and exercise content, supersets, imports from Strong / Hevy / MyFitnessPal, push, feedback and
-product metrics — and a whole-branch security review with every finding fixed. What remains needs
+and exercise content, supersets, imports from Strong / Hevy / MyFitnessPal, push, feedback,
+product metrics and Apple Health / Health Connect — and a whole-branch security review with every
+finding fixed. What remains needs
 an account, a decision, money or a device.
 
 ---
 
 ## 1 · Needs the owner — in the order that unblocks the most
 
-1. **Push `main`** (nothing from G10 or G11 is committed or pushed yet) and watch CI; trigger
+1. **Merge `launch/g11-readiness` into `main`** — G10 and G11 are committed and pushed on that
+   branch; CI runs on a PR or on `main`, so open the PR, watch it go green, merge, and trigger
    `e2e.yml` once. Turn on branch protection.
 2. **Decisions** in [launch plan §0](11-LAUNCH-PLAN.md#phase-0--decisions-the-owner-must-make-first):
    L2 (container host), L5 (barcode scanning — the one parity gap left open), L6 (paid tier /
@@ -47,6 +49,10 @@ an account, a decision, money or a device.
       testable early.
 - [ ] Walk the new screens on the phone once: E-06, E-07, E-12, supersets, K-03, K-04, K-07, K-08,
       K-10, the imports, and a reset / verify link opened from a real inbox.
+- [ ] **K-09 on real hardware:** Apple Health on an iPhone (both switches, a finished workout
+      in the Health app), and one weigh-in from a real smart scale imported on each platform.
+      Health Connect's write path and permission sheet are proven in the emulator; its read
+      path has only met an empty store.
 
 ## Decided, and out of v1
 

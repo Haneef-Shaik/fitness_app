@@ -20,7 +20,7 @@ from hmac import compare_digest
 
 from fastapi import Request
 
-from app.api.deps import DbSession, current_user
+from app.api.deps import DbSession, current_claims, current_user
 from app.config import get_settings
 from app.core.errors import Unauthorized
 
@@ -48,7 +48,7 @@ async def admin_access(request: Request, db: DbSession) -> None:
     if get_settings().is_deployed:
         require_operator(request)
         return
-    await current_user(request, db)
+    await current_user(await current_claims(request, db), db)
 
 
 async def metrics_access(request: Request) -> None:

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.models import PushToken
 from app.notify.push import RecordingPushSender
+from tests.auth import PASSWORD, end_session, sign_in
 
 pytestmark = pytest.mark.asyncio
 
@@ -85,25 +86,25 @@ async def test_a_token_the_service_has_forgotten_is_removed(auth_client, pushed,
         assert await db.scalar(select(PushToken).where(PushToken.token == dead)) is None
 
 
-async def test_a_phone_that_signs_out_stops_receiving_the_accounts_pushes(client, engine):
-    """Signing out, and "sign out other devices", take the phone's token too."""
-    email = f"push-{uuid.uuid4().hex[:8]}@example.com"
-    a = _data(await client.post("/v1/auth/register", json={"email": email, "password": "correct-horse-battery"}), 201)
-    b = _data(await client.post("/v1/auth/login", json={"email": email, "password": "correct-horse-battery"}))
+async def test_a_phone_that_signs_out_stops_receiving_the_accounts_pushes(
+    auth_client, client, pushed, uploaded_image, engine,
+):
+    """"Sign out other devices" ends the other sign-ins in Supabase; a phone
+    whose sign-in has ended hears nothing more, and its token is removed."""
+    sender, worker = pushed
+    me = _data(await auth_client.get("/v1/auth/me"))
+    phone_b = _data(await sign_in(client, json={"email": me["email"], "password": PASSWORD}))
     token_a, token_b = f"ExponentPushToken[{uuid.uuid4().hex[:12]}]", f"ExponentPushToken[{uuid.uuid4().hex[:12]}]"
-    for session, token in ((a, token_a), (b, token_b)):
-        _data(await client.put("/v1/devices/push-token", json={"token": token, "platform": "android"},
-                               headers={"authorization": f"Bearer {session['access_token']}"}))
+    _data(await auth_client.put("/v1/devices/push-token", json={"token": token_a, "platform": "ios"}))
+    _data(await client.put("/v1/devices/push-token", json={"token": token_b, "platform": "android"},
+                           headers={"authorization": f"Bearer {phone_b['access_token']}"}))
 
-    # Phone A signs every other device out: B's registration goes, A's stays.
-    _data(await client.post("/v1/auth/sessions/revoke-others",
-                            headers={"authorization": f"Bearer {a['access_token']}"}))
+    await end_session(uuid.UUID(phone_b["session_id"]))  # phone A: "sign out other devices"
+    _data(await auth_client.post("/v1/food-analysis/image", json={"image_key": uploaded_image}), 202)
+    await _drain(worker)
+
+    assert {m.token for m in sender.sent} & {token_a, token_b} == {token_a}
     maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with maker() as db:
         left = set((await db.scalars(select(PushToken.token).where(PushToken.token.in_([token_a, token_b])))).all())
     assert left == {token_a}
-
-    # Phone A signs out: its registration goes too.
-    _data(await client.post("/v1/auth/logout", json={"refresh_token": a["refresh_token"]}))
-    async with maker() as db:
-        assert await db.scalar(select(PushToken).where(PushToken.token == token_a)) is None

@@ -22,6 +22,7 @@ import pytest
 from sqlalchemy import select
 
 from app.models import Food
+from tests.auth import sign_up
 
 pytestmark = pytest.mark.asyncio
 
@@ -237,8 +238,7 @@ class TestResolver:
         mine = await _a_food(auth_client, name="Grandmothers Zqx Dal")
 
         other = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         theirs = _data(await auth_client.get(
@@ -275,8 +275,7 @@ class TestDiary:
         await _log(auth_client, food["id"], 200)
 
         other = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         day = _data(await auth_client.get(
@@ -356,8 +355,7 @@ class TestOneFoodById:
         mine = await _a_food(auth_client)
 
         email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         theirs = await client.get(f"/v1/foods/{mine['id']}",

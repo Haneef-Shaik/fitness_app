@@ -57,9 +57,7 @@ fi
 echo "› seeding the screenshot account"
 ( cd "$ROOT/services/api" && FITLOG_API="$API" uv run python scripts/seed_screenshots.py )
 
-TOKEN=$(curl -sf -X POST "$API/v1/auth/login" -H 'content-type: application/json' \
-  -d '{"email":"store@fitlog.app","password":"fitlogstore1234"}' |
-  python3 -c "import sys, json; print(json.load(sys.stdin)['data']['access_token'])")
+TOKEN=$(python3 "$ROOT/scripts/supabase_signin.py" store@fitlog.app fitlogstore1234)
 BENCH_ID=$(curl -sf "$API/v1/exercises?q=barbell%20bench%20press&limit=5" -H "authorization: Bearer $TOKEN" |
   python3 -c "import sys, json; print(next(e['id'] for e in json.load(sys.stdin)['data'] if e['name'] == 'Barbell Bench Press'))")
 

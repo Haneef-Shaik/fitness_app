@@ -14,6 +14,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 VECTORS = json.loads(
@@ -528,8 +530,7 @@ async def test_another_users_session_is_not_readable(auth_client, client):
     mine = _data(await auth_client.post("/v1/workout-sessions", json={"exercise_ids": ex[:1]}), 201)
 
     stranger = f"other-{uuid.uuid4().hex[:8]}@example.com"
-    token = _data(await client.post(
-        "/v1/auth/register", json={"email": stranger, "password": "correct-horse-battery"}
+    token = _data(await sign_up(client, json={"email": stranger, "password": "correct-horse-battery"}
     ), 201)["access_token"]
 
     r = await auth_client.get(
@@ -568,8 +569,7 @@ async def test_records_are_empty_before_anything_is_logged(auth_client):
 async def test_another_users_custom_exercise_cannot_be_borrowed(auth_client, client):
     """Referencing it leaked its name and blocked its owner's account deletion."""
     stranger = f"owner-{uuid.uuid4().hex[:8]}@example.com"
-    token = _data(await client.post(
-        "/v1/auth/register", json={"email": stranger, "password": "correct-horse-battery"}
+    token = _data(await sign_up(client, json={"email": stranger, "password": "correct-horse-battery"}
     ), 201)["access_token"]
     them = {"authorization": f"Bearer {token}"}
     group = _data(await client.get("/v1/muscle-groups", headers=them))[0]["id"]

@@ -20,6 +20,8 @@ from datetime import UTC, datetime
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -65,8 +67,7 @@ class TestMealCategories:
             "/v1/meal-categories", json={"name": "Pre-workout"}), 201)
 
         other_email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other_email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other_email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
         theirs = _data(await client.get(
             "/v1/meal-categories", headers={"authorization": f"Bearer {token}"}))
@@ -261,8 +262,7 @@ class TestRecipes:
         }), 201)
 
         other_email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other_email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other_email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
         got = await client.get(f"/v1/recipes/{recipe['id']}",
                                headers={"authorization": f"Bearer {token}"})
@@ -366,8 +366,7 @@ class TestCopy:
         source = await _log(auth_client, food["id"], 100.0)
 
         other_email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other_email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other_email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
         got = await client.post(
             f"/v1/meals/{source['id']}/copy",

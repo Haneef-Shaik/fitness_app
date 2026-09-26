@@ -11,6 +11,8 @@ from datetime import UTC, datetime, time, timedelta
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -75,7 +77,7 @@ async def test_a_range_longer_than_a_quarter_is_refused(auth_client):
 async def test_someone_else_sees_nothing_of_mine(auth_client, client):
     today = await _setup(auth_client)
     await _eat(auth_client, today, 2000, 150)
-    other = _data(await client.post("/v1/auth/register", json={
+    other = _data(await sign_up(client, json={
         "email": f"other-{uuid.uuid4().hex[:8]}@example.com", "password": "correct-horse-battery"}), 201)
     body = _data(await client.get("/v1/analytics/nutrition",
                                   headers={"authorization": f"Bearer {other['access_token']}"}))

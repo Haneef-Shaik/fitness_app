@@ -19,9 +19,14 @@ import datetime as dt
 import os
 import sys
 import uuid
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import httpx
+
+# scripts/supabase_signin.py, at the repository root: the one way scripts sign in.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from supabase_signin import access_token
 
 BASE = os.environ.get("FITLOG_API", "http://localhost:8000").rstrip("/")
 EMAIL = os.environ.get("DEMO_EMAIL", "demo@fitlog.app")
@@ -213,18 +218,15 @@ async def main() -> int:
             print("  cd services/api && uv run uvicorn app.main:app --port 8000")
             return 1
 
-        r = await c.post("/v1/auth/register", json={"email": EMAIL, "password": PASSWORD})
-        if r.status_code == 201:
-            print(f"created {EMAIL}")
-        else:
-            r = await c.post("/v1/auth/login", json={"email": EMAIL, "password": PASSWORD})
-            if r.status_code != 200:
-                print("could not create or log in:", r.text)
-                return 1
-            print(f"{EMAIL} already existed — reusing it")
-
-        token = r.json()["data"]["access_token"]
+        # Signing in is Supabase Auth's (docs/14): the account is made there,
+        # confirmed, if it does not exist, and the first API call creates the
+        # FitLog side of it.
+        token = access_token(EMAIL, PASSWORD, create=True, metadata={"display_name": "Demo"})
         h = {"authorization": f"Bearer {token}"}
+        r = await c.get("/v1/auth/me", headers=h)
+        if r.status_code != 200:
+            print("the API refused the Supabase sign-in:", r.text)
+            return 1
 
         await c.patch("/v1/profile", headers=h, json={
             "display_name": "Demo",

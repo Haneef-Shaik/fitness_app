@@ -17,6 +17,7 @@ silently. Both halves are tested.
 """
 from __future__ import annotations
 
+import time
 import uuid
 from datetime import UTC, datetime
 
@@ -24,6 +25,7 @@ import pytest
 from sqlalchemy import func, select, text
 
 from app.db import Base
+from tests.auth import create_session, mint, sign_up
 
 pytestmark = pytest.mark.asyncio
 
@@ -239,8 +241,7 @@ class TestExport:
         await _populate(auth_client)
 
         email = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         theirs = _data(await client.get("/v1/account/export",
@@ -276,7 +277,7 @@ class TestDelete:
                   **await _child_row_counts(db, user_id)}
         assert sum(before.values()) > 0, "nothing was populated, so this proves nothing"
 
-        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
 
         db.expire_all()
         after = {**await _user_row_counts(db, user_id),
@@ -300,7 +301,7 @@ class TestDelete:
         before = await _child_row_counts(db, user_id)
         assert before["food_analysis_items"] > 0
 
-        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
 
         db.expire_all()
         assert (await _child_row_counts(db, user_id))["food_analysis_items"] == 0
@@ -312,23 +313,56 @@ class TestDelete:
         }, headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
         assert await storage.exists(uploaded_image)
 
-        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
 
         assert not await storage.exists(uploaded_image)
 
-    async def test_it_refuses_without_the_password(self, auth_client, db):
+    async def test_an_old_sign_in_must_sign_in_again(self, auth_client, db):
+        """A stolen session must not be able to delete (docs/14 S5): the person
+        proves it is them by signing in again — password, Google or Apple."""
         await _populate(auth_client)
+        me = _data(await auth_client.get("/v1/auth/me"))
+        user_id = uuid.UUID(me["id"])
+        session = await create_session(user_id)
+        stale = mint(user_id, session, me["email"], authenticated_at=time.time() - 20 * 60)
 
-        r = await auth_client.post("/v1/account/delete", json={"password": "wrong-password", "confirmation": "DELETE"})
-        assert r.status_code in (401, 422), r.text
+        r = await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"},
+                                   headers={"authorization": f"Bearer {stale}"})
 
+        assert r.status_code == 403, r.text
+        assert r.json()["error"]["code"] == "REAUTH_REQUIRED"
         from app.models import User
-        assert await db.scalar(select(func.count()).select_from(User)) > 0
+        assert await db.scalar(select(func.count()).select_from(User).where(User.id == user_id)) == 1
+
+    async def test_deleting_ends_the_supabase_sign_in_too(self, auth_client, auth_admin):
+        me = _data(await auth_client.get("/v1/auth/me"))
+
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
+
+        assert auth_admin.deleted == [uuid.UUID(me["id"])]
+        # The sign-in is gone with the user, so the token is dead at once.
+        assert (await auth_client.get("/v1/auth/me")).status_code == 401
+
+    async def test_if_supabase_is_down_the_data_is_gone_and_a_retry_finishes(
+        self, auth_client, auth_admin, db,
+    ):
+        me = _data(await auth_client.get("/v1/auth/me"))
+        auth_admin.down = True
+
+        r = await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"})
+        assert r.status_code == 503, r.text
+        from app.models import BodyMetric
+        assert await db.scalar(select(func.count()).select_from(BodyMetric).where(
+            BodyMetric.user_id == uuid.UUID(me["id"]))) == 0
+
+        auth_admin.down = False
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
+        assert auth_admin.deleted == [uuid.UUID(me["id"])]
 
     async def test_the_account_cannot_be_used_afterwards(self, auth_client, client):
         await _populate(auth_client)
 
-        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
 
         # The token outlives the row it names, so every route has to 401.
         assert (await auth_client.get("/v1/dashboard")).status_code == 401
@@ -337,8 +371,7 @@ class TestDelete:
         await _populate(auth_client)
 
         email = f"survivor-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": email, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": email, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
         auth = {"authorization": f"Bearer {token}"}
         _data(await client.post("/v1/goals", json={
@@ -347,7 +380,7 @@ class TestDelete:
             "start_date": "2026-09-01",
         }, headers=auth), 201)
 
-        _data(await auth_client.post("/v1/account/delete", json={"password": "correct-horse-battery", "confirmation": "DELETE"}))
+        _data(await auth_client.post("/v1/account/delete", json={"confirmation": "DELETE"}))
 
         assert len(_data(await client.get("/v1/goals", headers=auth))) == 1
 
@@ -412,7 +445,7 @@ class TestDeleteByPost:
         )).id
 
         out = _data(await auth_client.post("/v1/account/delete", json={
-            "password": "correct-horse-battery", "confirmation": "DELETE",
+            "confirmation": "DELETE",
         }))
         assert out["deleted"] is True
 
@@ -422,14 +455,12 @@ class TestDeleteByPost:
         assert not {n: c for n, c in after.items() if c}, after
         assert (await auth_client.get("/v1/dashboard")).status_code == 401
 
-    async def test_a_wrong_password_is_a_field_error_and_not_a_401(self, auth_client, db):
-        """A 401 tells the app its session died: it refreshes and sends the
-        same wrong password again. The session is fine — the field is wrong."""
-        r = await auth_client.post("/v1/account/delete", json={
-            "password": "not-my-password", "confirmation": "DELETE",
-        })
+    async def test_a_wrong_confirmation_is_a_field_error_and_not_a_401(self, auth_client):
+        """A 401 tells the app its session died and sends it to refresh. The
+        session is fine — the field is wrong."""
+        r = await auth_client.post("/v1/account/delete", json={"confirmation": "delete"})
         assert r.status_code == 422, r.text
-        assert r.json()["error"]["fields"]["password"]
+        assert r.json()["error"]["fields"]["confirmation"]
         assert (await auth_client.get("/v1/auth/me")).status_code == 200
 
     @pytest.mark.parametrize("word", ["delete", "DELETE ME", ""])
@@ -437,7 +468,7 @@ class TestDeleteByPost:
         # The screen asks for it; the server asking too means no client can
         # skip the step a person was meant to take.
         r = await auth_client.post("/v1/account/delete", json={
-            "password": "correct-horse-battery", "confirmation": word,
+            "confirmation": word,
         })
         assert r.status_code == 422, r.text
         assert "confirmation" in r.json()["error"]["fields"]
@@ -537,7 +568,7 @@ class TestDeletePhotos:
         _data(await auth_client.post("/v1/progress-photos", json={"image_key": uploaded_image},
                                      headers={"Idempotency-Key": str(uuid.uuid4())}), 201)
 
-        r = await client.post("/v1/auth/register", json={
+        r = await sign_up(client, json={
             "email": f"bystander-{uuid.uuid4().hex[:8]}@example.com",
             "password": "correct-horse-battery",
         })

@@ -18,6 +18,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.domain.training import E1RM_FORMULA_VERSION, estimated_1rm_kg
+from tests.auth import sign_up
 
 pytestmark = pytest.mark.asyncio
 
@@ -166,7 +167,7 @@ async def test_history_never_shows_another_users_sessions(client, auth_client):
     ex = (await _exercise_ids(auth_client))[0]
     await _finished_session(auth_client, ex, [{"reps": 5, "load_kg": 100}])
 
-    other = _data(await client.post("/v1/auth/register", json={
+    other = _data(await sign_up(client, json={
         "email": f"other-{uuid.uuid4().hex[:8]}@example.com", "password": "correct-horse-battery",
     }), 201)
     client.headers["authorization"] = f"Bearer {other['access_token']}"

@@ -70,15 +70,17 @@ class TimestampMixin:
 
 
 class User(Base, TimestampMixin):
+    """FitLog's account. `id` is Supabase Auth's `auth.users.id` and the row is
+    created on the first signed-in request (docs/14, S1). Passwords, sessions and
+    email verification are Supabase's; `email` follows the sign-in's address."""
+
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     email: Mapped[str] = mapped_column(String(254), unique=True, nullable=False, index=True)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, name="user_status"), default=UserStatus.active, nullable=False
     )
-    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Soft delete with a grace period — BRD §18 right to delete.
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
@@ -204,63 +206,3 @@ class FitnessGoal(Base, TimestampMixin):
     user: Mapped[User] = relationship(back_populates="goals")
 
     __table_args__ = (Index("ix_goals_user_status", "user_id", "status"),)
-
-
-class RefreshToken(Base, TimestampMixin):
-    """Rotating refresh tokens with reuse detection (BRD §18).
-
-    Native apps cannot use an httpOnly cookie, so the token lives in the device
-    keychain. Rotation + family revocation is what replaces the cookie's protection.
-    """
-    __tablename__ = "refresh_tokens"
-
-    id: Mapped[uuid.UUID] = _uuid_pk()
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
-    family_id: Mapped[uuid.UUID] = mapped_column(PGUUID(as_uuid=True), nullable=False, index=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    device_label: Mapped[str | None] = mapped_column(String(80))
-
-
-class AccountTokenPurpose(str, enum.Enum):
-    """What an emailed link is allowed to do. A token for one is never another."""
-
-    password_reset = "password_reset"   # A-05
-    verify_email = "verify_email"       # A-06 — proves the address already on the account
-    change_email = "change_email"       # K-02 — proves a NEW address, then moves the account to it
-
-
-class AccountToken(Base):
-    """A single-use link sent by email (A-05, A-06, K-02).
-
-    Stored like a refresh token: only the SHA-256 of the raw value, so a
-    database leak yields no working link. `email` is the address the link was
-    sent to — for `change_email` the address the account moves to, and for the
-    others how a link sent to an address the account has since left is refused.
-
-    At most one row per user and purpose: issuing a link deletes the older ones,
-    which is what "request a new one" is expected to mean.
-    """
-
-    __tablename__ = "account_tokens"
-
-    id: Mapped[uuid.UUID] = _uuid_pk()
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
-    purpose: Mapped[AccountTokenPurpose] = mapped_column(
-        Enum(AccountTokenPurpose, name="account_token_purpose"), nullable=False
-    )
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(254), nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-
-    # The cooldown and "newest link wins" both ask for a user's rows by purpose.
-    __table_args__ = (Index("ix_account_tokens_user_purpose", "user_id", "purpose"),)

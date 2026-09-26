@@ -21,6 +21,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -152,8 +154,7 @@ class TestGuards:
         mine = await _session_with(auth_client, {ex: [{**W, "load_kg": 60.0, "reps": 5}]},
                                    started_at=datetime.now(UTC) - timedelta(days=1))
         other = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         r = await auth_client.get(

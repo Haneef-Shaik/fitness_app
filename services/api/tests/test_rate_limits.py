@@ -5,10 +5,12 @@ architecture promised was a sentence rather than a behaviour. These tests drive
 **real requests** through the limiter and read what comes back, because the two
 ways a limiter fails are both invisible from inside it:
 
-* **The counter is rolled back with the request.** A failed login raises, the
-  request's transaction rolls back, and a counter written in that transaction
-  goes with it — so the attempts an attacker makes are exactly the ones that
-  are never counted. The first test uses logins that FAIL for that reason.
+* **The counter is rolled back with the request.** A failed attempt raises,
+  the request's transaction rolls back, and a counter written in that
+  transaction goes with it — so the attempts an attacker makes are exactly the
+  ones that are never counted. The limiter tests use attempts that FAIL — wrong
+  codes on the web deletion page — for that reason. (Signing in itself is
+  Supabase Auth's, and limited there; docs/14.)
 * **The endpoint never asks.** A limiter nobody calls limits nothing, so every
   protected route is driven to its 429 by the table at the bottom of this file.
 
@@ -22,6 +24,7 @@ import uuid
 
 import pytest
 
+from tests.auth import sign_up
 from tests.conftest import make_engine
 
 pytestmark = pytest.mark.asyncio
@@ -31,95 +34,79 @@ def _email() -> str:
     return f"rl-{uuid.uuid4().hex[:10]}@example.com"
 
 
-async def _login(client, email: str | None = None, headers: dict | None = None):
+async def _attempt(client, email: str | None = None, headers: dict | None = None):
+    """A wrong code on the web deletion page — a failed attempt, which must
+    still be counted. No sign-in, keyed by the address typed and the client's
+    address: the shape login had before it moved to Supabase."""
     return await client.post(
-        "/v1/auth/login",
-        json={"email": email or _email(), "password": "not-the-password"},
-        headers=headers or {},
+        "/account/delete",
+        content=f"step=delete&email={email or _email()}&code=000000&confirmation=DELETE",
+        headers={"content-type": "application/x-www-form-urlencoded", **(headers or {})},
     )
 
 
-class TestLogin:
-    async def test_the_eleventh_login_from_one_ip_in_a_minute_is_refused(self, client, rate_limits):
-        # Ten different accounts, all failing: an attacker spraying one
-        # password across many emails is what the per-IP limit is for.
+class TestTheLimiter:
+    async def test_the_eleventh_attempt_from_one_ip_in_a_minute_is_refused(self, client, rate_limits):
+        # Ten different addresses, all failing: someone spraying guesses across
+        # many accounts is what the per-IP limit is for.
+        rate_limits.set("account_delete", ip="10/minute", account="100/minute")
         for _ in range(10):
-            r = await _login(client)
+            r = await _attempt(client)
             assert r.status_code == 401, r.text
 
-        r = await _login(client)
+        r = await _attempt(client)
         assert r.status_code == 429, r.text
-
-        # The standard envelope — a client handles a 429 like any other error.
-        body = r.json()
-        assert body["success"] is False
-        assert body["data"] is None
-        assert body["error"]["code"] == "RATE_LIMITED"
-        assert body["error"]["request_id"].startswith("req_")
-        assert "Try again" in body["error"]["message"]
-        # And says when, in the header a well-behaved client reads.
+        # A page for a person, and the header a well-behaved client reads.
+        assert "Too many attempts" in r.text
         assert r.headers["retry-after"] == "60"
 
     async def test_the_window_resets(self, client, rate_limits):
+        rate_limits.set("account_delete", ip="10/minute", account="100/minute")
         for _ in range(10):
-            await _login(client)
-        assert (await _login(client)).status_code == 429
+            await _attempt(client)
+        assert (await _attempt(client)).status_code == 429
 
         rate_limits.clock.advance(59)
-        assert (await _login(client)).status_code == 429, "reset a second early"
+        assert (await _attempt(client)).status_code == 429, "reset a second early"
 
         rate_limits.clock.advance(1)
-        assert (await _login(client)).status_code == 401
+        assert (await _attempt(client)).status_code == 401
 
     async def test_a_retry_after_counts_down_to_the_end_of_the_window(self, client, rate_limits):
+        rate_limits.set("account_delete", ip="10/minute", account="100/minute")
         rate_limits.clock.advance(45)
         for _ in range(10):
-            await _login(client)
-        r = await _login(client)
+            await _attempt(client)
+        r = await _attempt(client)
         assert r.status_code == 429
         assert r.headers["retry-after"] == "15"
 
     async def test_one_email_is_limited_across_many_ips(self, client, rate_limits):
-        """The other half: one account, attacked from a botnet. Capped by the
-        per-account total, whichever addresses the attempts come from."""
+        """The other half: one account, attacked from a botnet. Capped per
+        account, whichever addresses the attempts come from."""
         rate_limits.trust_proxies(1)
-        rate_limits.set("login_total", account="5/hour")
+        rate_limits.set("account_delete", ip="100/minute", account="5/hour")
         email = _email()
         for i in range(5):
-            r = await _login(client, email, headers={"x-forwarded-for": f"203.0.113.{i}"})
+            r = await _attempt(client, email, headers={"x-forwarded-for": f"203.0.113.{i}"})
             assert r.status_code == 401, r.text
 
-        r = await _login(client, email, headers={"x-forwarded-for": "203.0.113.99"})
+        r = await _attempt(client, email, headers={"x-forwarded-for": "203.0.113.99"})
         assert r.status_code == 429
 
         # A different account from that same fresh address is unaffected.
-        r = await _login(client, headers={"x-forwarded-for": "203.0.113.99"})
+        r = await _attempt(client, headers={"x-forwarded-for": "203.0.113.99"})
         assert r.status_code == 401
 
-    async def test_a_stranger_cannot_lock_the_owner_out(self, client, rate_limits):
-        """Six bad attempts a minute from one address used to 429 the owner's
-        right password too (G11 security review)."""
-        rate_limits.trust_proxies(1)
-        email = _email()
-        await client.post("/v1/auth/register", json={"email": email, "password": "correct-horse-battery"})
-        for _ in range(6):
-            await _login(client, email, headers={"x-forwarded-for": "198.51.100.66"})
-        blocked = await _login(client, email, headers={"x-forwarded-for": "198.51.100.66"})
-        assert blocked.status_code == 429
-
-        r = await client.post("/v1/auth/login", json={"email": email, "password": "correct-horse-battery"},
-                              headers={"x-forwarded-for": "203.0.113.7"})
-        assert r.status_code == 200, r.text
-
-    async def test_the_email_is_matched_the_way_login_matches_it(self, client, rate_limits):
-        # Login lowercases and strips; a limit that did not would give every
+    async def test_the_email_is_matched_the_way_the_form_matches_it(self, client, rate_limits):
+        # The form lowercases and strips; a limit that did not would give every
         # capitalisation of one address its own budget.
         rate_limits.trust_proxies(1)
-        rate_limits.set("login_total", account="5/hour")
+        rate_limits.set("account_delete", ip="100/minute", account="5/hour")
         email = _email()
         for i, variant in enumerate([email, email.upper(), email.title(), email, email.upper()]):
-            await _login(client, variant, headers={"x-forwarded-for": f"198.51.100.{i}"})
-        r = await _login(client, email, headers={"x-forwarded-for": "198.51.100.50"})
+            await _attempt(client, variant, headers={"x-forwarded-for": f"198.51.100.{i}"})
+        r = await _attempt(client, email, headers={"x-forwarded-for": "198.51.100.50"})
         assert r.status_code == 429
 
     async def test_a_forged_forwarded_for_changes_nothing_without_a_trusted_proxy(
@@ -130,18 +117,11 @@ class TestLogin:
         Trusting it would let an attacker name a fresh address per request and
         walk past every per-IP limit.
         """
+        rate_limits.set("account_delete", ip="10/minute", account="100/minute")
         for i in range(10):
-            await _login(client, headers={"x-forwarded-for": f"192.0.2.{i}"})
-        r = await _login(client, headers={"x-forwarded-for": "192.0.2.200"})
+            await _attempt(client, headers={"x-forwarded-for": f"192.0.2.{i}"})
+        r = await _attempt(client, headers={"x-forwarded-for": "192.0.2.200"})
         assert r.status_code == 429
-
-    async def test_a_successful_login_still_works_under_the_limit(self, client, rate_limits):
-        email = _email()
-        await client.post("/v1/auth/register",
-                          json={"email": email, "password": "correct-horse-battery"})
-        r = await client.post("/v1/auth/login",
-                              json={"email": email, "password": "correct-horse-battery"})
-        assert r.status_code == 200, r.text
 
 
 class TestClientAddress:
@@ -292,7 +272,7 @@ class TestSeveralInstances:
         try:
             async with AsyncSession(tiny) as session:
                 await session.execute(sql("SELECT 1"))  # holds the pool's only connection
-                await enforce(session, request, "login", account="pool@example.com")
+                await enforce(session, request, "account_delete", account="pool@example.com")
         finally:
             await tiny.dispose()
 
@@ -302,7 +282,7 @@ class TestSeveralInstances:
         from app.models import RateLimitCounter
 
         email = _email()
-        await _login(client, email)
+        await _attempt(client, email)
         async with engine.connect() as conn:
             buckets = list((await conn.execute(select(RateLimitCounter.bucket))).scalars())
         assert buckets, "nothing was counted"
@@ -323,20 +303,19 @@ class TestConfiguration:
     def test_a_malformed_rule_refuses_to_start(self, bad):
         from app.config import Settings, validate_settings
 
-        with pytest.raises(RuntimeError, match="RATE_LIMIT_LOGIN_IP"):
-            validate_settings(Settings(rate_limit_login_ip=bad))
+        with pytest.raises(RuntimeError, match="RATE_LIMIT_ACCOUNT_DELETE_IP"):
+            validate_settings(Settings(rate_limit_account_delete_ip=bad))
 
     async def test_switched_off_it_counts_nothing(self, client, rate_limits):
         rate_limits.enabled = False
         for _ in range(12):
-            assert (await _login(client)).status_code == 401
+            assert (await _attempt(client)).status_code == 401
 
 
 # --------------------------------------------------------- every protected route
 
 async def _registered(client) -> dict:
-    r = await client.post("/v1/auth/register",
-                          json={"email": _email(), "password": "correct-horse-battery"})
+    r = await sign_up(client, json={"email": _email(), "password": "correct-horse-battery"})
     assert r.status_code == 201, r.text
     return r.json()["data"]
 
@@ -345,45 +324,25 @@ def _bearer(user: dict) -> dict:
     return {"authorization": f"Bearer {user['access_token']}"}
 
 
-async def _call(client, route: str, user: dict | None):
+async def _call(client, route: str, user: dict):
     """One request to a protected route. Whether it succeeds does not matter —
     every attempt counts, including the ones that fail."""
-    if route == "register":
-        return await client.post("/v1/auth/register",
-                                 json={"email": _email(), "password": "correct-horse-battery"})
-    if route == "login":
-        return await _login(client)
-    if route == "refresh":
-        return await client.post("/v1/auth/refresh", json={"refresh_token": "not-a-token"})
     if route == "account-delete-post":
         return await client.post("/v1/account/delete", headers=_bearer(user),
-                                 json={"password": "wrong-password", "confirmation": "DELETE"})
+                                 json={"confirmation": "not the word"})
     if route == "account-delete-web":
         return await client.post(
             "/account/delete",
-            content=f"email={user['user']['email']}&password=wrong&confirmation=DELETE",
+            content=f"step=send&email={user['user']['email']}",
             headers={"content-type": "application/x-www-form-urlencoded"},
         )
     if route == "ai-text":
         return await client.post("/v1/food-analysis/text", headers=_bearer(user),
                                  json={"text": "2 eggs"})
-    if route == "password-forgot":
-        return await client.post("/v1/auth/password/forgot", json={"email": _email()})
-    if route == "password-reset":
-        return await client.post("/v1/auth/password/reset",
-                                 json={"token": "not-a-real-token", "new_password": "correct-horse-battery"})
-    if route == "email-verify":
-        return await client.post("/v1/auth/email/verify", json={"token": "not-a-real-token"})
     if route == "import-workouts":
         return await client.post("/v1/imports/workouts", headers=_bearer(user), json={"csv": "a,b\n1,2\n"})
     if route == "feedback":
         return await client.post("/v1/feedback", headers=_bearer(user), json={"message": "hello"})
-    if route == "change-password":
-        return await client.post("/v1/account/password", headers=_bearer(user),
-                                 json={"current_password": "wrong-password-x", "new_password": "another-long-password"})
-    if route == "change-email":
-        return await client.post("/v1/account/email", headers=_bearer(user),
-                                 json={"new_email": _email(), "password": "wrong-password-x"})
     if route == "ai-image":
         return await client.post("/v1/food-analysis/image", headers=_bearer(user),
                                  json={"image_key": "uploads/nobody/x.jpg"})
@@ -391,28 +350,21 @@ async def _call(client, route: str, user: dict | None):
 
 
 #: route -> the policy that guards it. Adding a sensitive endpoint means adding
-#: a line here, and this table is what proves it is actually limited.
+#: a line here, and this table is what proves it is actually limited. Signing
+#: in, sign-up, refresh, reset and verification are Supabase Auth's (docs/14).
 PROTECTED = {
-    "register": "register",
-    "login": "login",
-    "refresh": "refresh",
     "account-delete-post": "account_delete",
     "account-delete-web": "account_delete",
     "ai-text": "ai",
     "ai-image": "ai",
-    "password-forgot": "password_reset",
-    "password-reset": "password_reset",
-    "email-verify": "email_verify",
     "import-workouts": "imports",
     "feedback": "feedback",
-    "change-password": "reauth",
-    "change-email": "reauth",
 }
 
 
 @pytest.mark.parametrize("route", sorted(PROTECTED))
 async def test_every_protected_route_is_limited_by_ip(client, rate_limits, route):
-    user = None if route == "register" else await _registered(client)
+    user = await _registered(client)
     rate_limits.set(PROTECTED[route], ip="1/minute")
 
     first = await _call(client, route, user)
@@ -423,8 +375,7 @@ async def test_every_protected_route_is_limited_by_ip(client, rate_limits, route
     assert second.headers.get("retry-after")
 
 
-@pytest.mark.parametrize("route", ["account-delete-post", "account-delete-web", "ai-text",
-                                   "change-password", "change-email"])
+@pytest.mark.parametrize("route", ["account-delete-post", "account-delete-web", "ai-text"])
 async def test_the_signed_in_routes_are_limited_per_account(client, rate_limits, route):
     """Per account, whichever address it comes from — the second half of 02 §8."""
     rate_limits.trust_proxies(1)

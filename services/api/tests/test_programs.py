@@ -17,6 +17,7 @@ from app.models import (
     WorkoutSession,
     WorkoutSet,
 )
+from tests.auth import sign_up
 
 pytestmark = pytest.mark.asyncio
 
@@ -121,7 +122,7 @@ async def test_deleting_a_day_redensifies_indices(auth_client):
 
 async def test_cannot_touch_another_users_program(client, auth_client):
     pid, _, _ = await _program_with_day(auth_client)
-    other = await client.post("/v1/auth/register", json={
+    other = await sign_up(client, json={
         "email": f"o-{uuid.uuid4().hex[:8]}@example.com", "password": "correct-horse-battery",
     })
     h = {"authorization": f"Bearer {other.json()['data']['access_token']}"}

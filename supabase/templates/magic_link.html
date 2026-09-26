@@ -1,0 +1,10 @@
+<!-- FitLog's one-time-code email (docs/14, S6). Supabase sends it for an email
+     one-time code; FitLog uses those only on the web account-deletion page.
+     The code is what matters: the default template sends a link alone, and the
+     page asks for the code. Hosted: paste this into Authentication → Email
+     Templates → Magic Link. -->
+<h2>Your FitLog code</h2>
+<p>Enter this code on the page you asked it from:</p>
+<p style="font-size:28px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+<p>It expires in an hour and works once. If you did not ask for it, ignore this
+email — nothing happens without the code.</p>

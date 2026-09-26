@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+from tests.auth import sign_up
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -80,7 +82,7 @@ async def test_cannot_read_another_users_goal(client, auth_client):
     goal_id = created.json()["data"]["id"]
 
     import uuid
-    other = await client.post("/v1/auth/register", json={
+    other = await sign_up(client, json={
         "email": f"other-{uuid.uuid4().hex[:8]}@example.com", "password": "correct-horse-battery",
     })
     token = other.json()["data"]["access_token"]

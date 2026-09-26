@@ -25,7 +25,8 @@ class PushToken(Base, TimestampMixin):
     )
     token: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     platform: Mapped[str] = mapped_column(String(16), nullable=False)   # ios|android
-    #: The sign-in (refresh family) that registered it. Ending that sign-in —
-    #: sign out, a password reset, "sign out other devices" — removes the token,
+    #: The Supabase sign-in (`session_id`) that registered it. A token whose
+    #: sign-in has ended — signed out, "sign out other devices", the account
+    #: deleted — is never sent to, and is removed when found (app/notify/push.py),
     #: so a phone that is no longer signed in stops hearing about the account.
-    family_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True), index=True)
+    session_id: Mapped[uuid.UUID | None] = mapped_column(PGUUID(as_uuid=True), index=True)

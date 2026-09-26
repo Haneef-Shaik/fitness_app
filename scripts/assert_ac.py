@@ -19,12 +19,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 
-BASE = "http://localhost:8000"
+BASE = os.environ.get("FITLOG_API", "http://localhost:8000").rstrip("/")
 EMAIL = "demo@fitlog.app"
 PASSWORD = "fitlogdemo1234"
 
@@ -51,8 +52,14 @@ def _request(method: str, path: str, token: str | None = None, body: dict | None
 
 
 def login() -> str:
-    env = _request("POST", "/v1/auth/login", body={"email": EMAIL, "password": PASSWORD})
-    return env["data"]["access_token"]
+    # Signing in is Supabase Auth's (docs/14); this file's own directory holds
+    # the one way scripts do it.
+    from supabase_signin import access_token
+
+    try:
+        return access_token(EMAIL, PASSWORD)
+    except SystemExit as e:
+        raise Failed(f"could not sign in as {EMAIL}: {e}") from e
 
 
 def get(path: str, token: str) -> object:

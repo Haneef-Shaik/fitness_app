@@ -42,6 +42,25 @@ settings = get_settings()
 # The limiter reads settings per request, so flipping the cached object is enough.
 settings.rate_limits_enabled = False
 
+# Signing in is Supabase Auth's (docs/14). Every token in the suite is minted by
+# tests/auth.py with a test key the API finds in a test JWKS, served by a mock
+# transport — the production verification path, without the network.
+from app.auth import admin as _admin
+from app.auth import tokens as _tokens
+from tests import auth as _auth
+
+settings.supabase_url = _auth.SUPABASE_URL
+settings.supabase_secret_key = "sb_secret_test"
+_tokens._transport = _auth.jwks_transport()
+_admin._transport = _auth.AUTH_ADMIN.transport()
+
+
+@pytest.fixture(autouse=True)
+def auth_admin():
+    """Supabase Auth's admin endpoints, faked (tests/auth.py) — fresh per test."""
+    _auth.AUTH_ADMIN.reset()
+    return _auth.AUTH_ADMIN
+
 
 def make_engine(url: str, **overrides):
     """A test engine built the way the API builds its own (app/db_engine.py):
@@ -86,6 +105,11 @@ async def engine():
     # Alembic's async env calls asyncio.run(), which cannot run inside the
     # pytest event loop — so drive it on a worker thread.
     await asyncio.to_thread(command.upgrade, cfg, "head")
+
+    # Supabase's `auth` schema: the real one on Supabase's Postgres, a minimal
+    # one of the same shape on plain Postgres (tests/auth.py).
+    async with reset.begin() as conn:
+        await _auth.ensure_auth_schema(conn)
 
     eng = create_async_engine(opts.url, connect_args=opts.connect_args, **opts.pool)
 
@@ -138,34 +162,10 @@ async def auth_client(client: AsyncClient) -> AsyncClient:
     import uuid as _uuid
 
     email = f"user-{_uuid.uuid4().hex[:10]}@example.com"
-    r = await client.post(
-        "/v1/auth/register", json={"email": email, "password": "correct-horse-battery"}
-    )
+    r = await _auth.sign_up(client, json={"email": email, "password": "correct-horse-battery"})
     assert r.status_code == 201, r.text
     client.headers["authorization"] = f"Bearer {r.json()['data']['access_token']}"
     return client
-
-
-# ------------------------------------------------- email (A-05, A-06, K-02)
-
-
-@pytest_asyncio.fixture
-async def outbox():
-    """The mail a test caused, readable in the test.
-
-    A fresh console sender per test, put in front of the `get_email_sender`
-    dependency — so a test follows the link in the email, as a user would,
-    rather than reading a token out of the database, where only its hash is.
-    Without this fixture the app's own console sender still records, so no test
-    ever reaches a provider.
-    """
-    from app.email.console import ConsoleEmailSender
-    from app.email.provider import get_email_sender
-
-    sender = ConsoleEmailSender(echo=False)
-    app.dependency_overrides[get_email_sender] = lambda: sender
-    yield sender
-    app.dependency_overrides.pop(get_email_sender, None)
 
 
 # ------------------------------------------------------------ AI (G8)

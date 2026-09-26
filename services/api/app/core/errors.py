@@ -101,3 +101,18 @@ class EmailNotSent(AppError):
 class PayloadTooLarge(AppError):
     status_code, code = 413, "PAYLOAD_TOO_LARGE"
     message = "That file is larger than the upload it was signed for."
+
+
+class ServiceUnavailable(AppError):
+    """A service the request depends on (Supabase Auth) could not be reached."""
+
+    status_code, code = 503, "SERVICE_UNAVAILABLE"
+    message = "That is unavailable right now. Try again shortly."
+
+
+class ReauthRequired(AppError):
+    """Deleting an account needs a recent sign-in (docs/14, S5). The app signs
+    the person in again — password, Google or Apple — and retries."""
+
+    status_code, code = 403, "REAUTH_REQUIRED"
+    message = "Sign in again to confirm it's you."

@@ -54,6 +54,11 @@ EMAIL="${EMAIL:-demo@fitlog.app}"
 # over the LAN; an installed build — CI's release APK — is launched directly:
 #   APP_ID=com.fitlog.app bash scripts/e2e.sh
 APP_ID="${APP_ID:-host.exp.exponent}"
+# Which API the flows' server-side checks and the seeds use. 8000 unless told:
+#   API_PORT=8001 bash scripts/e2e.sh     # a second API, leaving :8000 alone
+API_PORT="${API_PORT:-8000}"
+API_BASE="http://localhost:$API_PORT"
+export FITLOG_API="$API_BASE"
 PASSWORD="${PASSWORD:-fitlogdemo1234}"
 FLOWS=apps/mobile/.maestro
 
@@ -76,17 +81,17 @@ failures=0
 wait_for_idle_phone "$DEVICE"
 
 seed() {
-  ( cd services/api && uv run python scripts/seed_demo.py ) >/dev/null 2>&1
+  ( cd services/api && FITLOG_API="$API_BASE" uv run python scripts/seed_demo.py ) >/dev/null 2>&1
 }
 
 # The offline flow needs the API unreachable while Metro stays up — see the
 # header of offline-1-log-online.yaml for why airplane mode cannot do this.
 api_stop() {
   local pids
-  pids=$(lsof -ti :8000 2>/dev/null)
+  pids=$(lsof -ti :"$API_PORT" 2>/dev/null)
   [ -n "$pids" ] && kill $pids 2>/dev/null
   for _ in $(seq 1 20); do
-    curl -sf --max-time 1 http://localhost:8000/v1/openapi.json >/dev/null 2>&1 || return 0
+    curl -sf --max-time 1 "$API_BASE/v1/openapi.json" >/dev/null 2>&1 || return 0
     sleep 1
   done
   return 1
@@ -96,10 +101,10 @@ api_start() {
   # </dev/null matters: without it the restarted server inherits this script's
   # stdin, and when e2e.sh is run through a pipe the reader never sees EOF. The
   # script finishes, the results never appear, and it looks like a hang.
-  ( cd services/api && nohup uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 \
+  ( cd services/api && nohup uv run uvicorn app.main:app --host 0.0.0.0 --port "$API_PORT" \
       </dev/null >/tmp/fitlog-api.log 2>&1 & )
   for _ in $(seq 1 60); do
-    curl -sf --max-time 1 http://localhost:8000/v1/openapi.json >/dev/null 2>&1 && return 0
+    curl -sf --max-time 1 "$API_BASE/v1/openapi.json" >/dev/null 2>&1 && return 0
     sleep 1
   done
   return 1
@@ -114,7 +119,9 @@ rewire() {
   # phone attached as well, a bare `adb` is ambiguous (G10).
   case "$DEVICE" in emulator-*) ;; *) return 0 ;; esac
   adb -s "$DEVICE" reverse tcp:8081 tcp:8081 >/dev/null 2>&1
-  adb -s "$DEVICE" reverse tcp:8000 tcp:8000 >/dev/null 2>&1
+  adb -s "$DEVICE" reverse tcp:"$API_PORT" tcp:"$API_PORT" >/dev/null 2>&1
+  # The app signs in with Supabase directly (docs/14): the local stack's API.
+  adb -s "$DEVICE" reverse tcp:54321 tcp:54321 >/dev/null 2>&1
 }
 
 flow() {
@@ -172,8 +179,8 @@ bold "Seeding the known state"
 ( cd services/api && uv run python scripts/seed_catalog.py ) >/dev/null || {
   fail "reference-data seed failed"; exit 1;
 }
-( cd services/api && uv run python scripts/seed_demo.py ) || {
-  fail "seed failed — is the API up on :8000?"; exit 1;
+( cd services/api && FITLOG_API="$API_BASE" uv run python scripts/seed_demo.py ) || {
+  fail "seed failed — is the API up on :$API_PORT, and Supabase (pnpm supabase start)?"; exit 1;
 }
 
 WANT="${1:-all}"

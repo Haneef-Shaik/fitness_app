@@ -13,7 +13,6 @@ from app.api.deps import DbSession
 from app.api.envelope import fail
 from app.api.routes import (
     account,
-    account_security,
     admin,
     analytics,
     auth,
@@ -33,7 +32,6 @@ from app.api.routes import (
     profile,
     programs,
     recipes,
-    recovery,
     sessions,
     status,
     uploads,
@@ -270,8 +268,6 @@ for r in (
     body.router, dashboard.router, admin.router, account.router,
     nutrition_analytics.router, status.router, feedback.router,
     imports.router, devices.router,
-    # A-05, A-06 and K-02 (launch)
-    recovery.router, account_security.router,
 ):
     app.include_router(r, prefix="/v1")
 

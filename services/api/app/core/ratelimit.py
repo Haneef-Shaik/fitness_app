@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 
 #: The policies there are. Each has `rate_limit_<name>_ip` and
 #: `rate_limit_<name>_account` in settings.
-POLICIES = ("login", "register", "refresh", "account_delete", "ai")
+POLICIES = ("account_delete", "ai", "imports", "feedback")
 
 #: Expired windows are swept once per this many hits, per process. Often enough
 #: that the table stays the size of the traffic of the last day; rarely enough
@@ -136,13 +136,14 @@ def client_ip(request: Request, trusted_proxies: int) -> str:
 
 
 def _account_key(account: str) -> str:
-    """A keyed hash of the account, normalised the way login matches emails.
+    """A keyed hash of the account, normalised the way the forms match emails.
 
-    Keyed with the JWT secret so the table cannot be reversed with a list of
+    Keyed with a server secret (the upload-signing one, which production
+    refuses to start without) so the table cannot be reversed with a list of
     likely emails. Rotating the secret resets the counts, which is harmless.
     """
     normalised = account.strip().lower().encode()
-    secret = get_settings().jwt_secret.encode()
+    secret = get_settings().upload_signing_secret.encode()
     return hmac.new(secret, normalised, hashlib.sha256).hexdigest()[:40]
 
 

@@ -23,7 +23,7 @@ invariants). `scripts/migrate.sh` keeps revoking the Data API's grants on every 
 | S5 | **Deleting an account** needs a sign-in in the last 10 minutes (the token's `amr` timestamp) plus the typed confirmation; the API deletes FitLog's data, then the auth user through the Admin API (service-role key, server only) | Google and Apple users have no password to re-enter; a recent sign-in works for every method |
 | S6 | **The web deletion page** (Play's requirement) proves the address with a one-time code emailed by Supabase, then deletes | Works for password, Google and Apple accounts alike |
 | S7 | **Google:** native Google Sign-In → `signInWithIdToken`. **Apple:** native on iOS (`expo-apple-authentication`) → `signInWithIdToken`; not offered on Android. A button shows only when its provider is configured | Native flows are what both stores expect; Apple requires Sign in with Apple on iOS once Google is offered (App Store 4.8) |
-| S8 | **Email confirmation stays off** at launch, as A-06 decided (an unverified account keeps full use). It is one dashboard switch — *Authentication → Providers → Email → Confirm email* — if the owner wants it on | Product decision unchanged; Google and Apple addresses are verified by the provider anyway |
+| S8 | **Email confirmation is ON** — a password sign-up confirms its address before its first sign-in. *Changed on 26 Sep from "off, as A-06 decided"*, found in the security pass: with confirmation off, Supabase treats a password sign-up's address as verified, and it links sign-ins that share a verified address automatically (this cannot be switched off). Someone could sign up with **your** address and a password they know; your later "Continue with Google" would be linked into **their** account, which they can still open with that password. Google and Apple verify their addresses themselves | Account pre-hijacking is the standard attack on social sign-in; confirming the address closes it. The cost is one email before a password account's first use |
 | S9 | **Auth email** (reset, confirm, change address, one-time codes) is sent by Supabase through the project's SMTP (Resend) | FitLog's own mail sender is no longer needed for auth |
 | S10 | **Thumbnails** come from Storage's image transformation (signed render URLs with width/quality); the original upload is unchanged | Lists and grids stop downloading full-size photos |
 
@@ -90,6 +90,33 @@ the grid draws from it; `image_url` stays the original. A 1200 × 1600 test phot
 - Hosted, image transformations are a **Pro** feature (the runbook already specifies Pro).
 - Tests: `test_thumbnails.py` (8, one of them against real Storage when `SUPABASE_TEST_URL` is set),
   and the grid test in `shellScreens.test.tsx`.
+
+### Phase 3 — auth, server: done (26 Sep)
+
+The API no longer signs anybody in. It accepts a Supabase access token and nothing else:
+
+| What | How | Proven by |
+|---|---|---|
+| **Verification** (S2) | ES256/RS256 against the project's JWKS (cached 10 min, re-fetched at once for an unknown key), or the legacy HS256 secret when configured; `iss`, `aud=authenticated`, expiry, `sub`, `session_id` required; anonymous sign-ins refused | `test_supabase_auth.py` — expired, wrong audience, other project, forged key, HS256 without a secret (no algorithm confusion), unsigned, anonymous, no session, key rotation, Supabase unreachable |
+| **Sign-out is immediate** (S3) | the token's `session_id` must still be in `auth.sessions` | "sign out other devices" against the real stack: the other device's token 401s at once |
+| **One identity** (S1) | `users.id` = `auth.users.id`; account + profile created on the first call, name from sign-up or Google/Apple; address follows Supabase | concurrent first calls make one account; an address held by another account is a 409, never a merge |
+| **Deleting** (S5) | a sign-in in the last 10 minutes (`amr`) + DELETE; data first and committed, then the Supabase user (Admin API) | an old sign-in gets 403 REAUTH_REQUIRED; Supabase down mid-delete leaves no data and a retry finishes |
+| **Web deletion page** (S6) | email → Supabase emails a 6-digit code → code + DELETE | against the real stack and a real email (Mailpit): wrong code deletes nothing, the right one deletes both, an unknown address gets the same page |
+| **Push** | a token names its Supabase session; tokens of ended sign-ins are dropped before a send | `test_push.py` |
+
+Removed with it: FitLog's login, sign-up, refresh, logout, password reset, email verification, change
+password / email and "sign out other devices" endpoints; the password hash, refresh-token and
+emailed-link tables (migration m18); FitLog's mail sender; the JWT, email and login rate-limit
+settings. Signing in is limited by Supabase Auth.
+
+- **The code email needs a template** that contains `{{ .Token }}`: the default Magic Link email is a
+  link alone. Local: `supabase/templates/magic_link.html` (config.toml). Hosted: paste it into
+  *Authentication → Email Templates → Magic Link*.
+- **Scripts sign in through Supabase**: `scripts/supabase_signin.py` (seeds, acceptance checks,
+  drills). Locally it asks `supabase status` for the URL and keys, so no key is in the repository.
+- The suite runs the real verification path: tokens signed by a test key, published in a test JWKS
+  over a mock transport, and a minimal `auth` schema on plain Postgres (the real one on Supabase's):
+  **981 pass on plain Postgres, 981 on Supabase through the pooler.**
 
 Run it yourself:
 

@@ -26,6 +26,7 @@ import pytest
 from sqlalchemy import select
 
 from app.models import MuscleGroup, MuscleRole
+from tests.auth import sign_up
 
 pytestmark = pytest.mark.asyncio
 
@@ -205,8 +206,7 @@ class TestScoping:
         await _finished_session(auth_client, ex)
 
         other = f"other-{uuid.uuid4().hex[:8]}@example.com"
-        r = await client.post("/v1/auth/register",
-                              json={"email": other, "password": "correct-horse-battery"})
+        r = await sign_up(client, json={"email": other, "password": "correct-horse-battery"})
         token = r.json()["data"]["access_token"]
 
         body = (await auth_client.get(

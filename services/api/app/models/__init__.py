@@ -40,14 +40,11 @@ from app.models.session import (
     WorkoutSet,
 )
 from app.models.user import (
-    AccountToken,
-    AccountTokenPurpose,
     ActivityLevel,
     CalorieTarget,
     FitnessGoal,
     GoalStatus,
     GoalType,
-    RefreshToken,
     UnitSystem,
     User,
     UserProfile,
@@ -57,10 +54,9 @@ from app.models.user import (
 # Grouped by domain rather than sorted — the grouping is the documentation.
 __all__ = [  # noqa: RUF022
     # user
-    "User", "UserProfile", "FitnessGoal", "RefreshToken", "CalorieTarget",
+    "User", "UserProfile", "FitnessGoal", "CalorieTarget",
     "UserStatus", "UnitSystem", "ActivityLevel", "GoalType", "GoalStatus",
     # emailed single-use links (A-05, A-06, K-02)
-    "AccountToken", "AccountTokenPurpose",
     # catalog
     "MuscleGroup", "Exercise", "ExerciseMuscle", "Equipment", "CatalogStatus", "MuscleRole",
     # plan

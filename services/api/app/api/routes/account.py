@@ -23,17 +23,17 @@ the deleting.
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Request
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, DbSession
+from app.api.deps import CurrentUser, DbSession, Signin
 from app.api.envelope import ok
-from app.core.errors import ValidationFailed
+from app.auth import admin
+from app.core.errors import ReauthRequired, ValidationFailed
 from app.core.ratelimit import enforce
-from app.core.security import verify_password
 from app.models import (
     BodyMetric,
     CalorieTarget,
@@ -47,7 +47,6 @@ from app.models import (
     PersonalRecord,
     ProgressPhoto,
     Recipe,
-    User,
     UserProfile,
     WorkoutProgram,
     WorkoutSession,
@@ -399,28 +398,28 @@ EXPORTED_TABLES = {
 }
 
 
-async def _check_password(db: DbSession, user_id, password: str) -> User | None:
-    account = await db.scalar(select(User).where(User.id == user_id))
-    if account is None or not verify_password(password, account.password_hash):
-        return None
-    return account
+#: How recent a sign-in must be to delete the account (docs/14, S5).
+REAUTH_WINDOW = timedelta(minutes=10)
 
 
 @router.post("/delete", response_model=Envelope[AccountDeletedOut])
-async def delete_account(body: AccountDeleteIn, request: Request, user: CurrentUser, db: DbSession):
+async def delete_account(
+    body: AccountDeleteIn, request: Request, user: CurrentUser, claims: Signin, db: DbSession,
+):
     """Removes the account and everything in it. There is no undo.
 
-    The password is required again: a delete reachable by a stolen session
-    token is a delete somebody else can perform. It is rate limited like a
-    login for the same reason — it is a place to guess a password — with the
-    per-account half keyed by the **signed-in account's id**, not its email.
-    The web page's budget is keyed by the email it is given, which anybody can
-    type: sharing it would let a stranger post a few bogus attempts an hour and
-    stop the owner deleting their account in the app, which both stores require.
+    Who is asking must have signed in within the last ten minutes — a password,
+    Google or Apple, re-entered (the token's `amr`) — because a delete a stolen
+    session could perform is a delete somebody else can perform, and Google and
+    Apple accounts have no password to ask for. An older sign-in is a 403
+    REAUTH_REQUIRED: the app signs the person in again and retries. Rate
+    limited per signed-in account, never per email, so a stranger cannot spend
+    the owner's budget.
 
-    A wrong password is a **422 on the field**, not a 401: the session is
-    fine, and a 401 would send the app to refresh it and resend the same
-    wrong password.
+    FitLog's data goes first and is committed; then the Supabase sign-in. If the
+    second step fails, the account has no data left and a retry finishes it
+    (the purge finds nothing; an already-deleted sign-in is fine) — never data
+    left behind a deleted sign-in.
 
     Immediate, not the 30-day grace K-07 sketches `[ASSUMPTION]`: a grace
     period needs a scheduled purge and a cancel-on-login path, and an account
@@ -428,15 +427,16 @@ async def delete_account(body: AccountDeleteIn, request: Request, user: CurrentU
     """
     await enforce(db, request, "account_delete", account=str(user.id))
 
-    problems: dict[str, str] = {}
     if body.confirmation != DELETE_CONFIRMATION:
-        problems["confirmation"] = f"Type {DELETE_CONFIRMATION} in capitals to confirm."
-    if await _check_password(db, user.id, body.password) is None:
-        problems["password"] = "That password is not right."
-    if problems:
-        raise ValidationFailed(next(iter(problems.values())), fields=problems)
+        problem = f"Type {DELETE_CONFIRMATION} in capitals to confirm."
+        raise ValidationFailed(problem, fields={"confirmation": problem})
+    signed_in = claims.authenticated_at
+    if signed_in is None or datetime.now(UTC) - signed_in > REAUTH_WINDOW:
+        raise ReauthRequired()
 
     photos = await purge_account(db, user.id)
+    await db.commit()
+    await admin.delete_sign_in(user.id)
     return ok(AccountDeletedOut(deleted=True, photos_deleted=photos).model_dump())
 
 

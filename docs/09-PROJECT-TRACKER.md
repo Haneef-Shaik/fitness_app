@@ -1,7 +1,7 @@
 # Project Tracker
 ## FitLog — Fitness & Nutrition Tracking Platform
 
-**Last updated:** 2026-09-26 (G11 — launch readiness; see [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md)) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
+**Last updated:** 2026-10-02 (`main` carries G10, G11, Supabase Auth and the UI redesign; every screen recorded in [screenshots/](screenshots/README.md); launch path in [11-LAUNCH-PLAN.md](11-LAUNCH-PLAN.md)) · **Charter:** [08-PROJECT-CHARTER.md](08-PROJECT-CHARTER.md)
 
 > This file records **what is actually true today**, not what is planned.
 > A box is only ticked when the thing has been run and verified — see the
@@ -16,14 +16,14 @@
 | | |
 |---|---|
 | **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
-| **Tests passing** | **2,430** — 133 TS domain, **1,054** Python *(4 skipped)*, **1,243 client** |
+| **Tests passing** | **2,534** — 133 TS domain, **991** Python *(5 skipped)*, **1,410 client** *(2 Oct, on `main`; Python fell from 1,054 when FitLog's own login, reset and verification moved to Supabase Auth)* |
 | **API endpoints live** | **125** operations across **98** paths, all with declared response shapes (D17) |
 | **App screens built** | **76** route screens *(G11 added the launch surfaces: A-05, A-06, K-02, K-03, K-04, K-07, K-08, K-10, L-04, feedback, imports; E-06, E-07, E-12, E-13 and L-05, L-06, L-08 as sheets and overlays)* |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
 | **Processes** | API (`uvicorn`) + **analysis worker** (`uv run python -m app.worker`) — separate on purpose (D25) |
 | **Screens designed** | 103 specified, 112 rendered *(incl. state variants)* |
 | **Running** | Expo **SDK 57** app (RN 0.86, target API 36) → FastAPI → PostgreSQL — G11: the acceptance suite green on a **release APK** in the emulator (26 Sep); G10: on a phone |
-| **Version control** | git · HEAD `0ce4299`; **G10 and G11 work is uncommitted on `main`** and nothing is pushed (no GitHub credentials on the build machine) |
+| **Version control** | git · `main` = `launch/g11-readiness` + `ui/redesign`, merged and pushed 2 Oct; CI runs on that push. `launch/g11-readiness` and `ui/redesign` are pushed too |
 | **CI** | GitHub Actions — **5 jobs** on every push (TS domain, Python, API-type drift gate, mobile tests, contract) · nightly **acceptance suite on a release APK** in an emulator (`e2e.yml`, dry-run locally 25 Sep) |
 
 ```
@@ -223,7 +223,7 @@ Sequencing and handoffs from here to release: **[10-EXECUTION-GOALS.md](10-EXECU
 
 | Order | Task | Why now | Blocks |
 |-------|------|---------|--------|
-| 1 | **Commit and push** G10 + G11, watch CI and the first `e2e.yml` run | Everything since `0ce4299` exists only in this working tree | a green CI on GitHub |
+| 1 | **Watch CI on `main`** (pushed 2 Oct with G10, G11 and the redesign), trigger the first `e2e.yml` run, turn on branch protection | The push is done; nobody has yet seen GitHub's verdict on it | a green CI on GitHub |
 | 2 | Owner decisions L2, L5, L6, L7, L8 and the accounts in [TODO.md §1](TODO.md) | Every remaining launch item waits on one of them | hosting, store listings |
 | 3 | Host staging by [12-DEPLOYMENT.md](12-DEPLOYMENT.md); first iOS build via EAS | The first real run of the deploy pipeline and of `expo-sqlite` on iOS | beta |
 
@@ -329,6 +329,9 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | 26 Sep | **D16 had regressed, and nothing said so until a phone measured it.** On the phone, SDK 57 release APK: tap → set **p95 164.6 ms**, over the 100 ms budget (G10: 67.4). G11's set editing passed each row an `onEdit` that was a new function every render, so `SetRow`'s memo never held and every commit re-rendered the whole list. One `useCallback` (above the screen's early returns — the first attempt below them broke four finish tests): **p95 80.7 ms**, p50 61.6, worst 95; cold start 956 ms. A test now counts the rows a commit renders. The first measurement run also exposed `build-release-apk.sh` reusing the previous JS bundle when only `API_URL` changed — an APK that printed one API and called another; it now regenerates the bundle and refuses an APK whose bundle lacks the address |
 | 26 Sep | **The whole acceptance suite on the phone, on SDK 57.** Samsung SM-E546B, Android 16, release APK over Wi-Fi: AC-01, 02, 04, 05, 07, 08, 09, 10, 11 and the offline flow (server gone, force-quit, relaunch) — each proven on the device and in the database. AC-09 first failed twice: the phone's photo picker now badges a picked photo "Selected", and the flow's `(Add|Done|Select).*` tapped that badge and un-picked it; the button is now "Done". Whole labels only now — passes on the phone and on the emulator's older picker. And `e2e.sh ac-09` had never run anything: AC-09 sat inside the AC-08/AC-10 block, so asking for it alone ran nothing and printed success. Fixed, and an unknown criterion is refused |
 | 26 Sep | **Supabase: database, storage and auth** ([14-SUPABASE.md](14-SUPABASE.md)). Owner's decision: Supabase Auth with Google and Apple, Storage thumbnails; the API stays the only way to the data. Server: tokens verified against the project's JWKS, sign-out immediate, one identity, deletion with a recent sign-in; FitLog's own login, reset and verification removed. App: `supabase-js` for sign-in only (PKCE, keychain), email confirmation (S8), reset by link **or code**, both-address email change, provider-aware security and deletion. **Proven on the emulator against a local Supabase** (release APK, API through the transaction pooler): AC-01, 02, 04, 05, 07, 08, 09, 10, 11 and the offline relaunch, each on the device and in the database. A review of the app's auth code found 2 high (a signed-in phone could set a new password without the old one; an offline sign-out kept the session), 3 medium (a ~25 s offline splash; an unknown account after an offline start; a different Google account accepted on re-auth), 4 low — all fixed, each with a test |
+| 27 Sep | **Reminders that fire.** One trigger shape (date, hour, minute) for workout, weigh-in, meal and check-in reminders, planned from the phone's own clock and applied in a queue; a dedicated Android channel; tapping a notification routes to the screen it is about, and one that arrives while the app is open is shown |
+| 27 Sep | **UI redesign — Kinetic Performance** ([15-UI-REDESIGN.md](15-UI-REDESIGN.md)): the owner rejected the first UI; dark canvas, one blue accent, Hanken Grotesk + Inter, new primitives (EmptyState, Skeleton, StickyFooter, MenuList, Checklist…). Home, Diary, Logger, Train, Start, Progress, Add food, Previous occurrence, Weight and Progression rebuilt; the rest inherit the tokens |
+| 2 Oct | **Everything on `main`.** `launch/g11-readiness` fast-forwarded `main`, then `ui/redesign` merged; typecheck clean and 2,534 tests green on the result; pushed. **Every screen recorded** from a release build of `main` on the emulator: [screenshots/](screenshots/README.md) |
 
 
 ---

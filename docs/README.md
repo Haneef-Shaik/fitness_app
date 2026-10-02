@@ -61,6 +61,7 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | — | [data-sources.md](data-sources.md) | Where every seeded food and exercise comes from, the licences, and the attribution owed. |
 | — | [wireframes/](wireframes/) | Page-by-page: layout, every control, every state. |
 | — | [design/](design/) | The UI as running code — 103 screens, 12 domains. |
+| — | [screenshots/](screenshots/README.md) | **Every screen of the real app** — 170 captures of a release build of `main` (2 Oct), with the defects they show. |
 
 ### Wireframe volumes
 

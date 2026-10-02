@@ -16,9 +16,9 @@ an account, a decision, money or a device.
 
 ## 1 · Needs the owner — in the order that unblocks the most
 
-1. **Merge `launch/g11-readiness` into `main`** — G10 and G11 are committed and pushed on that
-   branch; CI runs on a PR or on `main`, so open the PR, watch it go green, merge, and trigger
-   `e2e.yml` once. Turn on branch protection.
+1. **Watch CI on `main`** — `launch/g11-readiness` and the UI redesign were merged into `main` and
+   pushed on 2 Oct (typecheck and all 2,534 tests green locally). Check the GitHub run goes green,
+   trigger `e2e.yml` once, and turn on branch protection.
 2. **Decisions** in [launch plan §0](11-LAUNCH-PLAN.md#phase-0--decisions-the-owner-must-make-first):
    L2 (container host), L5 (barcode scanning — the one parity gap left open), L6 (paid tier /
    AI quota), L7 (launch scope), L8 (name and trademark). L1 (Supabase — database, storage **and

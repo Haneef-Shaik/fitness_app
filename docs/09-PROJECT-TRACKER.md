@@ -16,7 +16,7 @@
 | | |
 |---|---|
 | **Milestones complete** | M0 … M7, **M8** — **9 of 9** |
-| **Tests passing** | **2,534** — 133 TS domain, **991** Python *(5 skipped)*, **1,410 client** *(2 Oct, on `main`; Python fell from 1,054 when FitLog's own login, reset and verification moved to Supabase Auth)* |
+| **Tests passing** | **2,563** — 134 TS domain, **995** Python *(5 skipped)*, **1,434 client** *(2 Oct; Python fell from 1,054 when FitLog's own login, reset and verification moved to Supabase Auth)* |
 | **API endpoints live** | **125** operations across **98** paths, all with declared response shapes (D17) |
 | **App screens built** | **76** route screens *(G11 added the launch surfaces: A-05, A-06, K-02, K-03, K-04, K-07, K-08, K-10, L-04, feedback, imports; E-06, E-07, E-12, E-13 and L-05, L-06, L-08 as sheets and overlays)* |
 | **B-01 request count** | **2 → 1** (measured, `app/__tests__/dashboardRequests.test.tsx`) |
@@ -332,6 +332,7 @@ Nothing. Q1 and Q9 were answered by the owner on 25 Sep ([charter §9](08-PROJEC
 | 27 Sep | **Reminders that fire.** One trigger shape (date, hour, minute) for workout, weigh-in, meal and check-in reminders, planned from the phone's own clock and applied in a queue; a dedicated Android channel; tapping a notification routes to the screen it is about, and one that arrives while the app is open is shown |
 | 27 Sep | **UI redesign — Kinetic Performance** ([15-UI-REDESIGN.md](15-UI-REDESIGN.md)): the owner rejected the first UI; dark canvas, one blue accent, Hanken Grotesk + Inter, new primitives (EmptyState, Skeleton, StickyFooter, MenuList, Checklist…). Home, Diary, Logger, Train, Start, Progress, Add food, Previous occurrence, Weight and Progression rebuilt; the rest inherit the tokens |
 | 2 Oct | **Everything on `main`.** `launch/g11-readiness` fast-forwarded `main`, then `ui/redesign` merged; typecheck clean and 2,534 tests green on the result; pushed. **Every screen recorded** from a release build of `main` on the emulator: [screenshots/](screenshots/README.md) |
+| 2 Oct | **What the screenshots found, fixed.** The exercise catalog stopped at 200 of 297 (library, picker, and C-05 naming rows "Exercise") — the client now pages. **Plan weekdays were read two ways**: the API, templates, C-01 and reminders are 0 = Monday, but C-03, C-05 and adherence were Sunday-first, so "Mon / Wed / Fri" showed as Sun / Tue / Thu and adherence counted a day early — Monday-first everywhere, both domains and the vectors. Adherence also counted planned days from before a plan existed and on archived programs (0 % after an import). Plus: picker chips stretched in a sheet, swap picker said "Add", raw ISO dates on F-03/F-04/F-06/F-07/H-02/H-18/I-03/I-04 and a UTC "today", meal categories all "08:00", clipped macro targets, failed reads not retried after L-05, and two roundings of one e1RM on E-08. Each with a test; screens re-taken from the fixed build. **F-04 stays a placeholder**: reopening a days-old session and finishing it would stretch its duration to days, so it needs the specified edit mode |
 
 
 ---

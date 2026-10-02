@@ -1,6 +1,6 @@
 # FitLog: every screen
 
-170 screenshots of 92 screen IDs, captured on 2 Oct 2026 from a **release build of `main`**
+172 screenshots of 92 screen IDs, captured on 2 Oct 2026 from a **release build of `main`**
 (with the Kinetic Performance redesign merged) on an Android 14 emulator (Pixel 6, 1080 × 2400),
 against the local Supabase stack and API.
 
@@ -43,6 +43,7 @@ onboarding screens and the empty states are from a fresh account created during 
 |---|---|---|
 | B-01 Home Dashboard | Home (part 1) | [B-01a-home-1.png](02-home/B-01a-home-1.png) |
 | B-01 Home Dashboard | Home (part 2) | [B-01a-home-2.png](02-home/B-01a-home-2.png) |
+| B-01 Home Dashboard | Home (part 3) | [B-01a-home-3.png](02-home/B-01a-home-3.png) |
 | B-01 Home Dashboard | Home all caught up | [B-01c-home-all-caught-up.png](02-home/B-01c-home-all-caught-up.png) |
 | B-02 Customize Dashboard | Customize dashboard | [B-02-customize-dashboard.png](02-home/B-02-customize-dashboard.png) |
 | B-03 Quick Action Sheet | Quick actions | [B-03-quick-actions.png](02-home/B-03-quick-actions.png) |
@@ -62,7 +63,8 @@ onboarding screens and the empty states are from a fresh account created during 
 | C-03 Program Detail | Program detail (part 1) | [C-03-program-detail-1.png](03-train/C-03-program-detail-1.png) |
 | C-03 Program Detail | Program detail (part 2) | [C-03-program-detail-2.png](03-train/C-03-program-detail-2.png) |
 | C-04 Program Create / Edit | New program | [C-04-new-program.png](03-train/C-04-new-program.png) |
-| C-05 Plan Day Editor | Plan day editor | [C-05-plan-day-editor.png](03-train/C-05-plan-day-editor.png) |
+| C-05 Plan Day Editor | Plan day editor (part 1) | [C-05-plan-day-editor-1.png](03-train/C-05-plan-day-editor-1.png) |
+| C-05 Plan Day Editor | Plan day editor (part 2) | [C-05-plan-day-editor-2.png](03-train/C-05-plan-day-editor-2.png) |
 | C-06 Exercise Picker | Exercise picker | [C-06-exercise-picker.png](03-train/C-06-exercise-picker.png) |
 | C-07 Prescription Editor | Prescription editor | [C-07-prescription-editor.png](03-train/C-07-prescription-editor.png) |
 | D-01 Exercise Library | Exercise library (part 1) | [D-01-exercise-library-1.png](03-train/D-01-exercise-library-1.png) |
@@ -260,24 +262,38 @@ Two states are recorded only partly: **L-07 Sync conflict** shows its no-conflic
 conflict needs two devices editing the same record), and **I-05 Progress photos** is empty (the
 account has no photos).
 
-## Defects these screenshots show
+## Defects these screenshots showed
 
-- **Exercise picker filter chips stretch into tall ovals** (C-06, E-05b): the muscle chips inside
-  the picker sheet grow to ~250 px high.
-- **Plan day editor names exercises "Exercise"** (C-05): rows 2 and 3 should read Overhead
-  Press and Triceps Pushdown.
-- **Swap picker is titled "Add exercises"** (E-05b) though it replaces one exercise.
-- **Raw ISO dates on screens the redesign has not reached yet**: session detail and edit (F-03,
-  F-04), compare (F-06), calendar month headers (F-07), meal detail (H-02), analyses (H-18),
-  waist and weight chart ends (I-03, I-04).
-- **Edit past session is a placeholder** (F-04): "coming with the session-editing work".
-- **Every meal category is "usually at 08:00"** (H-16).
-- **Adherence reads 0 %** after eight weeks of imported training (G-01, G-06): imported sessions
-  are not matched to the program's days.
-- **Macro tiles clip their targets** on Home ("/ 176 g" cut off), and the "1897.5 kg" best
-  session wraps in the exercise-detail record tiles (D-02).
-- **After signing back in from L-05 the screen behind still shows "Something went wrong"**
-  until Try again is tapped.
-- **The finish summary rounds the same e1RM two ways**: "104.8 kg" as a record, "105 kg" in the list.
+Fixed on 2 Oct, each with a test, and the affected screens re-taken from the fixed build:
+
+- **The exercise catalog stopped at 200 of 297** — the library and picker could not reach
+  anything after "Machine Triceps Extension", and the plan day editor (C-05) named those rows "Exercise".
+  The client now reads every page.
+- **Plan weekdays were read two ways.** The API, the starter templates, C-01 and the
+  reminders use 0 = Monday; C-03, C-05 and adherence used 0 = Sunday, so "Mon / Wed / Fri"
+  showed as Sun / Tue / Thu and adherence counted every scheduled day a day early. All
+  Monday-first now, in both domain implementations and the shared vectors.
+- **Adherence read 0 %** after eight weeks of imported training (G-01, G-06): it counted
+  planned days from before the program existed, and archived programs. It now counts a day
+  only from when it was planned, on live programs.
+- **Exercise picker filter chips stretched into tall ovals** (C-06, E-05b).
+- **The swap picker said "Add exercises" / "Add 1"** (E-05b); it says Swap now.
+- **Raw ISO dates**: session detail and edit (F-03, F-04), compare (F-06), calendar months
+  and day labels (F-07), meal detail (H-02), analyses (H-18, now on the profile's clock), and
+  the weight and waist chart ends (I-03, I-04). "Today" is also the profile's day now, not
+  UTC's, which in India was still yesterday until 05:30.
+- **Every meal category looked "usually at 08:00"** (H-16): a time-shaped placeholder.
+- **Home's macro tiles clipped their targets**; the exercise record tile wrapped "1897.5 kg" (D-02).
+- **After signing back in (L-05) the screen behind stayed on "Something went wrong"**; it
+  now asks again by itself.
+- **The finish summary** printed "estimated 1rm 104.8 kg" above "best e1RM 105 kg" for the
+  same set (E-08): records are named in words and both read to one decimal.
+
+Still open:
+
+- **Edit past session is a placeholder** (F-04). The API's reopen is meant for "I forgot
+  the last set": finishing a session reopened days later would stretch its duration to
+  days, so this needs the edit mode the wireframe specifies (sets dated to the session,
+  records recomputed on save), not a link to the logger.
 - The history filter (F-02) lists ten "Clavicular Head xxxxxx" muscle groups: leftovers in
   the **local** database from a test run on 26 Sep, not app data.

@@ -10,7 +10,7 @@ import { View } from 'react-native';
 import { Button } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
-import { GoalRow } from '../../home';
+import { GoalRow } from '@/features/body/GoalRow';
 import { useGoals } from '@/lib/query/hooks';
 import { space } from '@/theme';
 

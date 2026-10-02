@@ -57,3 +57,14 @@ export function metricLabel(key: string): string {
 export function metricUnit(key: string): string {
   return METRIC_FIELDS.find((f) => f.key === key)?.unit ?? 'kg';
 }
+
+/**
+ * A change over a period, in one sentence: "▼ 0.4 kg in 7 days", or
+ * "No change in 7 days" — not `delta()` with a period bolted on, which read
+ * "No change (kg) in 7 days" on the dashboard (seen on the emulator, 27 Sep).
+ */
+export function changeOver(value: number | null | undefined, unit: string, period: string): string | null {
+  const change = delta(value, unit);
+  if (change === null) return null;
+  return change.startsWith('No change') ? `No change in ${period}` : `${change} in ${period}`;
+}

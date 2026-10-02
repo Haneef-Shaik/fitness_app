@@ -11,11 +11,12 @@
  */
 import React from 'react';
 import { ScrollView, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from '@/ui/Pressable';
 import type { PreviousPerformance as Previous } from '@fitlog/api-types';
-import { Text } from '@/ui';
+import { Card, Text } from '@/ui';
 import { formatServerDate } from '@/lib/datetime';
-import { font, radius, space, useTheme } from '@/theme';
+import { font, space, useTheme } from '@/theme';
 
 export interface PreviousPerformanceStripProps {
   data: Previous | null | undefined;
@@ -30,15 +31,9 @@ export function PreviousPerformanceStrip({
   const { c } = useTheme();
 
   const frame = (children: React.ReactNode, testID: string) => (
-    <View
-      testID={testID}
-      style={{
-        borderRadius: radius.row, borderWidth: 1, borderColor: c.line,
-        backgroundColor: c.sunken, padding: space.md, gap: 6,
-      }}
-    >
+    <Card nested testID={testID} style={{ gap: 6 }}>
       {children}
-    </View>
+    </Card>
   );
 
   if (isPending) {
@@ -75,9 +70,12 @@ export function PreviousPerformanceStrip({
 
   return frame(
     <>
-      <Text variant="caption" tone="ink3">
-        Last time · {formatServerDate(data.local_date)}
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Ionicons name="time-outline" size={14} color={c.ink3} />
+        <Text variant="label">
+          Last time · {formatServerDate(data.local_date)}
+        </Text>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View
           style={{ flexDirection: 'row', gap: space.md }}
@@ -89,7 +87,7 @@ export function PreviousPerformanceStrip({
           {working.length === 0 ? (
             <Text variant="caption" tone="ink3">Warm-ups only</Text>
           ) : working.map((s) => (
-            <Text key={s.id} variant="body" style={{ fontFamily: font.dataSemi }}>
+            <Text key={s.id} style={{ fontFamily: font.dataSemi, fontSize: 17 }}>
               {s.load_kg ?? '—'} × {s.reps ?? '—'}
             </Text>
           ))}

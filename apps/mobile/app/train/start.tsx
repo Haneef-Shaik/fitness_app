@@ -2,11 +2,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from '@/ui/Pressable';
 import type { PlanDay, Program, WorkoutSession } from '@fitlog/api-types';
-import { Button, Card, Pill, Text, Well } from '@/ui';
+import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
+import { EmptyState } from '@/ui/EmptyState';
+import { IconTile } from '@/ui/IconTile';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { SectionHeader } from '@/ui/SectionHeader';
 import { usePrograms } from '@/lib/query/hooks';
 import { api, ApiError } from '@/lib/api';
 import { space, useTheme } from '@/theme';
@@ -38,11 +42,8 @@ export default function StartWorkout() {
     const sets = s.exercises?.reduce((n, e) => n + (e.sets?.length ?? 0), 0) ?? 0;
     return (
       <ScreenScaffold title="Start a workout">
-        <Card hero testID="already-in-progress">
-          <Pill kind="accent">In progress</Pill>
-          <Text variant="display" style={{ fontSize: 26, marginTop: 10 }}>
-            You're mid-workout
-          </Text>
+        <Card hero accent testID="already-in-progress" label="In progress" labelTone="accent">
+          <Text variant="h2">You're mid-workout</Text>
           <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
             {s.exercises?.length ?? 0} exercises · {sets} {sets === 1 ? 'set' : 'sets'} logged
           </Text>
@@ -56,7 +57,7 @@ export default function StartWorkout() {
     );
   }
 
-  const dayRow = (program: Program, d: PlanDay) => (
+  const dayRow = (program: Program, d: PlanDay, isLast: boolean) => (
     <Pressable
       key={d.id}
       onPress={() => begin({ plan_day_id: d.id })}
@@ -64,16 +65,18 @@ export default function StartWorkout() {
       accessibilityLabel={`Start ${d.name}, ${count(d.exercises?.length ?? 0, 'exercise')}`}
       style={{
         flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 56,
-        paddingVertical: space.md, borderBottomWidth: 1, borderColor: c.line,
+        paddingHorizontal: space.md, paddingVertical: space.md,
+        borderBottomWidth: isLast ? 0 : 1, borderColor: c.line,
       }}
     >
+      <IconTile icon="barbell-outline" size={36} tone="ink2" />
       <View style={{ flex: 1 }}>
-        <Text variant="body" numberOfLines={1}>{d.name}</Text>
+        <Text variant="body" weight="semi" numberOfLines={1}>{d.name}</Text>
         <Text variant="caption" tone="ink3">
           {program.name} · {count(d.exercises?.length ?? 0, 'exercise')}
         </Text>
       </View>
-      <Text variant="body" tone="ink3">›</Text>
+      <Ionicons name="chevron-forward" size={18} color={c.ink3} />
     </Pressable>
   );
 
@@ -86,15 +89,17 @@ export default function StartWorkout() {
 
         <Button
           title="Empty workout"
+          icon="add"
           onPress={() => begin({})}
           testID="start-empty"
         />
 
         <View>
-          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>From a program</Text>
+          <SectionHeader title="From a program" />
           <DataBoundary
             query={programs}
             empty={{
+              icon: 'clipboard-outline',
               title: 'No programs yet',
               body: 'Add a starter program, or just start an empty workout and add exercises as you go.',
               action: { label: 'Browse starter programs', onPress: () => router.push('/train/programs/templates') },
@@ -104,17 +109,19 @@ export default function StartWorkout() {
               const withDays = rows.filter((p) => (p.days?.length ?? 0) > 0);
               if (withDays.length === 0) {
                 return (
-                  <Well>
-                    <Text variant="caption" tone="ink3">
-                      Your programs have no days yet. Add one and it appears here.
-                    </Text>
-                  </Well>
+                  <EmptyState
+                    compact
+                    icon="clipboard-outline"
+                    title="Your programs have no days yet"
+                    body="Add one and it appears here."
+                  />
                 );
               }
+              const flat = withDays.flatMap((p) => (p.days ?? []).map((d) => ({ program: p, day: d })));
               return (
-                <View>
-                  {withDays.map((p) => (p.days ?? []).map((d) => dayRow(p, d)))}
-                </View>
+                <Card pad="none">
+                  {flat.map((row, i) => dayRow(row.program, row.day, i === flat.length - 1))}
+                </Card>
               );
             }}
           </DataBoundary>

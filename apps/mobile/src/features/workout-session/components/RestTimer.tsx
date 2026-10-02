@@ -8,9 +8,9 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState, View } from 'react-native';
-import { Pressable } from '@/ui/Pressable';
-import { Text } from '@/ui';
-import { radius, space, useTheme } from '@/theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Button, Pill, Text } from '@/ui';
+import { space, useTheme } from '@/theme';
 import { formatRest, readTimer, restAnnouncement } from '../restTimer';
 import { spokenDuration } from '../a11y';
 
@@ -47,6 +47,16 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
     wasElapsed.current = elapsed;
   }, [elapsed]);
 
+  const adjust = (delta: number) => {
+    onAdjust(delta);
+    // The change is otherwise silent: focus stays on this button and the
+    // timer's own label is only read when it has focus (G10).
+    const next = Math.max(0, remaining + delta);
+    AccessibilityInfo.announceForAccessibility(
+      next > 0 ? `${spokenDuration(next)} of rest left` : 'Rest complete',
+    );
+  };
+
   return (
     <View
       testID="rest-timer"
@@ -55,12 +65,12 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
       // churns the tree for TalkBack and tooling alike (a11y finding #5).
       accessibilityLabel={restAnnouncement(remaining, elapsed)}
       style={{
-        borderRadius: radius.card, borderWidth: 1,
-        borderColor: elapsed ? c.good : c.line2,
-        backgroundColor: c.surface, padding: space.md, gap: space.sm,
+        borderBottomWidth: 1, borderColor: c.line,
+        backgroundColor: c.surface, paddingHorizontal: space.lg, paddingVertical: space.md, gap: space.sm,
       }}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
+        <Ionicons name="timer-outline" size={20} color={elapsed ? c.goodInk : c.accent} />
         <Text
           variant="stat"
           style={{ color: elapsed ? c.goodInk : c.ink }}
@@ -69,42 +79,27 @@ export function RestTimer({ targetIso, totalSeconds, onDismiss, onAdjust }: Rest
           importantForAccessibility="no"
           accessibilityElementsHidden
         >
-          {elapsed ? 'Rest done' : formatRest(remaining)}
+          {formatRest(remaining)}
         </Text>
+        <Pill kind={elapsed ? 'good' : 'accent'}>{elapsed ? 'Rest done' : 'Resting'}</Pill>
         <View style={{ flex: 1 }} />
         {(['-15', '+15'] as const).map((label) => (
-          <Pressable
+          <Button
             key={label}
-            onPress={() => {
-              const delta = label === '+15' ? 15 : -15;
-              onAdjust(delta);
-              // The change is otherwise silent: focus stays on this button and
-              // the timer's own label is only read when it has focus (G10).
-              const next = Math.max(0, remaining + delta);
-              AccessibilityInfo.announceForAccessibility(
-                next > 0 ? `${spokenDuration(next)} of rest left` : 'Rest complete',
-              );
-            }}
-            accessibilityRole="button"
+            kind="secondary"
+            size="sm"
+            title={label}
+            onPress={() => adjust(label === '+15' ? 15 : -15)}
             accessibilityLabel={`${label === '+15' ? 'Add' : 'Remove'} 15 seconds`}
-            hitSlop={8}
-            style={{
-              minWidth: 46, minHeight: 40, alignItems: 'center', justifyContent: 'center',
-              borderRadius: radius.btn, borderWidth: 1, borderColor: c.line2,
-            }}
-          >
-            <Text variant="caption" tone="ink2">{label}</Text>
-          </Pressable>
+          />
         ))}
-        <Pressable
+        <Button
+          kind="secondary"
+          size="sm"
+          title="Skip"
           onPress={onDismiss}
-          accessibilityRole="button"
           accessibilityLabel="Skip rest"
-          hitSlop={8}
-          style={{ minWidth: 46, minHeight: 40, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Text variant="caption" tone="ink3">Skip</Text>
-        </Pressable>
+        />
       </View>
 
       <View style={{ height: 4, borderRadius: 2, backgroundColor: c.sunken, overflow: 'hidden' }}>

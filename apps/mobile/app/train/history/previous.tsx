@@ -13,25 +13,32 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { View } from 'react-native';
-import { Button, Card, Pill, Text } from '@/ui';
+import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
+import { IconTile } from '@/ui/IconTile';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { SectionHeader } from '@/ui/SectionHeader';
 import { formatDuration, formatVolume, relativeDay } from '@/features/history/format';
+import { humanDate } from '@/lib/datetime/humanDate';
 import { usePreviousOccurrence } from '@/lib/query/hooks';
-import { space } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 export default function PreviousOccurrence() {
+  const { c } = useTheme();
   const { muscle } = useLocalSearchParams<{ muscle: string }>();
   const query = usePreviousOccurrence(muscle ?? '');
   const label = (muscle ?? '').replace(/-/g, ' ');
+  // A label, not a decision (I7): which day it is only matters for the words.
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <ScreenScaffold title={`Your previous ${label} day`}>
+    <ScreenScaffold eyebrow="Your previous" title={`${label} day`}>
       <DataBoundary
         query={query}
         // `data: null` is "never trained", which is a prompt and not an error.
         isEmpty={(d) => d === null || d === undefined}
         empty={{
+          icon: 'barbell-outline',
           title: `You haven't trained ${label} yet`,
           body: 'Once you finish a session with it, this is where it turns up.',
           action: {
@@ -41,54 +48,59 @@ export default function PreviousOccurrence() {
         }}
       >
         {(found) => !found ? null : (
-          <View style={{ gap: space.lg }} testID="previous-occurrence">
+          <View style={{ gap: space.base }} testID="previous-occurrence">
             {found.widened ? (
               <Card testID="widened-notice">
-                <Text variant="body">
-                  No session had {label} as a primary muscle.
-                </Text>
-                <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-                  Showing the most recent one that trained {label} at all.
-                </Text>
+                <View style={{ flexDirection: 'row', gap: space.md, alignItems: 'center' }}>
+                  <IconTile icon="information-circle-outline" size={36} tone="warn" />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="body" weight="semi">No session had {label} as a primary muscle.</Text>
+                    <Text variant="caption" tone="ink3" style={{ marginTop: 2 }}>
+                      Showing the most recent one that trained {label} at all.
+                    </Text>
+                  </View>
+                </View>
               </Card>
             ) : null}
 
-            <Card hero>
-              <Pill>
-                {relativeDay(found.local_date, new Date().toISOString().slice(0, 10))}
-              </Pill>
-              <Text variant="display" style={{ fontSize: 26, marginTop: 10 }}>
-                {found.local_date}
-              </Text>
-              <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
+            <Card hero label={relativeDay(found.local_date, today)} labelTone="accent">
+              <Text variant="h1">{humanDate(found.local_date, today)}</Text>
+              <Text variant="body" tone="ink2" style={{ marginTop: space.xs }}>
                 {[
                   formatDuration(found.duration_seconds),
                   formatVolume(found.total_volume_kg),
                 ].filter(Boolean).join(' · ') || 'No sets recorded'}
               </Text>
               <Text variant="caption" tone="ink3" style={{ marginTop: space.sm }}>
-                Found by: exercises with {found.muscle_name.toLowerCase()} as a{' '}
-                {found.role_matched} muscle
+                Picked because it trained {found.muscle_name.toLowerCase()} as a {found.role_matched} muscle.
               </Text>
             </Card>
 
             <View>
-              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>In that session</Text>
-              <Card>
+              <SectionHeader title="In that session" detail={`${found.exercise_names.length} exercises`} />
+              <Card pad="none">
                 {found.exercise_names.length === 0 ? (
-                  <Text variant="caption" tone="ink3">No exercises recorded</Text>
+                  <Text variant="caption" tone="ink3" style={{ padding: space.base }}>No exercises recorded</Text>
                 ) : (
                   found.exercise_names.map((name, i) => (
-                    <Text key={`${name}-${i}`} variant="body" style={{ paddingVertical: 4 }}>
-                      {name}
-                    </Text>
+                    <View
+                      key={`${name}-${i}`}
+                      style={{
+                        flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 52,
+                        paddingHorizontal: space.md, borderBottomWidth: i === found.exercise_names.length - 1 ? 0 : 1, borderBottomColor: c.line,
+                      }}
+                    >
+                      <IconTile icon="barbell-outline" size={32} tone="ink3" />
+                      <Text variant="body" weight="medium" style={{ flex: 1 }} numberOfLines={1}>{name}</Text>
+                    </View>
                   ))
                 )}
               </Card>
             </View>
 
             <Button
-              title="Full session"
+              title="Open the full session"
+              icon="open-outline"
               onPress={() => router.push(`/train/history/${found.session_id}`)}
             />
           </View>

@@ -10,14 +10,18 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Pressable } from '@/ui/Pressable';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { SectionHeader } from '@/ui/SectionHeader';
 import { Line } from '@/ui/charts';
 import { delta, weight } from '@/features/body/format';
 import { useBodyMetrics, useBodySeries, useDeleteBodyMetric, useProfile } from '@/lib/query/hooks';
 import { formatClockTime } from '@/lib/datetime';
-import { space } from '@/theme';
+import { humanDate } from '@/lib/datetime/humanDate';
+import { font, radius, space, useTheme } from '@/theme';
 
 const RANGES = [
   { value: '30', label: '30 days' },
@@ -32,8 +36,11 @@ function since(days: number): string {
 }
 
 export default function WeightTrend() {
+  const { c } = useTheme();
   const [range, setRange] = useState<string>('90');
   const from = since(Number(range));
+  // A label, not a decision (I7): which day it is only matters for the words.
+  const today = new Date().toISOString().slice(0, 10);
 
   const series = useBodySeries('body_weight', { from });
   const entries = useBodyMetrics('body_weight', { from });
@@ -44,42 +51,47 @@ export default function WeightTrend() {
   return (
     <ScreenScaffold
       title="Weight"
-      action={{ label: '+ Log', onPress: () => router.push('/progress/log') }}
+      footer={<Button title="Log a weigh-in" icon="add" size="lg" onPress={() => router.push('/progress/log')} />}
     >
       <DataBoundary
         query={series}
         isEmpty={(s) => s.points.length === 0}
         empty={{
+          icon: 'scale-outline',
           title: 'No weight logged yet',
           body: 'One entry a week is enough to see where you are going.',
           action: { label: 'Log your weight', onPress: () => router.push('/progress/log') },
         }}
       >
         {(data) => (
-          <View style={{ gap: space.lg }}>
-            <View style={{ flexDirection: 'row', gap: space.sm }}>
-              {RANGES.map((r) => (
-                <Button
-                  key={r.value}
-                  title={r.label}
-                  // Which range is on screen has to be visible, not remembered.
-                  kind={range === r.value ? 'primary' : 'ghost'}
-                  accessibilityState={{ selected: range === r.value }}
-                  size="sm"
-                  style={{ flex: 1 }}
-                  testID={`range-${r.value}`}
-                  onPress={() => setRange(r.value)}
-                />
-              ))}
+          <View style={{ gap: space.base }}>
+            {/* Which range is on screen has to be visible, not remembered. */}
+            <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: c.surface, borderRadius: radius.btn, borderWidth: 1, borderColor: c.line, padding: 3 }}>
+              {RANGES.map((r) => {
+                const on = range === r.value;
+                return (
+                  <Pressable
+                    key={r.value}
+                    onPress={() => setRange(r.value)}
+                    accessibilityRole="tab"
+                    accessibilityLabel={r.label}
+                    accessibilityState={{ selected: on }}
+                    testID={`range-${r.value}`}
+                    style={{ flex: 1, minHeight: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.row, backgroundColor: on ? c.accent : 'transparent' }}
+                  >
+                    <Text variant="caption" weight="semi" style={{ color: on ? c.accentInk : c.ink2 }}>{r.label}</Text>
+                  </Pressable>
+                );
+              })}
             </View>
 
-            <Card hero>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.md }}>
-                <Text variant="display" style={{ fontSize: 32 }} testID="trend-latest">
+            <Card hero label="Weight vs 7-day average">
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.md, flexWrap: 'wrap' }}>
+                <Text variant="display" testID="trend-latest">
                   {weight(data.latest?.value, data.unit)}
                 </Text>
                 {delta(data.change, data.unit) ? (
-                  <Text variant="caption" tone="ink3" testID="trend-change">
+                  <Text variant="caption" tone="ink2" testID="trend-change">
                     {delta(data.change, data.unit)} over this range
                   </Text>
                 ) : null}
@@ -107,34 +119,41 @@ export default function WeightTrend() {
             </Card>
 
             <View>
-              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Every entry</Text>
-              {(entries.data ?? []).map((row) => (
-                <Card key={String(row.id)} style={{ marginBottom: 8 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-                    <View style={{ flex: 1 }}>
-                      <Text variant="body">{weight(row.value, row.unit)}</Text>
-                      <Text variant="caption" tone="ink3">
-                        {row.local_date} · {formatClockTime(new Date(row.measured_at), timeZone)}
-                      </Text>
+              <SectionHeader title="Every entry" detail={`${entries.data?.length ?? 0} in this range`} />
+              <Card pad="none">
+                {(entries.data ?? []).map((row, i, all) => {
+                  const counted = data.points.some((p) => p.local_date === row.local_date && p.value === row.value);
+                  return (
+                    <View
+                      key={String(row.id)}
+                      style={{
+                        flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 60,
+                        paddingHorizontal: space.md, paddingVertical: space.sm,
+                        borderBottomWidth: i === all.length - 1 ? 0 : 1, borderBottomColor: c.line,
+                      }}
+                    >
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text variant="body" weight="semi" style={{ fontFamily: font.dataSemi, fontSize: 18 }}>{weight(row.value, row.unit)}</Text>
+                        <Text variant="caption" tone="ink3">
+                          {humanDate(row.local_date, today)} · {formatClockTime(new Date(row.measured_at), timeZone)}
+                        </Text>
+                      </View>
+                      {/* The one the chart and the goals use (Q5). */}
+                      {counted ? <Pill kind="good" icon="checkmark">counted</Pill> : <Pill kind="mute">also logged</Pill>}
+                      <Pressable
+                        onPress={() => remove.mutate(String(row.id))}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Delete ${weight(row.value, row.unit)} from ${humanDate(row.local_date, today)}`}
+                        testID={`delete-${row.id}`}
+                        hitSlop={6}
+                        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: radius.row }}
+                      >
+                        <Ionicons name="trash-outline" size={20} color={c.ink3} />
+                      </Pressable>
                     </View>
-                    {data.points.some(
-                      (p) => p.local_date === row.local_date && p.value === row.value,
-                    ) ? (
-                      // The one the chart and the goals use (Q5).
-                      <Pill kind="accent">counted</Pill>
-                    ) : (
-                      <Pill kind="mute">also logged</Pill>
-                    )}
-                    <Button
-                      title="Delete"
-                      kind="danger"
-                      size="sm"
-                      testID={`delete-${row.id}`}
-                      onPress={() => remove.mutate(String(row.id))}
-                    />
-                  </View>
-                </Card>
-              ))}
+                  );
+                })}
+              </Card>
             </View>
           </View>
         )}

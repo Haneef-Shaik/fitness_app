@@ -209,7 +209,9 @@ describe('B-01 · a user with data', () => {
 
   it('shows an old weigh-in WITH its date rather than as if it were fresh', () => {
     render(<Home />);
-    expect(screen.getByText(/Last logged 2026-09-21/)).toBeTruthy();
+    // "2 days ago", not "2026-09-21": the date is a fact for a person, not a
+    // database column (docs/15).
+    expect(screen.getByText(/Last logged 2 days ago/)).toBeTruthy();
     expect(screen.queryByText(/Logged today/)).toBeNull();
   });
 
@@ -352,7 +354,10 @@ describe('I-03 · weight trend', () => {
         measured_at: '2026-09-26T01:35:00Z', local_date: '2026-09-26', notes: null },
     ]);
     render(<WeightTrend />);
-    expect(screen.getByText('2026-09-26 · 07:05')).toBeTruthy();
+    // The day is written for a person ("Yesterday", "Sat 26 Sep"), never as
+    // the ISO string; the clock time is what this test is about.
+    expect(screen.getByText(/· 07:05$/)).toBeTruthy();
+    expect(screen.queryByText(/2026-09-26 ·/)).toBeNull();
   });
 
   it('shows which range is selected', () => {

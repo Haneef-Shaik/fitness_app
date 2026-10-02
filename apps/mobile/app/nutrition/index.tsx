@@ -1,26 +1,35 @@
 /**
- * H-01 · Nutrition Diary — the day: totals, remaining, meals.
+ * H-01 · Nutrition Diary — the day: what is left, the macros, the meals.
  *
  * **AC-07's surface.** Logging a meal moves these numbers, on the user's local
  * date, with no refresh.
  *
  * Only confirmed items are in the totals (**I2 / D5**) — the server enforces
  * that in one place. Pending items are shown as a count, because hiding them
- * would be as wrong as counting them.
+ * would be as wrong as counting them; here they get a banner with a way to
+ * go and check them.
  */
 import { router } from 'expo-router';
 import { View } from 'react-native';
-import { Pressable } from '@/ui/Pressable';
-import type { Meal, MealCategory } from '@fitlog/api-types';
-import { Button, Card, Pill, Text } from '@/ui';
+import type { Meal } from '@fitlog/api-types';
+import { Button, Card, Meter, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
-import { ScreenScaffold } from '@/ui/ScreenScaffold';
-import { Meter } from '@/ui/charts';
-import { grams, kcal, macroLabel, mealTypeLabel, count } from '@/features/nutrition/format';
-import { useMealCategories, useNutritionDay, useProfile } from '@/lib/query/hooks';
+import { EmptyState } from '@/ui/EmptyState';
+import { IconTile } from '@/ui/IconTile';
 import { NavGroup, NavRow } from '@/ui/NavRow';
+import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { SectionHeader } from '@/ui/SectionHeader';
+import { count, kcal } from '@/features/nutrition/format';
+import { MacroTrio, type MacroTargets } from '@/features/nutrition/MacroTrio';
+import { MealSection } from '@/features/nutrition/MealSection';
+import { useMealCategories, useNutritionDay, useProfile } from '@/lib/query/hooks';
 import { friendlyDate } from '@/features/dashboard/date';
 import { space } from '@/theme';
+
+/** The meal holding the first unconfirmed item — where "Review" goes. */
+function firstPending(meals: readonly Meal[]): Meal | undefined {
+  return meals.find((m) => (m.items ?? []).some((i) => !i.confirmed));
+}
 
 export default function Diary() {
   const day = useNutritionDay();
@@ -28,18 +37,20 @@ export default function Diary() {
   // Labels come from the category list, never from the slug alone, so a rename
   // in H-16 shows up here without the diary knowing anything about it.
   const categories = useMealCategories();
-  const profileTarget = profile.data?.daily_calorie_target ?? null;
+  const p = profile.data;
+  const profileTargets: MacroTargets & { calories: number | null } = {
+    calories: p?.daily_calorie_target ?? null,
+    protein_g: p?.protein_g_target ?? null, carbs_g: p?.carbs_g_target ?? null, fat_g: p?.fat_g_target ?? null,
+  };
 
-  // The wireframes call this a tab root, and there is no tab bar yet — so
-  // `back={false}` made it a dead end: reachable from B-01, with no way home
-  // except the hardware button, which on this phone exits the app from a root.
-  // Found on a device in G10; it cost AC-11 a run.
   return (
     <ScreenScaffold
       root
       title="Nutrition"
-      action={{ label: '+ Food', onPress: () => router.push('/nutrition/add') }}
       onRefresh={() => { void day.refetch(); }}
+      footer={
+        <Button title="Add food" icon="add" size="lg" testID="add-food" onPress={() => router.push('/nutrition/add')} />
+      }
     >
       <DataBoundary
         query={day}
@@ -48,125 +59,114 @@ export default function Diary() {
       >
         {(data) => {
           // The target in force ON THIS DAY (Q8): a later change does not rewrite it.
-          const target = data.targets !== undefined ? (data.targets?.calories ?? null) : profileTarget;
+          const targets = data.targets !== undefined ? data.targets : profileTargets;
+          const target = targets?.calories ?? null;
+          const left = target === null ? null : target - data.calories;
+          const over = left !== null && left < 0;
+          const pending = firstPending(data.meals);
           return (
-          <View style={{ gap: space.lg }}>
-            <Card hero>
-              <Pill>{friendlyDate(data.local_date)}</Pill>
-              <View
-                accessible
-                accessibilityLabel={`${kcal(data.calories)} kilocalories eaten`}
-                style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 8 }}
-              >
-                <Text variant="display" style={{ fontSize: 34 }}>{kcal(data.calories)}</Text>
-                <Text variant="caption" tone="ink3">kcal</Text>
-              </View>
-              {target ? (
-                <View style={{ marginTop: space.base }}>
-                  <Meter
-                    testID="calorie-meter"
-                    label={`${kcal(Math.max(0, target - data.calories))} left`}
-                    value={Math.min(1, data.calories / target)}
-                  />
+            <View style={{ gap: space.base }}>
+              <Card hero label="Energy budget" right={<Pill>{friendlyDate(data.local_date)}</Pill>}>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: space.sm }}>
+                  <View
+                    accessible
+                    accessibilityLabel={left === null
+                      ? `${kcal(data.calories)} kilocalories eaten, no target set`
+                      : over
+                        ? `${kcal(-left)} kilocalories over your target`
+                        : `${kcal(left)} kilocalories left, ${kcal(data.calories)} of ${kcal(target)} eaten`}
+                    style={{ flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: 6 }}
+                  >
+                    <Text variant="display" testID="kcal-left">{kcal(left === null ? data.calories : Math.abs(left))}</Text>
+                    <Text variant="body" weight="semi" tone={left === null ? 'ink3' : over ? 'serious' : 'accent'}>
+                      {left === null ? 'kcal eaten' : over ? 'kcal over' : 'kcal left'}
+                    </Text>
+                  </View>
+                  {target !== null ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, paddingBottom: 4 }}>
+                      <Text variant="caption" tone="ink3">{kcal(data.calories)}</Text>
+                      <Text variant="caption" tone="ink3">/ {kcal(target)} kcal</Text>
+                    </View>
+                  ) : null}
                 </View>
-              ) : null}
-
-              <View style={{ flexDirection: 'row', gap: space.lg, marginTop: space.base }}>
-                <Macro label="Protein" value={data.protein_g} />
-                <Macro label="Carbs" value={data.carbs_g} />
-                <Macro label="Fat" value={data.fat_g} />
-              </View>
+                {target !== null ? (
+                  <View testID="calorie-meter" style={{ marginTop: space.md }}>
+                    <Meter value={data.calories} max={target} over={over} />
+                  </View>
+                ) : (
+                  <Text variant="caption" tone="ink2" style={{ marginTop: space.xs }}>
+                    No target set yet — set one below and this shows what's left.
+                  </Text>
+                )}
+                <View style={{ marginTop: space.md }}>
+                  <MacroTrio protein={data.protein_g} carbs={data.carbs_g} fat={data.fat_g} targets={targets} compact />
+                </View>
+                {data.incomplete ? (
+                  <Text variant="caption" tone="ink3" style={{ marginTop: space.sm }}>
+                    Some items are missing macros, so this total is a floor.
+                  </Text>
+                ) : null}
+              </Card>
 
               {data.pending_count > 0 ? (
                 // Shown, and in no total. Hiding it would be as wrong as counting it.
-                <Text variant="caption" tone="ink3" style={{ marginTop: space.sm }}>
-                  {data.pending_count} item{data.pending_count === 1 ? '' : 's'} waiting to be
-                  confirmed — not counted yet.
-                </Text>
+                <Card accent style={{ borderStyle: 'dashed', borderWidth: 1.5 }} testID="pending-banner">
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+                    <IconTile icon="sparkles-outline" size={40} tone="accent" bg="accentWash" />
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text variant="body" weight="semi">Check {count(data.pending_count, 'estimated item')}</Text>
+                      <Text variant="caption" tone="ink3">
+                        {count(data.pending_count, 'item')} waiting to be confirmed — not counted yet.
+                      </Text>
+                    </View>
+                    <Button
+                      title="Review" size="sm" testID="review-pending"
+                      onPress={() => router.push(pending ? `/nutrition/meal/${pending.id}` : '/nutrition/analyses')}
+                    />
+                  </View>
+                </Card>
               ) : null}
-              {data.incomplete ? (
-                <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-                  Some items are missing macros, so this total is a floor.
-                </Text>
-              ) : null}
-            </Card>
 
-            {data.meals.length === 0 ? (
-              <Card>
-                <Text variant="body">Nothing logged today</Text>
-                <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-                  Add your first meal and the numbers above move straight away.
-                </Text>
-                <Button
-                  title="Add food"
-                  style={{ marginTop: space.base }}
-                  onPress={() => router.push('/nutrition/add')}
-                />
-              </Card>
-            ) : (
-              data.meals.map((meal) => (
-                <MealRow key={String(meal.id)} meal={meal} categories={categories.data} />
-              ))
-            )}
+              {data.meals.length === 0 ? (
+                <Card>
+                  <EmptyState
+                    compact
+                    icon="restaurant-outline"
+                    title="Nothing logged today"
+                    body="Add your first meal and the numbers above move straight away."
+                  />
+                </Card>
+              ) : (
+                data.meals.map((meal) => (
+                  <MealSection key={String(meal.id)} meal={meal} categories={categories.data} />
+                ))
+              )}
 
-            {/* The rest of the nutrition surface. Kept at the bottom because the
-                day is what this screen is for; everything here is management. */}
-            <NavGroup>
-              <NavRow icon="stats-chart-outline" label="Analytics" testID="go-nutrition-analytics"
-                onPress={() => router.push('/nutrition/analytics')} />
-              <NavRow icon="book-outline" label="Recipes" testID="go-recipes"
-                onPress={() => router.push('/nutrition/recipes')} />
-              <NavRow icon="flame-outline" label="Targets" testID="go-targets"
-                onPress={() => router.push('/nutrition/targets')} />
-              <NavRow icon="pricetags-outline" label="Meal categories" testID="go-categories"
-                onPress={() => router.push('/nutrition/categories')} />
-              <NavRow icon="sparkles-outline" label="Food analyses" testID="go-analyses"
-                onPress={() => router.push('/nutrition/analyses')} />
-              {data.meals.length > 0 ? (
-                <NavRow icon="copy-outline" label="Copy this day" testID="go-copy-day"
-                  onPress={() => router.push(`/nutrition/copy?date=${data.local_date}`)} />
-              ) : null}
-            </NavGroup>
-          </View>
+              {/* The rest of the nutrition surface. Kept at the bottom because the
+                  day is what this screen is for; everything here is management. */}
+              <View>
+                <SectionHeader title="More" />
+                <NavGroup>
+                  <NavRow icon="stats-chart-outline" label="Analytics" hint="Week and month, against your targets" testID="go-nutrition-analytics"
+                    onPress={() => router.push('/nutrition/analytics')} />
+                  <NavRow icon="flag-outline" label="Targets" hint="Calories and macros" testID="go-targets"
+                    onPress={() => router.push('/nutrition/targets')} />
+                  <NavRow icon="book-outline" label="Recipes" hint="Meals you log again and again" testID="go-recipes"
+                    onPress={() => router.push('/nutrition/recipes')} />
+                  <NavRow icon="pricetags-outline" label="Meal categories" testID="go-categories"
+                    onPress={() => router.push('/nutrition/categories')} />
+                  <NavRow icon="sparkles-outline" label="Food analyses" hint="Every estimate, and what it became" testID="go-analyses"
+                    onPress={() => router.push('/nutrition/analyses')} />
+                  {data.meals.length > 0 ? (
+                    <NavRow icon="copy-outline" label="Copy this day" testID="go-copy-day"
+                      onPress={() => router.push(`/nutrition/copy?date=${data.local_date}`)} />
+                  ) : null}
+                </NavGroup>
+              </View>
+            </View>
           );
         }}
       </DataBoundary>
     </ScreenScaffold>
-  );
-}
-
-function Macro({ label, value }: { label: string; value: number }) {
-  return (
-    <View accessible accessibilityLabel={macroLabel(label, value)}>
-      <Text variant="label" tone="ink3">{label}</Text>
-      <Text variant="body">{grams(value)}</Text>
-    </View>
-  );
-}
-
-function MealRow({ meal, categories }: { meal: Meal; categories?: MealCategory[] }) {
-  const items = meal.items ?? [];
-  const total = items
-    .filter((i) => i.confirmed)
-    .reduce((n, i) => n + (i.calories ?? 0), 0);
-
-  return (
-    <Pressable
-      onPress={() => router.push(`/nutrition/meal/${meal.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={`${mealTypeLabel(meal.meal_type, categories)}, ${kcal(total)} kcal, ${count(items.length, 'item')}`}
-    >
-      <Card>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 1 }}>
-            <Text variant="body">{mealTypeLabel(meal.meal_type, categories)}</Text>
-            <Text variant="caption" tone="ink3" numberOfLines={1}>
-              {items.map((i) => i.display_name).join(' · ') || 'Nothing in this meal'}
-            </Text>
-          </View>
-          <Text variant="body" tone="ink2">{kcal(total)}</Text>
-        </View>
-      </Card>
-    </Pressable>
   );
 }

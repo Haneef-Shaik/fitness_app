@@ -132,13 +132,16 @@ describe('H-01 · the diary is AC-07 on screen', () => {
   it('draws the remaining meter against the profile target', () => {
     render(<Diary />);
     expect(screen.getByTestId('calorie-meter')).toBeTruthy();
-    expect(screen.getByText('1,620 left')).toBeTruthy();
+    // The figure leads the card now ("1,620" + "kcal left"), so the number is
+    // asserted on its own (docs/15).
+    expect(screen.getByTestId('kcal-left').props.children).toBe('1,620');
+    expect(screen.getByText('kcal left')).toBeTruthy();
   });
 
   it('uses the target in force on the day shown, not only the profile (Q8)', () => {
     mocks.day = q({ ...DAY, targets: { calories: 1500, protein_g: null, carbs_g: null, fat_g: null } });
     render(<Diary />);
-    expect(screen.getByText('1,120 left')).toBeTruthy();
+    expect(screen.getByTestId('kcal-left').props.children).toBe('1,120');
   });
 
   it('draws no meter at all when no target is set', () => {

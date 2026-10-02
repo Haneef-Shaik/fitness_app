@@ -14,11 +14,11 @@ import { resetTo } from '../../lib/navigation';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from '../Pressable';
 import { Text } from '../index';
-import { font, useTheme } from '../../theme';
+import { font, radius, useTheme } from '../../theme';
 import { activeTab, TABS, type Tab } from './tabs';
 
-const BAR_HEIGHT = 60;
-const ACTION = 54;
+const BAR_HEIGHT = 62;
+const ACTION = 52;
 
 export function goToTab(href: Tab['href'], pathname: string) {
   if (pathname === href) return;
@@ -49,13 +49,14 @@ export function TabBar() {
             accessibilityLabel={tab.label}
             testID="tab-action"
             style={{
-              width: ACTION, height: ACTION, borderRadius: ACTION / 2, marginTop: -ACTION / 3,
+              width: ACTION, height: ACTION, borderRadius: radius.card, marginTop: -ACTION / 3,
               backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center',
-              shadowColor: c.accent, shadowOpacity: 0.45, shadowRadius: 12,
+              borderWidth: 3, borderColor: c.surface,
+              shadowColor: c.accent, shadowOpacity: 0.35, shadowRadius: 12,
               shadowOffset: { width: 0, height: 6 }, elevation: 6,
             }}
           >
-            <Ionicons name="add" size={30} color={c.accentInk} />
+            <Ionicons name="add" size={28} color={c.accentInk} />
           </Pressable>
         </View>
       ) : (
@@ -78,7 +79,7 @@ export function TabBar() {
           <Text
             variant="caption"
             tone={current === tab.key ? 'accent' : 'ink3'}
-            style={{ fontSize: 11, fontFamily: current === tab.key ? font.uiSemi : font.ui }}
+            style={{ fontSize: 11, fontFamily: current === tab.key ? font.uiSemi : font.uiMedium }}
           >
             {tab.label}
           </Text>

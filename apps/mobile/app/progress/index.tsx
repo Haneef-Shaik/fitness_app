@@ -11,11 +11,13 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
+import { EmptyState } from '@/ui/EmptyState';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { NavGroup, NavRow } from '@/ui/NavRow';
+import { SectionHeader } from '@/ui/SectionHeader';
 import { Line } from '@/ui/charts';
-import { GoalRow } from '../home';
-import { delta, sinceLabel, weight } from '@/features/body/format';
+import { GoalRow } from '@/features/body/GoalRow';
+import { changeOver, sinceLabel, weight } from '@/features/body/format';
 import { useBodySeries, useCheckins, useDashboard } from '@/lib/query/hooks';
 import { JourneyCard, weightGoalOf } from '@/features/body/JourneyCard';
 import { CheckinCard } from '@/features/body/CheckinCard';
@@ -32,7 +34,6 @@ export default function Progress() {
     <ScreenScaffold
       root
       title="Progress"
-      action={{ label: '+ Log', onPress: () => router.push('/progress/log') }}
       onRefresh={() => { void board.refetch(); void series.refetch(); void checkins.refetch(); }}
     >
       <DataBoundary query={board} isEmpty={() => false} empty={{ title: 'Nothing yet' }}>
@@ -43,17 +44,24 @@ export default function Progress() {
           <View style={{ gap: space.lg }}>
             {weightGoal ? <JourneyCard goal={weightGoal} today={data.local_date} /> : null}
             {checkins.data ? <CheckinCard data={checkins.data} /> : null}
-            <Card>
-              <Text variant="label">Weight</Text>
+            <Card
+              hero
+              label="Weight"
+              right={data.body.latest ? (
+                <Text variant="caption" tone="ink3" testID="weight-since">
+                  {sinceLabel(data.body.latest.local_date, data.local_date)}
+                </Text>
+              ) : undefined}
+            >
               {data.body.latest ? (
                 <>
                   <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.md, marginTop: 6 }}>
-                    <Text variant="display" style={{ fontSize: 30 }} testID="weight-latest">
+                    <Text variant="display" testID="weight-latest">
                       {weight(data.body.latest.value, data.body.unit)}
                     </Text>
-                    {delta(data.body.change_30d, data.body.unit) ? (
+                    {changeOver(data.body.change_30d, data.body.unit, '30 days') ? (
                       <Text variant="caption" tone="ink3">
-                        {delta(data.body.change_30d, data.body.unit)} in 30 days
+                        {changeOver(data.body.change_30d, data.body.unit, '30 days')}
                       </Text>
                     ) : null}
                   </View>
@@ -80,10 +88,6 @@ export default function Progress() {
                       One more entry and the trend appears.
                     </Text>
                   )}
-
-                  <Text variant="caption" tone="ink3" style={{ marginTop: space.sm }} testID="weight-since">
-                    {sinceLabel(data.body.latest.local_date, data.local_date)}
-                  </Text>
                 </>
               ) : (
                 <>
@@ -96,55 +100,58 @@ export default function Progress() {
                   </Text>
                 </>
               )}
-              <Button
-                title="Log today"
-                kind="ghost"
-                size="sm"
-                style={{ marginTop: space.base }}
-                testID="log-today"
-                onPress={() => router.push('/progress/log')}
-              />
-              {data.body.latest ? (
+              <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.base }}>
                 <Button
-                  title="Weight trend"
-                  kind="ghost"
+                  title="Log today"
+                  icon="scale-outline"
                   size="sm"
-                  style={{ marginTop: space.sm }}
-                  testID="go-weight-trend"
-                  onPress={() => router.push('/progress/weight')}
+                  style={{ flex: 1 }}
+                  testID="log-today"
+                  onPress={() => router.push('/progress/log')}
                 />
-              ) : null}
+                {data.body.latest ? (
+                  <Button
+                    title="Weight trend"
+                    kind="secondary"
+                    size="sm"
+                    icon="trending-up-outline"
+                    testID="go-weight-trend"
+                    onPress={() => router.push('/progress/weight')}
+                  />
+                ) : null}
+              </View>
             </Card>
 
             <View>
-              <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Goals</Text>
+              <SectionHeader title="Goals" />
               {(data.goals ?? []).length === 0 ? (
                 <Card>
-                  <Text variant="body" testID="goals-empty">
-                    Set a goal to track progress against
-                  </Text>
-                  <Button
-                    title="Set a goal"
-                    kind="ghost"
-                    size="sm"
-                    style={{ marginTop: space.base }}
-                    testID="go-new-goal"
-                    onPress={() => router.push('/progress/goals/new')}
+                  <EmptyState
+                    compact
+                    icon="flag-outline"
+                    title="Set a goal to track progress against"
+                    titleTestID="goals-empty"
+                    action={{ label: 'Set a goal', testID: 'go-new-goal', onPress: () => router.push('/progress/goals/new') }}
                   />
                 </Card>
               ) : (
-                (data.goals ?? []).map((goal) => (
-                  <GoalRow key={String(goal.id)} goal={goal} />
-                ))
+                <View style={{ gap: 8 }}>
+                  {(data.goals ?? []).map((goal) => (
+                    <GoalRow key={String(goal.id)} goal={goal} />
+                  ))}
+                </View>
               )}
             </View>
 
             <NavGroup>
               <NavRow icon="flag-outline" label="All goals" testID="go-goals"
+                hint="Active, paused and reached"
                 onPress={() => router.push('/progress/goals')} />
               <NavRow icon="resize-outline" label="Measurements" testID="go-measurements"
+                hint="Waist, chest, arms and more"
                 onPress={() => router.push('/progress/measurements/waist_cm')} />
               <NavRow icon="images-outline" label="Progress photos" testID="go-photos"
+                hint="Private, compared side by side"
                 onPress={() => router.push('/progress/photos')} />
             </NavGroup>
           </View>

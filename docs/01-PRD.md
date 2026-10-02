@@ -11,6 +11,8 @@
 
 ---
 
+> **v2 (2 Oct 2026):** [16-PRD-GYMS.md](16-PRD-GYMS.md) extends this PRD for gyms (owner decisions D31–D35). Its [§15](16-PRD-GYMS.md#15-changes-to-prd-v1) lists which requirements here change; everything else here still holds.
+
 ## 1. Problem statement
 
 People who train seriously keep their fitness data in three incompatible places: a workout logger

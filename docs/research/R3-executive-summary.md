@@ -109,7 +109,7 @@ Should FitLog give gym-management software to Indian gym owners for free, and us
 
 - Keep everything that is built.
 - Add phone-number sign-in, Hindi/Hinglish UI, a trainer role, gym-scoped challenges and payment records.
-- These reverse four charter decisions, but only if the pilot says "scale".
+- The owner recorded these as charter decisions D31–D35 (2 Oct). The gym build proceeds only on G12's "go" and a week-13 "scale". The Pro paywall (D33) applies to the consumer app from its store launch.
 - Grow the 138 Indian dishes using USDA-derived recipes. The Indian food composition tables (IFCT) can't be licensed for the app.
 
 **Not now:**

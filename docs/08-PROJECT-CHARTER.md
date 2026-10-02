@@ -43,6 +43,14 @@ Delivery goals, distinct from the product metrics in [PRD §6](01-PRD.md#6-goals
 
 ## 3. Non-goals
 
+> **Revised for v2 on 2 Oct 2026 by D31–D35.**
+> - Social features become gym-scoped challenges, leaderboards and share cards. There is still no global feed.
+> - Coach accounts become a trainer role in the gym MVP.
+> - Payments become gym payment *records*. We never hold funds; online collection is Phase 2.
+> - The paywall becomes Pro, which gates AI (D33).
+>
+> The list below remains the record for the shipped consumer app, **except** that D33's Pro paywall applies to it from G15, before the store launch. The other revisions apply to Track B (the gym platform). [PRD v2 §5.4](16-PRD-GYMS.md) holds v2's out-of-scope list.
+
 Stated so they can be refused without re-litigating:
 
 - **A web app.** Deferred, not cancelled. `packages/domain` stays framework-free so a web
@@ -135,6 +143,11 @@ Decisions that shaped the build. Reversing one is a project-level change, not a 
 | D28 | **A timezone change re-files history** (edge case T4) | 23 Sep (G9) | `workout_sessions.local_date` has carried a comment since M2 saying it is "recomputed for the affected rows when a user changes their profile timezone". It was not, until G9 found it while proving **I7** for the dashboard. `app/services/timezone_change.py` recomputes `local_date` for sessions, meals and body metrics in one statement per table and drops every cached summary. The **instants are untouched** — a workout happened when it happened, and only the day it is filed under moves |
 | D29 | **Device preferences live in a local JSON file, not on the server and not in the keychain** | 23 Sep (G9) | B-02's dashboard layout and I-06's tracked fields are preferences, not facts about the user: no round trip, no column, no migration, and no second device silently rearranging the first. The keychain (`storage.ts`) is for secrets — putting a card order in it would be slower, semantically wrong, and would bury a real secret in noise. A stored layout is **merged** with the known sections rather than trusted wholesale, so a card added in a later release appears for somebody who saved a layout before it existed |
 | D30 | **Supabase Auth signs people in** — email and password (address confirmed first), Google and Apple; the FitLog API accepts only the project's access tokens and stays the only way to the data (no Data API, no RLS) | 26 Sep | Owner's decision (supersedes L1's "own auth"): Google and Apple sign-in, confirmation and reset emails, security notices and sign-in rate limits come built in. Decisions S1–S10 and the proof are in [14-SUPABASE.md](14-SUPABASE.md) |
+| D31 | **FitLog for Gyms (v2) is the next product.** Gyms are the distribution channel for the consumer app. Specified in [16](16-PRD-GYMS.md) and [17](17-GYMS-IMPLEMENTATION-PLAN.md), and built behind a validation gate (G12) | 2 Oct | Owner's decision after the [R3 strategy research](research/R3-gym-b2b2c-strategy.md). The gym-specific build (G16+) proceeds only on G12's "go" and stops at the week-8 and week-13 kill switches |
+| D32 | **The app is never an entry gate.** Attendance is *captured*, never enforced: a self check-in poster with a location check, a workout logged at the gym, staff marks, and fingerprint-device imports | 2 Oct | Owner: the target gyms have no receptionist and no automated entry ([R3 §15.1](research/R3-gym-b2b2c-strategy.md)) |
+| D33 | **All AI is behind Pro**, for members and owners, with a 7-day store trial. Owners' non-AI features are free. The one free AI is the register reader, because it is how a gym goes live | 2 Oct | Owner ([R3 §15.2](research/R3-gym-b2b2c-strategy.md)): AI is the largest variable cost, so cost follows revenue. **Closes PRD v1 Q6** ("Is there a paid tier?") |
+| D34 | **AI calling is never free.** It is an Owner Pro tier priced by usage. Free absence alerts are the base layer. AI calling ships only after counsel review | 2 Oct | Owner ([R3 §15.4](research/R3-gym-b2b2c-strategy.md)) |
+| D35 | **Ads come later:** contextual only, never for other gyms, never in the logger. Pro removes them | 2 Oct | Owner ([R3 §15.3](research/R3-gym-b2b2c-strategy.md)) |
 
 ## 7. Delivery risks
 
@@ -169,4 +182,4 @@ Each has a working default so nothing is stalled, but each should be confirmed.
 | Q3 | Is "max reps" a PR at any load? | M4 | Most reps in a single working set, any load |
 | Q5 | ~~Which weigh-in is canonical when there are several in a day?~~ **Closed 23 Sep (G9)** | — | **The first of the day**, implemented and asserted: `body_metrics` has no unique constraint per day (a second weigh-in really happened), and the *read* takes the earliest `measured_at` — earliest measured, not earliest written |
 | Q8 | ~~Are calorie targets versioned over time?~~ **Closed 24 Sep (G10)** | — | **Yes — as H-15 already promised** ("your past days keep the numbers they had"). `calorie_targets` holds one row per day the targets changed (the profile keeps the current ones, so every existing reader is unchanged); a day is judged against the latest row on or before it. H-01 reads the day's own target, H-14 judges each day against its own. Existing users were backfilled with their current targets from their profile's creation date |
-| Q9 | ~~Minimum age / legal position~~ **Closed 25 Sep (G10) by the owner: 16 and over** | — | Enforced by the **server** (`app/domain/age.py`, `ProfilePatch`: a birth date under 16 is a 422 with the reason) and by onboarding (A-07 stops and explains). 16 is the highest EU age of digital consent, so no country needs a parental-consent flow FitLog does not have |
+| Q9 | ~~Minimum age / legal position~~ **Closed 25 Sep (G10) by the owner: 16 and over.** *Reopened for India by [PRD v2 Q33](16-PRD-GYMS.md): DPDP treats under-18s as children* | — | Enforced by the **server** (`app/domain/age.py`, `ProfilePatch`: a birth date under 16 is a 422 with the reason) and by onboarding (A-07 stops and explains). 16 is the highest EU age of digital consent, so no country needs a parental-consent flow FitLog does not have |

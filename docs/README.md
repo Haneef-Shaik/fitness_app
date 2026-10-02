@@ -47,6 +47,8 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 04 | [Screen Architecture](04-SCREEN-ARCHITECTURE.md) | The 103-screen inventory, navigation graph and route table. |
 | 05 | [Design System](05-DESIGN-SYSTEM.md) | Tokens, charts, typography, motion, accessibility. **Visual direction superseded by 15.** |
 | 15 | [UI Redesign](15-UI-REDESIGN.md) | **The visual rebuild** — what the review found, the "Kinetic Performance" direction, tokens, primitives, screen status, how to review and merge. |
+| 16 | [PRD v2 — FitLog for Gyms](16-PRD-GYMS.md) | **What v2 adds:** the gym-owner platform, the member's gym surfaces, phone sign-in, Hindi, Pro gating all AI. Requirements, journeys, acceptance criteria AC-13…AC-28, open questions Q21–Q33. |
+| 17 | [Gyms implementation plan](17-GYMS-IMPLEMENTATION-PLAN.md) | **How v2 gets built:** architecture (data model, policy, jobs, integrations, app structure), goals **G12–G30** in the [10](10-EXECUTION-GOALS.md) anatomy, sequencing and kill switches, owner tasks. |
 | 06 | [Edge Cases & States](06-EDGE-CASES.md) | Every failure, empty, conflict, boundary and recovery case. |
 | 07 | [Traceability Matrix](07-TRACEABILITY.md) | BRD requirement → screen → API → acceptance criterion. |
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |

@@ -45,7 +45,8 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 02 | [System Architecture](02-SYSTEM-ARCHITECTURE.md) | Services, data flow, AI pipeline, schema, security, scaling. |
 | 03 | [Frontend Architecture](03-FRONTEND-ARCHITECTURE.md) | App shell, routing, state, data layer, offline, performance. |
 | 04 | [Screen Architecture](04-SCREEN-ARCHITECTURE.md) | The 103-screen inventory, navigation graph and route table. |
-| 05 | [Design System](05-DESIGN-SYSTEM.md) | Tokens, charts, typography, motion, accessibility. |
+| 05 | [Design System](05-DESIGN-SYSTEM.md) | Tokens, charts, typography, motion, accessibility. **Visual direction superseded by 15.** |
+| 15 | [UI Redesign](15-UI-REDESIGN.md) | **The visual rebuild** — what the review found, the "Kinetic Performance" direction, tokens, primitives, screen status, how to review and merge. |
 | 06 | [Edge Cases & States](06-EDGE-CASES.md) | Every failure, empty, conflict, boundary and recovery case. |
 | 07 | [Traceability Matrix](07-TRACEABILITY.md) | BRD requirement → screen → API → acceptance criterion. |
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |

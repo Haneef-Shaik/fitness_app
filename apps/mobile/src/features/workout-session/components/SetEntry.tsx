@@ -16,7 +16,7 @@ import { TextInput } from '@/ui/TextInput';
 import { Pressable } from '@/ui/Pressable';
 import type { Exercise } from '@fitlog/api-types';
 import { Button, Text } from '@/ui';
-import { radius, space, useTheme } from '@/theme';
+import { font, radius, space, useTheme } from '@/theme';
 import { trackedFields } from '@/features/exercises/format';
 import {
   advancedSummary, EMPTY_ADVANCED, withRir, withRpe, type AdvancedValue,
@@ -62,6 +62,8 @@ export interface SetEntryProps {
   error?: string | null;
   commitLabel?: string;
   busy?: boolean;
+  /** The screen renders the commit button itself (in a sticky footer) when true. */
+  hideCommit?: boolean;
 }
 
 /** The text a numeric value should show. Empty for "not set", never "0". */
@@ -139,7 +141,9 @@ export function Stepper({
     setText(toText(next, format));
     onChange(next);
   };
-  const button = (text: string, d: number, a11y: string) => (
+  // The glyph names the step itself ("−2.5", "+15") rather than a bare +/−, so
+  // the size of a tap is visible before it is made.
+  const button = (d: number, a11y: string) => (
     <Pressable
       onPress={() => bump(d)}
       accessibilityRole="button"
@@ -149,9 +153,12 @@ export function Stepper({
         width: LOGGER_TARGET, height: LOGGER_TARGET,
         alignItems: 'center', justifyContent: 'center',
         borderRadius: radius.btn, borderWidth: 1, borderColor: c.line2,
+        backgroundColor: c.surface2,
       }}
     >
-      <Text variant="title" tone="ink2">{text}</Text>
+      <Text tone="ink2" style={{ fontFamily: font.dataSemi, fontSize: 17 }}>
+        {`${d > 0 ? '+' : '−'}${step}`}
+      </Text>
     </Pressable>
   );
 
@@ -178,7 +185,7 @@ export function Stepper({
         testID={`${testID}-row`}
         style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}
       >
-        {button('−', -1, `Decrease ${label}`)}
+        {button(-1, `Decrease ${label}`)}
         <TextInput
           testID={`${testID}-input`}
           accessibilityLabel={label}
@@ -199,10 +206,11 @@ export function Stepper({
           style={{
             flex: 1, minHeight: LOGGER_TARGET, textAlign: 'center',
             borderRadius: radius.btn, borderWidth: 1, borderColor: c.line2,
-            color: c.ink, backgroundColor: c.sunken, fontSize: 22,
+            color: c.ink, backgroundColor: c.sunken,
+            fontFamily: font.data, fontSize: 28,
           }}
         />
-        {button('+', 1, `Increase ${label}`)}
+        {button(1, `Increase ${label}`)}
       </View>
     </View>
   );
@@ -210,7 +218,7 @@ export function Stepper({
 
 export function SetEntry({
   exercise, value, onChange, onCommit, onRepeatLast, onMore, onPlates, showRpe, showRir,
-  loadStep = 2.5, error, commitLabel = 'Save set', busy,
+  loadStep = 2.5, error, commitLabel = 'Save set', busy, hideCommit,
 }: SetEntryProps) {
   const { c } = useTheme();
   const tracks = trackedFields(exercise);
@@ -279,12 +287,12 @@ export function SetEntry({
         testID="entry-warmup"
         style={{
           alignSelf: 'flex-start', paddingHorizontal: space.md, minHeight: 40,
-          justifyContent: 'center', borderRadius: radius.pill, borderWidth: 1,
-          borderColor: value.setType === 'warmup' ? c.accent : c.line2,
-          backgroundColor: value.setType === 'warmup' ? c.accent : 'transparent',
+          justifyContent: 'center', borderRadius: radius.row, borderWidth: 1,
+          borderColor: value.setType === 'warmup' ? c.accent : c.line,
+          backgroundColor: value.setType === 'warmup' ? c.accentWash : c.surface2,
         }}
       >
-        <Text variant="caption" style={{ color: value.setType === 'warmup' ? c.accentInk : c.ink2 }}>
+        <Text variant="caption" style={{ color: value.setType === 'warmup' ? c.accent : c.ink2 }}>
           Warm-up
         </Text>
       </Pressable>
@@ -292,18 +300,15 @@ export function SetEntry({
         <MoreChip value={value} onPress={onMore} />
       ) : null}
       {onPlates && tracks.load ? (
-        <Pressable
-          onPress={onPlates}
-          accessibilityRole="button"
+        <Button
+          kind="secondary"
+          size="sm"
+          icon="calculator-outline"
+          title="Plates"
           accessibilityLabel="Plate calculator"
+          onPress={onPlates}
           testID="entry-plates"
-          style={{
-            paddingHorizontal: space.md, minHeight: 40, justifyContent: 'center',
-            borderRadius: radius.pill, borderWidth: 1, borderColor: c.line2,
-          }}
-        >
-          <Text variant="caption" style={{ color: c.ink2 }}>Plates</Text>
-        </Pressable>
+        />
       ) : null}
       </View>
 
@@ -311,13 +316,15 @@ export function SetEntry({
         <Text variant="caption" tone="crit" testID="entry-error">{error}</Text>
       ) : null}
 
-      <Button
-        title={commitLabel}
-        onPress={onCommit}
-        loading={busy}
-        style={{ minHeight: LOGGER_TARGET }}
-        testID="entry-commit"
-      />
+      {hideCommit ? null : (
+        <Button
+          title={commitLabel}
+          onPress={onCommit}
+          loading={busy}
+          style={{ minHeight: LOGGER_TARGET }}
+          testID="entry-commit"
+        />
+      )}
 
       {onRepeatLast ? (
         <Button
@@ -334,7 +341,6 @@ export function SetEntry({
 
 /** "More", or what E-06 has set — so a set type chosen there is never invisible here. */
 function MoreChip({ value, onPress }: { value: SetEntryValue; onPress: () => void }) {
-  const { c } = useTheme();
   const summary = advancedSummary({
     ...EMPTY_ADVANCED,
     // Warm-up has its own toggle beside this chip; saying it twice is noise.
@@ -342,20 +348,14 @@ function MoreChip({ value, onPress }: { value: SetEntryValue; onPress: () => voi
     rpe: value.rpe ?? null, rir: value.rir ?? null, note: value.note ?? null,
   });
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
+    <Button
+      kind="secondary"
+      size="sm"
+      icon="options-outline"
+      title={summary ?? 'More ⋯'}
       accessibilityLabel={summary ? `More: ${summary}` : 'More: set type, RPE, RIR, note'}
+      onPress={onPress}
       testID="entry-more"
-      style={{
-        paddingHorizontal: space.md, minHeight: 40, justifyContent: 'center',
-        borderRadius: radius.pill, borderWidth: 1,
-        borderColor: summary ? c.accent : c.line2,
-      }}
-    >
-      <Text variant="caption" style={{ color: summary ? c.accent : c.ink2 }}>
-        {summary ?? 'More ⋯'}
-      </Text>
-    </Pressable>
+    />
   );
 }

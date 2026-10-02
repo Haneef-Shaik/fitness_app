@@ -6,11 +6,11 @@ import { View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
-  Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold, Barlow_700Bold,
-} from '@expo-google-fonts/barlow';
+  HankenGrotesk_600SemiBold, HankenGrotesk_700Bold, HankenGrotesk_800ExtraBold,
+} from '@expo-google-fonts/hanken-grotesk';
 import {
-  BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
-} from '@expo-google-fonts/barlow-condensed';
+  Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold,
+} from '@expo-google-fonts/inter';
 
 import { QueryClientProvider } from '@tanstack/react-query';
 
@@ -93,9 +93,11 @@ function Layout() {
     return (id: string | null) => { handle(id); setAccount(id); };
   }, []);
 
+  // Hanken Grotesk carries headlines and figures, Inter everything else
+  // (src/theme/tokens.ts `font`).
   const [loaded] = useFonts({
-    Barlow_400Regular, Barlow_500Medium, Barlow_600SemiBold, Barlow_700Bold,
-    BarlowCondensed_600SemiBold, BarlowCondensed_700Bold,
+    HankenGrotesk_600SemiBold, HankenGrotesk_700Bold, HankenGrotesk_800ExtraBold,
+    Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold,
   });
 
   // The durability layer opens at launch: recovery (E-10) reads it before any

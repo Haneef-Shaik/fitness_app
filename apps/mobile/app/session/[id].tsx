@@ -9,8 +9,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState, Keyboard, ScrollView, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from '@/ui/Pressable';
 import { ScreenSafeArea } from '@/ui/ScreenSafeArea';
+import { StickyFooter } from '@/ui/StickyFooter';
+import { EmptyState } from '@/ui/EmptyState';
+import { BottomInsetHandled } from '@/ui/topInset';
 import type { Exercise, PersonalRecord } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { useExercises, usePreviousPerformance, useProfile } from '@/lib/query/hooks';
@@ -75,12 +79,10 @@ type Open =
 
 function SyncDot({ state }: { state: DraftSet['syncState'] }) {
   const { c } = useTheme();
+  const icon = state === 'synced' ? 'checkmark-circle' : state === 'failed' ? 'alert-circle' : 'time-outline';
   const colour = state === 'synced' ? c.good : state === 'failed' ? c.crit : c.ink3;
   return (
-    <View
-      accessibilityLabel={syncWords(state)}
-      style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colour }}
-    />
+    <Ionicons name={icon as never} size={16} color={colour} accessibilityLabel={syncWords(state)} />
   );
 }
 
@@ -116,7 +118,7 @@ const SetRow = memo(function SetRow({ set: s, onDelete, onEdit, countWarmups }: 
         testID={`set-row-${s.setIndex}`}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.md }}
       >
-        <Text variant="caption" tone="ink3" style={{ width: 22 }}>
+        <Text variant="caption" tone="ink3" style={{ width: 36 }}>
           {badge(s)}
         </Text>
         <Text variant="body" style={{ flex: 1, fontFamily: font.dataSemi }}>
@@ -387,12 +389,13 @@ export default function ActiveSession() {
         borderBottomWidth: 1, borderColor: c.line,
       }}>
         <View style={{ flex: 1 }}>
+          <Text variant="label" tone="accent">Workout in progress</Text>
           <Text variant="title" numberOfLines={1} accessibilityRole="header">
             {exercise?.exerciseName ?? 'Workout'}
           </Text>
           <Text variant="caption" tone="ink3">
             {draft.exercises.length
-              ? `${activeIdx + 1} of ${draft.exercises.length} · ${count(countSets(draft), 'set')}`
+              ? `Exercise ${activeIdx + 1} of ${draft.exercises.length} · ${count(countSets(draft), 'set')}`
               : 'No exercises yet'}
           </Text>
         </View>
@@ -402,18 +405,39 @@ export default function ActiveSession() {
           accessibilityLabel={draft.notes ? 'Workout notes, has a note' : 'Workout notes'}
           hitSlop={10}
           testID="session-notes"
+          style={{
+            width: 40, height: 40, borderRadius: radius.row,
+            alignItems: 'center', justifyContent: 'center',
+            backgroundColor: c.surface, borderWidth: 1, borderColor: c.line,
+          }}
         >
-          <Text variant="caption" tone={draft.notes ? 'accent' : 'ink2'}>Notes</Text>
+          <Ionicons name="document-text-outline" size={20} color={draft.notes ? c.accent : c.ink2} />
         </Pressable>
         <Pressable
           onPress={() => setDiscarding(true)}
           accessibilityRole="button"
           accessibilityLabel="Discard workout"
           hitSlop={10}
+          style={{
+            width: 40, height: 40, borderRadius: radius.row,
+            alignItems: 'center', justifyContent: 'center',
+            backgroundColor: c.surface, borderWidth: 1, borderColor: c.line,
+          }}
         >
-          <Text variant="caption" tone="crit">Discard</Text>
+          <Ionicons name="trash-outline" size={20} color={c.critInk} />
         </Pressable>
       </View>
+
+      {rest ? (
+        <RestTimer
+          targetIso={rest.target}
+          totalSeconds={rest.total}
+          onDismiss={() => setRest(null)}
+          onAdjust={(d) => setRest((r) => (r ? {
+            ...r, target: new Date(Date.parse(r.target) + d * 1000).toISOString(),
+          } : r))}
+        />
+      ) : null}
 
       <ScrollView
         ref={scroller}
@@ -422,10 +446,12 @@ export default function ActiveSession() {
       >
         {draft.exercises.length === 0 ? (
           <Card>
-            <Text variant="body">Nothing added yet</Text>
-            <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-              An empty workout is valid — add exercises as you go.
-            </Text>
+            <EmptyState
+              compact
+              icon="barbell-outline"
+              title="Nothing added yet"
+              body="An empty workout is valid — add exercises as you go."
+            />
           </Card>
         ) : (
           <>
@@ -451,12 +477,12 @@ export default function ActiveSession() {
                     accessibilityLabel={`${e.exerciseName ?? 'Exercise'}, ${count(e.sets.length, 'set')}`}
                     style={{
                       paddingHorizontal: space.md, minHeight: 40, justifyContent: 'center',
-                      borderRadius: radius.pill, borderWidth: 1,
-                      borderColor: i === activeIdx ? c.accent : c.line2,
-                      backgroundColor: i === activeIdx ? c.accent : 'transparent',
+                      borderRadius: radius.row, borderWidth: 1,
+                      borderColor: i === activeIdx ? c.accent : c.line,
+                      backgroundColor: i === activeIdx ? c.accentWash : c.surface2,
                     }}
                   >
-                    <Text variant="caption" style={{ color: i === activeIdx ? c.accentInk : c.ink2 }}>
+                    <Text variant="caption" style={{ color: i === activeIdx ? c.accent : c.ink2 }}>
                       {groupLetter(draft, i) ? `${groupLetter(draft, i)} · ` : ''}{e.exerciseName ?? 'Exercise'} · {e.sets.length}
                     </Text>
                   </Pressable>
@@ -465,24 +491,34 @@ export default function ActiveSession() {
             </ScrollView>
 
             {exercise ? (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-                {exercise.skipped ? <Pill>Skipped</Pill> : null}
-                {groupLetter(draft, activeIdx) ? (
-                  <Pill kind="accent">
-                    {`Superset ${groupLetter(draft, activeIdx)} · ${membersOf(draft, activeIdx).indexOf(activeIdx) + 1} of ${membersOf(draft, activeIdx).length}`}
-                  </Pill>
+              <Card
+                label={`Exercise ${activeIdx + 1} of ${draft.exercises.length}`}
+                labelTone="accent"
+                right={(
+                  <Pressable
+                    onPress={() => setOpen({ sheet: 'exercise-menu' })}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Options for ${exercise.exerciseName ?? 'this exercise'}`}
+                    hitSlop={10}
+                    testID="exercise-options"
+                    style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <Ionicons name="ellipsis-vertical" size={18} color={c.ink2} />
+                  </Pressable>
+                )}
+              >
+                <Text variant="h2">{exercise.exerciseName ?? 'Exercise'}</Text>
+                {exercise.skipped || groupLetter(draft, activeIdx) ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.sm }}>
+                    {exercise.skipped ? <Pill>Skipped</Pill> : null}
+                    {groupLetter(draft, activeIdx) ? (
+                      <Pill kind="accent">
+                        {`Superset ${groupLetter(draft, activeIdx)} · ${membersOf(draft, activeIdx).indexOf(activeIdx) + 1} of ${membersOf(draft, activeIdx).length}`}
+                      </Pill>
+                    ) : null}
+                  </View>
                 ) : null}
-                <View style={{ flex: 1 }} />
-                <Pressable
-                  onPress={() => setOpen({ sheet: 'exercise-menu' })}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Options for ${exercise.exerciseName ?? 'this exercise'}`}
-                  hitSlop={10}
-                  testID="exercise-options"
-                >
-                  <Text variant="caption" tone="ink2">Options ⋯</Text>
-                </Pressable>
-              </View>
+              </Card>
             ) : null}
 
             {/* ① Previous performance — always on screen, never behind a tap. */}
@@ -493,32 +529,36 @@ export default function ActiveSession() {
               onRetry={() => { previous.refetch(); }}
             />
 
-            {rest ? (
-              <RestTimer
-                targetIso={rest.target}
-                totalSeconds={rest.total}
-                onDismiss={() => setRest(null)}
-                onAdjust={(d) => setRest((r) => (r ? {
-                  ...r, target: new Date(Date.parse(r.target) + d * 1000).toISOString(),
-                } : r))}
-              />
-            ) : null}
-
             {exercise && exercise.sets.length > 0 ? (
-              <View accessibilityRole="list" testID="today-sets">
-                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Today</Text>
-                {exercise.sets.map((s) => (
-                  <SetRow
-                    key={s.clientId} set={s} onDelete={deleteSet} onEdit={openEdit}
-                    countWarmups={countWarmups}
-                  />
-                ))}
+              <Card pad="none" testID="today-sets" accessibilityRole="list">
+                <View style={{
+                  flexDirection: 'row', alignItems: 'center', gap: space.md,
+                  paddingHorizontal: space.md, paddingVertical: space.sm,
+                  backgroundColor: c.surface2,
+                  borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card,
+                }}>
+                  <Text variant="label" style={{ width: 36 }}>Set</Text>
+                  <Text variant="label" style={{ flex: 1 }}>Load × reps</Text>
+                  <Text variant="label">Volume</Text>
+                </View>
+                <View style={{ paddingHorizontal: space.md }}>
+                  {exercise.sets.map((s) => (
+                    <SetRow
+                      key={s.clientId} set={s} onDelete={deleteSet} onEdit={openEdit}
+                      countWarmups={countWarmups}
+                    />
+                  ))}
+                </View>
                 {exercise.sets.some((s) => s.syncState === 'failed') ? (
-                  <Text variant="caption" tone="crit" style={{ marginTop: space.sm }} testID="sync-failed">
+                  <Text
+                    variant="caption" tone="crit"
+                    style={{ marginHorizontal: space.md, marginTop: space.sm, marginBottom: space.md }}
+                    testID="sync-failed"
+                  >
                     Some sets couldn't be uploaded. They're saved here and listed in the Sync Center.
                   </Text>
                 ) : null}
-              </View>
+              </Card>
             ) : null}
 
             {exercise ? (
@@ -537,6 +577,7 @@ export default function ActiveSession() {
                 loadStep={prefs?.load_step_kg ?? 2.5}
                 error={error}
                 commitLabel={`Save set ${exercise.sets.filter((s) => s.setType !== 'warmup').length + 1}`}
+                hideCommit
               />
             ) : null}
 
@@ -558,15 +599,23 @@ export default function ActiveSession() {
         )}
 
         <Button
-          title="+ Add exercises"
-          kind="ghost"
+          title="Add exercises"
+          kind="secondary"
+          icon="add"
           onPress={() => { setPicked([]); setPicking(true); }}
         />
 
         {finishError ? (
           <Text variant="caption" tone="crit" testID="finish-error">{finishError}</Text>
         ) : null}
-        <Button title="Finish workout" onPress={doFinish} loading={finishing} testID="finish-workout" />
+        <Button
+          title="Finish workout"
+          kind="ghost"
+          icon="checkmark-done-outline"
+          onPress={doFinish}
+          loading={finishing}
+          testID="finish-workout"
+        />
 
         {SHOW_TIMING && timing ? (
           // H4.3 is a number someone has to write down, so it has to be readable
@@ -585,6 +634,20 @@ export default function ActiveSession() {
           </Pressable>
         ) : null}
       </ScrollView>
+
+      {exercise ? (
+        <BottomInsetHandled.Provider value={true}>
+          <StickyFooter>
+            <Button
+              size="lg"
+              icon="checkmark"
+              title={`Save set ${exercise.sets.filter((s) => s.setType !== 'warmup').length + 1}`}
+              testID="entry-commit"
+              onPress={commit}
+            />
+          </StickyFooter>
+        </BottomInsetHandled.Provider>
+      ) : null}
 
       <ExercisePicker
         visible={picking}

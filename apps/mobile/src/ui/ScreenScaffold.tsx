@@ -1,7 +1,9 @@
 /**
- * The stacked-screen scaffold (H2.1): back affordance, title, optional trailing
- * action, and a body that respects the safe areas. Every D-* and C-* screen uses
- * it so headers cannot drift apart screen by screen.
+ * The screen frame (H2.1): a compact top bar — back, an optional eyebrow
+ * ("WORKOUT IN PROGRESS"), the title, an optional trailing action — a body
+ * that respects the safe areas, and an optional sticky footer for the
+ * screen's one primary action. Every screen uses it so headers cannot drift
+ * apart screen by screen.
  */
 import React from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
@@ -11,15 +13,25 @@ import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSession } from '../lib/session';
 import { Text } from './index';
+import { StickyFooter } from './StickyFooter';
 import { useScreenEdges } from './topInset';
-import { font, space, useTheme } from '../theme';
+import { font, radius, space, useTheme } from '../theme';
+import type { TextTone } from './textTone';
+
+/** How far the tab bar's centre action protrudes above the bar (shell/TabBar). */
+const TAB_ACTION_CLEARANCE = 20;
 
 export interface ScreenScaffoldProps {
   title: string;
   subtitle?: string;
+  /** A short uppercase line ABOVE the title — the screen's context. */
+  eyebrow?: string;
+  eyebrowTone?: TextTone;
   back?: boolean;
   onBack?: () => void;
-  action?: { label: string; onPress: () => void };
+  action?: { label: string; onPress: () => void; testID?: string };
+  /** Anything else on the right of the bar: icon buttons, a timer. */
+  headerRight?: React.ReactNode;
   /**
    * A tab root (00 §4): a section title, no back, and the notifications bell
    * and avatar (→ K-01 Settings) on the right.
@@ -31,11 +43,14 @@ export interface ScreenScaffoldProps {
   onRefresh?: () => void;
   /** Set false when the body scrolls itself (a virtualised list). */
   scroll?: boolean;
+  /** Pinned above the safe area: the screen's primary action. */
+  footer?: React.ReactNode;
   children: React.ReactNode;
 }
 
 export function ScreenScaffold({
-  title, subtitle, back = true, onBack, action, root = false, titleTestID, onRefresh, scroll = true, children,
+  title, subtitle, eyebrow, eyebrowTone = 'ink3', back = true, onBack, action, headerRight,
+  root = false, titleTestID, onRefresh, scroll = true, footer, children,
 }: ScreenScaffoldProps) {
   const { c } = useTheme();
 
@@ -43,7 +58,8 @@ export function ScreenScaffold({
   const Body = scroll ? ScrollView : View;
   const bodyProps = scroll
     ? {
-        contentContainerStyle: { padding: space.lg, paddingBottom: space.huge },
+        contentContainerStyle: { padding: space.base, paddingBottom: space.huge },
+        keyboardShouldPersistTaps: 'handled' as const,
         refreshControl: onRefresh ? (
           <RefreshControl
             refreshing={pulling}
@@ -71,9 +87,9 @@ export function ScreenScaffold({
     >
       <View
         style={{
-          flexDirection: 'row', alignItems: 'center', gap: space.md,
-          paddingHorizontal: space.lg, paddingVertical: space.md,
-          borderBottomWidth: 1, borderColor: c.line,
+          flexDirection: 'row', alignItems: 'center', gap: space.sm,
+          paddingHorizontal: space.base, minHeight: 60, paddingVertical: space.sm,
+          borderBottomWidth: 1, borderColor: c.line, backgroundColor: c.page,
         }}
       >
         {back && !root ? (
@@ -83,14 +99,17 @@ export function ScreenScaffold({
             accessibilityLabel="Back"
             testID="screen-back"
             hitSlop={12}
-            style={{ minWidth: 36, minHeight: 36, marginLeft: -6, justifyContent: 'center' }}
+            style={{ width: 40, height: 40, marginLeft: -8, borderRadius: radius.row, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Ionicons name="chevron-back" size={26} color={c.ink2} />
+            <Ionicons name="arrow-back" size={24} color={c.ink2} />
           </Pressable>
         ) : null}
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          {eyebrow ? (
+            <Text variant="label" tone={eyebrowTone} numberOfLines={1} testID="screen-eyebrow">{eyebrow}</Text>
+          ) : null}
           <Text
-            variant={root ? 'h1' : 'title'}
+            variant={root ? 'h2' : 'title'}
             numberOfLines={1}
             accessibilityRole="header"
             testID={titleTestID}
@@ -106,15 +125,20 @@ export function ScreenScaffold({
             onPress={action.onPress}
             accessibilityRole="button"
             accessibilityLabel={action.label}
+            testID={action.testID}
             hitSlop={12}
-            style={{ minHeight: 32, justifyContent: 'center' }}
+            style={{ minHeight: 40, paddingHorizontal: space.sm, justifyContent: 'center' }}
           >
-            <Text variant="body" tone="accent">{action.label}</Text>
+            <Text variant="body" tone="accent" weight="semi">{action.label}</Text>
           </Pressable>
         ) : null}
+        {headerRight}
         {root ? <RootActions /> : null}
       </View>
       <Body {...bodyProps}>{children}</Body>
+      {/* On a tab root the centre action button rises above the bar by a third
+          of its height; the footer clears it so the two never overlap. */}
+      {footer ? <StickyFooter extraBottom={root ? TAB_ACTION_CLEARANCE : 0}>{footer}</StickyFooter> : null}
     </SafeAreaView>
   );
 }
@@ -134,10 +158,13 @@ function RootActions() {
         accessibilityRole="button"
         accessibilityLabel="Notifications and reminders"
         testID="open-notifications"
-        hitSlop={8}
-        style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 20 }}
+        hitSlop={6}
+        style={{
+          width: 40, height: 40, alignItems: 'center', justifyContent: 'center',
+          borderRadius: radius.row, backgroundColor: c.surface, borderWidth: 1, borderColor: c.line,
+        }}
       >
-        <Ionicons name="notifications-outline" size={22} color={c.ink2} />
+        <Ionicons name="notifications-outline" size={20} color={c.ink2} />
       </Pressable>
       <Pressable
         onPress={() => router.push('/settings')}
@@ -145,11 +172,11 @@ function RootActions() {
         accessibilityLabel="Profile and settings"
         testID="open-settings"
         style={{
-          width: 36, height: 36, borderRadius: 18, backgroundColor: c.accentWash,
+          width: 40, height: 40, borderRadius: radius.row, backgroundColor: c.accentWash,
           borderWidth: 1, borderColor: c.line2, alignItems: 'center', justifyContent: 'center',
         }}
       >
-        <Text variant="caption" tone="accent" style={{ fontFamily: font.uiSemi }}>{initials}</Text>
+        <Text variant="caption" tone="accent" style={{ fontFamily: font.uiBold }}>{initials}</Text>
       </Pressable>
     </View>
   );

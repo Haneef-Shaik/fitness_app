@@ -1,6 +1,13 @@
 # Design System
 ## Fitness & Nutrition Tracking Platform
 
+> **Superseded in part (27 Sep 2026).** The visual direction below — the Iris accent, Barlow,
+> the pill shapes and glows — was rejected in the owner's review and replaced by
+> [15-UI-REDESIGN.md](15-UI-REDESIGN.md) (blue accent, Hanken Grotesk + Inter, tonal
+> layering, tight corners). Where the two disagree, 15 wins. The chart rules (§3), the
+> touch targets and motion (§6), the accessibility rules (§9) and the content voice (§10)
+> still stand and are still tested.
+
 Tokens, components, chart specifications and accessibility rules used by every wireframe in
 [wireframes/](wireframes/).
 

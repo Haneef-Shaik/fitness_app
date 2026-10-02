@@ -14,9 +14,10 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import type { WorkoutSession } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
+import { EmptyState } from '@/ui/EmptyState';
 import { NavGroup, NavRow } from '@/ui/NavRow';
-import { Pressable } from '@/ui/Pressable';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
+import { SectionHeader } from '@/ui/SectionHeader';
 import { ApiError } from '@/lib/api';
 import { flattenHistory, useDashboard, usePrograms, useWorkoutHistory } from '@/lib/query/hooks';
 import { formatSessionSummary } from '@/features/history/format';
@@ -60,26 +61,30 @@ export default function TrainHub() {
     <ScreenScaffold title="Train" root onRefresh={refresh}>
       <View style={{ gap: space.lg }}>
         {liveSession ? (
-          <Card hero testID="train-resume">
-            <Pill kind="accent">In progress</Pill>
-            <Text variant="h2" style={{ marginTop: space.sm }}>You're mid-workout</Text>
+          <Card
+            hero accent testID="train-resume"
+            label="Today" labelTone="accent"
+            right={<Pill kind="accent" icon="flash">In progress</Pill>}
+          >
+            <Text variant="h2">You're mid-workout</Text>
             <Button
               title="Resume"
+              icon="play"
               style={{ marginTop: space.base }}
               testID="train-resume-button"
               onPress={() => router.push(`/session/${liveSession.id}`)}
             />
           </Card>
         ) : suggestion ? (
-          <Card hero testID="train-today">
-            <Text variant="label">{suggestion.scheduled ? 'Today' : 'Next up'}</Text>
-            <Text variant="h2" style={{ marginTop: space.xs }} numberOfLines={2}>{suggestion.day.name}</Text>
+          <Card hero testID="train-today" label={suggestion.scheduled ? 'Today' : 'Next up'} labelTone="accent">
+            <Text variant="h2" numberOfLines={2}>{suggestion.day.name}</Text>
             <Text variant="caption" tone="ink3" style={{ marginTop: 2 }}>
               {suggestion.program.name} · {count(suggestion.day.exercises?.length ?? 0, 'exercise')}
             </Text>
             <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.base }}>
               <Button
                 title="Start workout"
+                icon="play"
                 style={{ flex: 1 }}
                 loading={starting}
                 testID="train-start-today"
@@ -87,7 +92,7 @@ export default function TrainHub() {
               />
               <Button
                 title="Change"
-                kind="ghost"
+                kind="secondary"
                 testID="train-change"
                 onPress={() => router.push('/train/start')}
               />
@@ -95,22 +100,21 @@ export default function TrainHub() {
           </Card>
         ) : programs.data ? (
           <Card hero testID="train-no-program">
-            <Text variant="h2">No program yet</Text>
-            <Text variant="body" tone="ink2" style={{ marginTop: space.xs }}>
-              Pick a starter program and it becomes yours to edit — or build your own.
-            </Text>
-            <Button
-              title="Browse starter programs"
-              style={{ marginTop: space.base }}
-              testID="train-browse-templates"
-              onPress={() => router.push('/train/programs/templates')}
-            />
-            <Button
-              title="Build my own"
-              kind="ghost"
-              style={{ marginTop: space.sm }}
-              testID="train-build-own"
-              onPress={() => router.push('/train/programs')}
+            <EmptyState
+              compact
+              icon="clipboard-outline"
+              title="No program yet"
+              body="Pick a starter program and it becomes yours to edit — or build your own."
+              action={{
+                label: 'Browse starter programs',
+                testID: 'train-browse-templates',
+                onPress: () => router.push('/train/programs/templates'),
+              }}
+              secondary={{
+                label: 'Build my own',
+                testID: 'train-build-own',
+                onPress: () => router.push('/train/programs'),
+              }}
             />
           </Card>
         ) : null}
@@ -120,7 +124,8 @@ export default function TrainHub() {
         {!liveSession ? (
           <Button
             title="Empty workout"
-            kind="ghost"
+            kind="secondary"
+            icon="add-circle-outline"
             testID="train-empty"
             onPress={() => begin({})}
           />
@@ -129,21 +134,33 @@ export default function TrainHub() {
         <NavGroup>
           <NavRow
             icon="clipboard-outline" label="Programs" testID="go-programs"
+            hint="Plans, days and schedules"
             detail={programs.data ? `${activePrograms} active` : null}
             onPress={() => router.push('/train/programs')}
           />
           <NavRow icon="library-outline" label="Exercise library" testID="go-exercises"
+            hint="By muscle, equipment, or your own"
             onPress={() => router.push('/train/exercises')} />
           <NavRow icon="time-outline" label="History" testID="go-history"
+            hint="Every finished session"
             onPress={() => router.push('/train/history')} />
           <NavRow icon="stats-chart-outline" label="Analytics" testID="go-trends"
+            hint="Volume, frequency, muscle balance"
             onPress={() => router.push('/train/analytics')} />
           <NavRow icon="trophy-outline" label="Personal records" testID="go-records"
+            hint="Best sets and estimated 1RM"
             onPress={() => router.push('/train/analytics/records')} />
         </NavGroup>
 
         <View>
-          <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>Recent sessions</Text>
+          <SectionHeader
+            title="Recent sessions"
+            action={recent.length > 0 ? {
+              label: 'See all sessions',
+              testID: 'see-all-sessions',
+              onPress: () => router.push('/train/history'),
+            } : undefined}
+          />
           {recent.length === 0 ? (
             <Text variant="body" tone="ink3" testID="train-no-history">Your sessions will show up here.</Text>
           ) : (
@@ -156,22 +173,13 @@ export default function TrainHub() {
                     icon="barbell-outline"
                     label={s.title}
                     detail={s.dateLabel}
+                    hint={s.headline}
                     onPress={() => router.push(`/train/history/${row.id}`)}
                   />
                 );
               })}
             </NavGroup>
           )}
-          {recent.length > 0 ? (
-            <Pressable
-              onPress={() => router.push('/train/history')}
-              accessibilityRole="button"
-              accessibilityLabel="See all sessions"
-              style={{ alignSelf: 'flex-end', paddingVertical: space.sm }}
-            >
-              <Text variant="caption" tone="accent">See all ›</Text>
-            </Pressable>
-          ) : null}
         </View>
       </View>
     </ScreenScaffold>

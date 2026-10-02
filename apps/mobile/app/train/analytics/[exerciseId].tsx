@@ -22,11 +22,12 @@ export default function ExerciseProgressionScreen() {
   const query = useExerciseProgression(exerciseId ?? '', range);
 
   return (
-    <ScreenScaffold title="Progression" subtitle="Last 6 months">
+    <ScreenScaffold eyebrow="Last 6 months" title="Progression">
       <DataBoundary
         query={query}
         isEmpty={(d) => !d || d.points.length === 0}
         empty={{
+          icon: 'trending-up-outline',
           title: 'Not performed yet',
           body: 'Log this exercise and its trend starts here.',
         }}
@@ -38,17 +39,16 @@ export default function ExerciseProgressionScreen() {
           const best = points.reduce((m, p) => Math.max(m, p.value), 0);
           const latest = points[points.length - 1]?.value ?? 0;
           return (
-            <View style={{ gap: space.lg }}>
-              <Text variant="label">{data.exercise_name ?? 'Exercise'}</Text>
-              <Card>
+            <View style={{ gap: space.base }}>
+              <Card hero label={data.exercise_name ?? 'Exercise'} right={<Text variant="caption" tone="ink3">Estimated 1RM</Text>}>
                 <Line testID="progression-line" data={points} />
               </Card>
               <View style={{ flexDirection: 'row', gap: space.sm }}>
-                <StatTile label="Latest e1RM" value={String(Math.round(latest))} unit="kg" />
-                <StatTile label="Best e1RM" value={String(Math.round(best))} unit="kg" />
+                <StatTile label="Latest" value={String(Math.round(latest))} unit="kg" />
+                <StatTile label="Best" value={String(Math.round(best))} unit="kg" />
               </View>
               <Text variant="caption" tone="ink3">
-                Estimated with {data.formula_version}. Warm-ups are excluded.
+                Estimated one-rep max, from your heaviest working sets with the Epley formula ({data.formula_version}). Warm-ups are excluded.
               </Text>
             </View>
           );

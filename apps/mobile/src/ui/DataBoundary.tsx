@@ -16,8 +16,9 @@
  */
 import React from 'react';
 import { View } from 'react-native';
-import { Pressable } from '@/ui/Pressable';
-import { Button, Text } from './index';
+import { Text } from './index';
+import { EmptyState, type EmptyAction } from './EmptyState';
+import { SkeletonCard } from './Skeleton';
 import { space, useTheme } from '../theme';
 
 /** The slice of a TanStack query this component needs — kept narrow so it is trivial to fake. */
@@ -32,7 +33,8 @@ export interface BoundaryQuery<T> {
 export interface EmptyCopy {
   title: string;
   body?: string;
-  action?: { label: string; onPress: () => void };
+  icon?: string;
+  action?: EmptyAction;
 }
 
 export interface FilteredState {
@@ -67,28 +69,6 @@ function requestIdOf(error: unknown): string | undefined {
   return typeof id === 'string' ? id : undefined;
 }
 
-function Centered({ children }: { children: React.ReactNode }) {
-  return (
-    <View style={{ alignItems: 'center', paddingVertical: space.xl, paddingHorizontal: space.lg, gap: 6 }}>
-      {children}
-    </View>
-  );
-}
-
-function Message({ title, body, action }: EmptyCopy) {
-  return (
-    <Centered>
-      <Text variant="body" style={{ textAlign: 'center' }}>{title}</Text>
-      {body ? (
-        <Text variant="caption" tone="ink3" style={{ textAlign: 'center' }}>{body}</Text>
-      ) : null}
-      {action ? (
-        <Button title={action.label} kind="ghost" size="sm" onPress={action.onPress} style={{ marginTop: space.md }} />
-      ) : null}
-    </Centered>
-  );
-}
-
 export function DataBoundary<T>({
   query, empty, filtered, skeleton, isOffline = false, isEmpty = defaultIsEmpty as (d: T) => boolean, children,
 }: DataBoundaryProps<T>) {
@@ -98,7 +78,8 @@ export function DataBoundary<T>({
   // 1. Offline with nothing cached — there is nothing to show and retrying will not help.
   if (isOffline && !hasData) {
     return (
-      <Message
+      <EmptyState
+        icon="cloud-offline-outline"
         title="You're offline"
         body="This will load as soon as you're back on a network."
       />
@@ -109,29 +90,31 @@ export function DataBoundary<T>({
   if (query.isError) {
     const ref = requestIdOf(query.error);
     return (
-      <Centered>
-        <Text variant="body" style={{ textAlign: 'center' }}>Something went wrong</Text>
-        <Text variant="caption" tone="ink3" style={{ textAlign: 'center' }}>
-          That didn't load. It's usually temporary.
-        </Text>
-        <Button title="Try again" kind="ghost" size="sm" onPress={() => query.refetch()} style={{ marginTop: space.md }} />
+      <View>
+        <EmptyState
+          icon="alert-circle-outline"
+          title="Something went wrong"
+          body="That didn't load. It's usually temporary."
+          action={{ label: 'Try again', onPress: () => { query.refetch(); } }}
+        />
         {ref ? (
-          <Text variant="caption" tone="ink3" style={{ marginTop: 6, textAlign: 'center' }}>
+          <Text variant="caption" tone="ink3" style={{ textAlign: 'center' }}>
             Reference {ref}
           </Text>
         ) : null}
-      </Centered>
+      </View>
     );
   }
 
-  // 3. Loading.
-  if (query.isPending) return <>{skeleton ?? <Message title="Loading…" />}</>;
+  // 3. Loading — a shape, not a spinner (00 §5.1).
+  if (query.isPending) return <>{skeleton ?? <SkeletonCard />}</>;
 
   // 4. Empty — and filtered-empty is a different sentence with a different way out.
   if (!hasData) {
     if (filtered?.isActive) {
       return (
-        <Message
+        <EmptyState
+          icon="funnel-outline"
           title={filtered.title ?? 'No matches'}
           body={
             filtered.body ??
@@ -143,7 +126,7 @@ export function DataBoundary<T>({
         />
       );
     }
-    return <Message {...empty} />;
+    return <EmptyState icon={empty.icon} title={empty.title} body={empty.body} action={empty.action} />;
   }
 
   // 5. Content. Stale-while-offline is allowed, but it is labelled.

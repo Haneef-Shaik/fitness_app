@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitLog Redesign Preview</title>
+<style>
+  :root {
+    --page: #0E0F11; --surface: #16181C; --line: #272A30;
+    --ink: #FFFFFF; --ink2: #C4C6C1; --ink3: #8E918F; --accent: #6BA5FF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 1280px; margin: 0 auto; padding: 32px 16px 64px; }
+  .eyebrow { color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  h1 { font-size: 28px; margin: 4px 0 8px; letter-spacing: -.01em; }
+  h2 { font-size: 13px; color: var(--ink3); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin: 40px 0 16px; }
+  p.lead { color: var(--ink2); max-width: 720px; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 10px; cursor: zoom-in; }
+  figcaption { color: var(--ink2); font-size: 13px; padding: 10px 4px 2px; }
+  figcaption b { color: var(--ink); display: block; font-size: 14px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .pair .tag { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); padding: 0 4px 8px; }
+  .pair .tag.new { color: var(--accent); }
+  .pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 24px; }
+  dialog { border: 0; padding: 0; background: transparent; max-height: 96vh; }
+  dialog::backdrop { background: rgba(0,0,0,.85); }
+  dialog img { max-height: 94vh; max-width: 94vw; border-radius: 12px; display: block; }
+  @media (max-width: 520px) { .pairs { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Branch ui/redesign · Android emulator · dark mode</div>
+  <h1>FitLog redesign preview</h1>
+  <p class="lead">Captured from the real app running the redesign branch, signed in as the demo account.
+    The "Open debugger" toast on the logger shots is a development-build warning and does not appear in a release build.
+    Click any screen to enlarge it.</p>
+
+  <h2>Before and after</h2>
+  <div class="pairs">
+    <div>
+      <div class="pair">
+        <div><div class="tag">Before</div><figure><img src="../../store/screenshots/android/01-log-a-set.png" alt="Old set logger"></figure></div>
+        <div><div class="tag new">After</div><figure><img src="10-logger-after-set.png" alt="New set logger"></figure></div>
+      </div>
+    </div>
+    <div>
+      <div class="pair">
+        <div><div class="tag">Before</div><figure><img src="../../store/screenshots/android/03-food-diary.png" alt="Old food diary"></figure></div>
+        <div><div class="tag new">After</div><figure><img src="03-diary.png" alt="New food diary"></figure></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Every screen captured</h2>
+  <div class="grid">
+    <figure><img src="01-home.png" alt="Home"><figcaption><b>Home</b>The "up next" line says what to do; each card has one clear button.</figcaption></figure>
+    <figure><img src="02-home-scrolled.png" alt="Home, scrolled"><figcaption><b>Home, scrolled</b>Weight with its date and the goal milestone; goals in words.</figcaption></figure>
+    <figure><img src="03-diary.png" alt="Nutrition diary"><figcaption><b>Nutrition diary</b>What is left leads; Add food is pinned at the thumb.</figcaption></figure>
+    <figure><img src="04-add-food.png" alt="Add food"><figcaption><b>Add food</b>Four ways in as big rows, then the catalog.</figcaption></figure>
+    <figure><img src="05-train.png" alt="Train hub"><figcaption><b>Train</b>Next workout with one Start button; every row says what is behind it.</figcaption></figure>
+    <figure><img src="06-progress.png" alt="Progress"><figcaption><b>Progress</b>Journey, check-ins, then weight with Log today as the primary action.</figcaption></figure>
+    <figure><img src="07-quick-actions.png" alt="Quick actions"><figcaption><b>Quick actions</b>The centre button's menu; the suggested action is outlined.</figcaption></figure>
+    <figure><img src="08-start-workout.png" alt="Start a workout"><figcaption><b>Start a workout</b>Empty workout first, then every program day.</figcaption></figure>
+    <figure><img src="09-logger.png" alt="Logger, first set"><figcaption><b>Logger, first set</b>Save set 1 is pinned at the bottom; steppers show their step.</figcaption></figure>
+    <figure><img src="10-logger-after-set.png" alt="Logger after a set"><figcaption><b>Logger after a set</b>Rest timer becomes a sticky bar; the set table shows sync with an icon.</figcaption></figure>
+    <figure><img src="11-discard-dialog.png" alt="Discard dialog"><figcaption><b>Discard</b>Says exactly what will be lost and offers the safer choice first.</figcaption></figure>
+  </div>
+</main>
+<dialog id="zoom"><img alt=""></dialog>
+<script>
+  const dlg = document.getElementById('zoom');
+  const big = dlg.querySelector('img');
+  document.querySelectorAll('figure img').forEach((img) => {
+    img.addEventListener('click', () => { big.src = img.src; big.alt = img.alt; dlg.showModal(); });
+  });
+  dlg.addEventListener('click', () => dlg.close());
+</script>
+</body>
+</html>

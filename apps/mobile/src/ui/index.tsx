@@ -1,103 +1,154 @@
 /**
- * FitLog UI primitives. Ported from docs/design/fitlog.css.
+ * FitLog UI primitives — Text, Card, Button, Pill, Meter, Stat.
  *
- * The depth recipe matters: a card is a tinted gradient + a 1px inner top highlight
- * + a real shadow. Flat fills read as a wireframe, which is what the first design pass
- * got wrong (see docs/design/README.md).
+ * The visual rules live in docs/15-UI-REDESIGN.md: tonal layering (page →
+ * card → panel) with hairline outlines, one blue accent, Hanken Grotesk for
+ * headlines and figures, Inter for everything else.
  */
 import React from 'react';
 import {
-  ActivityIndicator, Pressable, StyleSheet, Text as RNText, View,
-  type PressableProps, type TextProps, type ViewProps, type TextStyle, type ViewStyle,
+  ActivityIndicator, Pressable, Text as RNText, View,
+  type PressableProps, type TextProps, type ViewProps, type TextStyle,
 } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme, font, type, space, radius, target } from '@/theme';
 import { FocusRing, useFocusRing } from './focusRing';
 import { textColor, type TextTone } from './textTone';
 
 /* ---------------- Text ---------------- */
-type Variant =
+export type TextVariant =
   | 'record' | 'hero' | 'entry' | 'display' | 'stat'
   | 'h1' | 'h2' | 'title' | 'body' | 'caption' | 'label';
 
-const NUMERIC: Variant[] = ['record', 'hero', 'entry', 'display', 'stat'];
+export type TextWeight = 'regular' | 'medium' | 'semi' | 'bold';
+
+const NUMERIC: readonly TextVariant[] = ['record', 'hero', 'entry', 'display', 'stat'];
+const HEADLINE: readonly TextVariant[] = ['h1', 'h2'];
+const WEIGHTS: Record<TextWeight, string> = {
+  regular: font.ui, medium: font.uiMedium, semi: font.uiSemi, bold: font.uiBold,
+};
+
+function familyFor(variant: TextVariant, weight?: TextWeight): string {
+  if (NUMERIC.includes(variant)) return font.data;
+  if (HEADLINE.includes(variant)) return font.display;
+  if (variant === 'title') return font.displaySemi;
+  if (variant === 'label') return font.uiSemi;
+  return WEIGHTS[weight ?? 'regular'];
+}
 
 export function Text({
-  variant = 'body', tone = 'ink', style, ...rest
-}: TextProps & { variant?: Variant; tone?: TextTone }) {
+  variant = 'body', tone = 'ink', weight, style, ...rest
+}: TextProps & { variant?: TextVariant; tone?: TextTone; weight?: TextWeight }) {
   const { c } = useTheme();
-  const numeric = NUMERIC.includes(variant);
   const base: TextStyle = {
     color: textColor(c, tone),
     fontSize: type[variant],
-    fontFamily: numeric ? font.data : variant === 'label' ? font.uiSemi : font.ui,
+    fontFamily: familyFor(variant, weight),
   };
-  if (numeric) { base.letterSpacing = -0.4; base.lineHeight = type[variant] * 0.96; }
+  if (NUMERIC.includes(variant)) { base.letterSpacing = -0.5; base.lineHeight = Math.round(type[variant] * 1.08); }
+  if (HEADLINE.includes(variant)) base.letterSpacing = -0.3;
   if (variant === 'label') {
-    base.letterSpacing = 1.5; base.textTransform = 'uppercase'; base.color = c.ink3;
-    if (tone !== 'ink') base.color = textColor(c, tone);
+    base.letterSpacing = 0.7; base.textTransform = 'uppercase';
+    base.color = tone === 'ink' ? c.ink3 : textColor(c, tone);
   }
-  if (variant === 'title' || variant === 'h1' || variant === 'h2') base.fontFamily = font.uiSemi;
   return <RNText {...rest} style={[base, style]} />;
 }
 
 /* ---------------- Card ---------------- */
+export interface CardProps extends ViewProps {
+  /** An uppercase eyebrow inside the card — "TODAY'S WORKOUT". */
+  label?: string;
+  labelTone?: TextTone;
+  /** Whatever sits opposite the label: a date, a pill, an icon button. */
+  right?: React.ReactNode;
+  hero?: boolean;
+  accent?: boolean;
+  /** A panel inside a card: the next tone up, no shadow. */
+  nested?: boolean;
+  pad?: 'none' | 'sm' | 'md' | 'lg';
+}
+
+const PAD = { none: 0, sm: space.md, md: space.base, lg: space.lg } as const;
+
 export function Card({
-  hero, accent, style, children, ...rest
-}: ViewProps & { hero?: boolean; accent?: boolean }) {
+  label, labelTone, right, hero, accent, nested, pad, style, children, ...rest
+}: CardProps) {
   const { c, scheme } = useTheme();
+  const padding = PAD[pad ?? (hero ? 'lg' : 'md')];
+  const shadow = nested ? null : scheme === 'dark'
+    ? { shadowColor: '#000', shadowOpacity: hero ? 0.45 : 0.3, shadowRadius: hero ? 14 : 6,
+        shadowOffset: { width: 0, height: hero ? 6 : 2 }, elevation: hero ? 4 : 2 }
+    : { shadowColor: '#0B0C0D', shadowOpacity: hero ? 0.08 : 0.05, shadowRadius: hero ? 12 : 4,
+        shadowOffset: { width: 0, height: hero ? 4 : 1 }, elevation: hero ? 3 : 1 };
   return (
     <View
       {...rest}
       style={[
         {
-          backgroundColor: c.surface,
+          backgroundColor: nested ? c.surface2 : c.surface,
           borderWidth: 1,
-          borderColor: accent ? withAlpha(c.accent, 0.42) : c.line,
-          borderRadius: hero ? radius.lg : radius.card,
-          padding: hero ? 18 : space.base,
+          borderColor: accent ? withAlpha(c.accent, 0.5) : c.line,
+          borderRadius: nested ? radius.row : radius.card,
+          padding,
           overflow: 'hidden',
         },
-        scheme === 'dark'
-          ? { shadowColor: '#000', shadowOpacity: hero ? 0.6 : 0.4, shadowRadius: hero ? 16 : 3,
-              shadowOffset: { width: 0, height: hero ? 8 : 1 }, elevation: hero ? 6 : 2 }
-          : { shadowColor: '#0B0C0D', shadowOpacity: hero ? 0.12 : 0.06, shadowRadius: hero ? 14 : 3,
-              shadowOffset: { width: 0, height: hero ? 6 : 1 }, elevation: hero ? 4 : 1 },
+        shadow,
         style,
       ]}
     >
-      {/* the 1px inner top highlight — the thing that makes an edge catch light */}
-      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderTopWidth: 1, borderTopColor: c.sheen, borderRadius: hero ? radius.lg : radius.card }]} />
-      {accent ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: c.accentWash }]} /> : null}
-      <View>{children}</View>
+      {label || right ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm, marginBottom: label ? space.sm : 0 }}>
+          {label ? (
+            <Text variant="label" tone={labelTone} accessibilityRole="header" style={{ flex: 1 }} numberOfLines={1}>
+              {label}
+            </Text>
+          ) : <View style={{ flex: 1 }} />}
+          {right}
+        </View>
+      ) : null}
+      {children}
     </View>
   );
 }
 
+/** A panel inside a card — the next tone up. */
 export function Well({ style, children, ...rest }: ViewProps) {
   const { c } = useTheme();
   return (
-    <View {...rest} style={[{ backgroundColor: c.sunken, borderWidth: 1, borderColor: c.line, borderRadius: radius.card, padding: 14 }, style]}>
+    <View {...rest} style={[{ backgroundColor: c.surface2, borderWidth: 1, borderColor: c.line, borderRadius: radius.row, padding: space.md }, style]}>
       {children}
     </View>
   );
 }
 
 /* ---------------- Button ---------------- */
-export function Button({
-  title, kind = 'primary', size = 'md', loading, disabled, style, ...rest
-}: PressableProps & {
+export type ButtonKind = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+const HEIGHT: Record<ButtonSize, number> = { sm: target.min, md: 52, lg: target.logger };
+const LABEL_SIZE: Record<ButtonSize, number> = { sm: 14.5, md: 16, lg: 17 };
+const ICON_SIZE: Record<ButtonSize, number> = { sm: 18, md: 20, lg: 22 };
+
+export interface ButtonProps extends PressableProps {
   title: string;
-  kind?: 'primary' | 'ghost' | 'danger';
-  size?: 'md' | 'sm';
+  kind?: ButtonKind;
+  size?: ButtonSize;
+  /** An Ionicons name drawn before the label. */
+  icon?: string;
   loading?: boolean;
-}) {
+}
+
+export function Button({
+  title, kind = 'primary', size = 'md', icon, loading, disabled, style, ...rest
+}: ButtonProps) {
   const { c } = useTheme();
   const own = React.useRef<View | null>(null);
   const focused = useFocusRing(own);
-  const h = size === 'md' ? target.logger - 2 : 46;
   const isPrimary = kind === 'primary';
-  const bg = isPrimary ? c.accent : kind === 'ghost' ? c.surface : 'transparent';
-  const fg = isPrimary ? c.accentInk : kind === 'danger' ? c.critInk : c.ink2;
+  const bg = isPrimary ? c.accent : kind === 'secondary' ? c.surface2 : 'transparent';
+  const fg = isPrimary ? c.accentInk : kind === 'danger' ? c.critInk : kind === 'secondary' ? c.ink : c.ink2;
+  const iconColor = isPrimary ? c.accentInk : kind === 'danger' ? c.critInk : c.accent;
+  const border = kind === 'secondary' ? c.line2 : kind === 'ghost' ? c.line : 'transparent';
 
   return (
     <Pressable
@@ -111,34 +162,35 @@ export function Button({
       ref={own}
       style={({ pressed }) => [
         {
-          minHeight: h,
-          // Room around the label. Without it a small button was exactly as
-          // wide as its words and they touched its border (G10, on a phone).
-          paddingHorizontal: size === 'md' ? space.lg : 14,
+          minHeight: HEIGHT[size],
+          paddingHorizontal: size === 'sm' ? 14 : space.lg,
           borderRadius: radius.btn,
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
           gap: space.sm,
           backgroundColor: bg,
-          borderWidth: kind === 'primary' ? 0 : 1,
-          borderColor: kind === 'danger' ? 'transparent' : c.line,
+          borderWidth: isPrimary ? 0 : 1,
+          borderColor: border,
           opacity: disabled ? 0.45 : 1,
           // press feedback is scale + opacity only — never a layout shift
-          transform: [{ scale: pressed ? 0.975 : 1 }],
+          transform: [{ scale: pressed ? 0.98 : 1 }],
         },
         isPrimary && {
-          shadowColor: c.accent, shadowOpacity: 0.55, shadowRadius: 14,
-          shadowOffset: { width: 0, height: 8 }, elevation: 6,
+          shadowColor: c.accent, shadowOpacity: 0.3, shadowRadius: 10,
+          shadowOffset: { width: 0, height: 5 }, elevation: 3,
         },
         typeof style === 'function' ? style({ pressed } as never) : style,
       ]}
     >
       {focused ? <FocusRing radius={radius.btn} /> : null}
       {loading ? <ActivityIndicator color={fg} /> : (
-        <RNText style={{ color: fg, fontFamily: font.uiSemi, fontSize: size === 'md' ? 16 : 14.5 }}>
-          {title}
-        </RNText>
+        <>
+          {icon ? <Ionicons name={icon as never} size={ICON_SIZE[size]} color={iconColor} /> : null}
+          <RNText style={{ color: fg, fontFamily: font.uiSemi, fontSize: LABEL_SIZE[size] }}>
+            {title}
+          </RNText>
+        </>
       )}
     </Pressable>
   );
@@ -168,16 +220,21 @@ export function Field({
   );
 }
 
-/* ---------------- Pill / Meter / Row ---------------- */
-export function Pill({ children, kind = 'mute' }: { children: React.ReactNode; kind?: 'mute' | 'accent' | 'good' }) {
+/* ---------------- Pill / Meter / Stat ---------------- */
+export type PillKind = 'mute' | 'accent' | 'good' | 'warn' | 'serious';
+
+export function Pill({ children, kind = 'mute', icon }: { children: React.ReactNode; kind?: PillKind; icon?: string }) {
   const { c } = useTheme();
   const map = {
-    mute: { bg: c.sunken, fg: c.ink3, bd: c.line },
-    accent: { bg: c.accentWash, fg: c.accent, bd: withAlpha(c.accent, 0.45) },
-    good: { bg: withAlpha(c.good, 0.16), fg: c.goodInk, bd: withAlpha(c.good, 0.4) },
+    mute: { bg: c.surface2, fg: c.ink2, bd: c.line },
+    accent: { bg: c.accentWash, fg: c.accent, bd: withAlpha(c.accent, 0.4) },
+    good: { bg: withAlpha(c.good, 0.14), fg: c.goodInk, bd: withAlpha(c.good, 0.35) },
+    warn: { bg: withAlpha(c.warn, 0.14), fg: c.warnInk, bd: withAlpha(c.warn, 0.35) },
+    serious: { bg: withAlpha(c.serious, 0.14), fg: c.seriousInk, bd: withAlpha(c.serious, 0.35) },
   }[kind];
   return (
-    <View style={{ backgroundColor: map.bg, borderColor: map.bd, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: map.bg, borderColor: map.bd, borderWidth: 1, borderRadius: radius.tag, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start' }}>
+      {icon ? <Ionicons name={icon as never} size={12} color={map.fg} /> : null}
       <RNText style={{ color: map.fg, fontSize: 11, fontFamily: font.uiSemi, letterSpacing: 0.5, textTransform: 'uppercase' }}>
         {children}
       </RNText>
@@ -185,12 +242,12 @@ export function Pill({ children, kind = 'mute' }: { children: React.ReactNode; k
   );
 }
 
-export function Meter({ value, max = 1, over }: { value: number; max?: number; over?: boolean }) {
+export function Meter({ value, max = 1, over, height = 8 }: { value: number; max?: number; over?: boolean; height?: number }) {
   const { c } = useTheme();
   const pct = Math.max(0, Math.min(1, max === 0 ? 0 : value / max));
   return (
-    <View style={{ height: 8, borderRadius: 4, backgroundColor: c.sunken, borderWidth: 1, borderColor: c.line, overflow: 'hidden' }}>
-      <View style={{ width: `${pct * 100}%`, height: '100%', borderRadius: 4, backgroundColor: over ? c.serious : c.accent }} />
+    <View style={{ height, borderRadius: radius.pill, backgroundColor: c.surface2, overflow: 'hidden' }}>
+      <View style={{ width: `${pct * 100}%`, height: '100%', borderRadius: radius.pill, backgroundColor: over ? c.serious : c.accent }} />
     </View>
   );
 }

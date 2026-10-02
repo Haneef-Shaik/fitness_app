@@ -27,14 +27,17 @@ from app.core.errors import NotFound, ValidationFailed
 from app.domain import training as domain_training
 from app.domain.adherence import adherence as adherence_ratio
 from app.domain.adherence import planned_occurrences
+from app.domain.dates import to_local_date
 from app.domain.muscles import MuscleTree
 from app.models import (
     Exercise,
     ExerciseMuscle,
     MuscleGroup,
     MuscleRole,
+    ProgramStatus,
     SessionExercise,
     SessionStatus,
+    UserProfile,
     WorkoutPlanDay,
     WorkoutProgram,
     WorkoutSession,
@@ -78,8 +81,8 @@ def _range(date_from: date | None, date_to: date | None) -> tuple[date, date]:
 
 
 def _week_start(day: date) -> date:
-    """Monday. The plan tree counts weeks from Sunday, but a training week
-    reads Monday-first on every screen in this product."""
+    """Monday — a training week reads Monday-first on every screen in this
+    product, as the plan tree's `scheduled_weekday` does (0 = Monday)."""
     return day - timedelta(days=day.weekday())
 
 
@@ -413,19 +416,41 @@ async def adherence(
     """
     start, end = _range(date_from, date_to)
 
-    scheduled = (await db.execute(
-        select(WorkoutPlanDay.id, WorkoutPlanDay.scheduled_weekday)
-        .join(WorkoutProgram, WorkoutProgram.id == WorkoutPlanDay.program_id)
-        .where(
-            WorkoutProgram.user_id == user.id,
-            WorkoutPlanDay.scheduled_weekday.is_not(None),
+    # Only a live program plans anything, and a day plans nothing before it
+    # existed. Without the second rule eight weeks of history imported from
+    # Strong, followed by a program set up today, read "0%": every scheduled
+    # weekday of those eight weeks counted as planned and missed.
+    profile = await db.scalar(select(UserProfile).where(UserProfile.user_id == user.id))
+    tz = (profile.timezone if profile else None) or "UTC"
+    scheduled = [
+        (day_id, weekday, to_local_date(created_at, tz))
+        for day_id, weekday, created_at in (await db.execute(
+            select(WorkoutPlanDay.id, WorkoutPlanDay.scheduled_weekday, WorkoutPlanDay.created_at)
+            .join(WorkoutProgram, WorkoutProgram.id == WorkoutPlanDay.program_id)
+            .where(
+                WorkoutProgram.user_id == user.id,
+                WorkoutProgram.status == ProgramStatus.active,
+                WorkoutPlanDay.scheduled_weekday.is_not(None),
+            )
+        )).all()
+        if weekday is not None
+    ]
+
+    # A weekday is planned from the first day scheduled on it. Two days on the
+    # same weekday still plan one session per date, as before.
+    first_planned: dict[int, date] = {}
+    for _, weekday, since in scheduled:
+        first_planned[weekday] = min(since, first_planned.get(weekday, since))
+
+    def planned(window_start: date, window_end: date) -> int:
+        return sum(
+            planned_occurrences([weekday], max(window_start, since), window_end)
+            for weekday, since in first_planned.items()
         )
-    )).all()
 
-    weekdays = [w for _, w in scheduled if w is not None]
-    planned_total = planned_occurrences(weekdays, start, end)
+    planned_total = planned(start, end)
 
-    plan_day_ids = [d for d, _ in scheduled]
+    plan_day_ids = [d for d, _, _ in scheduled]
     completed_total = 0
     if plan_day_ids:
         completed_total = await db.scalar(
@@ -445,7 +470,7 @@ async def adherence(
         window_start = max(week_start, start)
         weeks.append(AdherenceWeekOut(
             week_start=week_start,
-            planned=planned_occurrences(weekdays, window_start, week_end),
+            planned=planned(window_start, week_end),
             completed_planned=(await db.scalar(
                 select(func.count(func.distinct(WorkoutSession.id)))
                 .where(

@@ -34,6 +34,7 @@ jest.mock('@/features/workout-session/useSession', () => ({
 }));
 jest.mock('@/lib/query/hooks', () => ({
   useSessionComparison: () => mockComparison,
+  useProfile: () => ({ data: { timezone: 'UTC' } }),
   useWorkoutHistory: () => mockHistory,
   flattenHistory: (pages: { data: unknown[] }[] | undefined) =>
     (pages ?? []).flatMap((p) => p.data),
@@ -63,6 +64,9 @@ describe('F-03 · session detail', () => {
     expect(screen.getByText('Barbell Bench Press')).toBeTruthy();
     expect(screen.getByText('warm-up')).toBeTruthy();
     expect(screen.getByText('PR')).toBeTruthy();
+    // The heading is the day, named — not the server's "2026-09-18".
+    expect(screen.getByText(/^Fri 18 Sep( 2026)?$/)).toBeTruthy();
+    expect(screen.queryByText('2026-09-18')).toBeNull();
   });
 
   it('says a skipped exercise was skipped rather than showing nothing', () => {
@@ -123,6 +127,8 @@ describe('F-06 · comparison', () => {
 
     expect(screen.getByText('—')).toBeTruthy();
     expect(screen.getByText('not performed')).toBeTruthy();
+    expect(screen.getByText(/^Mon 21 Sep( 2026)?$/)).toBeTruthy();
+    expect(screen.queryByText('2026-09-21')).toBeNull();
     expect(screen.getByText('810 kg')).toBeTruthy();
   });
 
@@ -152,7 +158,11 @@ describe('F-07 · calendar', () => {
     render(<HistoryCalendar />);
 
     expect(screen.getByTestId('month-2026-09')).toBeTruthy();
-    expect(screen.getByLabelText('2026-09-22, trained')).toBeTruthy();
-    expect(screen.getByLabelText('2026-09-21, rest day')).toBeTruthy();
+    // Said the way a person says it (found taking the screenshots: the month
+    // header read "2026-09" and every square "2026-09-22, trained"). The year
+    // appears only once the test runs in another year than 2026.
+    expect(screen.getByText('September 2026')).toBeTruthy();
+    expect(screen.getByLabelText(/^Tue 22 Sep( 2026)?, trained$/)).toBeTruthy();
+    expect(screen.getByLabelText(/^Mon 21 Sep( 2026)?, rest day$/)).toBeTruthy();
   });
 });

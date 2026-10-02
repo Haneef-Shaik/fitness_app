@@ -67,7 +67,9 @@ export function spokenDuration(totalSeconds: number): string {
 export function exerciseSummaryLabel(
   name: string | null, volumeKg: number, setCount: number, bestE1rmKg: number | null | undefined,
 ): string {
-  const best = bestE1rmKg ? `, best estimated one-rep max ${Math.round(bestE1rmKg)} kilograms` : '';
+  const best = bestE1rmKg
+    ? `, best estimated one-rep max ${Math.round(bestE1rmKg * 10) / 10} kilograms`
+    : '';
   return `${name ?? 'Exercise'}, ${Math.round(volumeKg).toLocaleString('en-US')} kilograms, `
     + `${plural(setCount, 'set', 'sets')}${best}`;
 }

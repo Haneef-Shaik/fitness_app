@@ -57,3 +57,30 @@ it('links the next exercise into a circuit', async () => {
   const body = (mockSaveExercises.mock.calls[0]![0] as { body: { superset_group: number | null }[] }).body;
   expect(body.map((r) => r.superset_group)).toEqual([1, 1, 1]);
 });
+
+it('names a row from the day itself when the catalog does not have it', () => {
+  // Found taking the screenshots: the catalog list stopped at 200 of 297, and
+  // Overhead Press and Triceps Pushdown read "Exercise". The catalog now pages;
+  // the day's own `exercise_name` covers an archived exercise and the moment
+  // before the catalog arrives.
+  const named = {
+    ...PROGRAM,
+    days: [{ ...PROGRAM.days[0]!, exercises: [
+      ...PROGRAM.days[0]!.exercises,
+      { id: 'pe4', exercise_id: 'e9', exercise_name: 'Overhead Press', order_index: 3, target_sets: 3, load_unit: 'kg', superset_group: null },
+    ] }],
+  };
+  jest.spyOn(require('@/lib/query/hooks'), 'useProgram').mockReturnValue(q(named));
+  render(<PlanDayEditor />);
+  expect(screen.getByText('Overhead Press')).toBeTruthy();
+  expect(screen.queryByText('Exercise')).toBeNull();
+});
+
+it('reads scheduled_weekday Monday-first, like the API and the templates', () => {
+  // A template's "Mon / Wed / Fri" is 0, 2, 4. The editor read 0 as "Sun".
+  const monday = { ...PROGRAM, days: [{ ...PROGRAM.days[0]!, scheduled_weekday: 0 }] };
+  jest.spyOn(require('@/lib/query/hooks'), 'useProgram').mockReturnValue(q(monday));
+  render(<PlanDayEditor />);
+  expect(screen.getByLabelText('Mon').props.accessibilityState).toEqual({ selected: true });
+  expect(screen.getByLabelText('Sun').props.accessibilityState).toEqual({ selected: false });
+});

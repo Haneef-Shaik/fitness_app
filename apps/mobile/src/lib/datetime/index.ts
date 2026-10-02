@@ -79,3 +79,43 @@ export function formatServerDate(localDate: string): string {
     return localDate;
   }
 }
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+function partsIn(instant: Date, timeZone?: string): { y: number; m: number; d: number } | null {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      year: 'numeric', month: 'numeric', day: 'numeric', ...(timeZone ? { timeZone } : {}),
+    }).formatToParts(instant);
+    const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+    const y = get('year'), m = get('month'), d = get('day');
+    return y && m && d ? { y, m, d } : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * `2026-10-02` — the calendar day an instant falls on in the profile's zone.
+ *
+ * A LABEL's reference point ("Today", "6 days ago", the day an analysis ran),
+ * never which day a record belongs to — the server decides that (I7). Screens
+ * used the UTC date for this, which in India is still yesterday until 05:30.
+ * Degrades to the device's zone, then to UTC, and never throws.
+ */
+export function localDateIn(instant: Date, timeZone?: string): string {
+  const p = (timeZone ? partsIn(instant, timeZone) : null) ?? partsIn(instant);
+  return p ? `${p.y}-${pad2(p.m)}-${pad2(p.d)}` : instant.toISOString().slice(0, 10);
+}
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+/** `2026-09` → `September 2026`. Anything else comes back untouched. */
+export function monthLabel(yearMonth: string): string {
+  const m = /^(\d{4})-(\d{2})$/.exec(yearMonth);
+  const name = m ? MONTH_NAMES[Number(m[2]) - 1] : undefined;
+  return m && name ? `${name} ${m[1]}` : yearMonth;
+}

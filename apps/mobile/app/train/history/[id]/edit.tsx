@@ -17,11 +17,14 @@ import { Button, Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useSession } from '@/features/workout-session/useSession';
+import { humanDate } from '@/lib/datetime/humanDate';
+import { useToday } from '@/lib/datetime/useToday';
 import { space } from '@/theme';
 
 export default function EditPastSession() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const query = useSession(id);
+  const today = useToday();
 
   return (
     <ScreenScaffold title="Edit session">
@@ -33,7 +36,7 @@ export default function EditPastSession() {
         {(session) => (
           <View style={{ gap: space.lg }}>
             <Card>
-              <Text variant="body">Editing {session.local_date}</Text>
+              <Text variant="body">Editing {humanDate(session.local_date, today, { relative: false })}</Text>
               <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
                 Correcting a past session is coming with the session-editing work.
                 Until then your record stays exactly as you logged it.

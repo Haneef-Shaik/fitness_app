@@ -28,6 +28,22 @@ export interface FinishSummaryProps {
 }
 
 const kg = (n: number) => `${Math.round(n).toLocaleString()} kg`;
+/** Loads and e1RMs to one decimal, the same in the records and the list. */
+const kgTenth = (n: number) => `${Math.round(n * 10) / 10} kg`;
+
+/** The record types in words — "estimated_1rm" read as "estimated 1rm". */
+const RECORD_LABEL: Record<string, string> = {
+  max_load: 'Heaviest',
+  max_reps: 'Most reps',
+  volume: 'Best session',
+  estimated_1rm: 'Estimated 1RM',
+};
+
+function recordText(r: PersonalRecord): string {
+  const label = RECORD_LABEL[r.record_type] ?? r.record_type.replace(/_/g, ' ');
+  if (r.unit === 'reps') return `${label} ${Math.round(r.value)} reps`;
+  return `${label} ${r.record_type === 'volume' ? kg(r.value) : kgTenth(r.value)}`;
+}
 
 export function FinishSummary({ summary, records = [], pending = 0, onDone }: FinishSummaryProps) {
   return (
@@ -58,7 +74,7 @@ export function FinishSummary({ summary, records = [], pending = 0, onDone }: Fi
                   {r.exercise_name ?? 'Exercise'}
                 </Text>
                 <Text variant="body" style={{ fontFamily: font.dataSemi }}>
-                  {r.record_type.replace('_', ' ')} {Math.round(r.value * 10) / 10} {r.unit}
+                  {recordText(r)}
                 </Text>
               </View>
             ))}
@@ -83,7 +99,7 @@ export function FinishSummary({ summary, records = [], pending = 0, onDone }: Fi
             </View>
             <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
               {e.setCount} {e.setCount === 1 ? 'set' : 'sets'}
-              {e.bestE1rmKg ? ` · best e1RM ${kg(e.bestE1rmKg)}` : ''}
+              {e.bestE1rmKg ? ` · best e1RM ${kgTenth(e.bestE1rmKg)}` : ''}
             </Text>
           </Card>
         ))}

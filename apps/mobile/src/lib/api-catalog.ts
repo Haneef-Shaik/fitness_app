@@ -39,11 +39,36 @@ function qs(params: Record<string, unknown>): string {
   return '?' + entries.map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
 }
 
+/** The most the API serves in one page (routes/exercises.py, `le=200`). */
+const EXERCISE_PAGE = 200;
+/** Ten times today's catalog; a server that never runs short stops here. */
+const MAX_EXERCISE_PAGES = 20;
+
+/**
+ * The whole matching catalog, page by page. One page used to be all a screen
+ * got: at 297 exercises everything after "Machine Triceps Extension" was unreachable, and the
+ * plan day editor named those rows "Exercise". A caller that names a `limit`
+ * or `offset` gets exactly that page.
+ */
+async function allExercises(query: ExerciseQuery): Promise<Exercise[]> {
+  if (query.limit !== undefined || query.offset !== undefined) {
+    return api.get<Exercise[]>(`/exercises${qs({ ...query })}`);
+  }
+  let all: Exercise[] = [];
+  for (let page = 0; page < MAX_EXERCISE_PAGES; page += 1) {
+    const batch = await api.get<Exercise[]>(
+      `/exercises${qs({ ...query, limit: EXERCISE_PAGE, offset: page * EXERCISE_PAGE })}`,
+    );
+    all = all.concat(batch);
+    if (batch.length < EXERCISE_PAGE) break;
+  }
+  return all;
+}
+
 export const catalogApi = {
   muscleGroups: () => api.get<MuscleGroup[]>('/muscle-groups'),
 
-  exercises: (query: ExerciseQuery = {}) =>
-    api.get<Exercise[]>(`/exercises${qs({ limit: 200, ...query })}`),
+  exercises: (query: ExerciseQuery = {}) => allExercises(query),
 
   exercise: (id: string) => api.get<Exercise>(`/exercises/${id}`),
 

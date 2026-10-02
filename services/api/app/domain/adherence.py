@@ -29,7 +29,9 @@ def adherence(completed_planned: int, planned: int) -> float | None:
 def planned_occurrences(weekdays: list[int], start: date, end: date) -> int:
     """How many times the scheduled weekdays fall in `[start, end]`, inclusive.
 
-    `weekdays` uses the same convention as the plan tree: 0 = Sunday.
+    `weekdays` uses the plan tree's convention: 0 = Monday … 6 = Sunday
+    (models/program.py, the starter templates, C-01). This read 0 as Sunday
+    until 2 Oct 2026, so every scheduled day was counted a day early.
 
     Counted by walking the range rather than with arithmetic on week counts,
     because the arithmetic version is where the off-by-one lives: a range that
@@ -43,8 +45,8 @@ def planned_occurrences(weekdays: list[int], start: date, end: date) -> int:
     count = 0
     day = start
     while day <= end:
-        # Python: Monday == 0. The plan tree: Sunday == 0.
-        if ((day.weekday() + 1) % 7) in wanted:
+        # Python's weekday() is the plan tree's convention: Monday == 0.
+        if day.weekday() in wanted:
             count += 1
         day += timedelta(days=1)
     return count

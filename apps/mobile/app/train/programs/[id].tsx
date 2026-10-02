@@ -10,8 +10,8 @@ import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { useAddPlanDay, useProgram } from '@/lib/query/hooks';
 import { space, useTheme } from '@/theme';
 import { count } from '@/features/nutrition/format';
+import { planWeekdayName } from '@/features/programs/weekdays';
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /** "4 × 6–8 @ 80 kg" — the prescription in the shape the plan editor wrote it. */
 export function prescriptionLine(pe: PlanExercise): string {
@@ -55,8 +55,7 @@ export default function ProgramDetail() {
           <Text variant="body" tone="ink3">›</Text>
         </View>
         <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-          {d.scheduled_weekday !== null && d.scheduled_weekday !== undefined
-            ? `${WEEKDAYS[d.scheduled_weekday]} · ` : ''}
+          {planWeekdayName(d.scheduled_weekday) ? `${planWeekdayName(d.scheduled_weekday)} · ` : ''}
           {count(d.exercises?.length ?? 0, 'exercise')}
         </Text>
       </Pressable>

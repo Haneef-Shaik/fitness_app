@@ -44,8 +44,9 @@ export interface ExercisePickerProps {
 
 export function ExercisePicker({
   visible, onClose, selected, onChange, onCommit, max, allowCreate = false, onCreate,
-  title = 'Add exercises', alreadyPresent = [],
+  title, alreadyPresent = [],
 }: ExercisePickerProps) {
+  const swap = max === 1;
   const { c } = useTheme();
   const [query, setQuery] = useState('');
   const [muscles, setMuscles] = useState<string[]>([]);
@@ -115,7 +116,7 @@ export function ExercisePicker({
     <Sheet
       visible={visible}
       onClose={onClose}
-      title={title}
+      title={title ?? (swap ? 'Swap exercise' : 'Add exercises')}
       testID="exercise-picker"
       footer={
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
@@ -123,7 +124,7 @@ export function ExercisePicker({
             {selected.length} selected
           </Text>
           <Button
-            title={selected.length ? `Add ${selected.length}` : 'Add'}
+            title={swap ? 'Swap' : selected.length ? `Add ${selected.length}` : 'Add'}
             size="sm"
             disabled={selected.length === 0}
             onPress={() => { onCommit?.([...selected]); }}

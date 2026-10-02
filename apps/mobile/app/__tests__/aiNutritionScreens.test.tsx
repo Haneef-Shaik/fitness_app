@@ -114,6 +114,7 @@ const mocks = {
 jest.mock('@/lib/query/hooks', () => ({
   useAnalysis: () => mocks.analysis,
   useAnalyses: () => mocks.analyses,
+  useProfile: () => ({ data: { timezone: 'UTC' } }),
   useAnalysisQuota: () => mocks.quota,
   useMealCategories: () => mocks.categories,
   useAnalyseText: () => mocks.analyseText,
@@ -420,6 +421,14 @@ describe('H-18 · the audit trail', () => {
     mocks.analyses = q([{ ...COMPLETED, confirmed_meal_id: 'm1' }]);
     render(<Analyses />);
     expect(screen.getByText('Saved')).toBeTruthy();
+  });
+
+  it('says when an analysis ran on the profile clock, not as a UTC timestamp', () => {
+    // It read "2026-09-23 13:20" — the ISO string cut short, in UTC.
+    mocks.analyses = q([COMPLETED]);
+    render(<Analyses />);
+    expect(screen.getByText(/Wed 23 Sep( 2026)? · 13:20 ·/)).toBeTruthy();
+    expect(screen.queryByText(/2026-09-23/)).toBeNull();
   });
 
   it('says the records stay when the photos go', () => {

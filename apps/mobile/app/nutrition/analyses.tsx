@@ -15,7 +15,9 @@ import type { FoodAnalysis } from '@fitlog/api-types';
 import { Button, Card, Pill, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
-import { useAnalyses, useDeleteAnalysisImages } from '@/lib/query/hooks';
+import { useAnalyses, useDeleteAnalysisImages, useProfile } from '@/lib/query/hooks';
+import { formatClockTime, localDateIn } from '@/lib/datetime';
+import { humanDate } from '@/lib/datetime/humanDate';
 import { space } from '@/theme';
 import { count } from '@/features/nutrition/format';
 
@@ -88,6 +90,11 @@ export default function Analyses() {
 function Row({ analysis }: { analysis: FoodAnalysis }) {
   const items = analysis.items ?? [];
   const saved = analysis.confirmed_meal_id !== null;
+  // When it ran, on the profile's clock — not the UTC in the ISO string.
+  const timeZone = useProfile().data?.timezone;
+  const ranAt = new Date(analysis.created_at);
+  const when = `${humanDate(localDateIn(ranAt, timeZone), localDateIn(new Date(), timeZone))}`
+    + ` · ${formatClockTime(ranAt, timeZone)}`;
 
   return (
     <Pressable
@@ -120,7 +127,7 @@ function Row({ analysis }: { analysis: FoodAnalysis }) {
         ) : null}
 
         <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-          {analysis.created_at.slice(0, 16).replace('T', ' ')} ·{' '}
+          {when} ·{' '}
           {items.length} food{items.length === 1 ? '' : 's'}
           {analysis.model_name ? ` · ${analysis.model_name}` : ''}
           {analysis.image_key ? ' · photo kept' : ''}

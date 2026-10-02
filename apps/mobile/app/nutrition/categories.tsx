@@ -185,9 +185,12 @@ function CategoryRow({
               body: { default_time: /^\d{2}:\d{2}$/.test(value) ? value : null },
             });
           }}
-          placeholder="08:00"
+          // Not "08:00": a time-shaped placeholder read as every category's
+          // value. Unset means unset; the hint says how to set one.
+          placeholder="Any time"
           placeholderTextColor={c.ink3}
           accessibilityLabel={`Default time for ${row.name}`}
+          accessibilityHint="A time like 08:00, or leave it empty"
           testID={`category-${row.slug}-time`}
           style={{
             width: 90, minHeight: 38, textAlign: 'center', borderRadius: radius.btn,

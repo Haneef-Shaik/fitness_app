@@ -19,6 +19,8 @@ import { SectionHeader } from '@/ui/SectionHeader';
 import { Line } from '@/ui/charts';
 import { delta, weight } from '@/features/body/format';
 import { useBodyMetrics, useBodySeries, useDeleteBodyMetric, useProfile } from '@/lib/query/hooks';
+import { weekTick } from '@/features/analytics/range';
+import { localDateIn } from '@/lib/datetime';
 import { formatClockTime } from '@/lib/datetime';
 import { humanDate } from '@/lib/datetime/humanDate';
 import { font, radius, space, useTheme } from '@/theme';
@@ -39,14 +41,14 @@ export default function WeightTrend() {
   const { c } = useTheme();
   const [range, setRange] = useState<string>('90');
   const from = since(Number(range));
-  // A label, not a decision (I7): which day it is only matters for the words.
-  const today = new Date().toISOString().slice(0, 10);
 
   const series = useBodySeries('body_weight', { from });
   const entries = useBodyMetrics('body_weight', { from });
   const remove = useDeleteBodyMetric();
   // Times are the profile's wall clock, like its days (I7) — not the UTC in the ISO string.
   const timeZone = useProfile().data?.timezone;
+  // A label, not a decision (I7): which day it is only matters for the words.
+  const today = localDateIn(new Date(), timeZone);
 
   return (
     <ScreenScaffold
@@ -101,9 +103,9 @@ export default function WeightTrend() {
                 <View style={{ marginTop: space.base }}>
                   <Line
                     testID="trend-line"
-                    data={data.points.map((p) => ({ label: p.local_date, value: p.value }))}
+                    data={data.points.map((p) => ({ label: weekTick(p.local_date), value: p.value }))}
                     comparison={data.points.map((p) => ({
-                      label: p.local_date, value: p.moving_average ?? p.value,
+                      label: weekTick(p.local_date), value: p.moving_average ?? p.value,
                     }))}
                     format={(v) => v.toFixed(1)}
                   />

@@ -144,6 +144,26 @@ describe('E-08 · summary, and E-11 · records after it', () => {
     expect(screen.getByText('New personal record')).toBeTruthy();
   });
 
+  it('names a record in words and gives one e1RM one value', () => {
+    // It read "estimated 1rm 104.8 kg" in the records and "best e1RM 105 kg" in
+    // the list below, for the same set (found taking the screenshots).
+    const e1rm = summary.exercises[0]!.bestE1rmKg!;
+    render(
+      <FinishSummary
+        summary={summary}
+        records={[{
+          exercise_id: 'e1', exercise_name: 'Bench', record_type: 'estimated_1rm',
+          value: e1rm, unit: 'kg',
+        } as never]}
+        onDone={jest.fn()}
+      />,
+    );
+    const shown = `${Math.round(e1rm * 10) / 10} kg`;
+    expect(screen.getByText(`Estimated 1RM ${shown}`)).toBeTruthy();
+    expect(screen.getByText(new RegExp(`best e1RM ${shown.replace('.', '\\.')}`))).toBeTruthy();
+    expect(screen.queryByText(/estimated 1rm/)).toBeNull();
+  });
+
   it('says plainly when writes are still syncing', () => {
     render(<FinishSummary summary={summary} pending={3} onDone={jest.fn()} />);
     expect(screen.getByText(/saved on this device/)).toBeTruthy();

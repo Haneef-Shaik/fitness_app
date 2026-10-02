@@ -22,6 +22,7 @@ import { formatDuration, formatVolume, relativeDay } from '@/features/history/fo
 import { humanDate } from '@/lib/datetime/humanDate';
 import { usePreviousOccurrence } from '@/lib/query/hooks';
 import { space, useTheme } from '@/theme';
+import { useToday } from '@/lib/datetime/useToday';
 
 export default function PreviousOccurrence() {
   const { c } = useTheme();
@@ -29,7 +30,7 @@ export default function PreviousOccurrence() {
   const query = usePreviousOccurrence(muscle ?? '');
   const label = (muscle ?? '').replace(/-/g, ' ');
   // A label, not a decision (I7): which day it is only matters for the words.
-  const today = new Date().toISOString().slice(0, 10);
+  const today = useToday();
 
   return (
     <ScreenScaffold eyebrow="Your previous" title={`${label} day`}>

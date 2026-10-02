@@ -21,6 +21,12 @@ describe('humanDate', () => {
     expect(humanDate('2026-01-02', TODAY)).toBe('Fri 2 Jan');
   });
 
+  it('can name the day even when it is today — for a heading beside a relative label', () => {
+    // F-03 puts "Today" in its pill; the heading under it should be the date.
+    expect(humanDate('2026-09-26', TODAY, { relative: false })).toBe('Sat 26 Sep');
+    expect(humanDate('2026-09-25', TODAY, { relative: false })).toBe('Fri 25 Sep');
+  });
+
   it('adds the year only when it differs from today', () => {
     expect(humanDate('2025-12-31', TODAY)).toBe('Wed 31 Dec 2025');
   });

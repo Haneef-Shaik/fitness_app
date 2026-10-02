@@ -80,6 +80,16 @@ describe('multi-select', () => {
     expect(onChange).toHaveBeenCalledWith(['e3']);
   });
 
+  it('says swap when it is a swap', () => {
+    // It read "Add exercises" / "Add 1" while replacing one (E-05b, found taking
+    // the screenshots).
+    const { onCommit } = show({ selected: ['e3'], max: 1 });
+    expect(screen.getByText('Swap exercise')).toBeTruthy();
+    expect(screen.queryByText('Add exercises')).toBeNull();
+    fireEvent.press(screen.getByLabelText('Swap'));
+    expect(onCommit).toHaveBeenCalledWith(['e3']);
+  });
+
   it('commits the selection to the caller', () => {
     const { onCommit } = show({ selected: ['e1', 'e2'] });
     fireEvent.press(screen.getByLabelText('Add 2'));

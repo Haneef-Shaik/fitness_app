@@ -4,9 +4,15 @@
  * navigates; the screen underneath is left exactly as it was.
  */
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react-native';
+import { Text } from 'react-native';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { AuthProblem } from '@/features/auth/supabaseAuth';
 import { SessionExpiredDialog } from '../SessionExpiredDialog';
+
+let client: QueryClient;
+const render = (ui: React.ReactElement) =>
+  rtlRender(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
 
 const mockSession = {
   expired: true,
@@ -17,7 +23,14 @@ const mockSession = {
 };
 jest.mock('@/lib/session', () => ({ useSession: () => mockSession }));
 
-beforeEach(() => { jest.clearAllMocks(); mockSession.expired = true; mockSession.provider = 'email'; });
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockSession.expired = true;
+  mockSession.provider = 'email';
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+});
+// Its cache timers would otherwise keep the test process alive.
+afterEach(() => client.clear());
 
 it('is not there while the session is live', () => {
   mockSession.expired = false;
@@ -75,4 +88,28 @@ it('and an Apple account with Apple', () => {
   mockSession.provider = 'apple';
   render(<SessionExpiredDialog />);
   expect(screen.getByText('Continue with Apple')).toBeTruthy();
+});
+
+it('asks again for what failed while signed out, once back in', async () => {
+  // The screen underneath kept "Something went wrong" until Try again was
+  // tapped — its read had failed only because the session had ended (found
+  // taking the screenshots).
+  let calls = 0;
+  const fetchRecords = jest.fn(async () => {
+    calls += 1;
+    if (calls === 1) throw new Error('401');
+    return 'records';
+  });
+  function ScreenUnderneath() {
+    const q = useQuery({ queryKey: ['records'], queryFn: fetchRecords });
+    return <Text>{q.status}</Text>;
+  }
+  render(<><ScreenUnderneath /><SessionExpiredDialog /></>);
+  await waitFor(() => expect(screen.getByText('error')).toBeTruthy());
+
+  fireEvent.changeText(screen.getByTestId('expired-password'), 'correct-horse-battery');
+  fireEvent.press(screen.getByTestId('expired-submit'));
+
+  await waitFor(() => expect(screen.getByText('success')).toBeTruthy());
+  expect(fetchRecords).toHaveBeenCalledTimes(2);
 });

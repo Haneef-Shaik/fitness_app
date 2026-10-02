@@ -172,7 +172,7 @@
       "expected_e1rm_kg": 101.333333333
     },
     {
-      "name": "high reps \u2014 formula unreliable above ~12, still defined",
+      "name": "high reps — formula unreliable above ~12, still defined",
       "load_kg": 60,
       "reps": 20,
       "expected_e1rm_kg": 100.0
@@ -282,13 +282,13 @@
       "instant": "2026-09-21T18:20:00Z",
       "timezone": "Asia/Kolkata",
       "expected_local_date": "2026-09-21",
-      "note": "23:50 local \u2014 still the same day"
+      "note": "23:50 local — still the same day"
     },
     {
       "instant": "2026-09-21T18:40:00Z",
       "timezone": "Asia/Kolkata",
       "expected_local_date": "2026-09-22",
-      "note": "00:10 local \u2014 rolled over"
+      "note": "00:10 local — rolled over"
     },
     {
       "instant": "2026-09-21T23:40:00Z",
@@ -498,9 +498,9 @@
   "planned_occurrences": [
     {
       "weekdays": [
-        1,
-        3,
-        5
+        0,
+        2,
+        4
       ],
       "start": "2026-09-21",
       "end": "2026-09-27",
@@ -509,7 +509,7 @@
     },
     {
       "weekdays": [
-        1
+        0
       ],
       "start": "2026-09-21",
       "end": "2026-10-04",
@@ -540,7 +540,7 @@
     },
     {
       "weekdays": [
-        1
+        0
       ],
       "start": "2026-09-22",
       "end": "2026-09-21",
@@ -549,12 +549,21 @@
     },
     {
       "weekdays": [
-        6
+        5
       ],
       "start": "2026-09-21",
       "end": "2026-09-25",
       "expected": 0,
       "note": "Saturday scheduled, range ends Friday the 25th - excluded, so 0"
+    },
+    {
+      "weekdays": [
+        0
+      ],
+      "start": "2026-09-20",
+      "end": "2026-09-21",
+      "expected": 1,
+      "note": "0 is Monday, not Sunday - Sun 20th and Mon 21st plan exactly the Monday"
     }
   ],
   "nutrition_scaling": [

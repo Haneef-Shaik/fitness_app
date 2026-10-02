@@ -10,6 +10,7 @@
  */
 import React, { useState } from 'react';
 import { Modal, View } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button, Text } from '@/ui';
 import { TextInput } from '@/ui/TextInput';
 import { AuthProblem } from '@/features/auth/supabaseAuth';
@@ -19,6 +20,7 @@ import { radius, space, useTheme } from '@/theme';
 export function SessionExpiredDialog() {
   const { c } = useTheme();
   const { expired, email, provider, reauthenticate, signOut } = useSession();
+  const client = useQueryClient();
   // A Google or Apple account has no password to type: its own sheet signs it back in.
   const external = provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : null;
   const [password, setPassword] = useState('');
@@ -33,6 +35,10 @@ export function SessionExpiredDialog() {
     try {
       await reauthenticate(external ? undefined : password);
       setPassword('');
+      // What the screen underneath failed to load, it failed for want of a
+      // session. Ask again now, rather than leave "Something went wrong" up
+      // until someone taps Try again.
+      void client.refetchQueries({ type: 'active', predicate: (q) => q.state.status === 'error' });
     } catch (e) {
       setError(e instanceof AuthProblem && e.code === 'invalid_credentials'
         ? "That password didn't match. Try again."

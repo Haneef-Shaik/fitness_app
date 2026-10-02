@@ -16,6 +16,7 @@ import { useExercise, useExerciseHistory, useExerciseStats } from '@/lib/query/h
 import { muscleSummary, trackedFields } from '@/features/exercises/format';
 import { formatServerDate } from '@/lib/datetime';
 import { font, space, useTheme } from '@/theme';
+import { formatVolume } from '@/features/history/format';
 
 function fmtKg(n: number | null | undefined): string {
   return n === null || n === undefined ? '—' : `${Math.round(n * 10) / 10} kg`;
@@ -82,7 +83,9 @@ export default function ExerciseDetail() {
                       label="Max reps"
                     />
                   ) : null}
-                  <Stat value={fmtKg(records.volume?.value)} label="Best session" />
+                  {/* A session's tonnage is whole kilos with a separator, the way F-01 and
+                      F-06 write it: "1897.5 kg" wrapped in its tile. */}
+                  <Stat value={formatVolume(records.volume?.value) ?? '—'} label="Best session" />
                   {tracks?.load && tracks?.reps ? (
                     <Stat value={fmtKg(records.estimated_1rm?.value)} label="e1RM" />
                   ) : null}

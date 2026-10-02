@@ -14,6 +14,7 @@ import { Line } from '@/ui/charts';
 import { delta, metricLabel, metricUnit } from '@/features/body/format';
 import { useBodySeries } from '@/lib/query/hooks';
 import { space } from '@/theme';
+import { weekTick } from '@/features/analytics/range';
 
 export default function MeasurementDetail() {
   const { key } = useLocalSearchParams<{ key: string }>();
@@ -50,7 +51,7 @@ export default function MeasurementDetail() {
                 <View style={{ marginTop: space.base }}>
                   <Line
                     testID="measurement-line"
-                    data={data.points.map((p) => ({ label: p.local_date, value: p.value }))}
+                    data={data.points.map((p) => ({ label: weekTick(p.local_date), value: p.value }))}
                     format={(v) => v.toFixed(1)}
                   />
                 </View>

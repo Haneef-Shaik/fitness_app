@@ -17,11 +17,15 @@ import { Card, Text } from '@/ui';
 import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { flattenHistory, useWorkoutHistory } from '@/lib/query/hooks';
+import { monthLabel } from '@/lib/datetime';
+import { humanDate } from '@/lib/datetime/humanDate';
+import { useToday } from '@/lib/datetime/useToday';
 import { radius, space, useTheme } from '@/theme';
 
 export default function HistoryCalendar() {
   const { c } = useTheme();
   const query = useWorkoutHistory({ limit: 100 });
+  const today = useToday();
   const rows = useMemo(() => flattenHistory(query.data?.pages), [query.data]);
 
   const byMonth = useMemo(() => {
@@ -52,7 +56,7 @@ export default function HistoryCalendar() {
           <ScrollView contentContainerStyle={{ padding: space.lg, gap: space.lg }}>
             {byMonth.map(([month, days]) => (
               <View key={month} testID={`month-${month}`}>
-                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>{month}</Text>
+                <Text variant="label" accessibilityRole="header" style={{ marginBottom: space.sm }}>{monthLabel(month)}</Text>
                 <Card>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                     {daysOf(month).map((day) => {
@@ -64,7 +68,7 @@ export default function HistoryCalendar() {
                           onPress={() => sessionId && router.push(`/train/history/${sessionId}`)}
                           accessibilityRole={sessionId ? 'button' : undefined}
                           accessibilityLabel={
-                            sessionId ? `${day}, trained` : `${day}, rest day`
+                            `${humanDate(day, today, { relative: false })}, ${sessionId ? 'trained' : 'rest day'}`
                           }
                           style={{
                             width: 34, height: 34, borderRadius: radius.btn,

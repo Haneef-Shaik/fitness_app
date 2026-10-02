@@ -2,6 +2,9 @@
  * "Today", "Yesterday", "Sun 20 Sep" — a server `local_date` written the way
  * a person says it.
  *
+ * `relative: false` always names the day — for a heading that sits beside a
+ * relative label and would otherwise repeat it.
+ *
  * Both inputs are CALENDAR dates (I7): they are parsed as UTC noon and
  * compared as days, so the phone's timezone can never move one. Anything
  * that is not a `YYYY-MM-DD` comes back untouched rather than as "Invalid Date".
@@ -17,15 +20,19 @@ function parseDay(iso: string): Date | null {
   return Number.isNaN(at.getTime()) ? null : at;
 }
 
-export function humanDate(localDate: string, today: string): string {
+export function humanDate(
+  localDate: string,
+  today: string,
+  { relative = true }: { relative?: boolean } = {},
+): string {
   const day = parseDay(localDate);
   const now = parseDay(today);
   if (!day || !now) return localDate;
 
   const diff = Math.round((now.getTime() - day.getTime()) / DAY_MS);
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Yesterday';
-  if (diff === -1) return 'Tomorrow';
+  if (relative && diff === 0) return 'Today';
+  if (relative && diff === 1) return 'Yesterday';
+  if (relative && diff === -1) return 'Tomorrow';
 
   const base = `${DAYS[day.getUTCDay()]} ${day.getUTCDate()} ${MONTHS[day.getUTCMonth()]}`;
   return day.getUTCFullYear() === now.getUTCFullYear() ? base : `${base} ${day.getUTCFullYear()}`;

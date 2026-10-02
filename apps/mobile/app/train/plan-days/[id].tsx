@@ -18,20 +18,20 @@ import { ExercisePicker } from '@/features/exercises/ExercisePicker';
 import { PrescriptionEditor } from '@/features/programs/PrescriptionEditor';
 import { muscleSetCounts } from '@/features/programs/setCounts';
 import { isLinked, toggleLink } from '@/features/programs/supersetLinks';
+import { PLAN_WEEKDAYS } from '@/features/programs/weekdays';
 import { prescriptionLine } from '../programs/[id]';
 import {
   useExercises, useProgram, useSetDayExercises, useUpdatePlanDay,
 } from '@/lib/query/hooks';
 import { radius, space, useTheme } from '@/theme';
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function PlanDayEditor() {
   const { id, programId } = useLocalSearchParams<{ id: string; programId: string }>();
   const { c } = useTheme();
 
   const program = useProgram(programId);
-  const catalog = useExercises({ limit: 200 });
+  const catalog = useExercises();
   const saveExercises = useSetDayExercises(programId);
   const saveDay = useUpdatePlanDay(programId);
 
@@ -74,6 +74,15 @@ export default function PlanDayEditor() {
     for (const e of catalog.data ?? []) m.set(e.id, e);
     return m;
   }, [catalog.data]);
+
+  // The day carries its own exercises' names, so a row still reads right while
+  // the catalog loads, or when its exercise has since been archived and left it.
+  const plannedNames = useMemo(
+    () => new Map((day?.exercises ?? []).map((pe) => [pe.exercise_id, pe.exercise_name ?? null])),
+    [day],
+  );
+  const nameOf = (exerciseId: string) =>
+    byId.get(exerciseId)?.name ?? plannedNames.get(exerciseId) ?? 'Exercise';
 
   const counts = useMemo(
     () => muscleSetCounts(rows, (exId) => byId.get(exId)),
@@ -140,7 +149,7 @@ export default function PlanDayEditor() {
                         onPress={() => setWeekday(w)}
                         accessibilityRole="button"
                         accessibilityState={{ selected: active }}
-                        accessibilityLabel={w === null ? 'No schedule' : WEEKDAYS[w]}
+                        accessibilityLabel={w === null ? 'No schedule' : PLAN_WEEKDAYS[w]}
                         style={{
                           paddingHorizontal: space.md, minHeight: 36, justifyContent: 'center',
                           borderRadius: radius.pill, borderWidth: 1,
@@ -149,7 +158,7 @@ export default function PlanDayEditor() {
                         }}
                       >
                         <Text variant="caption" style={{ color: active ? c.accentInk : c.ink2 }}>
-                          {w === null ? '—' : WEEKDAYS[w]}
+                          {w === null ? '—' : PLAN_WEEKDAYS[w]}
                         </Text>
                       </Pressable>
                     );
@@ -174,7 +183,7 @@ export default function PlanDayEditor() {
               ) : (
                 <View style={{ marginTop: space.sm }} accessibilityRole="list" testID="plan-rows">
                   {rows.map((r, i) => {
-                    const ex = byId.get(r.exercise_id);
+                    const exName = nameOf(r.exercise_id);
                     return (
                       <Card key={`${r.exercise_id}-${i}`} style={{ marginBottom: 8 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
@@ -184,22 +193,22 @@ export default function PlanDayEditor() {
                             onPress={() => setEditing(i)}
                             accessibilityRole="button"
                             accessibilityLabel={
-                              `Position ${i + 1}, ${ex?.name ?? 'Exercise'}, ${prescriptionLine(r as never)}`
+                              `Position ${i + 1}, ${exName}, ${prescriptionLine(r as never)}`
                             }
                           >
-                            <Text variant="body" numberOfLines={1}>{ex?.name ?? 'Exercise'}</Text>
+                            <Text variant="body" numberOfLines={1}>{exName}</Text>
                             <Text variant="caption" tone="ink3">{prescriptionLine(r as never)}</Text>
                           </Pressable>
                           <Pressable
                             onPress={() => move(i, -1)}
                             accessibilityRole="button"
-                            accessibilityLabel={`Move ${ex?.name ?? 'exercise'} up`}
+                            accessibilityLabel={`Move ${exName} up`}
                             hitSlop={8}
                           ><Text variant="body" tone="ink3">↑</Text></Pressable>
                           <Pressable
                             onPress={() => move(i, 1)}
                             accessibilityRole="button"
-                            accessibilityLabel={`Move ${ex?.name ?? 'exercise'} down`}
+                            accessibilityLabel={`Move ${exName} down`}
                             hitSlop={8}
                           ><Text variant="body" tone="ink3">↓</Text></Pressable>
                         </View>
@@ -208,7 +217,7 @@ export default function PlanDayEditor() {
                             onPress={() => setRows((prev) => toggleLink(prev, i))}
                             accessibilityRole="switch"
                             accessibilityState={{ checked: isLinked(rows, i) }}
-                            accessibilityLabel={`Superset ${ex?.name ?? 'this exercise'} with the next one`}
+                            accessibilityLabel={`Superset ${exName} with the next one`}
                             testID={`superset-link-${i}`}
                             style={{ marginTop: space.sm, alignSelf: 'flex-start' }}
                             hitSlop={8}

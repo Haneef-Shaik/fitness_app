@@ -48,9 +48,14 @@ export function MacroTrio({
               <View style={{ width: 8, height: 8, borderRadius: radius.pill, backgroundColor: c[m.hue] }} />
               <Text variant="label" numberOfLines={1}>{m.label}</Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, marginTop: 4 }}>
+            {/* Wraps: inside Home's card a tile is narrower than "120.4 / 176 g",
+                and the target was being clipped rather than moved under. */}
+            <View
+              testID={`macro-${m.key}-figures`}
+              style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', columnGap: 3, marginTop: 4 }}
+            >
               <Text variant="stat" style={{ fontSize: compact ? 18 : 20 }}>{grams(value).replace(' g', '')}</Text>
-              <Text variant="caption" tone="ink3">{target ? `/ ${target} g` : 'g'}</Text>
+              <Text variant="caption" tone="ink3" numberOfLines={1}>{target ? `/ ${target} g` : 'g'}</Text>
             </View>
             {share !== null ? (
               <View style={{ height: 4, borderRadius: radius.pill, backgroundColor: c.line, marginTop: space.sm, overflow: 'hidden' }}>

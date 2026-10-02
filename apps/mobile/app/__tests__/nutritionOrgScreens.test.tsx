@@ -104,6 +104,16 @@ beforeEach(() => {
 });
 
 describe('H-16 · the category manager', () => {
+  it('shows an unset usual time as unset, not as 08:00', () => {
+    // Every category read "Usually at 08:00": the placeholder looked like a
+    // value (found taking the screenshots).
+    render(<Categories />);
+    expect(screen.getByTestId('category-breakfast-time').props.value).toBe('08:00');
+    const lunch = screen.getByTestId('category-lunch-time');
+    expect(lunch.props.value).toBe('');
+    expect(lunch.props.placeholder).not.toMatch(/\d/);
+  });
+
   it('shows every category, hidden ones included', () => {
     render(<Categories />);
     // The manager has to show what it would be un-hiding.

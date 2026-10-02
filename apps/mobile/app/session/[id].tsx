@@ -162,7 +162,7 @@ export default function ActiveSession() {
   const addExercise = useSessionStore((s) => s.addExercise);
   const adopt = useSessionStore((s) => s.adopt);
 
-  const catalog = useExercises({ limit: 200 });
+  const catalog = useExercises();
   // K-04. Absent while loading or offline — the logger then behaves as it always
   // did, which is the defaults.
   const prefs = useProfile().data;

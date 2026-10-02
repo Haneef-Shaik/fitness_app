@@ -47,6 +47,17 @@ async def _post_set(client, se_id, payload, expect=201):
     )
 
 
+async def _plan_since(db, program_id: str, when: datetime) -> None:
+    """Date a program's days from `when`, as if they had been planned then."""
+    from sqlalchemy import update
+
+    from app.models import WorkoutPlanDay
+    await db.execute(update(WorkoutPlanDay)
+                     .where(WorkoutPlanDay.program_id == uuid.UUID(program_id))
+                     .values(created_at=when))
+    await db.commit()
+
+
 async def _catalog_exercise(client) -> str:
     return _data(await client.get("/v1/exercises", params={"limit": 1}))[0]["id"]
 
@@ -376,11 +387,12 @@ class TestAdherence:
         assert data["planned"] == 0
         assert data["adherence"] is None
 
-    async def test_counts_planned_occurrences_from_the_schedule(self, auth_client):
+    async def test_counts_planned_occurrences_from_the_schedule(self, auth_client, db):
         program = _data(await auth_client.post("/v1/workout-programs",
                                                json={"name": "PPL"}), 201)
         _data(await auth_client.post(f"/v1/workout-programs/{program['id']}/days",
-                                     json={"name": "Push", "scheduled_weekday": 1}), 201)
+                                     json={"name": "Push", "scheduled_weekday": 0}), 201)
+        await _plan_since(db, program["id"], datetime(2026, 9, 1, tzinfo=UTC))
 
         data = _data(await auth_client.get("/v1/analytics/adherence", params={
             "from": "2026-09-21", "to": "2026-10-04",     # two Mondays
@@ -389,6 +401,59 @@ class TestAdherence:
         assert data["planned"] == 2
         assert data["completed_planned"] == 0
         assert data["adherence"] == 0.0, "planned and missed is 0, not undefined"
+
+    async def test_weekday_zero_is_monday(self, auth_client, db):
+        # The API's convention (models/program.py), the starter templates' —
+        # "Mon / Wed / Fri" is 0, 2, 4 — and C-01's. Adherence read 0 as Sunday.
+        program = _data(await auth_client.post("/v1/workout-programs",
+                                               json={"name": "PPL"}), 201)
+        _data(await auth_client.post(f"/v1/workout-programs/{program['id']}/days",
+                                     json={"name": "Push", "scheduled_weekday": 0}), 201)
+        await _plan_since(db, program["id"], datetime(2026, 9, 1, tzinfo=UTC))
+
+        monday = _data(await auth_client.get("/v1/analytics/adherence", params={
+            "from": "2026-09-21", "to": "2026-09-21",     # a Monday
+        }))
+        sunday = _data(await auth_client.get("/v1/analytics/adherence", params={
+            "from": "2026-09-20", "to": "2026-09-20",     # a Sunday
+        }))
+
+        assert monday["planned"] == 1
+        assert sunday["planned"] == 0
+
+    async def test_nothing_was_planned_before_the_plan_existed(self, auth_client, db):
+        # Eight weeks of history imported from Strong, then a program set up
+        # today, read "0% adherence" — every weekday of those eight weeks was
+        # counted as planned and missed (found taking the screenshots).
+        program = _data(await auth_client.post("/v1/workout-programs",
+                                               json={"name": "PPL"}), 201)
+        _data(await auth_client.post(f"/v1/workout-programs/{program['id']}/days",
+                                     json={"name": "Push", "scheduled_weekday": 0}), 201)
+        await _plan_since(db, program["id"], datetime(2026, 9, 28, 6, tzinfo=UTC))
+
+        data = _data(await auth_client.get("/v1/analytics/adherence", params={
+            "from": "2026-09-07", "to": "2026-10-04",     # four Mondays; only the 28th counts
+        }))
+
+        assert data["planned"] == 1
+        weeks = {w["week_start"]: w["planned"] for w in data["weeks"]}
+        assert weeks["2026-09-21"] == 0
+        assert weeks["2026-09-28"] == 1
+
+    async def test_an_archived_program_plans_nothing(self, auth_client, db):
+        program = _data(await auth_client.post("/v1/workout-programs",
+                                               json={"name": "Old plan"}), 201)
+        _data(await auth_client.post(f"/v1/workout-programs/{program['id']}/days",
+                                     json={"name": "Push", "scheduled_weekday": 0}), 201)
+        await _plan_since(db, program["id"], datetime(2026, 9, 1, tzinfo=UTC))
+        _data(await auth_client.post(f"/v1/workout-programs/{program['id']}/archive"))
+
+        data = _data(await auth_client.get("/v1/analytics/adherence", params={
+            "from": "2026-09-21", "to": "2026-10-04",
+        }))
+
+        assert data["planned"] == 0
+        assert data["adherence"] is None
 
 
 # --------------------------------------------------------------- performance

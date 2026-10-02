@@ -16,6 +16,8 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { formatDuration, formatVolume } from '@/features/history/format';
 import { useSessionComparison } from '@/lib/query/hooks';
+import { humanDate } from '@/lib/datetime/humanDate';
+import { useToday } from '@/lib/datetime/useToday';
 import { space } from '@/theme';
 import { count } from '@/features/nutrition/format';
 
@@ -23,6 +25,7 @@ export default function Compare() {
   const { sessions } = useLocalSearchParams<{ sessions: string }>();
   const ids = (sessions ?? '').split(',').filter(Boolean);
   const query = useSessionComparison(ids);
+  const today = useToday();
 
   return (
     <ScreenScaffold title="Compare" scroll={false}>
@@ -39,7 +42,7 @@ export default function Compare() {
             <View style={{ flexDirection: 'row', gap: space.sm }} testID="compare-totals">
               {data.sessions.map((s) => (
                 <Card key={s.id} style={{ flex: 1 }}>
-                  <Text variant="caption" tone="ink3">{s.local_date}</Text>
+                  <Text variant="caption" tone="ink3">{humanDate(s.local_date, today)}</Text>
                   <Text variant="body" style={{ marginTop: 4 }}>
                     {formatVolume(s.total_volume_kg) ?? '—'}
                   </Text>

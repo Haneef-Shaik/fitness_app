@@ -41,6 +41,7 @@ const mockHistory = {
 
 jest.mock('@/lib/query/hooks', () => ({
   usePreviousOccurrence: () => mockPrevious,
+  useProfile: () => ({ data: { timezone: 'UTC' } }),
   useWorkoutHistory: () => mockHistory,
   useMuscleGroups: () => ({
     data: [{ id: 'm1', slug: 'chest', name: 'Chest' }],

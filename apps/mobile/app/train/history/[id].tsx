@@ -17,12 +17,15 @@ import { DataBoundary } from '@/ui/DataBoundary';
 import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { formatDuration, formatVolume, relativeDay } from '@/features/history/format';
 import { useSession } from '@/features/workout-session/useSession';
+import { humanDate } from '@/lib/datetime/humanDate';
+import { useToday } from '@/lib/datetime/useToday';
 import { space } from '@/theme';
 import { count } from '@/features/nutrition/format';
 
 export default function SessionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const query = useSession(id);
+  const today = useToday();
 
   return (
     <ScreenScaffold
@@ -37,9 +40,9 @@ export default function SessionDetail() {
         {(session) => (
           <View style={{ gap: space.lg }}>
             <Card hero>
-              <Pill>{relativeDay(session.local_date, new Date().toISOString().slice(0, 10))}</Pill>
+              <Pill>{relativeDay(session.local_date, today)}</Pill>
               <Text variant="display" style={{ fontSize: 26, marginTop: 10 }}>
-                {session.local_date}
+                {humanDate(session.local_date, today, { relative: false })}
               </Text>
               <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
                 {[

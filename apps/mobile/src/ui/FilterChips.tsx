@@ -64,7 +64,12 @@ export function FilterChips({
       horizontal
       showsHorizontalScrollIndicator={false}
       testID={testID}
-      contentContainerStyle={{ gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.sm }}
+      // A ScrollView grows by default. Inside a sheet with room to spare the row
+      // took a share of it and every chip stretched into a tall oval.
+      style={{ flexGrow: 0 }}
+      contentContainerStyle={{
+        gap: space.sm, paddingHorizontal: space.lg, paddingVertical: space.sm, alignItems: 'center',
+      }}
     >
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         {chip('__all', allLabel, none, () => onChange([]))}

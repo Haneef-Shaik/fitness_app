@@ -24,7 +24,9 @@ export function adherence(completedPlanned: number, planned: number): number | n
 /**
  * How many times the scheduled weekdays fall in `[start, end]`, inclusive.
  *
- * `weekdays` uses the plan tree's convention: 0 = Sunday.
+ * `weekdays` uses the plan tree's convention: 0 = Monday … 6 = Sunday
+ * (models/program.py, the starter templates, C-01). This read 0 as Sunday until
+ * 2 Oct 2026, so every scheduled day was counted a day early.
  *
  * Walks the range rather than doing arithmetic on week counts, because that is
  * where the off-by-one lives: a range starting and ending on the same scheduled
@@ -47,8 +49,8 @@ export function plannedOccurrences(
   const wanted = new Set(weekdays);
   let count = 0;
   for (let t = from; t <= to; t += 86_400_000) {
-    // getUTCDay(): Sunday === 0, which is already the plan tree's convention.
-    if (wanted.has(new Date(t).getUTCDay())) count += 1;
+    // getUTCDay() is Sunday-first; the plan tree is Monday-first.
+    if (wanted.has((new Date(t).getUTCDay() + 6) % 7)) count += 1;
   }
   return count;
 }

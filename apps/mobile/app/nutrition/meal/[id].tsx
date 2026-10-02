@@ -14,6 +14,8 @@ import { ScreenScaffold } from '@/ui/ScreenScaffold';
 import { grams, kcal, mealTypeLabel, portion } from '@/features/nutrition/format';
 import { useCategoryOptions } from '@/features/nutrition/useCategoryOptions';
 import { useDeleteMeal, useMeal, useUpdateMealItem } from '@/lib/query/hooks';
+import { humanDate } from '@/lib/datetime/humanDate';
+import { useToday } from '@/lib/datetime/useToday';
 import { space } from '@/theme';
 
 export default function MealDetail() {
@@ -22,6 +24,7 @@ export default function MealDetail() {
   const { categories } = useCategoryOptions();
   const confirm = useUpdateMealItem();
   const remove = useDeleteMeal();
+  const today = useToday();
 
   return (
     <ScreenScaffold title="Meal">
@@ -46,7 +49,7 @@ export default function MealDetail() {
                   <Text variant="caption" tone="ink3">kcal</Text>
                 </View>
                 <Text variant="caption" tone="ink3" style={{ marginTop: 4 }}>
-                  {meal.local_date}
+                  {humanDate(meal.local_date, today)}
                 </Text>
               </Card>
 

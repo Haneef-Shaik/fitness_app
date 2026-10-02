@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitLog × Gyms</title>
+<meta name="description" content="R3 strategy research: should FitLog reach gym members through free gym software? Findings, recommendation and the pilot that decides it. 2 Oct 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Tokens: FitLog "Kinetic Performance" (docs/15-UI-REDESIGN.md). Dark is the default; T toggles. */
+:root, :root[data-theme="dark"] {
+  --page: #0E0F11; --surface: #16181C; --surface2: #1E2025;
+  --ink: #FFFFFF; --ink2: #C4C6C1; --ink3: #8E918F;
+  --line: #272A30; --line2: #3F4248;
+  --accent: #6BA5FF; --accent-ink: #0B1A33;
+  --bar-muted: #6F737A;
+  --good: #34D399; --warn: #F5B94A; --serious: #FF7A6E;
+}
+:root[data-theme="light"] {
+  --page: #F4F5F3; --surface: #FFFFFF; --surface2: #EFEFF0;
+  --ink: #0B0C0D; --ink2: #4B4D48; --ink3: #696B65;
+  --line: #E2E4E6; --line2: #C9CCD0;
+  --accent: #2368C0; --accent-ink: #FFFFFF;
+  --bar-muted: #84878D;
+  --good: #1F7A50; --warn: #9A5B00; --serious: #B42F28;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--page); color: var(--ink);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden; -webkit-font-smoothing: antialiased;
+}
+.display { font-family: "Hanken Grotesk", Inter, system-ui, sans-serif; }
+
+/* Stage: a 1280×720 canvas scaled to fit the window */
+#deck {
+  position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px;
+  transform-origin: center center; transform: translate(-50%, -50%) scale(var(--scale, 1));
+}
+.slide {
+  position: absolute; inset: 0; display: none; flex-direction: column;
+  padding: 56px 72px 64px; background: var(--page); overflow: hidden;
+}
+.slide.active { display: flex; }
+.eyebrow {
+  font-size: 13px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px;
+}
+h1 { font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 800; font-size: 68px; line-height: 1.04; letter-spacing: -.01em; }
+h2 { font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 700; font-size: 38px; line-height: 1.14; max-width: 1080px; letter-spacing: -.005em; }
+h3 { font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 700; font-size: 21px; line-height: 1.25; }
+p, li { font-size: 19px; line-height: 1.45; color: var(--ink2); }
+strong { color: var(--ink); font-weight: 600; }
+.lede { font-size: 22px; color: var(--ink2); margin-top: 18px; max-width: 980px; }
+.body { flex: 1; display: flex; flex-direction: column; justify-content: center; margin-top: 26px; min-height: 0; }
+.src {
+  position: absolute; left: 72px; bottom: 26px; right: 160px;
+  font-size: 12px; color: var(--ink3); line-height: 1.4;
+}
+/* Per-slide numbers are for print; on screen the controls show the count */
+.pageno { display: none; position: absolute; right: 72px; bottom: 26px; font-size: 12px; color: var(--ink3); font-variant-numeric: tabular-nums; }
+
+/* Cards, tiles, columns */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.card.panel { background: var(--surface2); }
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+.tile .num { font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 800; font-size: 54px; line-height: 1; color: var(--ink); }
+.tile .num small { font-size: 26px; font-weight: 700; }
+.tile .cap { margin-top: 12px; font-size: 16px; line-height: 1.4; color: var(--ink2); }
+.takeaway {
+  margin-top: 22px; padding: 16px 22px; border-left: 3px solid var(--accent);
+  background: var(--surface); border-radius: 0 12px 12px 0; font-size: 19px; color: var(--ink);
+}
+ul.clean { list-style: none; display: grid; gap: 9px; }
+ul.clean li { padding-left: 20px; position: relative; font-size: 17px; }
+ul.clean li::before { content: ""; position: absolute; left: 2px; top: 10px; width: 6px; height: 6px; border-radius: 2px; background: var(--line2); }
+.quote { font-size: 17px; color: var(--ink); line-height: 1.4; }
+.quote + .who { font-size: 13px; color: var(--ink3); margin-top: 6px; }
+
+/* Pills: status always carries an icon and a word, never colour alone */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; border: 1px solid currentColor; white-space: nowrap;
+}
+.pill.good { color: var(--good); } .pill.warn { color: var(--warn); } .pill.serious { color: var(--serious); }
+.pill.accent { color: var(--accent); } .pill.mute { color: var(--ink3); }
+.tag { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-left: 6px; }
+
+/* Bars: one measure per chart; emphasis = accent, the rest a neutral gray */
+.bars { display: grid; gap: 4px; }
+.bar-row {
+  display: grid; grid-template-columns: 290px 1fr; align-items: center; gap: 16px;
+  padding: 9px 8px; border-radius: 10px; outline: none;
+}
+.bar-row:hover, .bar-row:focus-visible { background: var(--surface); }
+.bar-row:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.bar-label { font-size: 17px; color: var(--ink); line-height: 1.25; }
+.bar-label small { display: block; font-size: 13px; color: var(--ink3); margin-top: 2px; }
+.bar-track { position: relative; height: 26px; border-left: 1px solid var(--line2); margin-right: 104px; }
+.bar {
+  position: absolute; left: 0; top: 2px; height: 22px; border-radius: 0 4px 4px 0;
+  width: calc(var(--v) / var(--max) * 100%); background: var(--bar-muted);
+}
+.bar.emph { background: var(--accent); }
+.bar-val {
+  position: absolute; top: 0; line-height: 26px; white-space: nowrap;
+  left: calc(var(--v) / var(--max) * 100% + 12px);
+  font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 700; font-size: 20px; color: var(--ink);
+}
+.legend { display: flex; gap: 22px; font-size: 14px; color: var(--ink2); margin-bottom: 10px; }
+.legend i { display: inline-block; width: 14px; height: 10px; border-radius: 0 3px 3px 0; margin-right: 8px; vertical-align: 0; }
+
+/* Steps */
+.step { position: relative; }
+.step .n { font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 800; font-size: 15px; color: var(--ink3); }
+.step h3 { margin: 6px 0 12px; }
+.step p { font-size: 15px; line-height: 1.4; margin-top: 10px; }
+.timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.timeline .card { border-top: 3px solid var(--accent); }
+.kicker { font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 800; font-size: 30px; color: var(--ink); line-height: 1.05; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 11px 14px; font-size: 16px; line-height: 1.35; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink3); font-weight: 600; }
+td { color: var(--ink2); } td:first-child { color: var(--ink); font-weight: 600; }
+.phased td:last-child, .phased th:last-child { white-space: nowrap; }
+
+/* Chrome */
+.progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--accent); width: 0; z-index: 5; transition: width .2s; }
+.controls {
+  position: fixed; right: 16px; bottom: 14px; display: flex; gap: 8px; align-items: center; z-index: 5;
+  font-size: 13px; color: var(--ink3);
+}
+.controls button {
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line2); border-radius: 10px;
+  min-width: 40px; height: 36px; font: inherit; font-size: 15px; cursor: pointer;
+}
+.controls button:hover { border-color: var(--accent); }
+.controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#tip {
+  position: fixed; z-index: 10; pointer-events: none; max-width: 340px; padding: 10px 12px;
+  background: var(--surface2); color: var(--ink); border: 1px solid var(--line2); border-radius: 10px;
+  font-size: 13px; line-height: 1.4; opacity: 0; transition: opacity .1s;
+}
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) { .progress { transition: none; } }
+
+/* Print / Save as PDF: one slide per page */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  html, body { height: auto; overflow: visible; background: var(--page); }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #deck { position: static; transform: none; width: 1280px; height: auto; }
+  .slide { position: relative; display: flex !important; width: 1280px; height: 720px; break-after: page; }
+  .progress, .controls, #tip { display: none !important; }
+  .pageno { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+
+<main id="deck" aria-live="polite">
+
+<!-- 1 · Title -->
+<section class="slide" aria-label="Title">
+  <div class="body" style="justify-content:center; margin-top:0">
+    <div class="eyebrow">FitLog · Strategy research R3 · 2 October 2026</div>
+    <h1>Gyms as FitLog's<br>distribution channel</h1>
+    <p class="lede">What the market research says, what we would build on top of today's app, and the 5-gym pilot that decides it.</p>
+    <div style="margin-top:44px; display:flex; gap:12px; flex-wrap:wrap">
+      <span class="pill accent">Recommendation: validate, don't build yet</span>
+      <span class="pill mute">India first</span>
+      <span class="pill mute">Revised after owner review · 2 Oct</span>
+    </div>
+  </div>
+  <div class="src">Based on six research briefs (350+ dated sources) and the FitLog repository. Full report: docs/research/R3-gym-b2b2c-strategy.md</div>
+</section>
+
+<!-- 2 · The idea we tested -->
+<section class="slide" aria-label="The idea we tested">
+  <div class="eyebrow">The idea we tested</div>
+  <h2>Give gym software away free, and let each gym bring its members to FitLog</h2>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card step"><div class="n">1</div><h3>Gym joins, free</h3><span class="pill warn">! Plausible</span><p>"Free" saves an owner ~₹200 a month. Renewals are the real reason to switch.</p></div>
+      <div class="card step"><div class="n">2</div><h3>Members onboard</h3><span class="pill warn">! Only if required</span><p>Members install gym apps only when the gym runs through them.</p></div>
+      <div class="card step"><div class="n">3</div><h3>Members use FitLog</h3><span class="pill good">✓ Our strength</span><p>No gym app has a real logger or Indian nutrition. FitLog does.</p></div>
+      <div class="card step"><div class="n">4</div><h3>Engagement → gym value</h3><span class="pill good">✓ Evidence supports</span><p>First-month visits, staff contact and friends predict who stays.</p></div>
+      <div class="card step"><div class="n">5</div><h3>Gym pushes harder</h3><span class="pill warn">! Needs proof</span><p>Only if the owner sees more renewals, in rupees.</p></div>
+      <div class="card step"><div class="n">6</div><h3>Network across gyms</h3><span class="pill serious">✕ Weak</span><p>Thin even for global leaders, and owners read it as poaching.</p></div>
+    </div>
+  </div>
+  <div class="src">Verdicts are our analysis of the evidence in report §2–§6.</div>
+</section>
+
+<!-- 3 · The answer -->
+<section class="slide" aria-label="The answer">
+  <div class="eyebrow">The answer</div>
+  <h2>Yes, as the gym's membership card, not as a network across gyms</h2>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card"><span class="pill good">✓ What works</span><h3 style="margin-top:16px">The app is how members use their gym</h3><p style="margin-top:10px; font-size:17px">Fees and receipts, the trainer's plan, and self check-in that counts for challenges. It is not an entry gate. FitLog's logger and nutrition keep them.</p></div>
+      <div class="card"><span class="pill serious">✕ What's weak</span><h3 style="margin-top:16px">Members carried between gyms</h3><p style="margin-top:10px; font-size:17px">Marketplaces stay thin even for Mindbody and Fresha, and they turn owners against the platform. Phase 3 at the earliest.</p></div>
+      <div class="card"><span class="pill accent">→ What decides it</span><h3 style="margin-top:16px">Member activation through the gym</h3><p style="margin-top:10px; font-size:17px">One number, and cheap to measure: a 5-gym, 10-week pilot.</p></div>
+    </div>
+    <div class="takeaway">The network effect the evidence supports is <strong>inside each gym</strong>: owner, trainers and members on one system. It works from the first gym.</div>
+  </div>
+  <div class="src">Report §0, §6.6–6.7, §14.3–14.4.</div>
+</section>
+
+<!-- 4 · Market -->
+<section class="slide" aria-label="The market">
+  <div class="eyebrow">The market · India</div>
+  <h2>Large, and almost entirely long-tail</h2>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card tile"><div class="num">46,500</div><div class="cap">gyms and studios, heading for 65,500 by 2030</div></div>
+      <div class="card tile"><div class="num">12.3M</div><div class="cap">members: 0.8% of adults</div></div>
+      <div class="card tile"><div class="num">80%</div><div class="cap">are value gyms, ~258 members each, under ₹14k a year per member</div></div>
+      <div class="card tile"><div class="num">32,000</div><div class="cap">gyms outside the top 10 cities, "largely untapped"</div></div>
+    </div>
+    <div class="takeaway">The leader, Cult.fit, runs 708 centres, about <strong>1.5%</strong> of the market. The long tail of independent gyms is the market.</div>
+  </div>
+  <div class="src">Deloitte–HFA India Fitness Market Report, Sep 2025 (modelled estimate). Cult.fit DRHP, Jul 2026. Report §3.1.</div>
+</section>
+
+<!-- 5 · Owner software -->
+<section class="slide" aria-label="Owner software is commoditised">
+  <div class="eyebrow">Gym-owner software</div>
+  <h2>Cheap, commoditised, and distrusted</h2>
+  <div class="body">
+    <div class="grid g2" style="gap:20px">
+      <div class="grid g2">
+        <div class="card tile panel"><div class="num" style="font-size:40px">₹2,499<small>/yr</small></div><div class="cap">GoGym4U, unlimited members · 100K+ installs</div></div>
+        <div class="card tile panel"><div class="num" style="font-size:40px">₹2,199<small>/yr</small></div><div class="cap">GymBook, from, plus GST · 50K+ installs</div></div>
+        <div class="card tile panel"><div class="num" style="font-size:40px">₹500<small>/mo</small></div><div class="cap">Okfit Lite, up to ₹3,000 a month</div></div>
+        <div class="card tile panel"><div class="num" style="font-size:40px">₹11,999<small>/yr</small></div><div class="cap">GGMS, top of the common range</div></div>
+      </div>
+      <div class="card" style="display:grid; gap:18px; align-content:center">
+        <div><div class="quote">"Customer support is pathetic"</div><div class="who">GGMS owner review</div></div>
+        <div><div class="quote">"…from rs. 1800/- TO… 2700+ 18% GST per annum"</div><div class="who">GymBook owner review, Dec 2025</div></div>
+        <div><div class="quote">"The support, doesn't do any effort… don't even respond"</div><div class="who">GoGym4U owner review, Dec 2023</div></div>
+      </div>
+    </div>
+    <div class="takeaway">"Free" removes an objection. It is not a reason to move 300 members. <strong>More renewals</strong> is.</div>
+  </div>
+  <div class="src">Vendor pricing pages and Google Play India listings and reviews, accessed 2 Oct 2026. Report §3.3a, §3.4, §7.1.</div>
+</section>
+
+<!-- 6 · Member app adoption -->
+<section class="slide" aria-label="Members skip gym apps unless required">
+  <div class="eyebrow">The member side</div>
+  <h2>Members skip gym apps, unless the app is how they get in</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns: 1.55fr 1fr; gap:22px; align-items:center">
+      <div>
+        <div class="legend"><span>Share of members using the gym's app</span></div>
+        <div class="bars" role="list" style="--max:100">
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="Total Fitness (UK, 2017): 12,000+ of 94,000 members downloaded the optional app in its first month.">
+            <span class="bar-label">Total Fitness, UK<small>optional app · first month</small></span>
+            <span class="bar-track" style="--v:13"><span class="bar"></span><span class="bar-val">13%</span></span>
+          </div>
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="PureGym (UK, 2013): 40%+ of members within six months; the app was needed to book classes. Unverified: seen only in an award citation via search.">
+            <span class="bar-label">PureGym, UK*<small>needed to book classes · 6 months</small></span>
+            <span class="bar-track" style="--v:40"><span class="bar"></span><span class="bar-val">40%</span></span>
+          </div>
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="Planet Fitness (US): 40% of all members by the Q4 2020 call, 'nearly 60%' by the Q2 2021 call. The app is the check-in key.">
+            <span class="bar-label">Planet Fitness, US<small>the app is the check-in key</small></span>
+            <span class="bar-track" style="--v:60"><span class="bar emph"></span><span class="bar-val">~60%</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="grid" style="gap:14px">
+        <div class="card tile"><div class="num" style="font-size:40px">500+ <small>vs</small> 50K+</div><div class="cap">installs: GymBook's member app vs its owner app (India)</div></div>
+        <div class="card tile"><div class="num" style="font-size:40px">3.5%</div><div class="cap">workouts logged per check-in in ABC's member app (2M of 57.5M). Gym apps are door keys.</div></div>
+      </div>
+    </div>
+    <div class="takeaway">Members install when it's <strong>required</strong>; they open it daily only when it does something <strong>for them</strong>. The gym brings the first. FitLog brings the second.</div>
+  </div>
+  <div class="src">*Unverified. Spa Business 2017; Planet Fitness earnings calls 2021; Google Play India; ABC Ignite. Report §3.5.</div>
+</section>
+
+<!-- 7 · Thin networks -->
+<section class="slide" aria-label="Networks across businesses stay thin">
+  <div class="eyebrow">The network question</div>
+  <h2>Networks across businesses stay thin, even for the leaders</h2>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card tile"><div class="num" style="font-size:44px">22k</div><div class="cap"><strong>Mindbody:</strong> first purchases a month through its app, against 60M monthly bookings</div></div>
+      <div class="card tile"><div class="num" style="font-size:44px">~10%</div><div class="cap"><strong>Fresha:</strong> new clients from its marketplace, after 11 years and $285M</div></div>
+      <div class="card tile"><div class="num" style="font-size:44px">~6%</div><div class="cap"><strong>ClassPass:</strong> visitors who become studio members; London studios walked out in 2016</div></div>
+      <div class="card tile"><div class="num" style="font-size:44px">~2,000</div><div class="cap"><strong>Zomato Gold:</strong> restaurants that "logged out" over terms in 2019</div></div>
+    </div>
+    <div class="takeaway">A gym membership is a single-gym relationship. <strong>Build the network inside each gym first</strong>; cross-gym features come later, under written owner-safety rules.</div>
+  </div>
+  <div class="src">Company figures (Mindbody, Fresha, ClassPass) and press. Report §3.3c, evidence brief E.</div>
+</section>
+
+<!-- 8 · Economics of free -->
+<section class="slide" aria-label="India won't fund free through payments">
+  <div class="eyebrow">The economics of "free"</div>
+  <h2>India won't fund free software through payment fees, and free isn't free</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns: 1fr 1.5fr; gap:22px; align-items:center">
+      <div class="card" style="display:grid; gap:16px">
+        <div><div class="kicker">₹0</div><p style="font-size:16px">merchant fee on UPI payments under ₹2,000</p></div>
+        <div><div class="kicker">0.4%</div><p style="font-size:16px">above ₹2,000 from 15 Oct 2026, and it goes to the payments chain, not to us. Small merchants are exempt.</p></div>
+        <div><div class="kicker">4.99%</div><p style="font-size:16px">the card fee that funds PushPress's free gym plan in the US. India has no equivalent.</p></div>
+      </div>
+      <div>
+        <div class="legend"><span><i style="background:var(--bar-muted)"></i>What incumbents charge</span><span><i style="background:var(--accent)"></i>What serving a gym costs us</span></div>
+        <div class="bars" role="list" style="--max:1811">
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="GymBook: ₹2,199–2,599 a year plus 18% GST, about ₹185–215 a month before GST.">
+            <span class="bar-label">GymBook price<small>₹2,199–2,599/yr + GST</small></span>
+            <span class="bar-track" style="--v:200"><span class="bar"></span><span class="bar-val">~₹200</span></span>
+          </div>
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="Our lean core: infrastructure, utility WhatsApp, support, amortised field sales, compliance. No AI, no marketing broadcasts.">
+            <span class="bar-label">Our core, lean<small>no AI, no broadcasts</small></span>
+            <span class="bar-track" style="--v:603"><span class="bar emph"></span><span class="bar-val">₹603</span></span>
+          </div>
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="Base core: as lean, plus one marketing broadcast to all members (~₹350) and SMS OTPs.">
+            <span class="bar-label">Our core, base<small>+ one broadcast to members</small></span>
+            <span class="bar-track" style="--v:979"><span class="bar emph"></span><span class="bar-val">₹979</span></span>
+          </div>
+          <div class="bar-row" role="listitem" tabindex="0" data-tip="Base core plus AI food photos: 30 of 120 app users log 2 photos a day on Claude Haiku 4.5 (₹0.46 each).">
+            <span class="bar-label">Base + AI food photos<small>25% of app users, 2/day, Haiku</small></span>
+            <span class="bar-track" style="--v:1811"><span class="bar emph"></span><span class="bar-val">₹1,811</span></span>
+          </div>
+        </div>
+        <p style="font-size:14px; color:var(--ink3); margin:8px 0 0 8px">₹ per gym per month, for a 300-member gym with 120 app users</p>
+      </div>
+    </div>
+  </div>
+  <div class="src">NPCI UPI framework (Kotak Neo, 16 Sep 2026); PushPress pricing; our cost model (estimate, report §7.3, brief F §7).</div>
+</section>
+
+<!-- 9 · The gap -->
+<section class="slide" aria-label="The real gap">
+  <div class="eyebrow">The gap we'd close</div>
+  <h2>One gap, seen from two sides</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap:16px; align-items:stretch">
+      <div class="card">
+        <h3>The gym's software doesn't know what members do</h3>
+        <ul class="clean" style="margin-top:14px">
+          <li>No early warning of who is drifting</li>
+          <li>Plans and diet charts on paper and WhatsApp</li>
+          <li>Renewals sent as bare invoices</li>
+          <li>Personal-training sessions counted by hand</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:var(--accent); display:flex; flex-direction:column; justify-content:center; text-align:center">
+        <div class="eyebrow" style="margin-bottom:10px">A shared system</div>
+        <div class="kicker" style="font-size:26px">Trainer assigns → member logs → owner sees → renewal shows progress</div>
+      </div>
+      <div class="card">
+        <h3>The member's app doesn't know the gym exists</h3>
+        <ul class="clean" style="margin-top:14px">
+          <li>No plan from their trainer</li>
+          <li>Nobody notices when they skip</li>
+          <li>No competition with the people they actually train with</li>
+          <li>Gone when the membership ends</li>
+        </ul>
+      </div>
+    </div>
+    <div class="takeaway">Neither gym software nor a consumer app alone can close this gap. <strong>FitLog already has the consumer half.</strong></div>
+  </div>
+  <div class="src">Report §4, especially §4.3.</div>
+</section>
+
+<!-- 10 · What we'd build -->
+<section class="slide" aria-label="What we would build">
+  <div class="eyebrow">The product · MVP</div>
+  <h2>FitLog for Gyms: built on the app we already have</h2>
+  <div class="body" style="margin-top:20px">
+    <div class="grid g3">
+      <div class="card">
+        <h3>Owner</h3>
+        <ul class="clean" style="margin-top:12px">
+          <li>Fees, dues, receipts</li>
+          <li>WhatsApp renewal reminders</li>
+          <li>Self check-in poster: no gate, no receptionist</li>
+          <li><strong>Free absence alerts</strong> and a "today's five calls" list</li>
+          <li>Trainer workspace</li>
+          <li>Free export, no lock-in</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Member (FitLog)</h3>
+        <ul class="clean" style="margin-top:12px">
+          <li><strong>Gym card:</strong> status, dues, check-in</li>
+          <li>Trainer's plan → logger<span class="tag">built</span></li>
+          <li>Indian nutrition<span class="tag">built · extend</span></li>
+          <li>Body tracking, imports, export<span class="tag">built</span></li>
+          <li>Weekly "one thing improved"</li>
+          <li>Join with a phone number</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Shared</h3>
+        <ul class="clean" style="margin-top:12px">
+          <li><strong>Plan loop:</strong> assign, log, adjust</li>
+          <li>Member-controlled consent</li>
+          <li>Renewals that show progress</li>
+          <li>Monthly gym challenge</li>
+          <li>Gym-funded referrals</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:18px; font-size:16px; color:var(--ink3)"><strong style="color:var(--ink2)">Not in the MVP:</strong> online payment collection · AI calling (pre-sold, Phase 2) · ads · web console · marketplace · global social feed · chains</p>
+  </div>
+  <div class="src">Report §5 (features, each with problem, value, complexity, phase) and §10.2 (MVP scope).</div>
+</section>
+
+<!-- 11 · What changes in FitLog -->
+<section class="slide" aria-label="What changes in FitLog">
+  <div class="eyebrow">What changes in FitLog</div>
+  <h2>Keep everything. Add five things. Reverse four decisions, only if the pilot says scale.</h2>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card">
+        <span class="pill good">✓ Keep</span>
+        <ul class="clean" style="margin-top:14px">
+          <li>Logger: 80.7 ms p95 tap-to-set</li>
+          <li>Programs, history, analytics</li>
+          <li>AI food photo and text, with review</li>
+          <li>Body, photos, goals</li>
+          <li>Strong, Hevy and MyFitnessPal imports; export</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="pill accent">+ Add</span>
+        <ul class="clean" style="margin-top:14px">
+          <li>Phone-number sign-in</li>
+          <li>Hindi / Hinglish UI</li>
+          <li>Gym organisation and trainer role</li>
+          <li>Consent records</li>
+          <li>AI quotas per member and gym</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="pill warn">! Reverse in the charter</span>
+        <ul class="clean" style="margin-top:14px">
+          <li>No social → gym-scoped challenges</li>
+          <li>Coaches in Phase 2 → trainer role in the MVP</li>
+          <li>No payments → payment records</li>
+          <li>Web deferred → owner screens in the app first</li>
+        </ul>
+      </div>
+    </div>
+    <div class="takeaway">Correction: grow the 138 Indian dishes with <strong>USDA-derived recipes</strong>. The Indian food tables (IFCT) are © NIN and can't be shipped.</div>
+  </div>
+  <div class="src">Project tracker (2 Oct 2026); charter §3; docs/data-sources.md. Report §1.</div>
+</section>
+
+<!-- 12 · Channel economics -->
+<section class="slide" aria-label="Channel economics">
+  <div class="eyebrow">Acquisition cost</div>
+  <h2>The gym channel pays off only if members activate</h2>
+  <div class="body">
+    <div class="legend"><span><i style="background:var(--bar-muted)"></i>Paid installs (India, Health &amp; Fitness)</span><span><i style="background:var(--accent)"></i>Gym channel, first year incl. serving the gym</span></div>
+    <div class="bars" role="list" style="--max:620">
+      <div class="bar-row" role="listitem" tabindex="0" data-tip="Paid: ₹31 per install ÷ 15.9% install-to-signup (Linkrunner, India startups 2026).">
+        <span class="bar-label">Paid, per signup</span>
+        <span class="bar-track" style="--v:195"><span class="bar"></span><span class="bar-val">₹195</span></span>
+      </div>
+      <div class="bar-row" role="listitem" tabindex="0" data-tip="Paid: ₹31 per install ÷ ~5% median day-30 retention for Health & Fitness apps (UXCam 2026).">
+        <span class="bar-label">Paid, per user still active at day 30</span>
+        <span class="bar-track" style="--v:620"><span class="bar"></span><span class="bar-val">₹620</span></span>
+      </div>
+      <div class="bar-row" role="listitem" tabindex="0" data-tip="(₹2,333 field sales + 12 × ₹505 serving) ÷ 120 activated members (40% of 300).">
+        <span class="bar-label">Gym channel, 40% activation</span>
+        <span class="bar-track" style="--v:70"><span class="bar emph"></span><span class="bar-val">₹70</span></span>
+      </div>
+      <div class="bar-row" role="listitem" tabindex="0" data-tip="(₹2,333 + 12 × ₹505) ÷ 45 activated members (15% of 300).">
+        <span class="bar-label">Gym channel, 15% activation</span>
+        <span class="bar-track" style="--v:187"><span class="bar emph"></span><span class="bar-val">₹187</span></span>
+      </div>
+      <div class="bar-row" role="listitem" tabindex="0" data-tip="(₹2,333 + 12 × ₹505) ÷ 30 activated members (10% of 300).">
+        <span class="bar-label">Gym channel, 10% activation</span>
+        <span class="bar-track" style="--v:280"><span class="bar emph"></span><span class="bar-val">₹280</span></span>
+      </div>
+    </div>
+    <div class="takeaway"><strong>Activation is the number that decides the strategy.</strong> Below ~15% the channel stops beating a paid signup; below ~5% it loses even to retained paid users.</div>
+  </div>
+  <div class="src">₹ per user. Estimates: Linkrunner, UXCam; our cost model (₹2,333 field sales per gym; ~₹505 a month to serve). Report §6.8.</div>
+</section>
+
+<!-- 13 · Money (revised after owner review) -->
+<section class="slide" aria-label="What's free and what's Pro">
+  <div class="eyebrow">Revenue model · revised after review</div>
+  <h2>For owners, everything is free except AI. All AI is Pro.</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns: 1.55fr 1fr; gap:22px; align-items:start">
+      <table>
+        <thead><tr><th style="width:16%"></th><th>Free</th><th>Pro (AI only)</th></tr></thead>
+        <tbody>
+          <tr><td>Owner</td><td>Fees, receipts, reminders, self check-in, <strong>absence alerts</strong>, reports, trainer tools, challenges</td><td>AI assistance: explanations, drafted messages, Q&amp;A, trainer copilot. <strong>AI calling, priced by usage</strong></td></tr>
+          <tr><td>Member</td><td>Logger, programmes, analytics, manual food logging, body tracking, gym card, challenges</td><td>AI food analysis · AI workout logging (text, voice) · weekly AI analytics agent · no ads · 7-day trial</td></tr>
+          <tr><td>Later</td><td colspan="2">Relevant ads and sponsorship (never other gyms, never in the logger) · payments share · insurers and employers</td></tr>
+        </tbody>
+      </table>
+      <div class="grid" style="gap:14px">
+        <div class="card tile"><div class="num" style="font-size:40px">₹766–1,046</div><div class="cap">illustrative revenue per gym per month</div></div>
+        <div class="card tile"><div class="num" style="font-size:40px">≈ ₹600</div><div class="cap">cost of the free core per gym per month</div></div>
+      </div>
+    </div>
+    <div class="takeaway">Every rupee of AI cost now has a paying user behind it. India's ad rates are low, so <strong>ads are a top-up, not a model</strong>.</div>
+  </div>
+  <div class="src">Hypotheses to test: 20% of gyms on owner Pro, 3% of members on Pro, ₹1–5 ad revenue per free monthly user. AdMob India eCPMs from developer reports (low reliability). Report §15.2–15.3, §15.6.</div>
+</section>
+
+<!-- 14 · Alerts and AI calling -->
+<section class="slide" aria-label="Absence alerts and AI calling">
+  <div class="eyebrow">Retention · owner side</div>
+  <h2>Absence alerts are free. AI calling is Pro, priced by usage.</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns: 1.2fr 1fr; gap:22px; align-items:start">
+      <div class="grid" style="gap:12px">
+        <div class="card"><span class="pill good">✓ Free</span><h3 style="margin-top:12px">Alert, then one-tap WhatsApp</h3><p style="font-size:16px; margin-top:6px">No visit in 7 days · new member under 4 visits in month one · renewal due while attendance drops. A daily push to the owner and a ranked list. Re-engagement contact cut cancellations by 45% in a UK study.</p></div>
+        <div class="card"><span class="pill accent">→ Pro</span><h3 style="margin-top:12px">The AI calls on the gym's behalf</h3><p style="font-size:16px; margin-top:6px">In Hindi, Hinglish or English. It says up front that it is automated, checks in warmly, offers a trainer slot or a freeze, and logs the reason in the owner's list.</p></div>
+      </div>
+      <div>
+        <table class="phased">
+          <thead><tr><th>Tier (illustrative)</th><th>Per month</th></tr></thead>
+          <tbody>
+            <tr><td>Pro Assist: all owner AI except calls</td><td>₹799</td></tr>
+            <tr><td>Pro Calls 100: + 100 call-minutes</td><td>₹1,999</td></tr>
+            <tr><td>Pro Calls 400: + 400 call-minutes</td><td>₹5,999</td></tr>
+            <tr><td>Extra minutes</td><td>₹15/min</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:14px; color:var(--ink3); margin-top:10px">Voice AI costs ~₹6–9 a minute in production. Prices are before GST and keep ≥1.5–2× margin.</p>
+      </div>
+    </div>
+    <div class="takeaway"><strong>Data rule:</strong> without an entry gate, attendance is partial, so alerts are flagged "confident" only where visits are reliably captured. <strong>Compliance:</strong> automated calls must declare themselves (TRAI, Sept 2026); counsel review before launch.</div>
+  </div>
+  <div class="src">eCorpIT and Bolna voice-AI pricing (2026); TRAI via NewKerala (18 Sep 2026); IHRSA/TRP 2016. Report §15.4.</div>
+</section>
+
+<!-- 15 · Charter -->
+<section class="slide" aria-label="Five promises to gym owners">
+  <div class="eyebrow">Trust is the edge</div>
+  <h2>Five written promises to gym owners</h2>
+  <div class="body">
+    <div class="grid" style="grid-template-columns: 1.3fr 1fr; gap:22px; align-items:center">
+      <ol style="display:grid; gap:14px; padding-left:28px">
+        <li><strong>We never show another gym to your active members.</strong></li>
+        <li><strong>No commission on members you bring</strong>, including through your own QR codes.</li>
+        <li><strong>Your data is yours.</strong> Free export, any time.</li>
+        <li><strong>Your members see your gym's name</strong> in the app.</li>
+        <li><strong>If a member leaves, we tell you and help you win them back</strong>, and show them no other gym for at least 30 days. We recommend making that permanent.</li>
+      </ol>
+      <div class="card panel">
+        <h3>Why it matters</h3>
+        <ul class="clean" style="margin-top:12px">
+          <li>Cult.fit already offers independents software <em>and</em> demand, but it competes with them</li>
+          <li>Booksy charged salons commission on clients who "scan our QR code"</li>
+          <li>ClassPass and Zomato Gold triggered walk-outs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="src">Report §6.7 and §12; evidence briefs A, B, E.</div>
+</section>
+
+<!-- 16 · GTM -->
+<section class="slide" aria-label="Go-to-market">
+  <div class="eyebrow">Go-to-market · India</div>
+  <h2>One dense city cluster, gym by gym, in person</h2>
+  <p class="lede" style="font-size:18px; margin-top:12px"><strong>Beachhead:</strong> independent, owner-run gyms with 150–500 members paying ₹700–1,500 a month, 2+ trainers, on a register, Excel or a cheap app, in a city the team can visit weekly.</p>
+  <div class="body" style="margin-top:18px">
+    <div class="timeline">
+      <div class="card"><div class="kicker">10 gyms</div><p style="font-size:15px; margin-top:10px">Founder-led. Opens with a free "dues and drop-off audit" of the owner's register.</p></div>
+      <div class="card"><div class="kicker">1,000 users</div><p style="font-size:15px; margin-top:10px">10 gyms × ~250 × 40%. 8–12 weeks after go-live.</p></div>
+      <div class="card"><div class="kicker">10,000 users</div><p style="font-size:15px; margin-top:10px">~90 gyms, 2–3 field reps, trainer ambassadors, first inter-gym challenge. 6–9 months after the pilot.</p></div>
+      <div class="card"><div class="kicker">100,000 users</div><p style="font-size:15px; margin-top:10px">~1,000 gyms in 3–5 cities; biometric-device dealers and payment partners. 18–30 months.</p></div>
+    </div>
+    <div class="takeaway">White-glove for the first ~100 gyms. Self-serve only once it matches white-glove activation. <strong>Installs are not activation.</strong></div>
+  </div>
+  <div class="src">Report §11. Timings are our estimates.</div>
+</section>
+
+<!-- 17 · Risks -->
+<section class="slide" aria-label="Risks">
+  <div class="eyebrow">Where it could fail</div>
+  <h2>Six risks, and what we do about each</h2>
+  <div class="body" style="margin-top:18px">
+    <table>
+      <thead><tr><th style="width:30%">Risk</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Members don't install <span class="pill serious" style="margin-left:6px">✕ Thesis risk</span></td><td>Make the app the gym's workflow: card, receipts, the trainer's plan, self check-in that counts for challenges. Trainers lead activation. WhatsApp fallback.</td></tr>
+        <tr><td>Owners use it only as a ledger</td><td>Invite built into joining and receipts; a coverage score; Pro tied to coverage.</td></tr>
+        <tr><td>Nobody pays</td><td>Several revenue layers; lean cost base; early price tests.</td></tr>
+        <tr><td>Privacy and DPDP</td><td>Invite sent once, in the gym's name; separate member consent; 18+ app; no Aadhaar; counsel review before the pilot.</td></tr>
+        <tr><td>Cult.fit bundles free software</td><td>Neutrality (the five promises); density in a few cities; support quality.</td></tr>
+        <tr><td>Free costs too much</td><td>All AI behind Pro; broadcasts sold as at-cost credits; never absorb gateway fees.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="src">Full register of 18 risks in report §13. DPDP reading is not legal advice.</div>
+</section>
+
+<!-- 18 · Decision -->
+<section class="slide" aria-label="The decision">
+  <div class="eyebrow">The decision</div>
+  <h2>Approve the validation, not the build</h2>
+  <div class="body" style="margin-top:20px">
+    <div class="grid g3">
+      <div class="card"><div class="n" style="font-size:13px; color:var(--ink3); font-weight:600">WEEKS 0–3</div><h3 style="margin:8px 0 10px">Learn</h3>
+        <ul class="clean"><li>20–30 owners and 30–50 members interviewed</li><li>Counsel reviews the consent design</li><li>AI accuracy test on weighed Indian meals</li><li>Hand-run version with 2 gyms</li></ul></div>
+      <div class="card"><div class="n" style="font-size:13px; color:var(--ink3); font-weight:600">WEEKS 3–13</div><h3 style="margin:8px 0 10px">Pilot</h3>
+        <ul class="clean"><li>5 independent gyms, one city</li><li>Gym MVP parts switched on as they ship</li><li>≈ ₹40–60k cash, plus founder time</li><li>Consumer store launch continues in parallel</li></ul></div>
+      <div class="card" style="border-color:var(--accent)"><div class="n" style="font-size:13px; color:var(--ink3); font-weight:600">WEEK 13</div><h3 style="margin:8px 0 10px">Decide</h3>
+        <ul class="clean"><li><span class="pill good">✓ Scale</span> when all hold:<span style="display:block; margin-top:8px; font-size:15px; line-height:1.55">≥ 40% of active members linked by day 60<br>≥ 25% of them log every week<br>Renewals up in ≥ 3 of 5 gyms<br>≥ 2 of 5 owners say yes to Pro</span></li><li><span class="pill warn">! Fix</span> trending up, short of that</li><li><span class="pill serious">✕ Pivot</span> under 15% linked</li></ul></div>
+    </div>
+    <div class="takeaway">Pivot options if members don't come through gyms: paid gym software only · a consumer-first app for India · a trainer platform.</div>
+  </div>
+  <div class="src">Report §14.6–14.9.</div>
+</section>
+
+<!-- 19 · Read more -->
+<section class="slide" aria-label="Read more">
+  <div class="eyebrow">Read more</div>
+  <h2>Where the detail lives</h2>
+  <div class="body">
+    <div class="grid g2" style="gap:20px">
+      <div class="card" style="display:grid; gap:14px">
+        <p><a href="R3-executive-summary.md" style="color:var(--accent)">Executive summary</a>: two pages, for decision-makers</p>
+        <p><a href="R3-gym-b2b2c-strategy.md" style="color:var(--accent)">Full report</a>: all 14 sections, every claim labelled fact / claim / feedback / estimate / analysis / hypothesis</p>
+        <p><a href="R3-evidence/README.md" style="color:var(--accent)">Evidence briefs A–F</a>: 350+ sources, URLs and dates</p>
+      </div>
+      <div class="card panel">
+        <h3>Limits</h3>
+        <ul class="clean" style="margin-top:12px">
+          <li>No gym owner has been interviewed yet; that's step one</li>
+          <li>Reddit and the Economic Times were unreachable; owner voice is mostly Play Store reviews</li>
+          <li>India's market size is a Deloitte–HFA model</li>
+          <li>The DPDP reading is not legal advice</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="src">All files live in docs/research/ in the FitLog repository. Nothing is hosted.</div>
+</section>
+
+</main>
+
+<nav class="controls" aria-label="Slide controls">
+  <span id="counter" aria-live="polite"></span>
+  <button id="prev" aria-label="Previous slide">←</button>
+  <button id="next" aria-label="Next slide">→</button>
+  <button id="theme" aria-label="Toggle light or dark theme" title="Theme (T)">◐</button>
+</nav>
+<div id="tip" role="tooltip"></div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var counter = document.getElementById('counter');
+  var progress = document.querySelector('.progress');
+  var tip = document.getElementById('tip');
+  var current = 0;
+
+  slides.forEach(function (s, i) {
+    var n = document.createElement('div');
+    n.className = 'pageno';
+    n.textContent = (i + 1) + ' / ' + slides.length;
+    s.appendChild(n);
+  });
+
+  function fit() {
+    var scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    deck.style.setProperty('--scale', scale);
+  }
+
+  function go(i, push) {
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) {
+      s.classList.toggle('active', k === current);
+      s.setAttribute('aria-hidden', k === current ? 'false' : 'true');
+    });
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    progress.style.width = ((current + 1) / slides.length * 100) + '%';
+    hideTip();
+    if (push !== false) { try { history.replaceState(null, '', '#' + (current + 1)); } catch (e) {} }
+  }
+
+  function fromHash() {
+    var n = parseInt((location.hash || '').replace('#', ''), 10);
+    return isNaN(n) ? 0 : n - 1;
+  }
+
+  function setTheme(t) {
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem('r3-deck-theme', t); } catch (e) {}
+  }
+  try {
+    var saved = localStorage.getItem('r3-deck-theme');
+    if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  } catch (e) {}
+
+  function toggleTheme() { setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); }
+
+  document.getElementById('prev').addEventListener('click', function () { go(current - 1); });
+  document.getElementById('next').addEventListener('click', function () { go(current + 1); });
+  document.getElementById('theme').addEventListener('click', toggleTheme);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { e.preventDefault(); go(current + 1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); go(current - 1); }
+    else if (k === 'Home') { go(0); }
+    else if (k === 'End') { go(slides.length - 1); }
+    else if (k === 't' || k === 'T') { toggleTheme(); }
+    else if (k === 'f' || k === 'F') {
+      if (!document.fullscreenElement && root.requestFullscreen) root.requestFullscreen().catch(function () {});
+      else if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
+    }
+  });
+
+  var touchX = null;
+  document.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+
+  /* Tooltips on chart rows: they add detail, never gate it (every value is printed on the row). */
+  function showTip(el, x, y) {
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.opacity = '1';
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(window.innerWidth - w - 12, x + 14);
+    var top = y + h + 20 > window.innerHeight ? y - h - 12 : y + 16;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  function hideTip() { tip.style.opacity = '0'; }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tip]'), function (el) {
+    el.addEventListener('mousemove', function (e) { showTip(el, e.clientX, e.clientY); });
+    el.addEventListener('mouseleave', hideTip);
+    el.addEventListener('focus', function () {
+      var r = el.getBoundingClientRect();
+      showTip(el, r.left + r.width * 0.45, r.bottom - 6);
+    });
+    el.addEventListener('blur', hideTip);
+  });
+
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { go(fromHash(), false); });
+  fit();
+  go(fromHash(), false);
+})();
+</script>
+</body>
+</html>

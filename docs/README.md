@@ -57,6 +57,7 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 13 | [Store listing & compliance](13-STORE-LISTING.md) | **Submitting it** — listing copy, Data Safety, Health apps declaration, App Privacy labels, reviewer notes. |
 | 14 | [Supabase](14-SUPABASE.md) | Database, storage and auth on Supabase: decisions, phases, what was proven locally |
 | — | [prompts/](prompts/) | **Goal prompts** — one paste-ready prompt per goal, G0…G10. |
+| R3 | [Gyms as the distribution channel](research/R3-gym-b2b2c-strategy.md) | **Strategy research (2 Oct 2026)** — should FitLog reach members through free gym software? Market, competitors, gaps, features, growth loop, pricing, GTM for India, risks, and the pilot that decides it. Short versions: [executive summary](research/R3-executive-summary.md) · [presentation](research/R3-presentation.html) (open in a browser). Evidence in [research/R3-evidence/](research/R3-evidence/README.md). |
 | — | [TODO.md](TODO.md) | **Active work** — the current milestone's tasks in execution order. |
 | — | [data-sources.md](data-sources.md) | Where every seeded food and exercise comes from, the licences, and the attribution owed. |
 | — | [wireframes/](wireframes/) | Page-by-page: layout, every control, every state. |

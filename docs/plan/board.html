@@ -1,0 +1,1038 @@
+<title>FitLog master plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a workflow canvas (lanes = people, columns = the earliest step a goal can start), with tabs for the ready list, a table and the update feed. */
+:root {
+  --bg: #e9edf1;
+  --panel: #ffffff;
+  --ink: #18212b;
+  --muted: #5b6876;
+  --line: #d3d9e0;
+  --canvas: #f1f4f7;
+  --dot: #c4ccd5;
+  --band: rgba(24, 33, 43, 0.025);
+  --lane: rgba(255, 255, 255, 0.55);
+  --lane-line: #dde2e8;
+  --node: #ffffff;
+  --node-line: #cfd6de;
+  --handle: #9aa5b1;
+  --edge: #a3adb9;
+  --shadow: 0 1px 2px rgba(20, 30, 40, 0.08), 0 2px 8px rgba(20, 30, 40, 0.05);
+  --accent: #0f6c74;
+  --accent-ink: #ffffff;
+  --done: #1d8a4c;   --done-soft: #ddf3e5;
+  --ready: #2457d6;  --ready-soft: #e1e9fd;
+  --running: #b7740b; --running-soft: #fbefd6;
+  --review: #7446c4; --review-soft: #ece4fa;
+  --blocked: #7f8a96; --blocked-soft: #eceff2;
+  --hold: #b2502a;   --hold-soft: #f8e4dc;
+  --unknown: #a3adb9; --unknown-soft: #eef1f4;
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161c; --panel: #192028; --ink: #e5eaf0; --muted: #94a1af; --line: #2b343f;
+    --canvas: #141a21; --dot: #2a333e; --band: rgba(255, 255, 255, 0.02); --lane: rgba(255, 255, 255, 0.025);
+    --lane-line: #26303a; --node: #1d252e; --node-line: #34404c; --handle: #6c7885; --edge: #55616e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 10px rgba(0, 0, 0, 0.25);
+    --accent: #3fb5bd; --accent-ink: #0b1b1d;
+    --done: #4cc07c; --done-soft: #183526; --ready: #6d97ff; --ready-soft: #1b2a4d;
+    --running: #e3a63b; --running-soft: #3a2c12; --review: #a985ec; --review-soft: #2d2346;
+    --blocked: #8995a2; --blocked-soft: #232b34; --hold: #e57b52; --hold-soft: #3c2219;
+    --unknown: #66727f; --unknown-soft: #20272f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161c; --panel: #192028; --ink: #e5eaf0; --muted: #94a1af; --line: #2b343f;
+  --canvas: #141a21; --dot: #2a333e; --band: rgba(255, 255, 255, 0.02); --lane: rgba(255, 255, 255, 0.025);
+  --lane-line: #26303a; --node: #1d252e; --node-line: #34404c; --handle: #6c7885; --edge: #55616e;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 10px rgba(0, 0, 0, 0.25);
+  --accent: #3fb5bd; --accent-ink: #0b1b1d;
+  --done: #4cc07c; --done-soft: #183526; --ready: #6d97ff; --ready-soft: #1b2a4d;
+  --running: #e3a63b; --running-soft: #3a2c12; --review: #a985ec; --review-soft: #2d2346;
+  --blocked: #8995a2; --blocked-soft: #232b34; --hold: #e57b52; --hold-soft: #3c2219;
+  --unknown: #66727f; --unknown-soft: #20272f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 14px; line-height: 1.45; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); }
+
+.app { height: 100%; display: flex; flex-direction: column; gap: 10px; padding-inline: 16px; padding-block: 12px; min-width: 0; }
+
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.brand h1 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+.brand p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; }
+.top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.live { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
+.live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--unknown); }
+.live[data-state="live"]::before { background: var(--done); box-shadow: 0 0 0 3px var(--done-soft); }
+.live[data-state="syncing"]::before { background: var(--running); }
+.live[data-state="offline"]::before, .live[data-state="error"]::before { background: var(--hold); }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 500; }
+.btn:hover { border-color: var(--handle); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(1.06); border-color: var(--accent); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+
+.summary { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 4px 11px 4px 6px; font-size: 13px; }
+.chip .dot { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--state-soft); color: var(--state); }
+.chip .dot svg { width: 12px; height: 12px; }
+.chip b { font-variant-numeric: tabular-nums; font-weight: 600; }
+.chip[aria-pressed="true"] { border-color: var(--state); box-shadow: inset 0 0 0 1px var(--state); }
+.total { font-size: 13px; color: var(--muted); }
+.total b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.people { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 6px 14px; flex: 1 1 520px; min-width: 0; }
+.person { min-width: 0; }
+.person-top { display: flex; justify-content: space-between; gap: 6px; font-size: 12.5px; }
+.person-top span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { display: flex; height: 7px; border-radius: 4px; overflow: hidden; background: var(--line); margin-top: 3px; }
+.bar i { display: block; height: 100%; }
+
+.tabs { display: flex; gap: 2px; box-shadow: inset 0 -1px 0 var(--line); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.tab { border: 0; background: none; padding: 7px 12px; font-size: 13.5px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab .count { font-variant-numeric: tabular-nums; margin-left: 4px; color: var(--muted); font-weight: 400; }
+
+.views { flex: 1; min-height: 0; position: relative; }
+.view { height: 100%; overflow: auto; min-width: 0; }
+#view-graph { overflow: hidden; }
+
+/* canvas */
+.canvas { position: relative; height: 100%; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; touch-action: none; cursor: grab;
+  background-color: var(--canvas); background-image: radial-gradient(var(--dot) 1.1px, transparent 1.3px); background-size: 20px 20px; }
+.canvas.panning { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.band { position: absolute; top: 0; background: var(--band); }
+.colhead { position: absolute; top: 12px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lane { position: absolute; left: 6px; border-radius: 14px; background: var(--lane); border: 1px solid var(--lane-line); }
+.lane-label { position: absolute; left: 16px; top: 16px; width: 130px; }
+.lane-name { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 15px; }
+.lane-name i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.lane-meta { font-size: 12px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.lane .bar { width: 120px; margin-top: 6px; }
+svg.edges { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+svg.edges path { fill: none; stroke: var(--edge); stroke-width: 1.4; stroke-dasharray: 4 4; opacity: 0.75; transition: opacity 0.15s; }
+svg.edges path.e-done { stroke: var(--done); stroke-dasharray: none; opacity: 0.5; }
+svg.edges path.e-hub { display: none; }
+.has-focus svg.edges path.e-hub.lit { display: inline; }
+.has-focus svg.edges path { opacity: 0.06; }
+.has-focus svg.edges path.lit { opacity: 1; stroke-width: 2.4; }
+
+.node { position: absolute; display: flex; align-items: stretch; padding: 0; text-align: left; border: 1px solid color-mix(in srgb, var(--state) 40%, var(--node-line));
+  background: var(--node); border-radius: 10px; box-shadow: var(--shadow); transition: opacity 0.15s, transform 0.12s; }
+.node:hover { transform: translateY(-1px); border-color: var(--state); }
+.node .tile { width: 40px; flex: none; display: grid; place-items: center; background: var(--state-soft); color: var(--state); border-radius: 9px 0 0 9px; border-right: 1px solid color-mix(in srgb, var(--state) 25%, transparent); }
+.node .tile svg { width: 18px; height: 18px; }
+.node .body { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 6px 9px; min-width: 0; flex: 1; }
+.row1 { display: flex; align-items: center; gap: 5px; min-width: 0; overflow: hidden; }
+.gid { font-family: var(--font-mono); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; }
+.tag { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; line-height: 1; padding: 2px 4px; border-radius: 4px; border: 1px solid var(--node-line); color: var(--muted); }
+.tag.sp { background: var(--ink); border-color: var(--ink); color: var(--panel); }
+.tag.m1 { background: var(--hold); border-color: var(--hold); color: var(--panel); }
+.node .lbl { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.lblrow { display: flex; align-items: center; gap: 3px; min-width: 0; }
+.hb { flex: none; width: 15px; height: 15px; border-radius: 50%; display: grid; place-items: center; font: 600 8.5px/1 var(--font-mono);
+  background: var(--state-soft); color: var(--state); border: 1px solid color-mix(in srgb, var(--state) 55%, transparent); }
+.hb.s-done { background: var(--done); color: var(--panel); border-color: var(--done); }
+.node .h { position: absolute; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%; background: var(--node); border: 1.5px solid var(--handle); }
+.node .h-in { left: -5px; } .node .h-out { right: -5px; }
+.node.s-done .h { border-color: var(--done); }
+.node.s-blocked .gid, .node.s-unknown .gid { color: var(--muted); }
+.node.s-running::after { content: ""; position: absolute; inset: -5px; border-radius: 14px; border: 2px solid var(--running); opacity: 0.55; animation: pulse 1.8s ease-in-out infinite; pointer-events: none; }
+@keyframes pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.7; } }
+@media (prefers-reduced-motion: reduce) { .node.s-running::after { animation: none; opacity: 0.6; } .node, svg.edges path { transition: none; } }
+.node.fade { opacity: 0.2; }
+.has-focus .node { opacity: 0.16; }
+.has-focus .node.lit { opacity: 1; }
+.node.sel { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent), var(--shadow); }
+.m1-star { position: absolute; font-weight: 700; font-size: 13px; color: var(--hold); font-family: var(--font-mono); }
+
+.s-done { --state: var(--done); --state-soft: var(--done-soft); }
+.s-ready { --state: var(--ready); --state-soft: var(--ready-soft); }
+.s-running { --state: var(--running); --state-soft: var(--running-soft); }
+.s-review { --state: var(--review); --state-soft: var(--review-soft); }
+.s-blocked { --state: var(--blocked); --state-soft: var(--blocked-soft); }
+.s-hold { --state: var(--hold); --state-soft: var(--hold-soft); }
+.s-unknown { --state: var(--unknown); --state-soft: var(--unknown-soft); }
+
+.tools { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none; }
+.tools > * { pointer-events: auto; }
+.field { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 10px; font-size: 13px; min-width: 0; }
+.tools .field { box-shadow: var(--shadow); }
+#search { width: 190px; }
+.zoom { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 4px; }
+.zoom button { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; box-shadow: var(--shadow); padding: 0; }
+.zoom button svg { width: 16px; height: 16px; }
+.key { position: absolute; right: 10px; bottom: 10px; font-size: 12px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; display: flex; gap: 12px; align-items: center; box-shadow: var(--shadow); }
+.key svg { width: 28px; height: 8px; vertical-align: middle; margin-right: 4px; }
+.notice { position: absolute; left: 50%; top: 56px; transform: translateX(-50%); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 13px; box-shadow: var(--shadow); max-width: min(460px, calc(100% - 24px)); text-align: center; }
+
+/* side views */
+.pad { padding: 14px 2px 24px; }
+.lead { margin: 0 0 14px; color: var(--muted); max-width: 70ch; font-size: 13.5px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+.card h2 { margin: 0 0 10px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.card h2 i { width: 9px; height: 9px; border-radius: 50%; }
+.card h3 { margin: 12px 0 6px; font-size: 11.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.items { display: flex; flex-direction: column; gap: 4px; }
+.item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1px solid transparent; background: none; border-radius: 8px; padding: 5px 6px; min-width: 0; }
+.item:hover { background: var(--canvas); border-color: var(--line); }
+.item .pip { width: 22px; height: 22px; border-radius: 6px; flex: none; display: grid; place-items: center; background: var(--state-soft); color: var(--state); }
+.item .pip svg { width: 13px; height: 13px; }
+.item .txt { min-width: 0; flex: 1; font-size: 13px; }
+.item .txt span { color: var(--muted); }
+.item .aside { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.empty { font-size: 13px; color: var(--muted); padding: 2px 6px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 920px; font-size: 13px; }
+th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { position: sticky; top: 0; background: var(--panel); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; z-index: 1; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--canvas); }
+td.num { font-variant-numeric: tabular-nums; }
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 5px; border-radius: 999px; background: var(--state-soft); color: var(--state); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill svg { width: 12px; height: 12px; }
+
+.feed { display: flex; flex-direction: column; gap: 8px; max-width: 760px; }
+.entry { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; }
+.entry img { width: 26px; height: 26px; border-radius: 50%; flex: none; }
+.entry .what { font-size: 13.5px; }
+.entry .when { font-size: 12px; color: var(--muted); }
+.entry .note { font-size: 13px; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; }
+.linkish { border: 0; background: none; padding: 0; font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
+
+/* drawer */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); z-index: 30; background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  overflow-y: auto; padding: calc(16px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px)); }
+.d-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.d-id { font-family: var(--font-mono); font-size: 22px; font-weight: 600; margin: 0; }
+.icon-btn { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 0; flex: none; }
+.icon-btn svg { width: 16px; height: 16px; }
+.d-title { margin: 8px 0 12px; font-size: 15px; line-height: 1.5; text-wrap: pretty; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13px; margin: 0 0 14px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.d-sec { margin: 16px 0 6px; font-size: 11.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.chipset { display: flex; flex-wrap: wrap; gap: 5px; }
+.gchip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid color-mix(in srgb, var(--state) 40%, var(--line)); background: var(--state-soft); color: var(--ink); border-radius: 7px; padding: 3px 7px; font-size: 12px; }
+.gchip b { font-family: var(--font-mono); font-weight: 600; color: var(--state); }
+.gchip svg { width: 12px; height: 12px; color: var(--state); }
+.verdict { font-size: 13.5px; padding: 8px 10px; border-radius: 8px; background: var(--state-soft); border: 1px solid color-mix(in srgb, var(--state) 35%, transparent); margin-top: 8px; }
+form.upd { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg label { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; font-size: 13px; cursor: pointer; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { border-color: var(--state); background: var(--state-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--state); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg svg { width: 13px; height: 13px; color: var(--state); }
+.frow { display: flex; flex-direction: column; gap: 4px; }
+.frow label { font-size: 12.5px; color: var(--muted); }
+.frow .field { width: 100%; }
+textarea.field { resize: vertical; min-height: 60px; }
+.f-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stamp { font-size: 12px; color: var(--muted); }
+.ro { font-size: 13px; color: var(--muted); background: var(--canvas); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 40; background: var(--ink); color: var(--panel); padding: 9px 14px; border-radius: 9px; font-size: 13px; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
+
+@media (max-width: 760px) {
+  .people { grid-template-columns: repeat(2, minmax(0, 1fr)); flex-basis: 100%; }
+  .key { display: none; }
+  #search { width: 150px; }
+  .brand h1 { font-size: 17px; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-done" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ready" viewBox="0 0 16 16"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></symbol>
+  <symbol id="i-running" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="20 8" stroke-linecap="round"/><circle cx="8" cy="8" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-review" viewBox="0 0 16 16"><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="currentColor"/></symbol>
+  <symbol id="i-blocked" viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5" fill="currentColor"/><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-hold" viewBox="0 0 16 16"><rect x="4" y="3.5" width="2.6" height="9" rx="0.8" fill="currentColor"/><rect x="9.4" y="3.5" width="2.6" height="9" rx="0.8" fill="currentColor"/></symbol>
+  <symbol id="i-unknown" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.5 2.5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 16 16"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>FitLog master plan</h1>
+      <p id="meta"></p>
+    </div>
+    <div class="top-actions">
+      <span class="live" id="live" data-state="connecting">Connecting</span>
+      <button class="btn" id="exportBtn" type="button" hidden>Export CSV</button>
+    </div>
+  </header>
+
+  <section class="summary" aria-label="Progress">
+    <div class="chips" id="chips"></div>
+    <div class="people" id="people"></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" id="tab-graph" data-view="graph" aria-selected="true" type="button">Graph</button>
+    <button class="tab" role="tab" id="tab-ready" data-view="ready" aria-selected="false" type="button">Ready to run<span class="count" id="readyCount"></span></button>
+    <button class="tab" role="tab" id="tab-list" data-view="list" aria-selected="false" type="button">All goals</button>
+    <button class="tab" role="tab" id="tab-updates" data-view="updates" aria-selected="false" type="button">Updates</button>
+  </nav>
+
+  <main class="views">
+    <section class="view" id="view-graph" role="tabpanel" aria-labelledby="tab-graph">
+      <div class="canvas" id="canvas">
+        <div class="world" id="world"></div>
+        <div class="tools">
+          <input class="field" id="search" list="goalIds" placeholder="Find a goal, e.g. HUB.4" autocomplete="off" aria-label="Find a goal">
+          <datalist id="goalIds"></datalist>
+          <select class="field" id="personFilter" aria-label="Highlight one person"></select>
+        </div>
+        <div class="zoom">
+          <button type="button" id="zoomOut" aria-label="Zoom out"><svg><use href="#i-minus"/></svg></button>
+          <button type="button" id="zoomFit" aria-label="Fit to width"><svg><use href="#i-fit"/></svg></button>
+          <button type="button" id="zoomIn" aria-label="Zoom in"><svg><use href="#i-plus"/></svg></button>
+        </div>
+        <div class="key" aria-hidden="true">
+          <span><svg viewBox="0 0 28 8"><path d="M1 4h26" stroke="var(--done)" stroke-width="2"/></svg>need done</span>
+          <span><svg viewBox="0 0 28 8"><path d="M1 4h26" stroke="var(--edge)" stroke-width="2" stroke-dasharray="4 4"/></svg>need still open</span>
+          <span id="hubKey" hidden></span>
+          <span>Drag to move · Ctrl + scroll to zoom</span>
+        </div>
+        <div class="notice" id="notice">Loading live status…</div>
+      </div>
+    </section>
+
+    <section class="view" id="view-ready" role="tabpanel" aria-labelledby="tab-ready" hidden>
+      <div class="pad">
+        <p class="lead" id="workflowHint"></p>
+        <div class="cards" id="readyCards"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
+      <div class="pad">
+        <div class="filters">
+          <select class="field" id="listPerson" aria-label="Filter by person"></select>
+          <select class="field" id="listState" aria-label="Filter by state"></select>
+          <input class="field" id="listSearch" placeholder="Search goals" aria-label="Search goals">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Goal</th><th>Owner</th><th>State</th><th>Step</th><th>What it delivers</th><th>Waiting on</th><th>Who / ref</th><th>Updated</th></tr></thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-updates" role="tabpanel" aria-labelledby="tab-updates" hidden>
+      <div class="pad">
+        <p class="lead">Every status change anyone makes on this board, newest first.</p>
+        <div class="feed" id="feed"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Goal details" hidden></aside>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+"use strict";
+const PLAN = {"config":{"subtitle":"From docs/plan/GOALS.md (7 Oct 2026). Lanes are parallel Claude Code sessions plus you. Columns are the earliest wave a goal can start.","milestone":"MS-5","milestoneLabel":"Store launch","sizes":{"S":"one short session (half a day or less)","M":"one full session","L":"two or three sessions; work through the card's steps in order"},"firstStepLabel":"Wave 0","stepLabel":"Wave","workflowHint":"Pick the top Ready goal in your lane. Claim it with `node scripts/plan/status.mjs set <ID> start --who <lane>`, run it with docs/plan/SESSION-PROMPT.md, set In review when the PR is up and Done when it is merged to main. Only Done unblocks the goals that wait on it.","refPlaceholder":"branch, PR or commit, e.g. plan/ds-1-tokens","hubs":[{"key":"T","ids":["QA-1"],"text":"T = QA-1, a clean main"},{"key":"F","ids":["MS-2"],"text":"F = MS-2, Momentum foundations"},{"key":"L","ids":["MS-5"],"text":"L = MS-5, the store launch"}],"slug":"fitlog-master-plan"},"people":[{"name":"You","colour":"#9a3412"},{"name":"S1 Platform","colour":"#1f6feb"},{"name":"S2 Backend","colour":"#0e7490"},{"name":"S3 Design","colour":"#7c3aed"},{"name":"S4 Member app","colour":"#15803d"},{"name":"S5 Gym app","colour":"#be185d"},{"name":"S6 AI & Pro","colour":"#c2410c"},{"name":"S7 Quality","colour":"#475569"},{"name":"Milestones","colour":"#18212b"}],"tracks":{"M0":"Ground truth","M1":"Production platform","M2":"Momentum foundations","M3":"Member app in Momentum","M4":"Launch foundations: phone, Hindi, Pro","M5":"Store launch","M6":"Gym pilot (MVP)","M7":"Gym Phase 2 (after the pilot gate)","M8":"Depth and polish","M9":"Exercise media (last)"},"syncPoints":[{"id":"SP1","goals":["DS-5"],"text":"SP1 kit + shell freeze: S3 hands tokens, components and the tab shell to every screen session"},{"id":"SP2","goals":["G14.app"],"text":"SP2 string catalog: S4 hands t(), the locale formatters and the guard ratchet to every screen session"},{"id":"SP3","goals":["G15.api","G16.api","G17.api","G18.api","G19.api","G20.api","G21.api","G22.api"],"text":"SP3 API contract: the .api goal merges migrations, routes and regenerated packages/api-types before its .app goal starts"}],"goals":[{"id":"OW-1","t":"Choose the UI direction and settle its open rules","s":"S","n":[],"g":false,"tr":"M0","o":"You","st":0,"r":0,"l":"pick UI direction","sp":"","doc":"docs/plan/GOALS.md#ow-1--choose-the-ui-direction-and-settle-its-open-rules"},{"id":"OW-2","t":"Make the launch decisions","s":"S","n":[],"g":false,"tr":"M0","o":"You","st":0,"r":1,"l":"launch decisions","sp":"","doc":"docs/plan/GOALS.md#ow-2--make-the-launch-decisions"},{"id":"OW-13","t":"Skim the drafted exercise instructions","s":"S","n":[],"g":false,"tr":"M5","o":"You","st":0,"r":2,"l":"skim exercise texts","sp":"","doc":"docs/plan/GOALS.md#ow-13--skim-the-drafted-exercise-instructions"},{"id":"OW-9","t":"Field validation (G12): interviews, counsel, pilot gyms, pre-sell","s":"L","n":[],"g":false,"tr":"M6","o":"You","st":0,"r":3,"l":"G12 field work","sp":"","doc":"docs/plan/GOALS.md#ow-9--field-validation-g12-interviews-counsel-pilot-gyms-pre-sell"},{"id":"OW-3","t":"Open the platform accounts","s":"M","n":["OW-2"],"g":false,"tr":"M1","o":"You","st":1,"r":1,"l":"platform accounts","sp":"","doc":"docs/plan/GOALS.md#ow-3--open-the-platform-accounts"},{"id":"OW-5","t":"Start the SMS and WhatsApp registrations","s":"M","n":["OW-2"],"g":false,"tr":"M4","o":"You","st":1,"r":0,"l":"DLT + Meta setup","sp":"","doc":"docs/plan/GOALS.md#ow-5--start-the-sms-and-whatsapp-registrations"},{"id":"OW-4","t":"Store accounts and signing keys","s":"S","n":["OW-2"],"g":false,"tr":"M5","o":"You","st":1,"r":2,"l":"store accounts","sp":"","doc":"docs/plan/GOALS.md#ow-4--store-accounts-and-signing-keys"},{"id":"OW-8","t":"Recruit the beta testers","s":"S","n":["OW-2"],"g":false,"tr":"M5","o":"You","st":1,"r":3,"l":"beta testers","sp":"","doc":"docs/plan/GOALS.md#ow-8--recruit-the-beta-testers"},{"id":"OW-7","t":"Set the Pro price and the store products","s":"S","n":["OW-4"],"g":false,"tr":"M4","o":"You","st":2,"r":2,"l":"Pro price + products","sp":"","doc":"docs/plan/GOALS.md#ow-7--set-the-pro-price-and-the-store-products"},{"id":"OW-10","t":"G12 go/no-go memo","s":"S","n":["OW-9","AI-2"],"g":false,"tr":"M6","o":"You","st":3,"r":3,"l":"G12 go memo","sp":"","doc":"docs/plan/GOALS.md#ow-10--g12-gono-go-memo"},{"id":"OW-11","t":"WhatsApp templates approved","s":"S","n":["OW-5","OW-10"],"g":false,"tr":"M6","o":"You","st":4,"r":0,"l":"Meta templates","sp":"","doc":"docs/plan/GOALS.md#ow-11--whatsapp-templates-approved"},{"id":"OW-6","t":"Legal pages and counsel review","s":"M","n":["OW-2","OW-3","PL-4"],"g":false,"tr":"M5","o":"You","st":5,"r":1,"l":"legal + counsel","sp":"","doc":"docs/plan/GOALS.md#ow-6--legal-pages-and-counsel-review"},{"id":"OW-12","t":"Run the pilot and call the gate","s":"L","n":["MS-6"],"g":false,"tr":"M7","o":"You","st":13,"r":0,"l":"pilot gate call","sp":"","doc":"docs/plan/GOALS.md#ow-12--run-the-pilot-and-call-the-gate"},{"id":"OW-14","t":"Choose the exercise media source","s":"S","n":["MS-7","MS-8"],"g":false,"tr":"M9","o":"You","st":17,"r":0,"l":"pick media source","sp":"","doc":"docs/plan/GOALS.md#ow-14--choose-the-exercise-media-source"},{"id":"PL-1","t":"CI green on GitHub, e2e run once, main protected","s":"S","n":["QA-1"],"g":false,"tr":"M0","o":"S1 Platform","st":2,"r":0,"l":"CI green","sp":"","doc":"docs/plan/GOALS.md#pl-1--ci-green-on-github-e2e-run-once-main-protected"},{"id":"PL-6","t":"Push notifications switched on","s":"S","n":["OW-3"],"g":false,"tr":"M1","o":"S1 Platform","st":2,"r":1,"l":"push on","sp":"","doc":"docs/plan/GOALS.md#pl-6--push-notifications-switched-on"},{"id":"PL-2","t":"Staging environment end to end","s":"M","n":["OW-3","PL-1"],"g":false,"tr":"M1","o":"S1 Platform","st":3,"r":0,"l":"staging live","sp":"","doc":"docs/plan/GOALS.md#pl-2--staging-environment-end-to-end"},{"id":"PL-3","t":"Email that arrives","s":"S","n":["PL-2"],"g":false,"tr":"M1","o":"S1 Platform","st":4,"r":0,"l":"email + reset","sp":"","doc":"docs/plan/GOALS.md#pl-3--email-that-arrives"},{"id":"PL-4","t":"Production environment","s":"M","n":["PL-2"],"g":false,"tr":"M1","o":"S1 Platform","st":4,"r":1,"l":"production live","sp":"","doc":"docs/plan/GOALS.md#pl-4--production-environment"},{"id":"PL-5","t":"Backups and the restore drill","s":"S","n":["PL-4"],"g":false,"tr":"M1","o":"S1 Platform","st":5,"r":1,"l":"restore drill","sp":"","doc":"docs/plan/GOALS.md#pl-5--backups-and-the-restore-drill"},{"id":"PL-7","t":"Android store build","s":"S","n":["OW-4","PL-4","DS-6"],"g":false,"tr":"M5","o":"S1 Platform","st":5,"r":0,"l":"Android store build","sp":"","doc":"docs/plan/GOALS.md#pl-7--android-store-build"},{"id":"PL-8","t":"iOS build and device proof","s":"L","n":["OW-4","PL-4","DS-6"],"g":false,"tr":"M5","o":"S1 Platform","st":5,"r":2,"l":"iOS build","sp":"","doc":"docs/plan/GOALS.md#pl-8--ios-build-and-device-proof"},{"id":"AP-6","t":"Offline reads","s":"M","n":["MS-5"],"g":false,"tr":"M8","o":"S1 Platform","st":14,"r":0,"l":"offline reads","sp":"","doc":"docs/plan/GOALS.md#ap-6--offline-reads"},{"id":"G13","t":"Phone sign-in","s":"L","n":["QA-1","OW-5"],"g":false,"tr":"M4","o":"S2 Backend","st":2,"r":0,"l":"phone sign-in","sp":"","doc":"docs/plan/GOALS.md#g13--phone-sign-in"},{"id":"G14.data","t":"Indian food depth and Hinglish search (G14 part 2)","s":"M","n":["QA-1"],"g":false,"tr":"M4","o":"S2 Backend","st":2,"r":1,"l":"Indian food 500+","sp":"","doc":"docs/plan/GOALS.md#g14data--indian-food-depth-and-hinglish-search-g14-part-2"},{"id":"G16.api","t":"Gym tenancy, roles, policy, consent, audit and jobs","s":"L","n":["OW-10","G13"],"g":false,"tr":"M6","o":"S2 Backend","st":4,"r":0,"l":"tenancy API","sp":"SP3","doc":"docs/plan/GOALS.md#g16api--gym-tenancy-roles-policy-consent-audit-and-jobs"},{"id":"G17.api","t":"Owner core on the server","s":"L","n":["G16.api"],"g":false,"tr":"M6","o":"S2 Backend","st":5,"r":0,"l":"owner core API","sp":"SP3","doc":"docs/plan/GOALS.md#g17api--owner-core-on-the-server"},{"id":"G18.api","t":"Members join, on the server","s":"L","n":["G17.api","G13","OW-11"],"g":false,"tr":"M6","o":"S2 Backend","st":6,"r":0,"l":"join + WhatsApp API","sp":"SP3","doc":"docs/plan/GOALS.md#g18api--members-join-on-the-server"},{"id":"G19.api","t":"Visits without a gate","s":"M","n":["G18.api"],"g":false,"tr":"M6","o":"S2 Backend","st":7,"r":0,"l":"visits API","sp":"SP3","doc":"docs/plan/GOALS.md#g19api--visits-without-a-gate"},{"id":"G21.api","t":"Trainer plan loop on the server","s":"M","n":["G18.api"],"g":false,"tr":"M6","o":"S2 Backend","st":7,"r":1,"l":"trainer API","sp":"SP3","doc":"docs/plan/GOALS.md#g21api--trainer-plan-loop-on-the-server"},{"id":"G20.api","t":"Alerts, renewal reminders and exit reasons","s":"M","n":["G19.api","OW-11"],"g":false,"tr":"M6","o":"S2 Backend","st":8,"r":0,"l":"retention API","sp":"SP3","doc":"docs/plan/GOALS.md#g20api--alerts-renewal-reminders-and-exit-reasons"},{"id":"G22.api","t":"Challenges, share cards and referrals on the server","s":"M","n":["G19.api"],"g":false,"tr":"M6","o":"S2 Backend","st":8,"r":1,"l":"challenges API","sp":"SP3","doc":"docs/plan/GOALS.md#g22api--challenges-share-cards-and-referrals-on-the-server"},{"id":"G27","t":"Online collection and Autopay","s":"L","n":["OW-12","G17.api"],"g":false,"tr":"M7","o":"S2 Backend","st":14,"r":0,"l":"online payments","sp":"","doc":"docs/plan/GOALS.md#g27--online-collection-and-autopay"},{"id":"G29.api","t":"Retention depth on the server","s":"L","n":["OW-12","G22.api"],"g":false,"tr":"M7","o":"S2 Backend","st":14,"r":1,"l":"retention depth API","sp":"","doc":"docs/plan/GOALS.md#g29api--retention-depth-on-the-server"},{"id":"DS-6","t":"App icon, splash and store art","s":"S","n":["OW-1","OW-2"],"g":false,"tr":"M5","o":"S3 Design","st":1,"r":0,"l":"icon + store art","sp":"","doc":"docs/plan/GOALS.md#ds-6--app-icon-splash-and-store-art"},{"id":"DS-1","t":"Colour tokens and theme","s":"M","n":["QA-1"],"g":false,"tr":"M2","o":"S3 Design","st":2,"r":0,"l":"colour tokens","sp":"","doc":"docs/plan/GOALS.md#ds-1--colour-tokens-and-theme"},{"id":"DS-2","t":"Type ramp and fonts","s":"M","n":["QA-1"],"g":false,"tr":"M2","o":"S3 Design","st":2,"r":1,"l":"type + fonts","sp":"","doc":"docs/plan/GOALS.md#ds-2--type-ramp-and-fonts"},{"id":"DS-4","t":"Component kit","s":"L","n":["DS-1","DS-2","DS-3"],"g":false,"tr":"M2","o":"S3 Design","st":3,"r":0,"l":"component kit","sp":"","doc":"docs/plan/GOALS.md#ds-4--component-kit"},{"id":"DS-5","t":"Shell and navigation","s":"M","n":["DS-4"],"g":false,"tr":"M2","o":"S3 Design","st":4,"r":0,"l":"shell + tabs","sp":"SP1","doc":"docs/plan/GOALS.md#ds-5--shell-and-navigation"},{"id":"SC-7","t":"System states","s":"S","n":["DS-4"],"g":false,"tr":"M3","o":"S3 Design","st":4,"r":1,"l":"system states","sp":"","doc":"docs/plan/GOALS.md#sc-7--system-states"},{"id":"SC-1","t":"Member hero loop","s":"L","n":["MS-2"],"g":false,"tr":"M3","o":"S3 Design","st":6,"r":0,"l":"hero screens","sp":"","doc":"docs/plan/GOALS.md#sc-1--member-hero-loop"},{"id":"SC-5","t":"Auth and onboarding","s":"M","n":["MS-2"],"g":false,"tr":"M3","o":"S3 Design","st":6,"r":1,"l":"auth + onboarding","sp":"","doc":"docs/plan/GOALS.md#sc-5--auth-and-onboarding"},{"id":"AP-5","t":"Small parity wins","s":"M","n":["MS-5"],"g":false,"tr":"M8","o":"S3 Design","st":14,"r":0,"l":"parity wins","sp":"","doc":"docs/plan/GOALS.md#ap-5--small-parity-wins"},{"id":"AP-8","t":"Home-screen widgets","s":"M","n":["MS-5"],"g":false,"tr":"M8","o":"S3 Design","st":14,"r":1,"l":"widgets","sp":"","doc":"docs/plan/GOALS.md#ap-8--home-screen-widgets"},{"id":"G14.app","t":"Strings catalog, locale formats and the Hindi spine (G14 part 1)","s":"M","n":["QA-1"],"g":false,"tr":"M2","o":"S4 Member app","st":2,"r":0,"l":"i18n spine","sp":"SP2","doc":"docs/plan/GOALS.md#g14app--strings-catalog-locale-formats-and-the-hindi-spine-g14-part-1"},{"id":"SC-3","t":"Analytics, body and goals","s":"M","n":["MS-2"],"g":false,"tr":"M3","o":"S4 Member app","st":6,"r":0,"l":"analytics + body","sp":"","doc":"docs/plan/GOALS.md#sc-3--analytics-body-and-goals"},{"id":"SC-2","t":"Train, logger details and history","s":"L","n":["SC-1"],"g":false,"tr":"M3","o":"S4 Member app","st":7,"r":0,"l":"train + history","sp":"","doc":"docs/plan/GOALS.md#sc-2--train-logger-details-and-history"},{"id":"SC-4","t":"Food","s":"M","n":["MS-2","SC-1"],"g":false,"tr":"M3","o":"S4 Member app","st":7,"r":1,"l":"food screens","sp":"","doc":"docs/plan/GOALS.md#sc-4--food"},{"id":"AP-3","t":"Progression engine: next session's weights, by rule","s":"L","n":["MS-5"],"g":false,"tr":"M8","o":"S4 Member app","st":14,"r":0,"l":"progression engine","sp":"","doc":"docs/plan/GOALS.md#ap-3--progression-engine-next-sessions-weights-by-rule"},{"id":"AP-4","t":"Muscle body map","s":"M","n":["MS-5"],"g":false,"tr":"M8","o":"S4 Member app","st":14,"r":1,"l":"body map","sp":"","doc":"docs/plan/GOALS.md#ap-4--muscle-body-map"},{"id":"AP-7","t":"Barcode scanner (H-17)","s":"M","n":["MS-5"],"g":false,"tr":"M8","o":"S4 Member app","st":14,"r":2,"l":"barcode scanner","sp":"","doc":"docs/plan/GOALS.md#ap-7--barcode-scanner-h-17"},{"id":"AP-9","t":"Exercise media in the app","s":"M","n":["OW-14"],"g":false,"tr":"M9","o":"S4 Member app","st":18,"r":0,"l":"exercise media","sp":"","doc":"docs/plan/GOALS.md#ap-9--exercise-media-in-the-app"},{"id":"DS-3","t":"Motion and haptics","s":"M","n":["QA-1"],"g":false,"tr":"M2","o":"S5 Gym app","st":2,"r":0,"l":"motion + haptics","sp":"","doc":"docs/plan/GOALS.md#ds-3--motion-and-haptics"},{"id":"AP-1","t":"Manage programs, exercises and custom foods","s":"M","n":["DS-4"],"g":false,"tr":"M3","o":"S5 Gym app","st":4,"r":0,"l":"manage menus","sp":"","doc":"docs/plan/GOALS.md#ap-1--manage-programs-exercises-and-custom-foods"},{"id":"AP-2","t":"Edit a past session properly (F-04)","s":"M","n":["DS-4"],"g":false,"tr":"M3","o":"S5 Gym app","st":4,"r":1,"l":"past-session edit","sp":"","doc":"docs/plan/GOALS.md#ap-2--edit-a-past-session-properly-f-04"},{"id":"SC-6","t":"Settings","s":"M","n":["MS-2"],"g":false,"tr":"M3","o":"S5 Gym app","st":6,"r":0,"l":"settings screens","sp":"","doc":"docs/plan/GOALS.md#sc-6--settings"},{"id":"G16.app","t":"Workspaces and the gym shell","s":"M","n":["G16.api","MS-2"],"g":false,"tr":"M6","o":"S5 Gym app","st":6,"r":1,"l":"workspace switcher","sp":"","doc":"docs/plan/GOALS.md#g16app--workspaces-and-the-gym-shell"},{"id":"G17.app","t":"Owner screens","s":"L","n":["G17.api","G16.app"],"g":false,"tr":"M6","o":"S5 Gym app","st":7,"r":1,"l":"owner screens","sp":"","doc":"docs/plan/GOALS.md#g17app--owner-screens"},{"id":"G18.app","t":"Join a gym and the gym card","s":"M","n":["G18.api","G17.app"],"g":false,"tr":"M6","o":"S5 Gym app","st":8,"r":1,"l":"join + gym card","sp":"","doc":"docs/plan/GOALS.md#g18app--join-a-gym-and-the-gym-card"},{"id":"G19.app","t":"Check-in scanner and visit screens","s":"M","n":["G19.api","G18.app"],"g":false,"tr":"M6","o":"S5 Gym app","st":9,"r":1,"l":"check-in scanner","sp":"","doc":"docs/plan/GOALS.md#g19app--check-in-scanner-and-visit-screens"},{"id":"G20.app","t":"Today's calls","s":"S","n":["G20.api","G17.app"],"g":false,"tr":"M6","o":"S5 Gym app","st":9,"r":0,"l":"today's calls","sp":"","doc":"docs/plan/GOALS.md#g20app--todays-calls"},{"id":"G21.app","t":"Trainer workspace","s":"M","n":["G21.api","G18.app"],"g":false,"tr":"M6","o":"S5 Gym app","st":9,"r":2,"l":"trainer screens","sp":"","doc":"docs/plan/GOALS.md#g21app--trainer-workspace"},{"id":"G22.app","t":"Challenge, leaderboard and refer screens","s":"M","n":["G22.api","G19.app"],"g":false,"tr":"M6","o":"S5 Gym app","st":10,"r":1,"l":"challenge screens","sp":"","doc":"docs/plan/GOALS.md#g22app--challenge-leaderboard-and-refer-screens"},{"id":"G28","t":"Web console and multi-branch","s":"L","n":["OW-12","G17.app"],"g":false,"tr":"M7","o":"S5 Gym app","st":14,"r":1,"l":"web console","sp":"","doc":"docs/plan/GOALS.md#g28--web-console-and-multi-branch"},{"id":"G29.app","t":"Retention depth in the app","s":"L","n":["G29.api","G22.app"],"g":false,"tr":"M7","o":"S5 Gym app","st":15,"r":1,"l":"retention depth app","sp":"","doc":"docs/plan/GOALS.md#g29app--retention-depth-in-the-app"},{"id":"AI-2","t":"Food-AI accuracy harness (G12 part)","s":"M","n":["QA-1","OW-3"],"g":false,"tr":"M6","o":"S6 AI & Pro","st":2,"r":0,"l":"AI accuracy test","sp":"","doc":"docs/plan/GOALS.md#ai-2--food-ai-accuracy-harness-g12-part"},{"id":"AI-1","t":"Production AI provider, guarded","s":"S","n":["PL-2"],"g":false,"tr":"M1","o":"S6 AI & Pro","st":4,"r":0,"l":"real AI, guarded","sp":"","doc":"docs/plan/GOALS.md#ai-1--production-ai-provider-guarded"},{"id":"G15.api","t":"Pro entitlements on the server","s":"M","n":["OW-7","AI-1"],"g":false,"tr":"M4","o":"S6 AI & Pro","st":5,"r":0,"l":"entitlements API","sp":"SP3","doc":"docs/plan/GOALS.md#g15api--pro-entitlements-on-the-server"},{"id":"G15.app","t":"Paywall and Pro in the app","s":"M","n":["G15.api","MS-2"],"g":false,"tr":"M4","o":"S6 AI & Pro","st":6,"r":0,"l":"paywall + ProGate","sp":"","doc":"docs/plan/GOALS.md#g15app--paywall-and-pro-in-the-app"},{"id":"G24","t":"Owner Pro and AI assistance","s":"L","n":["OW-12","G15.api","G20.api"],"g":false,"tr":"M7","o":"S6 AI & Pro","st":14,"r":0,"l":"Owner Pro","sp":"","doc":"docs/plan/GOALS.md#g24--owner-pro-and-ai-assistance"},{"id":"G25","t":"Member AI set logging and weekly review","s":"L","n":["OW-12","G15.app"],"g":false,"tr":"M7","o":"S6 AI & Pro","st":14,"r":1,"l":"member AI","sp":"","doc":"docs/plan/GOALS.md#g25--member-ai-set-logging-and-weekly-review"},{"id":"G30","t":"Register reader (the one free AI)","s":"M","n":["OW-12","AI-2"],"g":false,"tr":"M7","o":"S6 AI & Pro","st":14,"r":2,"l":"register reader","sp":"","doc":"docs/plan/GOALS.md#g30--register-reader-the-one-free-ai"},{"id":"G26","t":"AI calling (gated by counsel)","s":"L","n":["OW-12","G24"],"g":false,"tr":"M7","o":"S6 AI & Pro","st":15,"r":0,"l":"AI calling","sp":"","doc":"docs/plan/GOALS.md#g26--ai-calling-gated-by-counsel"},{"id":"QA-1","t":"Triage the working tree","s":"S","n":["OW-1"],"g":false,"tr":"M0","o":"S7 Quality","st":1,"r":0,"l":"clean main","sp":"","doc":"docs/plan/GOALS.md#qa-1--triage-the-working-tree"},{"id":"QA-2","t":"Reconcile the docs with reality","s":"M","n":["QA-1","OW-2"],"g":false,"tr":"M0","o":"S7 Quality","st":2,"r":0,"l":"docs reconciled","sp":"","doc":"docs/plan/GOALS.md#qa-2--reconcile-the-docs-with-reality"},{"id":"QA-9","t":"Lint and coverage gates","s":"M","n":["QA-1"],"g":false,"tr":"M0","o":"S7 Quality","st":2,"r":1,"l":"lint + coverage","sp":"","doc":"docs/plan/GOALS.md#qa-9--lint-and-coverage-gates"},{"id":"QA-3","t":"Momentum verification pass","s":"M","n":["SC-1","SC-2","SC-3","SC-4","SC-5","SC-6","SC-7","AP-1","AP-2"],"g":false,"tr":"M3","o":"S7 Quality","st":8,"r":0,"l":"verify Momentum","sp":"","doc":"docs/plan/GOALS.md#qa-3--momentum-verification-pass"},{"id":"QA-8","t":"TalkBack formatting spans re-test (#28)","s":"S","n":["QA-3"],"g":false,"tr":"M8","o":"S7 Quality","st":9,"r":0,"l":"TalkBack #28","sp":"","doc":"docs/plan/GOALS.md#qa-8--talkback-formatting-spans-re-test-28"},{"id":"QA-4","t":"Device walkthroughs and accessibility on both platforms","s":"M","n":["PL-7","PL-8","MS-3","MS-4"],"g":false,"tr":"M5","o":"S7 Quality","st":10,"r":0,"l":"device walkthroughs","sp":"","doc":"docs/plan/GOALS.md#qa-4--device-walkthroughs-and-accessibility-on-both-platforms"},{"id":"QA-5","t":"Store listings and compliance forms","s":"M","n":["OW-6","OW-13","PL-7","PL-8","MS-3","MS-4"],"g":false,"tr":"M5","o":"S7 Quality","st":10,"r":1,"l":"listings + forms","sp":"","doc":"docs/plan/GOALS.md#qa-5--store-listings-and-compliance-forms"},{"id":"QA-10","t":"Client coverage to 80%","s":"L","n":["QA-9","MS-3"],"g":false,"tr":"M8","o":"S7 Quality","st":10,"r":2,"l":"coverage 80%","sp":"","doc":"docs/plan/GOALS.md#qa-10--client-coverage-to-80"},{"id":"QA-6","t":"Beta on both stores","s":"L","n":["QA-4","QA-5","OW-8","MS-1"],"g":false,"tr":"M5","o":"S7 Quality","st":11,"r":0,"l":"beta 14 days","sp":"","doc":"docs/plan/GOALS.md#qa-6--beta-on-both-stores"},{"id":"G23","t":"Pilot release","s":"L","n":["G17.app","G18.app","G19.app","G20.app","G21.app","G22.app","PL-7","PL-8","OW-6","MS-4"],"g":false,"tr":"M6","o":"S7 Quality","st":11,"r":1,"l":"pilot release","sp":"","doc":"docs/plan/GOALS.md#g23--pilot-release"},{"id":"QA-7","t":"Launch: staged rollout and launch-week watch","s":"M","n":["QA-6"],"g":false,"tr":"M5","o":"S7 Quality","st":12,"r":0,"l":"launch","sp":"","doc":"docs/plan/GOALS.md#qa-7--launch-staged-rollout-and-launch-week-watch"},{"id":"MS-0","t":"Ground truth","s":"S","n":["OW-1","OW-2","QA-2","QA-9","PL-1"],"g":false,"tr":"M0","o":"Milestones","st":3,"r":0,"l":"M0 ground truth","sp":"","doc":"docs/plan/GOALS.md#ms-0--ground-truth"},{"id":"MS-2","t":"Momentum foundations","s":"S","n":["DS-5","G14.app"],"g":false,"tr":"M2","o":"Milestones","st":5,"r":0,"l":"M2 foundations","sp":"","doc":"docs/plan/GOALS.md#ms-2--momentum-foundations"},{"id":"MS-1","t":"Production platform","s":"S","n":["PL-3","PL-4","PL-5","PL-6","AI-1"],"g":false,"tr":"M1","o":"Milestones","st":6,"r":0,"l":"M1 platform","sp":"","doc":"docs/plan/GOALS.md#ms-1--production-platform"},{"id":"MS-4","t":"Launch foundations","s":"S","n":["G13","G14.data","G15.app"],"g":false,"tr":"M4","o":"Milestones","st":7,"r":0,"l":"M4 phone/Hindi/Pro","sp":"","doc":"docs/plan/GOALS.md#ms-4--launch-foundations"},{"id":"MS-3","t":"Member app in Momentum","s":"S","n":["QA-3"],"g":false,"tr":"M3","o":"Milestones","st":9,"r":0,"l":"M3 member app","sp":"","doc":"docs/plan/GOALS.md#ms-3--member-app-in-momentum"},{"id":"MS-6","t":"Gym pilot (MVP)","s":"S","n":["G23"],"g":false,"tr":"M6","o":"Milestones","st":12,"r":0,"l":"M6 gym pilot","sp":"","doc":"docs/plan/GOALS.md#ms-6--gym-pilot-mvp"},{"id":"MS-5","t":"Store launch","s":"S","n":["QA-7"],"g":false,"tr":"M5","o":"Milestones","st":13,"r":0,"l":"M5 STORE LAUNCH","sp":"","doc":"docs/plan/GOALS.md#ms-5--store-launch"},{"id":"MS-8","t":"Depth and polish","s":"S","n":["AP-3","AP-4","AP-5","AP-6","AP-7","AP-8","QA-8","QA-10"],"g":false,"tr":"M8","o":"Milestones","st":15,"r":0,"l":"M8 depth","sp":"","doc":"docs/plan/GOALS.md#ms-8--depth-and-polish"},{"id":"MS-7","t":"Gym Phase 2","s":"S","n":["G24","G25","G26","G27","G28","G29.app","G30"],"g":false,"tr":"M7","o":"Milestones","st":16,"r":0,"l":"M7 Phase 2","sp":"","doc":"docs/plan/GOALS.md#ms-7--gym-phase-2"},{"id":"MS-9","t":"Complete","s":"S","n":["AP-9"],"g":false,"tr":"M9","o":"Milestones","st":19,"r":0,"l":"M9 complete","sp":"","doc":"docs/plan/GOALS.md#ms-9--complete"}]}; // injected by scripts/build_board.py
+
+/* ---------- plan ---------- */
+const GOALS = PLAN.goals;
+const BY_ID = new Map(GOALS.map(g => [g.id, g]));
+const PEOPLE = PLAN.people;
+const PERSON = new Map(PEOPLE.map(p => [p.name, p]));
+const DEPENDENTS = new Map(GOALS.map(g => [g.id, []]));
+GOALS.forEach(g => g.n.forEach(n => DEPENDENTS.get(n).push(g.id)));
+const SP_TEXT = new Map((PLAN.syncPoints || []).map(s => [s.id, s.text]));
+const CFG = PLAN.config || {};
+const M1 = CFG.milestone || null;
+const M1_LABEL = CFG.milestoneLabel || "Milestone";
+const STEP0 = CFG.firstStepLabel || "Day one";
+const STEPN = CFG.stepLabel || "Step";
+const stepName = n => n === 0 ? STEP0 : `${STEPN} ${n}`;
+// Needs that most goals share. They show as badges on each goal, and their links only on hover or select.
+const HUBS = CFG.hubs || [];
+const HUB_OF = new Map(HUBS.flatMap(b => b.ids.map(id => [id, b])));
+const isHubLink = (from, to) => HUB_OF.has(from) && HUB_OF.get(from) !== HUB_OF.get(to);
+
+const STATES = [
+  { key: "done", label: "Done", icon: "i-done" },
+  { key: "ready", label: "Ready to run", icon: "i-ready" },
+  { key: "running", label: "Running", icon: "i-running" },
+  { key: "review", label: "In review", icon: "i-review" },
+  { key: "blocked", label: "Blocked", icon: "i-blocked" },
+  { key: "hold", label: "On hold", icon: "i-hold" },
+];
+const STATE = Object.fromEntries(STATES.map(s => [s.key, s]));
+STATE.unknown = { key: "unknown", label: "Loading", icon: "i-unknown" };
+const STATUSES = [
+  { value: "not started", label: "Not started", state: "ready" },
+  { value: "claimed", label: "Running", state: "running" },
+  { value: "in review", label: "In review", state: "review" },
+  { value: "done", label: "Done", state: "done" },
+  { value: "on hold", label: "On hold", state: "hold" },
+];
+const STATUS_LABEL = Object.fromEntries(STATUSES.map(s => [s.value, s.label]));
+
+/* ---------- live state ---------- */
+const S = {
+  phase: "connecting", fitted: false,
+  db: null, user: null, downloads: null, myId: null, readOnly: false,
+  loaded: false, status: new Map(), activity: [],
+  selected: null, hover: null, focusState: null, person: "", dirty: false,
+  view: { x: 0, y: 0, s: 1 },
+};
+const normStatus = v => {
+  const s = String(v || "").trim().toLowerCase();
+  return STATUS_LABEL[s] ? s : "not started";
+};
+const rec = id => S.status.get(id) || null;
+const statusOf = id => normStatus(rec(id)?.status);
+const openNeeds = id => BY_ID.get(id).n.filter(n => statusOf(n) !== "done");
+function stateOf(id) {
+  if (!S.loaded) return "unknown";
+  const s = statusOf(id);
+  if (s === "done") return "done";
+  if (s === "in review") return "review";
+  if (s === "claimed") return "running";
+  if (s === "on hold") return "hold";
+  return openNeeds(id).length ? "blocked" : "ready";
+}
+function closure(id, next) {
+  const out = new Set(), stack = [id];
+  while (stack.length) for (const x of next(stack.pop())) if (!out.has(x)) { out.add(x); stack.push(x); }
+  return out;
+}
+const ancestors = id => closure(id, x => BY_ID.get(x).n);
+const descendants = id => closure(id, x => DEPENDENTS.get(x));
+
+/* ---------- small helpers ---------- */
+const $ = id => document.getElementById(id);
+const SVGNS = "http://www.w3.org/2000/svg";
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k === "style") el.style.cssText = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return el;
+}
+function icon(name) {
+  const s = document.createElementNS(SVGNS, "svg");
+  s.setAttribute("aria-hidden", "true");
+  const u = document.createElementNS(SVGNS, "use");
+  u.setAttribute("href", "#" + name);
+  s.append(u);
+  return s;
+}
+function ago(iso) {
+  const t = Date.parse(iso);
+  if (!t) return "";
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return m + " min ago";
+  const hrs = Math.round(m / 60);
+  if (hrs < 24) return hrs + " h ago";
+  const d = Math.round(hrs / 24);
+  return d < 14 ? d + " d ago" : new Date(t).toLocaleDateString();
+}
+let toastTimer = 0;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 4200);
+}
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* per-viewer convenience only */ } },
+};
+async function names(ids) {
+  const list = [...new Set(ids.filter(Boolean))];
+  if (!S.user || !list.length) return {};
+  try { return await S.user.profiles(list); } catch { return {}; }
+}
+const ownerOf = id => BY_ID.get(id).o;
+const goalText = id => `${id} (${ownerOf(id)})`;
+
+/* ---------- geometry ---------- */
+const LABEL_W = 160, COL_W = 204, NODE_W = 178, NODE_H = 58, ROW_H = 74, HEAD_H = 44, LANE_PAD = 14, LANE_GAP = 16;
+const NSTEPS = Math.max(...GOALS.map(g => g.st)) + 1;
+const LANES = [];
+let laneY = HEAD_H;
+for (const p of PEOPLE) {
+  const mine = GOALS.filter(g => g.o === p.name);
+  const rows = Math.max(...mine.map(g => g.r)) + 1;
+  const hgt = LANE_PAD * 2 + rows * ROW_H - (ROW_H - NODE_H);
+  LANES.push({ p, top: laneY, h: hgt, mine });
+  laneY += hgt + LANE_GAP;
+}
+const LANE_OF = new Map(LANES.map(l => [l.p.name, l]));
+const WORLD_W = LABEL_W + NSTEPS * COL_W + 30;
+const WORLD_H = laneY + 8;
+function pos(id) {
+  const g = BY_ID.get(id), lane = LANE_OF.get(g.o);
+  return { x: LABEL_W + g.st * COL_W + (COL_W - NODE_W) / 2, y: lane.top + LANE_PAD + g.r * ROW_H };
+}
+
+/* ---------- build the canvas once ---------- */
+const nodeEls = new Map(), edgeEls = [], laneEls = new Map();
+function buildGraph() {
+  const world = $("world");
+  world.style.width = WORLD_W + "px";
+  world.style.height = WORLD_H + "px";
+  for (let s = 0; s < NSTEPS; s++) {
+    const x = LABEL_W + s * COL_W;
+    if (s % 2 === 0) world.append(h("div", { class: "band", style: `left:${x}px;width:${COL_W}px;height:${WORLD_H}px` }));
+    world.append(h("div", { class: "colhead", style: `left:${x}px;width:${COL_W}px`, text: stepName(s) }));
+  }
+  for (const lane of LANES) {
+    const meta = h("div", { class: "lane-meta" }), bar = h("div", { class: "bar" });
+    world.append(h("div", { class: "lane", style: `top:${lane.top - 6}px;height:${lane.h + 12}px;width:${WORLD_W - 12}px` },
+      h("div", { class: "lane-label" },
+        h("div", { class: "lane-name" }, h("i", { style: `background:${lane.p.colour}` }), lane.p.name),
+        meta, bar)));
+    laneEls.set(lane.p.name, { meta, bar });
+  }
+  const svg = document.createElementNS(SVGNS, "svg");
+  svg.setAttribute("class", "edges");
+  svg.setAttribute("width", WORLD_W);
+  svg.setAttribute("height", WORLD_H);
+  for (const g of GOALS) {
+    const b = pos(g.id);
+    for (const n of g.n) {
+      const a = pos(n);
+      const x1 = a.x + NODE_W, y1 = a.y + NODE_H / 2, x2 = b.x, y2 = b.y + NODE_H / 2;
+      const dx = Math.max(40, (x2 - x1) * 0.5);
+      const path = document.createElementNS(SVGNS, "path");
+      path.setAttribute("d", `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`);
+      if (isHubLink(n, g.id)) path.classList.add("e-hub");
+      svg.append(path);
+      edgeEls.push({ from: n, to: g.id, el: path });
+    }
+  }
+  world.append(svg);
+  for (const g of GOALS) {
+    const p = pos(g.id);
+    const use = document.createElementNS(SVGNS, "use");
+    const ic = document.createElementNS(SVGNS, "svg");
+    ic.setAttribute("aria-hidden", "true");
+    ic.append(use);
+    const row1 = h("span", { class: "row1" }, h("span", { class: "gid", text: g.id }), g.s ? h("span", { class: "tag", text: g.s }) : null,
+      g.g ? h("span", { class: "tag", text: "guard" }) : null,
+      g.sp ? h("span", { class: "tag sp", text: g.sp }) : null,
+      g.id === M1 ? h("span", { class: "tag m1", text: M1_LABEL }) : null);
+    const badges = HUBS.map(b => ({ b, ids: g.n.filter(n => b.ids.includes(n) && isHubLink(n, g.id)) }))
+      .filter(x => x.ids.length).map(x => ({ ...x, el: h("span", { class: "hb", text: x.b.key }) }));
+    const el = h("button", { class: "node", type: "button", "data-id": g.id, style: `left:${p.x}px;top:${p.y}px;width:${NODE_W}px;height:${NODE_H}px` },
+      h("span", { class: "tile" }, ic),
+      h("span", { class: "body" }, row1, h("span", { class: "lblrow" }, h("span", { class: "lbl", text: g.l }), badges.map(x => x.el))),
+      h("span", { class: "h h-in" }), h("span", { class: "h h-out" }));
+    el.addEventListener("click", () => { if (!dragMoved) select(g.id); });
+    el.addEventListener("mouseenter", () => { S.hover = g.id; paintFocus(); });
+    el.addEventListener("mouseleave", () => { if (S.hover === g.id) { S.hover = null; paintFocus(); } });
+    world.append(el);
+    nodeEls.set(g.id, { el, use, badges });
+  }
+}
+
+/* ---------- pan and zoom ---------- */
+let dragMoved = false;
+function applyView() {
+  const { x, y, s } = S.view;
+  $("world").style.transform = `translate(${x}px,${y}px) scale(${s})`;
+  const c = $("canvas");
+  c.style.backgroundSize = `${20 * s}px ${20 * s}px`;
+  c.style.backgroundPosition = `${x}px ${y}px`;
+}
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+function zoomAt(cx, cy, f) {
+  const v = S.view, ns = clamp(v.s * f, 0.15, 1.8);
+  v.x = cx - (cx - v.x) * (ns / v.s);
+  v.y = cy - (cy - v.y) * (ns / v.s);
+  v.s = ns;
+  applyView();
+}
+function fit() {
+  const cw = $("canvas").clientWidth;
+  if (!cw) return;
+  const s = clamp((cw - 16) / WORLD_W, 0.42, 1);
+  S.view = { x: Math.max(8, (cw - WORLD_W * s) / 2), y: 48, s };
+  S.fitted = true;
+  applyView();
+}
+function centerOn(id) {
+  const c = $("canvas"), p = pos(id), v = S.view;
+  v.s = Math.max(v.s, 0.75);
+  v.x = c.clientWidth / 2 - (p.x + NODE_W / 2) * v.s;
+  v.y = c.clientHeight / 2 - (p.y + NODE_H / 2) * v.s;
+  applyView();
+}
+function wireCanvas() {
+  const c = $("canvas"), pts = new Map();
+  let start = null, pinch = null;
+  c.addEventListener("pointerdown", e => {
+    if (e.target.closest(".tools, .zoom, .key")) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) { start = { x: e.clientX, y: e.clientY, vx: S.view.x, vy: S.view.y }; dragMoved = false; }
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: S.view.s }; }
+  });
+  c.addEventListener("pointermove", e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 2 && pinch) {
+      const [a, b] = [...pts.values()], r = c.getBoundingClientRect();
+      const f = (Math.hypot(a.x - b.x, a.y - b.y) / pinch.d * pinch.s) / S.view.s;
+      zoomAt((a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top, f);
+      dragMoved = true;
+      return;
+    }
+    if (!start) return;
+    const dx = e.clientX - start.x, dy = e.clientY - start.y;
+    if (!dragMoved && Math.hypot(dx, dy) > 4) { dragMoved = true; c.classList.add("panning"); try { c.setPointerCapture(e.pointerId); } catch { /* ignore */ } }
+    if (dragMoved) { S.view.x = start.vx + dx; S.view.y = start.vy + dy; applyView(); }
+  });
+  const end = e => {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) pinch = null;
+    if (!pts.size) {
+      c.classList.remove("panning");
+      if (!dragMoved && !e.target.closest(".node, .tools, .zoom, .key") && e.type === "pointerup") select(null);
+      start = null;
+      setTimeout(() => { dragMoved = false; }, 0);
+    }
+  };
+  c.addEventListener("pointerup", end);
+  c.addEventListener("pointercancel", end);
+  c.addEventListener("wheel", e => {
+    if (e.target.closest(".tools")) return;
+    e.preventDefault();
+    const r = c.getBoundingClientRect();
+    if (e.ctrlKey || e.metaKey) zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0022));
+    else { S.view.x -= e.deltaX; S.view.y -= e.deltaY; applyView(); }
+  }, { passive: false });
+  const mid = () => [c.clientWidth / 2, c.clientHeight / 2];
+  $("zoomIn").addEventListener("click", () => zoomAt(...mid(), 1.2));
+  $("zoomOut").addEventListener("click", () => zoomAt(...mid(), 1 / 1.2));
+  $("zoomFit").addEventListener("click", fit);
+}
+
+/* ---------- painting ---------- */
+function stateCounts(filter) {
+  const c = Object.fromEntries(STATES.map(s => [s.key, 0]));
+  for (const g of GOALS) if (!filter || filter(g)) { const s = stateOf(g.id); if (s in c) c[s]++; }
+  return c;
+}
+function barFill(bar, counts, total) {
+  bar.replaceChildren(...STATES.filter(s => counts[s.key]).map(s =>
+    h("i", { class: "s-" + s.key, style: `width:${(counts[s.key] / total) * 100}%;background:var(--state)`, title: `${s.label}: ${counts[s.key]}` })));
+}
+function paintSummary() {
+  const counts = stateCounts();
+  const chips = $("chips");
+  chips.replaceChildren(
+    h("span", { class: "total" }, h("b", { text: S.loaded ? counts.done : "…" }), ` of ${GOALS.length} done`),
+    ...STATES.map(s => {
+      const b = h("button", { class: "chip s-" + s.key, type: "button", "aria-pressed": String(S.focusState === s.key), title: "Highlight goals that are " + s.label.toLowerCase() },
+        h("span", { class: "dot" }, icon(s.icon)), s.label, h("b", { text: S.loaded ? counts[s.key] : "…" }));
+      b.addEventListener("click", () => { S.focusState = S.focusState === s.key ? null : s.key; paintSummary(); paintFocus(); });
+      return b;
+    }));
+  const people = $("people");
+  people.replaceChildren(...PEOPLE.map(p => {
+    const mine = GOALS.filter(g => g.o === p.name);
+    const c = stateCounts(g => g.o === p.name);
+    const bar = h("div", { class: "bar" });
+    if (S.loaded) barFill(bar, c, mine.length);
+    const lane = laneEls.get(p.name);
+    if (lane) {
+      lane.meta.textContent = S.loaded ? `${c.done} of ${mine.length} done · ${c.ready} ready` : `${mine.length} goals`;
+      if (S.loaded) barFill(lane.bar, c, mine.length);
+    }
+    return h("div", { class: "person" },
+      h("div", { class: "person-top" }, h("span", { text: p.name }), h("span", { text: S.loaded ? `${c.done}/${mine.length} done · ${c.ready} ready` : `${mine.length} goals` })),
+      bar);
+  }));
+  $("readyCount").textContent = S.loaded ? String(counts.ready) : "";
+}
+function tooltip(g, st) {
+  const open = openNeeds(g.id);
+  const lines = [`${g.id} · ${STATE[st].label}`, g.t];
+  if (g.n.length) lines.push("Needs: " + g.n.join(", "));
+  if (S.loaded && open.length && st !== "done") lines.push("Waiting on: " + open.map(goalText).join(", "));
+  return lines.join("\n");
+}
+function paintNodes() {
+  for (const g of GOALS) {
+    const st = stateOf(g.id), n = nodeEls.get(g.id);
+    n.el.classList.remove(...STATES.map(s => "s-" + s.key), "s-unknown");
+    n.el.classList.add("s-" + st);
+    n.use.setAttribute("href", "#" + STATE[st].icon);
+    n.el.title = tooltip(g, st);
+    n.el.setAttribute("aria-label", `${g.id}, ${g.l}, ${STATE[st].label}`);
+    for (const x of n.badges) {
+      const open = x.ids.filter(i => statusOf(i) !== "done");
+      x.el.className = "hb " + (!S.loaded ? "s-unknown" : open.length ? "s-blocked" : "s-done");
+      x.el.title = `Needs ${x.b.text}: ${x.ids.join(", ")}` + (S.loaded ? (open.length ? `. Still open: ${open.join(", ")}` : ". All done") : "");
+    }
+  }
+  for (const e of edgeEls) e.el.classList.toggle("e-done", S.loaded && statusOf(e.from) === "done");
+}
+function paintFocus() {
+  const focus = S.selected || S.hover;
+  const canvas = $("canvas");
+  canvas.classList.toggle("has-focus", !!focus);
+  let lit = null;
+  if (focus) {
+    const up = ancestors(focus), down = descendants(focus);
+    lit = new Set([focus, ...up, ...down]);
+    for (const e of edgeEls) {
+      const onUp = (e.to === focus || up.has(e.to)) && up.has(e.from);
+      const onDown = (e.from === focus || down.has(e.from)) && down.has(e.to);
+      e.el.classList.toggle("lit", onUp || onDown);
+    }
+  } else edgeEls.forEach(e => e.el.classList.remove("lit"));
+  for (const g of GOALS) {
+    const el = nodeEls.get(g.id).el;
+    el.classList.toggle("lit", !!lit && lit.has(g.id));
+    el.classList.toggle("sel", S.selected === g.id);
+    const faded = (S.person && g.o !== S.person) || (S.focusState && stateOf(g.id) !== S.focusState);
+    el.classList.toggle("fade", !focus && !!faded);
+  }
+}
+function item(id, aside) {
+  const g = BY_ID.get(id), st = stateOf(id);
+  return h("button", { class: "item s-" + st, type: "button", onclick: () => select(id, { reveal: false }) },
+    h("span", { class: "pip" }, icon(STATE[st].icon)),
+    h("span", { class: "txt" }, h("b", { class: "mono", text: id }), " ", h("span", { text: g.l })),
+    aside ? h("span", { class: "aside", text: aside }) : null);
+}
+function paintReady() {
+  const wrap = $("readyCards");
+  if (!S.loaded) { wrap.replaceChildren(h("p", { class: "empty", text: "Loading live status…" })); return; }
+  wrap.replaceChildren(...PEOPLE.map(p => {
+    const mine = GOALS.filter(g => g.o === p.name);
+    const by = st => mine.filter(g => stateOf(g.id) === st);
+    const ready = by("ready").sort((a, b) => DEPENDENTS.get(b.id).length - DEPENDENTS.get(a.id).length || a.st - b.st);
+    const nearly = by("blocked").filter(g => openNeeds(g.id).length === 1);
+    const section = (title, list, aside, emptyText) => [
+      h("h3", { text: `${title} (${list.length})` }),
+      list.length ? h("div", { class: "items" }, list.map(g => item(g.id, aside(g)))) : h("p", { class: "empty", text: emptyText })];
+    return h("div", { class: "card" },
+      h("h2", {}, h("i", { style: `background:${p.colour}` }), p.name),
+      section("Ready to run", ready, g => { const n = DEPENDENTS.get(g.id).length; return n ? `unblocks ${n}` : ""; }, "Nothing ready right now."),
+      section("Running", by("running"), g => rec(g.id)?.who || "", "Nothing running."),
+      section("In review", by("review"), g => rec(g.id)?.ref || "", "Nothing in review."),
+      section("One need away", nearly, g => "waits on " + openNeeds(g.id)[0], "None."));
+  }));
+}
+function paintList() {
+  const person = $("listPerson").value, st = $("listState").value, q = $("listSearch").value.trim().toLowerCase();
+  const rows = GOALS.filter(g => (!person || g.o === person) && (!st || stateOf(g.id) === st)
+    && (!q || `${g.id} ${g.l} ${g.t}`.toLowerCase().includes(q)));
+  $("listBody").replaceChildren(...rows.map(g => {
+    const s = stateOf(g.id), r = rec(g.id) || {};
+    const waiting = S.loaded && s !== "done" ? openNeeds(g.id).map(goalText).join(", ") : "";
+    const tr = h("tr", { tabindex: "0", onclick: () => select(g.id, { reveal: false }), onkeydown: e => { if (e.key === "Enter") select(g.id, { reveal: false }); } },
+      h("td", {}, h("b", { class: "mono", text: g.id })),
+      h("td", { text: g.o }),
+      h("td", {}, h("span", { class: "pill s-" + s }, icon(STATE[s].icon), STATE[s].label)),
+      h("td", { class: "num", text: stepName(g.st) }),
+      h("td", { text: g.t }),
+      h("td", { text: waiting }),
+      h("td", { text: [r.who, r.ref].filter(Boolean).join(" · ") }),
+      h("td", { text: r.at ? ago(r.at) : "" }));
+    return tr;
+  }));
+}
+async function paintFeed() {
+  const feed = $("feed");
+  if (S.phase === "connecting") { feed.replaceChildren(h("p", { class: "empty", text: "Loading updates…" })); return; }
+  if (!S.db) { feed.replaceChildren(h("p", { class: "empty", text: "The update feed needs live status, which this view does not have. Open the board on claude.ai while signed in." })); return; }
+  if (!S.activity.length) { feed.replaceChildren(h("p", { class: "empty", text: "No updates yet. Change a goal's status and it appears here for everyone." })); return; }
+  const ps = await names(S.activity.map(a => a.by));
+  feed.replaceChildren(...S.activity.map(a => {
+    const p = a.by ? ps[a.by] : null;
+    const who = a.kind === "import" ? "Board setup" : a.kind === "auto" ? "Automatic update" : (p?.name || "Someone");
+    const what = a.kind === "import"
+      ? h("div", { class: "what", text: a.note || "Statuses imported." })
+      : h("div", { class: "what" }, h("b", { text: who }), " moved ",
+          h("button", { class: "linkish", type: "button", text: a.goal, onclick: () => BY_ID.has(a.goal) && select(a.goal, { reveal: false }) }),
+          ` from ${STATUS_LABEL[normStatus(a.from)]} to ${STATUS_LABEL[normStatus(a.to)]}`,
+          a.kind === "auto" && a.who ? ` for ${a.who}` : "",
+          a.ref ? ` · ${a.ref}` : "");
+    return h("div", { class: "entry" },
+      p ? h("img", { src: p.avatarUrl, alt: "" }) : null,
+      h("div", {}, what, a.kind !== "import" && a.note ? h("div", { class: "note", text: a.note }) : null,
+        h("div", { class: "when", text: ago(a.at), title: a.at || "" })));
+  }));
+}
+function paintAll() {
+  paintSummary();
+  paintNodes();
+  paintFocus();
+  paintReady();
+  paintList();
+  if (S.selected) paintDrawer();
+}
+
+/* ---------- drawer ---------- */
+function select(id, opts = {}) {
+  if (S.selected !== id) S.dirty = false;
+  S.selected = id;
+  paintFocus();
+  if (!id) { $("drawer").hidden = true; return; }
+  if (opts.reveal) centerOn(id);
+  paintDrawer();
+  $("drawer").hidden = false;
+}
+function gchips(ids) {
+  return h("div", { class: "chipset" }, ids.map(id => {
+    const st = stateOf(id);
+    return h("button", { class: "gchip s-" + st, type: "button", title: `${STATE[st].label} · ${ownerOf(id)}`, onclick: () => select(id, { reveal: !$("view-graph").hidden }) },
+      icon(STATE[st].icon), h("b", { text: id }), ownerOf(id));
+  }));
+}
+function paintDrawer() {
+  const id = S.selected, g = BY_ID.get(id), st = stateOf(id), r = rec(id) || {};
+  const d = $("drawer");
+  if (S.dirty && d.dataset.id === id) { paintStamp(r); return; }
+  d.dataset.id = id;
+  const open = openNeeds(id);
+  let verdict;
+  if (!S.loaded) verdict = "Loading live status…";
+  else if (st === "done") verdict = "Done." + (r.ref ? ` ${r.ref}` : "");
+  else if (!g.n.length) verdict = "Needs nothing. It can run from day one.";
+  else if (!open.length) verdict = "Every need is done. This goal can run.";
+  else verdict = `Waiting on ${open.length} of ${g.n.length} needs: ${open.map(goalText).join(", ")}.`;
+  const facts = h("dl", { class: "facts" },
+    h("dt", { text: "Owner" }), h("dd", { text: g.o }),
+    g.s ? h("dt", { text: "Size" }) : null, g.s ? h("dd", { text: (CFG.sizes || {})[g.s] ? `${g.s}, ${CFG.sizes[g.s]}` : g.s }) : null,
+    h("dt", { text: "Earliest start" }), h("dd", { text: stepName(g.st) }),
+    g.tr ? h("dt", { text: "Track" }) : null, g.tr ? h("dd", { text: (PLAN.tracks || {})[g.tr] ? `${g.tr}: ${PLAN.tracks[g.tr]}` : g.tr }) : null,
+    g.sp ? h("dt", { text: "Sync point" }) : null, g.sp ? h("dd", { text: SP_TEXT.get(g.sp) || g.sp }) : null,
+    g.doc ? h("dt", { text: "Doc" }) : null, g.doc ? h("dd", { class: "mono", text: (CFG.docPrefix || "") + g.doc }) : null);
+  d.replaceChildren(
+    h("div", { class: "d-head" },
+      h("div", {}, h("p", { class: "d-id", text: id }), h("span", { class: "pill s-" + st }, icon(STATE[st].icon), STATE[st].label)),
+      h("div", { style: "display:flex;gap:6px" },
+        $("view-graph").hidden ? h("button", { class: "btn", type: "button", text: "Show in graph", onclick: () => { showView("graph"); centerOn(id); paintFocus(); } }) : null,
+        h("button", { class: "icon-btn", type: "button", "aria-label": "Close", onclick: () => select(null) }, icon("i-close")))),
+    h("p", { class: "d-title", text: g.t }),
+    facts,
+    h("div", { class: "verdict s-" + (st === "unknown" ? "unknown" : (open.length && st !== "done" ? "blocked" : st)), text: verdict }),
+    h("p", { class: "d-sec", text: `Needs (${g.n.length})` }),
+    g.n.length ? gchips(g.n) : h("p", { class: "empty", text: "Nothing." }),
+    h("p", { class: "d-sec", text: `Unblocks (${DEPENDENTS.get(id).length})` }),
+    DEPENDENTS.get(id).length ? gchips(DEPENDENTS.get(id)) : h("p", { class: "empty", text: "No goal waits on this one." }),
+    h("p", { class: "d-sec", text: "Status" }),
+    statusForm(id, r),
+    h("p", { class: "stamp", id: "stamp" }));
+  paintStamp(r);
+}
+function statusForm(id, r) {
+  if (S.phase === "connecting" || (S.db && !S.loaded)) return h("p", { class: "ro", text: "Loading live status…" });
+  if (!S.db) return h("p", { class: "ro", text: "Status changes need live status, which this view does not have. Open the board on claude.ai while signed in." });
+  const cur = statusOf(id);
+  if (S.readOnly) return h("p", { class: "ro" }, `Status: ${STATUS_LABEL[cur]}`, r.who ? ` · ${r.who}` : "", r.ref ? ` · ${r.ref}` : "",
+    r.note ? h("br") : null, r.note || "", h("br"), "You can view this board. To change a status, ask its owner to share it with you as a Contributor.");
+  const seg = h("div", { class: "seg", role: "radiogroup", "aria-label": "Status" }, STATUSES.map((s, i) =>
+    h("label", { class: "s-" + s.state, for: "st-" + i },
+      h("input", { type: "radio", name: "status", id: "st-" + i, value: s.value, checked: s.value === cur }),
+      icon(STATE[s.state].icon), s.label)));
+  const who = h("select", { class: "field", id: "f-who" }, h("option", { value: "", text: "Nobody yet" }),
+    PEOPLE.map(p => h("option", { value: p.name, text: p.name, selected: (r.who || "") === p.name })));
+  if (r.who && !PERSON.has(r.who)) who.append(h("option", { value: r.who, text: r.who, selected: true }));
+  const form = h("form", { class: "upd", id: "f-form" },
+    seg,
+    h("div", { class: "frow" }, h("label", { for: "f-who", text: "Who is on it" }), who),
+    h("div", { class: "frow" }, h("label", { for: "f-ref", text: "Branch, pull request or commit" }),
+      h("input", { class: "field", id: "f-ref", value: r.ref || "", placeholder: CFG.refPlaceholder || "e.g. a branch, PR #123 or a commit", autocomplete: "off" })),
+    h("div", { class: "frow" }, h("label", { for: "f-note", text: "Note for the team" }),
+      h("textarea", { class: "field", id: "f-note", rows: "2", placeholder: "Anything the people waiting on this should know" }, r.note || "")),
+    h("div", { class: "f-actions" }, h("button", { class: "btn btn-primary", type: "submit", id: "f-save", text: "Save status" })));
+  form.addEventListener("input", () => { S.dirty = true; });
+  form.addEventListener("change", e => {
+    S.dirty = true;
+    if (e.target.name === "status" && e.target.value === "claimed" && !$("f-who").value) $("f-who").value = BY_ID.get(id).o;
+  });
+  form.addEventListener("submit", e => { e.preventDefault(); save(id); });
+  return form;
+}
+async function paintStamp(r) {
+  const el = $("stamp");
+  if (!el) return;
+  if (!r || !r.at) { el.textContent = S.loaded ? "No one has changed this goal on the board yet." : ""; return; }
+  if (!r.by) { el.textContent = /hook/i.test(r.source || "") ? `Updated automatically by the ${r.source}, ${ago(r.at)}.` : `Imported from ${r.source || "the plan"}, ${ago(r.at)}.`; return; }
+  const ps = await names([r.by]);
+  el.textContent = `Last changed by ${ps[r.by]?.name || "someone"}, ${ago(r.at)}.`;
+}
+async function save(id) {
+  if (!S.db || S.readOnly) return;
+  const status = document.querySelector('#f-form input[name="status"]:checked')?.value || "not started";
+  const f = { status, who: $("f-who").value, ref: $("f-ref").value.trim().slice(0, 200), note: $("f-note").value.trim().slice(0, 1000) };
+  const prev = rec(id) || {}, prevStatus = statusOf(id);
+  if (f.status === prevStatus && f.who === (prev.who || "") && f.ref === (prev.ref || "") && f.note === (prev.note || "")) { toast("Nothing changed."); return; }
+  const btn = $("f-save");
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+  const at = new Date().toISOString();
+  try {
+    await S.db.doc("goals/" + id).set({ ...f, by: S.myId, at });
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = "Save status";
+    return writeFailed(e);
+  }
+  S.dirty = false;
+  try {
+    await S.db.collection("activity").add({ kind: "update", goal: id, from: prevStatus, to: f.status, who: f.who, ref: f.ref,
+      note: f.note !== (prev.note || "") ? f.note : "", by: S.myId, at });
+  } catch (e) { console.warn("activity entry not written", e); }
+  toast(`${id} saved. Everyone on the board sees it now.`);
+  paintDrawer();
+}
+function writeFailed(e) {
+  const code = e && e.code;
+  if (code === "invalid_argument" || code === "not_granted") {
+    S.readOnly = true;
+    toast("You can view this board but not change it. Ask its owner to share it with you as a Contributor.");
+    S.dirty = false;
+    paintDrawer();
+  } else if (code === "quota_exceeded") toast("The board's storage is full: " + (e.message || "ask the owner to clear old updates."));
+  else if (code === "unavailable" || code === "resource_exhausted") toast("Could not reach the board just now. Press Save again in a moment.");
+  else toast("Could not save: " + ((e && (e.message || e.code)) || "unknown error"));
+}
+
+/* ---------- views, filters, export ---------- */
+function showView(name) {
+  for (const t of document.querySelectorAll(".tab")) t.setAttribute("aria-selected", String(t.dataset.view === name));
+  for (const v of ["graph", "ready", "list", "updates"]) $("view-" + v).hidden = v !== name;
+  store.set("goalboard.view", name);
+  if (name === "graph" && !S.fitted) requestAnimationFrame(fit);
+  if (name === "updates") paintFeed();
+  if (S.selected) paintDrawer();
+}
+function findGoal(q) {
+  const k = q.trim().toUpperCase().replace(/^V3-/, "").replace(/\s+/g, ".");
+  return BY_ID.has(k) ? k : (GOALS.find(g => g.id.toUpperCase() === k) || {}).id;
+}
+function csvCell(v) { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }
+async function exportCsv() {
+  const head = ["Goal", "Owner", "Earliest step", "Size", "Short name", "Outcome", "State", "Status", "Who", "Branch / PR / commit", "Note", "Needs", "Waiting on", "Unblocks", "Updated"];
+  const rows = GOALS.map(g => {
+    const r = rec(g.id) || {}, st = stateOf(g.id);
+    return [g.id, g.o, g.st, g.s, g.l, g.t, STATE[st].label, STATUS_LABEL[statusOf(g.id)], r.who || "", r.ref || "", r.note || "",
+      g.n.join(", "), st === "done" ? "" : openNeeds(g.id).map(goalText).join(", "), DEPENDENTS.get(g.id).join(", "), r.at || ""];
+  });
+  const csv = [head, ...rows].map(r => r.map(csvCell).join(",")).join("\r\n");
+  try { await S.downloads.save({ filename: `${CFG.slug || "goals"}-${new Date().toISOString().slice(0, 10)}.csv`, data: csv }); }
+  catch (e) { if (e && e.code !== "declined") toast("Export failed: " + (e.message || e.code)); }
+}
+function wireUi() {
+  $("meta").textContent = CFG.subtitle || `${GOALS.length} goals. Columns are the earliest step a goal can start.`;
+  $("workflowHint").textContent = CFG.workflowHint || "A goal is ready to run when every goal it needs is Done and nobody has started it. Mark it Running when work starts, In review when it is waiting for review, and Done when it lands.";
+  $("search").placeholder = `Find a goal, e.g. ${GOALS[Math.min(3, GOALS.length - 1)].id}`;
+  if (HUBS.length) { const k = $("hubKey"); k.hidden = false; k.append(h("b", { class: "mono", text: HUBS.map(b => b.key).join(" ") }), " " + HUBS.map(b => b.text).join(", ") + " (filled when done)"); }
+  for (const t of document.querySelectorAll(".tab")) t.addEventListener("click", () => showView(t.dataset.view));
+  $("goalIds").replaceChildren(...GOALS.map(g => h("option", { value: g.id, text: g.l })));
+  const personOpts = sel => sel.replaceChildren(h("option", { value: "", text: "Everyone" }), ...PEOPLE.map(p => h("option", { value: p.name, text: p.name })));
+  personOpts($("personFilter"));
+  personOpts($("listPerson"));
+  $("listState").replaceChildren(h("option", { value: "", text: "Any state" }), ...STATES.map(s => h("option", { value: s.key, text: s.label })));
+  $("personFilter").addEventListener("change", e => { S.person = e.target.value; store.set("goalboard.person", S.person); paintFocus(); });
+  for (const id of ["listPerson", "listState"]) $(id).addEventListener("change", paintList);
+  $("listSearch").addEventListener("input", paintList);
+  const go = () => { const id = findGoal($("search").value); if (id) { select(id, { reveal: true }); } else if ($("search").value.trim()) toast("No goal with that id."); };
+  $("search").addEventListener("change", go);
+  $("search").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  $("exportBtn").addEventListener("click", exportCsv);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && S.selected) select(null); });
+  const savedPerson = store.get("goalboard.person");
+  if (savedPerson && PERSON.has(savedPerson)) { S.person = savedPerson; $("personFilter").value = savedPerson; }
+}
+function setLive(state, text) {
+  const el = $("live");
+  el.dataset.state = state;
+  el.textContent = text;
+}
+
+/* ---------- live data ---------- */
+async function connect() {
+  const C = window.claude;
+  if (!C || typeof C.use !== "function") return offline();
+  const [db, user, downloads] = await Promise.all([C.use("db"), C.use("user"), C.use("downloads")]);
+  S.user = user;
+  S.downloads = downloads;
+  if (downloads) $("exportBtn").hidden = false;
+  if (user) {
+    S.myId = await user.id();
+    if ((await user.can("data.write")) === false) S.readOnly = true;
+  }
+  if (!db) return offline();
+  S.db = db;
+  S.phase = "live";
+  setLive("syncing", "Syncing");
+  db.collection("goals").onSnapshot(snap => {
+    const m = new Map();
+    for (const d of snap.docs) if (d.exists) m.set(d.id, d.data());
+    S.status = m;
+    S.loaded = true;
+    $("notice").hidden = true;
+    setLive(snap.metadata.fromCache ? "syncing" : "live", (snap.metadata.fromCache ? "Syncing" : "Live") + (S.readOnly ? " · view only" : ""));
+    paintAll();
+  }, err => {
+    setLive("error", "Live updates stopped");
+    toast(err && err.code === "revoked" ? "Your access to this board changed. Reload to continue." : "Live updates stopped. Reload the page to reconnect.");
+  });
+  db.collection("activity").orderBy("at", "desc").limit(60).onSnapshot(snap => {
+    S.activity = snap.docs.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
+    if (!$("view-updates").hidden) paintFeed();
+  }, () => { /* the goals listener reports connection problems */ });
+}
+function offline() {
+  S.phase = "offline";
+  if (S.selected) paintDrawer();
+  setLive("offline", "Live status unavailable");
+  const n = $("notice");
+  n.hidden = false;
+  n.textContent = "Live status is not available in this view. Open the board on claude.ai while signed in to see who is on what.";
+  paintFeed();
+}
+
+buildGraph();
+wireCanvas();
+wireUi();
+paintAll();
+requestAnimationFrame(fit);
+const savedView = store.get("goalboard.view");
+if (savedView && ["graph", "ready", "list", "updates"].includes(savedView)) showView(savedView);
+connect().catch(err => { console.error(err); offline(); });
+</script>

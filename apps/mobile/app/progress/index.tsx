@@ -21,6 +21,7 @@ import { changeOver, sinceLabel, weight } from '@/features/body/format';
 import { useBodySeries, useCheckins, useDashboard } from '@/lib/query/hooks';
 import { JourneyCard, weightGoalOf } from '@/features/body/JourneyCard';
 import { CheckinCard } from '@/features/body/CheckinCard';
+import { CoachPrompt } from '@/features/coach/CoachPrompt';
 import { space } from '@/theme';
 
 export default function Progress() {
@@ -121,6 +122,16 @@ export default function Progress() {
                 ) : null}
               </View>
             </Card>
+
+            <CoachPrompt
+              title="Make the trend easier to read"
+              body="Log one check-in today and the coach will help you understand the direction once there is enough history to say something useful."
+              detail="No invented trend lines — insight appears when the data earns it."
+              badgeLabel="Concept"
+              actionLabel="Log a check-in"
+              onAction={() => router.push('/progress/log')}
+              testID="progress-coach-prompt"
+            />
 
             <View>
               <SectionHeader title="Goals" />

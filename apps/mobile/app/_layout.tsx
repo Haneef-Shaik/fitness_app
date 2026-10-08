@@ -6,7 +6,8 @@ import { View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
-  HankenGrotesk_600SemiBold, HankenGrotesk_700Bold, HankenGrotesk_800ExtraBold,
+  HankenGrotesk_400Regular, HankenGrotesk_500Medium, HankenGrotesk_600SemiBold,
+  HankenGrotesk_700Bold, HankenGrotesk_800ExtraBold,
 } from '@expo-google-fonts/hanken-grotesk';
 import {
   Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold,
@@ -65,7 +66,10 @@ function Root() {
               screenOptions={{
                 headerShown: false,
                 contentStyle: { backgroundColor: c.page },
-                animation: 'fade',
+                // Let iOS and Android own stack motion. The tab rail resets
+                // peers without a slide, while pushed screens retain native
+                // spatial context.
+                animation: 'default',
               }}
             />
           </View>
@@ -93,10 +97,11 @@ function Layout() {
     return (id: string | null) => { handle(id); setAccount(id); };
   }, []);
 
-  // Hanken Grotesk carries headlines and figures, Inter everything else
-  // (src/theme/tokens.ts `font`).
+  // Hanken Grotesk carries the whole Coach OS interface. Inter remains loaded
+  // for older persisted screens until those screens are removed.
   const [loaded] = useFonts({
-    HankenGrotesk_600SemiBold, HankenGrotesk_700Bold, HankenGrotesk_800ExtraBold,
+    HankenGrotesk_400Regular, HankenGrotesk_500Medium, HankenGrotesk_600SemiBold,
+    HankenGrotesk_700Bold, HankenGrotesk_800ExtraBold,
     Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold,
   });
 

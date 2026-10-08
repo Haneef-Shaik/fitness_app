@@ -1,6 +1,6 @@
 /**
- * The screen frame (H2.1): a compact top bar — back, an optional eyebrow
- * ("WORKOUT IN PROGRESS"), the title, an optional trailing action — a body
+ * The screen frame (H2.1): a calm top bar — back, optional context, a strong
+ * title and one trailing action — a body
  * that respects the safe areas, and an optional sticky footer for the
  * screen's one primary action. Every screen uses it so headers cannot drift
  * apart screen by screen.
@@ -88,7 +88,7 @@ export function ScreenScaffold({
       <View
         style={{
           flexDirection: 'row', alignItems: 'center', gap: space.sm,
-          paddingHorizontal: space.base, minHeight: 60, paddingVertical: space.sm,
+          paddingHorizontal: space.lg, minHeight: 72, paddingVertical: space.md,
           borderBottomWidth: 1, borderColor: c.line, backgroundColor: c.page,
         }}
       >
@@ -99,7 +99,7 @@ export function ScreenScaffold({
             accessibilityLabel="Back"
             testID="screen-back"
             hitSlop={12}
-            style={{ width: 40, height: 40, marginLeft: -8, borderRadius: radius.row, alignItems: 'center', justifyContent: 'center' }}
+            style={{ width: 44, height: 44, marginLeft: -8, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: c.surface }}
           >
             <Ionicons name="arrow-back" size={24} color={c.ink2} />
           </Pressable>
@@ -109,7 +109,7 @@ export function ScreenScaffold({
             <Text variant="label" tone={eyebrowTone} numberOfLines={1} testID="screen-eyebrow">{eyebrow}</Text>
           ) : null}
           <Text
-            variant={root ? 'h2' : 'title'}
+            variant={root ? 'h1' : 'title'}
             numberOfLines={1}
             accessibilityRole="header"
             testID={titleTestID}
@@ -154,6 +154,19 @@ function RootActions() {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
       <Pressable
+        onPress={() => router.push('/gym' as never)}
+        accessibilityRole="button"
+        accessibilityLabel="Gym workspace"
+        testID="open-gym-workspace"
+        hitSlop={6}
+        style={{
+          width: 40, height: 40, alignItems: 'center', justifyContent: 'center',
+          borderRadius: radius.row, backgroundColor: c.accentWash, borderWidth: 1, borderColor: c.line,
+        }}
+      >
+        <Ionicons name="business-outline" size={19} color={c.accent} />
+      </Pressable>
+      <Pressable
         onPress={() => router.push('/notifications')}
         accessibilityRole="button"
         accessibilityLabel="Notifications and reminders"
@@ -171,6 +184,7 @@ function RootActions() {
         accessibilityRole="button"
         accessibilityLabel="Profile and settings"
         testID="open-settings"
+        hitSlop={6}
         style={{
           width: 40, height: 40, borderRadius: radius.row, backgroundColor: c.accentWash,
           borderWidth: 1, borderColor: c.line2, alignItems: 'center', justifyContent: 'center',

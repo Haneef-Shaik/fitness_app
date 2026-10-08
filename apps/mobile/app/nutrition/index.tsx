@@ -24,6 +24,7 @@ import { MacroTrio, type MacroTargets } from '@/features/nutrition/MacroTrio';
 import { MealSection } from '@/features/nutrition/MealSection';
 import { useMealCategories, useNutritionDay, useProfile } from '@/lib/query/hooks';
 import { friendlyDate } from '@/features/dashboard/date';
+import { CoachPrompt } from '@/features/coach/CoachPrompt';
 import { space } from '@/theme';
 
 /** The meal holding the first unconfirmed item — where "Review" goes. */
@@ -107,6 +108,16 @@ export default function Diary() {
                   </Text>
                 ) : null}
               </Card>
+
+              <CoachPrompt
+                title="Close the loop on your next meal"
+                body="Describe it or take a photo and the coach will return an estimate for you to check before it counts."
+                detail="AI estimates stay pending until you confirm them."
+                badgeLabel="Pro AI"
+                actionLabel="Add with coach"
+                onAction={() => router.push('/nutrition/add')}
+                testID="nutrition-coach-prompt"
+              />
 
               {data.pending_count > 0 ? (
                 // Shown, and in no total. Hiding it would be as wrong as counting it.

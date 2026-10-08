@@ -24,6 +24,7 @@ import { formatSessionSummary } from '@/features/history/format';
 import { suggestDay } from '@/features/programs/today';
 import { useActiveSession, useStartSession } from '@/features/workout-session/useSession';
 import { count } from '@/features/nutrition/format';
+import { CoachPrompt } from '@/features/coach/CoachPrompt';
 import { space } from '@/theme';
 
 export default function TrainHub() {
@@ -130,6 +131,17 @@ export default function TrainHub() {
             onPress={() => begin({})}
           />
         ) : null}
+
+        <CoachPrompt
+          role="member"
+          title="Turn intent into a focused session"
+          body="Use the session picker when time or energy changes. Any workout you start remains yours to review and edit."
+          detail="Coach concept · every set is confirmed in the logger."
+          badgeLabel="Concept"
+          actionLabel="Choose a session"
+          onAction={() => router.push('/train/start')}
+          testID="train-coach-prompt"
+        />
 
         <NavGroup>
           <NavRow

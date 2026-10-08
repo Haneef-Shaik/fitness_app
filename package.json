@@ -5,7 +5,11 @@
   "scripts": {
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "supabase": "supabase"
+    "supabase": "supabase",
+    "plan:build": "node scripts/plan/build.mjs",
+    "plan:board": "node scripts/plan/serve.mjs",
+    "plan:status": "node scripts/plan/status.mjs",
+    "plan:test": "node --test scripts/plan/lib.test.mjs"
   },
   "pnpm": {
     "overrides": {

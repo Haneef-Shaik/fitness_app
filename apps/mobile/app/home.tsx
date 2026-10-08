@@ -37,6 +37,7 @@ import { NutritionCard } from '@/features/dashboard/NutritionCard';
 import { BodyCard } from '@/features/dashboard/BodyCard';
 import { GoalRow } from '@/features/body/GoalRow';
 import { weightGoalOf } from '@/features/body/JourneyCard';
+import { CoachPrompt } from '@/features/coach/CoachPrompt';
 import { space } from '@/theme';
 
 /** Once per process: the cold-start marker is about the first dashboard, not every visit. */
@@ -106,6 +107,16 @@ function Sections({ data, layout }: { data: Dashboard; layout: DashboardLayout }
             return null;
         }
       })}
+
+      <CoachPrompt
+        title="Make the next session easier to start"
+        body="Open the quick actions to choose a workout or meal flow. The final record still waits for your confirmation."
+        detail="Coach concept · nothing is written automatically."
+        badgeLabel="Concept"
+        actionLabel="Open quick actions"
+        onAction={() => router.push('/quick')}
+        testID="home-coach-prompt"
+      />
 
       {/* B-01 ends with one way to shape the page. Everything else is a
           tab — the wall of buttons that stood here was the navigation. */}

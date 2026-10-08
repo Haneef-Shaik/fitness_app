@@ -1,13 +1,12 @@
 /**
  * FitLog UI primitives — Text, Card, Button, Pill, Meter, Stat.
  *
- * The visual rules live in docs/15-UI-REDESIGN.md: tonal layering (page →
- * card → panel) with hairline outlines, one blue accent, Hanken Grotesk for
- * headlines and figures, Inter for everything else.
+ * The visual rules live in docs/19-UIUX-GYMS-COACH-OS.md: graphite tonal
+ * layering, a lime action colour and Hanken Grotesk used as one legible family.
  */
 import React from 'react';
 import {
-  ActivityIndicator, Pressable, Text as RNText, View,
+  AccessibilityInfo, ActivityIndicator, Pressable, Text as RNText, View,
   type PressableProps, type TextProps, type ViewProps, type TextStyle,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -48,7 +47,7 @@ export function Text({
   if (NUMERIC.includes(variant)) { base.letterSpacing = -0.5; base.lineHeight = Math.round(type[variant] * 1.08); }
   if (HEADLINE.includes(variant)) base.letterSpacing = -0.3;
   if (variant === 'label') {
-    base.letterSpacing = 0.7; base.textTransform = 'uppercase';
+    base.letterSpacing = 0.35;
     base.color = tone === 'ink' ? c.ink3 : textColor(c, tone);
   }
   return <RNText {...rest} style={[base, style]} />;
@@ -73,13 +72,8 @@ const PAD = { none: 0, sm: space.md, md: space.base, lg: space.lg } as const;
 export function Card({
   label, labelTone, right, hero, accent, nested, pad, style, children, ...rest
 }: CardProps) {
-  const { c, scheme } = useTheme();
+  const { c } = useTheme();
   const padding = PAD[pad ?? (hero ? 'lg' : 'md')];
-  const shadow = nested ? null : scheme === 'dark'
-    ? { shadowColor: '#000', shadowOpacity: hero ? 0.45 : 0.3, shadowRadius: hero ? 14 : 6,
-        shadowOffset: { width: 0, height: hero ? 6 : 2 }, elevation: hero ? 4 : 2 }
-    : { shadowColor: '#0B0C0D', shadowOpacity: hero ? 0.08 : 0.05, shadowRadius: hero ? 12 : 4,
-        shadowOffset: { width: 0, height: hero ? 4 : 1 }, elevation: hero ? 3 : 1 };
   return (
     <View
       {...rest}
@@ -87,12 +81,12 @@ export function Card({
         {
           backgroundColor: nested ? c.surface2 : c.surface,
           borderWidth: 1,
-          borderColor: accent ? withAlpha(c.accent, 0.5) : c.line,
-          borderRadius: nested ? radius.row : radius.card,
+          borderColor: accent ? withAlpha(c.accent, 0.68) : c.line,
+          borderRadius: nested ? radius.row : hero ? radius.lg : radius.card,
           padding,
           overflow: 'hidden',
         },
-        shadow,
+        hero && { shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
         style,
       ]}
     >
@@ -142,6 +136,15 @@ export function Button({
   title, kind = 'primary', size = 'md', icon, loading, disabled, style, ...rest
 }: ButtonProps) {
   const { c } = useTheme();
+  const [reduceMotion, setReduceMotion] = React.useState(false);
+  React.useEffect(() => {
+    let mounted = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (mounted) setReduceMotion(enabled);
+    });
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => { mounted = false; subscription.remove(); };
+  }, []);
   const own = React.useRef<View | null>(null);
   const focused = useFocusRing(own);
   const isPrimary = kind === 'primary';
@@ -174,7 +177,7 @@ export function Button({
           borderColor: border,
           opacity: disabled ? 0.45 : 1,
           // press feedback is scale + opacity only — never a layout shift
-          transform: [{ scale: pressed ? 0.98 : 1 }],
+          transform: [{ scale: pressed && !reduceMotion ? 0.98 : 1 }],
         },
         isPrimary && {
           shadowColor: c.accent, shadowOpacity: 0.3, shadowRadius: 10,

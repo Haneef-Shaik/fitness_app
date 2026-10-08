@@ -3,8 +3,10 @@
 > **Source of requirements:** `../fitness_nutrition_tracking_BRD_data_model.docx` (BRD v1.0)
 > This repository turns that BRD into a specified, designed and partly built product.
 
-**Status → [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)** · **Next tasks → [TODO.md](TODO.md)**
-The tracker is the only place that claims current status; everything else describes intent.
+**Plan and goal status → [23-MASTER-PLAN.md](23-MASTER-PLAN.md)** (local board: `node scripts/plan/serve.mjs`) ·
+**Evidence → [09-PROJECT-TRACKER.md](09-PROJECT-TRACKER.md)**
+Since 7 Oct 2026 `docs/plan/status.json` owns goal status and the tracker owns the evidence behind it
+(docs/23 §8); everything else describes intent.
 
 ---
 
@@ -12,7 +14,9 @@ The tracker is the only place that claims current status; everything else descri
 
 | If you want to… | Open |
 |-----------------|------|
-| See the current status | [Project Tracker](09-PROJECT-TRACKER.md) |
+| See the whole plan, what is ready and who is on what | [Master plan](23-MASTER-PLAN.md) → the local board: `node scripts/plan/serve.mjs` ([how](plan/README.md)) |
+| Start a goal in a fresh session | [plan/SESSION-PROMPT.md](plan/SESSION-PROMPT.md) |
+| See the evidence behind a status | [Project Tracker](09-PROJECT-TRACKER.md) |
 | Pick up the next task | [TODO.md](TODO.md) |
 | Get the app published | [Launch Plan](11-LAUNCH-PLAN.md) |
 | Know what to build next, and what to hand the next person | [Execution Goals](10-EXECUTION-GOALS.md) |
@@ -49,6 +53,9 @@ constraint in the product is **logging a set in under three seconds, one-handed,
 | 15 | [UI Redesign](15-UI-REDESIGN.md) | **The visual rebuild** — what the review found, the "Kinetic Performance" direction, tokens, primitives, screen status, how to review and merge. |
 | 16 | [PRD v2 — FitLog for Gyms](16-PRD-GYMS.md) | **What v2 adds:** the gym-owner platform, the member's gym surfaces, phone sign-in, Hindi, Pro gating all AI. Requirements, journeys, acceptance criteria AC-13…AC-28, open questions Q21–Q33. |
 | 17 | [Gyms implementation plan](17-GYMS-IMPLEMENTATION-PLAN.md) | **How v2 gets built:** architecture (data model, policy, jobs, integrations, app structure), goals **G12–G30** in the [10](10-EXECUTION-GOALS.md) anatomy, sequencing and kill switches, owner tasks. |
+| 21 | [UI rethink — The Logbook](21-UI-LOGBOOK-RETHINK.md) | **A second full UI direction in Figma (2 Oct 2026):** paper ground, two inks (black = confirmed, cobalt = anything the coach proposes), mono numerals; all 150 inventory screens plus states, the coach flows, components, variables and a motion spec; page 16 is a clickable prototype of seven flows. Proposal, not live. |
+| 22 | [UI direction 3 — Momentum](22-UI-MOMENTUM.md) | **An expressive, platform-native direction in Figma (4 Oct 2026):** Material 3 Expressive on Android and the iOS 26 idiom on iPhone, one loud element per screen, one accent (volt lime, chosen by a colour-blind separation test) plus neutrals, violet only for the AI coach, research-backed reward moments (weekly streaks, records, gym challenge), Dark and Light variables, keyframed motion, and every other screen in the inventory (owner and trainer workspaces included) on pages 06–15; every screen page is a clickable prototype (33 flows). Proposal, not live. |
+| 23 | [Master plan](23-MASTER-PLAN.md) | **The plan from today to a finished FitLog (7 Oct 2026):** 94 goals in [plan/GOALS.md](plan/GOALS.md) across 10 milestones (ground truth → platform → Momentum → store launch → gym pilot → Phase 2 → depth → exercise media last), 8 parallel session lanes plus the owner, and a local dependency board whose statuses live in `plan/status.json`. |
 | 06 | [Edge Cases & States](06-EDGE-CASES.md) | Every failure, empty, conflict, boundary and recovery case. |
 | 07 | [Traceability Matrix](07-TRACEABILITY.md) | BRD requirement → screen → API → acceptance criterion. |
 | 08 | [Project Charter](08-PROJECT-CHARTER.md) | Why the project exists, non-goals, definition of done, **decision log**. |

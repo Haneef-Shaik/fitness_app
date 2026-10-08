@@ -1,0 +1,68 @@
+{
+  "source": "docs/23 audit, 7 Oct 2026",
+  "goals": {
+    "PL-1": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "main was pushed on 2 Oct 2026 (TRK:26), but nobody has seen GitHub's verdict on ci.yml, and e2e.yml has never run on GitHub.",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    },
+    "QA-1": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "Working tree on 7 Oct: uncommitted Coach OS restyle (12 files, +142/-68), untracked app/gym preview (hard-coded data), CoachPrompt, DESIGN.md, PRODUCT.md, docs 19-22.",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    },
+    "OW-2": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "L1 is already decided (Supabase, D30). L6/Q6 looks closed by D33 but docs/11 still lists it open.",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    },
+    "OW-1": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "Momentum (docs/22) is the latest direction; no doc records the owner choosing it. Kinetic is committed; Coach OS is uncommitted.",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    },
+    "OW-9": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "No G12 evidence in the repo as of 7 Oct (no R4-validation, no counsel memo).",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    },
+    "PL-8": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "iOS has never been built (docs/11:141).",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    },
+    "AI-1": {
+      "status": "not started",
+      "who": "",
+      "ref": "",
+      "note": "config.py validate_settings does not refuse AI_PROVIDER=stub when deployed.",
+      "by": null,
+      "at": "2026-10-07T16:45:38.000Z",
+      "source": "docs/23 audit, 7 Oct 2026"
+    }
+  }
+}

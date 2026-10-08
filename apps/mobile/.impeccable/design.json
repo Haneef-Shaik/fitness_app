@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "name": "FitLog Coach OS",
+  "version": 1,
+  "platform": "adaptive",
+  "direction": "cinematic centre",
+  "typography": {
+    "family": "Hanken Grotesk",
+    "display": "HankenGrotesk_700Bold",
+    "body": "HankenGrotesk_400Regular",
+    "data": "HankenGrotesk_800ExtraBold"
+  },
+  "colors": {
+    "dark.page": "#0B0C0E",
+    "dark.surface": "#151719",
+    "dark.raised": "#1D2023",
+    "dark.ink": "#F6F7F2",
+    "dark.accent": "#D7FF4F",
+    "light.page": "#F7F6F2",
+    "light.surface": "#FFFFFF",
+    "light.accent": "#4F6400"
+  },
+  "shape": {
+    "card": 16,
+    "row": 10,
+    "control": 12,
+    "pill": 999
+  },
+  "motion": {
+    "pressScale": 0.98,
+    "pressDurationMs": 120,
+    "reducedMotion": "remove-translation-and-scale-keep-state-change"
+  },
+  "ai": {
+    "confirmation": "required",
+    "helperComponent": "src/features/coach/CoachPrompt.tsx",
+    "roles": ["member", "trainer", "owner"]
+  }
+}

@@ -17,8 +17,8 @@ import { Text } from '../index';
 import { font, radius, useTheme } from '../../theme';
 import { activeTab, TABS, type Tab } from './tabs';
 
-const BAR_HEIGHT = 62;
-const ACTION = 52;
+const BAR_HEIGHT = 72;
+const ACTION = 56;
 
 export function goToTab(href: Tab['href'], pathname: string) {
   if (pathname === href) return;
@@ -49,11 +49,11 @@ export function TabBar() {
             accessibilityLabel={tab.label}
             testID="tab-action"
             style={{
-              width: ACTION, height: ACTION, borderRadius: radius.card, marginTop: -ACTION / 3,
+              width: ACTION, height: ACTION, borderRadius: radius.pill, marginTop: -ACTION / 3,
               backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center',
               borderWidth: 3, borderColor: c.surface,
-              shadowColor: c.accent, shadowOpacity: 0.35, shadowRadius: 12,
-              shadowOffset: { width: 0, height: 6 }, elevation: 6,
+              shadowColor: c.accent, shadowOpacity: 0.28, shadowRadius: 12,
+              shadowOffset: { width: 0, height: 5 }, elevation: 5,
             }}
           >
             <Ionicons name="add" size={28} color={c.accentInk} />
@@ -67,7 +67,11 @@ export function TabBar() {
           accessibilityLabel={tab.label}
           accessibilityState={{ selected: current === tab.key }}
           testID={`tab-${tab.key}`}
-          style={{ flex: 1, height: BAR_HEIGHT, alignItems: 'center', justifyContent: 'center', gap: 3 }}
+          style={{
+            flex: 1, height: BAR_HEIGHT, alignItems: 'center', justifyContent: 'center', gap: 4,
+            paddingTop: 6, borderTopWidth: current === tab.key ? 2 : 0,
+            borderTopColor: c.accent,
+          }}
         >
           <Ionicons
             // The filled icon AND the brand label mark the active tab (00 §4);

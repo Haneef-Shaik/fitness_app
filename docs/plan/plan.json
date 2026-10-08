@@ -1,0 +1,1335 @@
+{
+  "title": "FitLog master plan",
+  "people": [
+    {
+      "name": "You",
+      "colour": "#9a3412"
+    },
+    {
+      "name": "S1 Platform",
+      "colour": "#1f6feb"
+    },
+    {
+      "name": "S2 Backend",
+      "colour": "#0e7490"
+    },
+    {
+      "name": "S3 Design",
+      "colour": "#7c3aed"
+    },
+    {
+      "name": "S4 Member app",
+      "colour": "#15803d"
+    },
+    {
+      "name": "S5 Gym app",
+      "colour": "#be185d"
+    },
+    {
+      "name": "S6 AI & Pro",
+      "colour": "#c2410c"
+    },
+    {
+      "name": "S7 Quality",
+      "colour": "#475569"
+    },
+    {
+      "name": "Milestones",
+      "colour": "#18212b"
+    }
+  ],
+  "tracks": {
+    "M0": "Ground truth",
+    "M1": "Production platform",
+    "M2": "Momentum foundations",
+    "M3": "Member app in Momentum",
+    "M4": "Launch foundations: phone, Hindi, Pro",
+    "M5": "Store launch",
+    "M6": "Gym pilot (MVP)",
+    "M7": "Gym Phase 2 (after the pilot gate)",
+    "M8": "Depth and polish",
+    "M9": "Exercise media (last)"
+  },
+  "syncPoints": [
+    {
+      "id": "SP1",
+      "goals": [
+        "DS-5"
+      ],
+      "text": "SP1 kit + shell freeze: S3 hands tokens, components and the tab shell to every screen session"
+    },
+    {
+      "id": "SP2",
+      "goals": [
+        "G14.app"
+      ],
+      "text": "SP2 string catalog: S4 hands t(), the locale formatters and the guard ratchet to every screen session"
+    },
+    {
+      "id": "SP3",
+      "goals": [
+        "G15.api",
+        "G16.api",
+        "G17.api",
+        "G18.api",
+        "G19.api",
+        "G20.api",
+        "G21.api",
+        "G22.api"
+      ],
+      "text": "SP3 API contract: the .api goal merges migrations, routes and regenerated packages/api-types before its .app goal starts"
+    }
+  ],
+  "config": {
+    "subtitle": "From docs/plan/GOALS.md (7 Oct 2026). Lanes are parallel Claude Code sessions plus you. Columns are the earliest wave a goal can start.",
+    "milestone": "MS-5",
+    "milestoneLabel": "Store launch",
+    "sizes": {
+      "S": "one short session (half a day or less)",
+      "M": "one full session",
+      "L": "two or three sessions; work through the card's steps in order"
+    },
+    "firstStepLabel": "Wave 0",
+    "stepLabel": "Wave",
+    "workflowHint": "Pick the top Ready goal in your lane. Claim it with `node scripts/plan/status.mjs set <ID> start --who <lane>`, run it with docs/plan/SESSION-PROMPT.md, set In review when the PR is up and Done when it is merged to main. Only Done unblocks the goals that wait on it.",
+    "refPlaceholder": "branch, PR or commit, e.g. plan/ds-1-tokens",
+    "hubs": [
+      {
+        "key": "T",
+        "ids": [
+          "QA-1"
+        ],
+        "text": "T = QA-1, a clean main"
+      },
+      {
+        "key": "F",
+        "ids": [
+          "MS-2"
+        ],
+        "text": "F = MS-2, Momentum foundations"
+      },
+      {
+        "key": "L",
+        "ids": [
+          "MS-5"
+        ],
+        "text": "L = MS-5, the store launch"
+      }
+    ],
+    "slug": "fitlog-master-plan"
+  },
+  "goals": [
+    {
+      "id": "OW-1",
+      "title": "Choose the UI direction and settle its open rules",
+      "owner": "You",
+      "needs": [],
+      "size": "S",
+      "track": "M0",
+      "label": "pick UI direction",
+      "doc": "docs/plan/GOALS.md#ow-1--choose-the-ui-direction-and-settle-its-open-rules"
+    },
+    {
+      "id": "OW-2",
+      "title": "Make the launch decisions",
+      "owner": "You",
+      "needs": [],
+      "size": "S",
+      "track": "M0",
+      "label": "launch decisions",
+      "doc": "docs/plan/GOALS.md#ow-2--make-the-launch-decisions"
+    },
+    {
+      "id": "QA-1",
+      "title": "Triage the working tree",
+      "owner": "S7 Quality",
+      "needs": [
+        "OW-1"
+      ],
+      "size": "S",
+      "track": "M0",
+      "label": "clean main",
+      "doc": "docs/plan/GOALS.md#qa-1--triage-the-working-tree"
+    },
+    {
+      "id": "QA-2",
+      "title": "Reconcile the docs with reality",
+      "owner": "S7 Quality",
+      "needs": [
+        "QA-1",
+        "OW-2"
+      ],
+      "size": "M",
+      "track": "M0",
+      "label": "docs reconciled",
+      "doc": "docs/plan/GOALS.md#qa-2--reconcile-the-docs-with-reality"
+    },
+    {
+      "id": "QA-9",
+      "title": "Lint and coverage gates",
+      "owner": "S7 Quality",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M0",
+      "label": "lint + coverage",
+      "doc": "docs/plan/GOALS.md#qa-9--lint-and-coverage-gates"
+    },
+    {
+      "id": "PL-1",
+      "title": "CI green on GitHub, e2e run once, main protected",
+      "owner": "S1 Platform",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "S",
+      "track": "M0",
+      "label": "CI green",
+      "doc": "docs/plan/GOALS.md#pl-1--ci-green-on-github-e2e-run-once-main-protected"
+    },
+    {
+      "id": "MS-0",
+      "title": "Ground truth",
+      "owner": "Milestones",
+      "needs": [
+        "OW-1",
+        "OW-2",
+        "QA-2",
+        "QA-9",
+        "PL-1"
+      ],
+      "size": "S",
+      "track": "M0",
+      "label": "M0 ground truth",
+      "doc": "docs/plan/GOALS.md#ms-0--ground-truth"
+    },
+    {
+      "id": "OW-3",
+      "title": "Open the platform accounts",
+      "owner": "You",
+      "needs": [
+        "OW-2"
+      ],
+      "size": "M",
+      "track": "M1",
+      "label": "platform accounts",
+      "doc": "docs/plan/GOALS.md#ow-3--open-the-platform-accounts"
+    },
+    {
+      "id": "PL-2",
+      "title": "Staging environment end to end",
+      "owner": "S1 Platform",
+      "needs": [
+        "OW-3",
+        "PL-1"
+      ],
+      "size": "M",
+      "track": "M1",
+      "label": "staging live",
+      "doc": "docs/plan/GOALS.md#pl-2--staging-environment-end-to-end"
+    },
+    {
+      "id": "PL-3",
+      "title": "Email that arrives",
+      "owner": "S1 Platform",
+      "needs": [
+        "PL-2"
+      ],
+      "size": "S",
+      "track": "M1",
+      "label": "email + reset",
+      "doc": "docs/plan/GOALS.md#pl-3--email-that-arrives"
+    },
+    {
+      "id": "PL-4",
+      "title": "Production environment",
+      "owner": "S1 Platform",
+      "needs": [
+        "PL-2"
+      ],
+      "size": "M",
+      "track": "M1",
+      "label": "production live",
+      "doc": "docs/plan/GOALS.md#pl-4--production-environment"
+    },
+    {
+      "id": "PL-5",
+      "title": "Backups and the restore drill",
+      "owner": "S1 Platform",
+      "needs": [
+        "PL-4"
+      ],
+      "size": "S",
+      "track": "M1",
+      "label": "restore drill",
+      "doc": "docs/plan/GOALS.md#pl-5--backups-and-the-restore-drill"
+    },
+    {
+      "id": "PL-6",
+      "title": "Push notifications switched on",
+      "owner": "S1 Platform",
+      "needs": [
+        "OW-3"
+      ],
+      "size": "S",
+      "track": "M1",
+      "label": "push on",
+      "doc": "docs/plan/GOALS.md#pl-6--push-notifications-switched-on"
+    },
+    {
+      "id": "AI-1",
+      "title": "Production AI provider, guarded",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "PL-2"
+      ],
+      "size": "S",
+      "track": "M1",
+      "label": "real AI, guarded",
+      "doc": "docs/plan/GOALS.md#ai-1--production-ai-provider-guarded"
+    },
+    {
+      "id": "MS-1",
+      "title": "Production platform",
+      "owner": "Milestones",
+      "needs": [
+        "PL-3",
+        "PL-4",
+        "PL-5",
+        "PL-6",
+        "AI-1"
+      ],
+      "size": "S",
+      "track": "M1",
+      "label": "M1 platform",
+      "doc": "docs/plan/GOALS.md#ms-1--production-platform"
+    },
+    {
+      "id": "DS-1",
+      "title": "Colour tokens and theme",
+      "owner": "S3 Design",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M2",
+      "label": "colour tokens",
+      "doc": "docs/plan/GOALS.md#ds-1--colour-tokens-and-theme"
+    },
+    {
+      "id": "DS-2",
+      "title": "Type ramp and fonts",
+      "owner": "S3 Design",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M2",
+      "label": "type + fonts",
+      "doc": "docs/plan/GOALS.md#ds-2--type-ramp-and-fonts"
+    },
+    {
+      "id": "DS-3",
+      "title": "Motion and haptics",
+      "owner": "S5 Gym app",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M2",
+      "label": "motion + haptics",
+      "doc": "docs/plan/GOALS.md#ds-3--motion-and-haptics"
+    },
+    {
+      "id": "DS-4",
+      "title": "Component kit",
+      "owner": "S3 Design",
+      "needs": [
+        "DS-1",
+        "DS-2",
+        "DS-3"
+      ],
+      "size": "L",
+      "track": "M2",
+      "label": "component kit",
+      "doc": "docs/plan/GOALS.md#ds-4--component-kit"
+    },
+    {
+      "id": "DS-5",
+      "title": "Shell and navigation",
+      "owner": "S3 Design",
+      "needs": [
+        "DS-4"
+      ],
+      "size": "M",
+      "track": "M2",
+      "label": "shell + tabs",
+      "doc": "docs/plan/GOALS.md#ds-5--shell-and-navigation"
+    },
+    {
+      "id": "G14.app",
+      "title": "Strings catalog, locale formats and the Hindi spine (G14 part 1)",
+      "owner": "S4 Member app",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M2",
+      "label": "i18n spine",
+      "doc": "docs/plan/GOALS.md#g14app--strings-catalog-locale-formats-and-the-hindi-spine-g14-part-1"
+    },
+    {
+      "id": "MS-2",
+      "title": "Momentum foundations",
+      "owner": "Milestones",
+      "needs": [
+        "DS-5",
+        "G14.app"
+      ],
+      "size": "S",
+      "track": "M2",
+      "label": "M2 foundations",
+      "doc": "docs/plan/GOALS.md#ms-2--momentum-foundations"
+    },
+    {
+      "id": "SC-1",
+      "title": "Member hero loop",
+      "owner": "S3 Design",
+      "needs": [
+        "MS-2"
+      ],
+      "size": "L",
+      "track": "M3",
+      "label": "hero screens",
+      "doc": "docs/plan/GOALS.md#sc-1--member-hero-loop"
+    },
+    {
+      "id": "SC-2",
+      "title": "Train, logger details and history",
+      "owner": "S4 Member app",
+      "needs": [
+        "SC-1"
+      ],
+      "size": "L",
+      "track": "M3",
+      "label": "train + history",
+      "doc": "docs/plan/GOALS.md#sc-2--train-logger-details-and-history"
+    },
+    {
+      "id": "SC-3",
+      "title": "Analytics, body and goals",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-2"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "analytics + body",
+      "doc": "docs/plan/GOALS.md#sc-3--analytics-body-and-goals"
+    },
+    {
+      "id": "SC-4",
+      "title": "Food",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-2",
+        "SC-1"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "food screens",
+      "doc": "docs/plan/GOALS.md#sc-4--food"
+    },
+    {
+      "id": "SC-5",
+      "title": "Auth and onboarding",
+      "owner": "S3 Design",
+      "needs": [
+        "MS-2"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "auth + onboarding",
+      "doc": "docs/plan/GOALS.md#sc-5--auth-and-onboarding"
+    },
+    {
+      "id": "SC-6",
+      "title": "Settings",
+      "owner": "S5 Gym app",
+      "needs": [
+        "MS-2"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "settings screens",
+      "doc": "docs/plan/GOALS.md#sc-6--settings"
+    },
+    {
+      "id": "SC-7",
+      "title": "System states",
+      "owner": "S3 Design",
+      "needs": [
+        "DS-4"
+      ],
+      "size": "S",
+      "track": "M3",
+      "label": "system states",
+      "doc": "docs/plan/GOALS.md#sc-7--system-states"
+    },
+    {
+      "id": "AP-1",
+      "title": "Manage programs, exercises and custom foods",
+      "owner": "S5 Gym app",
+      "needs": [
+        "DS-4"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "manage menus",
+      "doc": "docs/plan/GOALS.md#ap-1--manage-programs-exercises-and-custom-foods"
+    },
+    {
+      "id": "AP-2",
+      "title": "Edit a past session properly (F-04)",
+      "owner": "S5 Gym app",
+      "needs": [
+        "DS-4"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "past-session edit",
+      "doc": "docs/plan/GOALS.md#ap-2--edit-a-past-session-properly-f-04"
+    },
+    {
+      "id": "QA-3",
+      "title": "Momentum verification pass",
+      "owner": "S7 Quality",
+      "needs": [
+        "SC-1",
+        "SC-2",
+        "SC-3",
+        "SC-4",
+        "SC-5",
+        "SC-6",
+        "SC-7",
+        "AP-1",
+        "AP-2"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "verify Momentum",
+      "doc": "docs/plan/GOALS.md#qa-3--momentum-verification-pass"
+    },
+    {
+      "id": "MS-3",
+      "title": "Member app in Momentum",
+      "owner": "Milestones",
+      "needs": [
+        "QA-3"
+      ],
+      "size": "S",
+      "track": "M3",
+      "label": "M3 member app",
+      "doc": "docs/plan/GOALS.md#ms-3--member-app-in-momentum"
+    },
+    {
+      "id": "OW-5",
+      "title": "Start the SMS and WhatsApp registrations",
+      "owner": "You",
+      "needs": [
+        "OW-2"
+      ],
+      "size": "M",
+      "track": "M4",
+      "label": "DLT + Meta setup",
+      "doc": "docs/plan/GOALS.md#ow-5--start-the-sms-and-whatsapp-registrations"
+    },
+    {
+      "id": "OW-7",
+      "title": "Set the Pro price and the store products",
+      "owner": "You",
+      "needs": [
+        "OW-4"
+      ],
+      "size": "S",
+      "track": "M4",
+      "label": "Pro price + products",
+      "doc": "docs/plan/GOALS.md#ow-7--set-the-pro-price-and-the-store-products"
+    },
+    {
+      "id": "G13",
+      "title": "Phone sign-in",
+      "owner": "S2 Backend",
+      "needs": [
+        "QA-1",
+        "OW-5"
+      ],
+      "size": "L",
+      "track": "M4",
+      "label": "phone sign-in",
+      "doc": "docs/plan/GOALS.md#g13--phone-sign-in"
+    },
+    {
+      "id": "G14.data",
+      "title": "Indian food depth and Hinglish search (G14 part 2)",
+      "owner": "S2 Backend",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M4",
+      "label": "Indian food 500+",
+      "doc": "docs/plan/GOALS.md#g14data--indian-food-depth-and-hinglish-search-g14-part-2"
+    },
+    {
+      "id": "G15.api",
+      "title": "Pro entitlements on the server",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "OW-7",
+        "AI-1"
+      ],
+      "size": "M",
+      "track": "M4",
+      "label": "entitlements API",
+      "doc": "docs/plan/GOALS.md#g15api--pro-entitlements-on-the-server"
+    },
+    {
+      "id": "G15.app",
+      "title": "Paywall and Pro in the app",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "G15.api",
+        "MS-2"
+      ],
+      "size": "M",
+      "track": "M4",
+      "label": "paywall + ProGate",
+      "doc": "docs/plan/GOALS.md#g15app--paywall-and-pro-in-the-app"
+    },
+    {
+      "id": "MS-4",
+      "title": "Launch foundations",
+      "owner": "Milestones",
+      "needs": [
+        "G13",
+        "G14.data",
+        "G15.app"
+      ],
+      "size": "S",
+      "track": "M4",
+      "label": "M4 phone/Hindi/Pro",
+      "doc": "docs/plan/GOALS.md#ms-4--launch-foundations"
+    },
+    {
+      "id": "OW-4",
+      "title": "Store accounts and signing keys",
+      "owner": "You",
+      "needs": [
+        "OW-2"
+      ],
+      "size": "S",
+      "track": "M5",
+      "label": "store accounts",
+      "doc": "docs/plan/GOALS.md#ow-4--store-accounts-and-signing-keys"
+    },
+    {
+      "id": "OW-6",
+      "title": "Legal pages and counsel review",
+      "owner": "You",
+      "needs": [
+        "OW-2",
+        "OW-3",
+        "PL-4"
+      ],
+      "size": "M",
+      "track": "M5",
+      "label": "legal + counsel",
+      "doc": "docs/plan/GOALS.md#ow-6--legal-pages-and-counsel-review"
+    },
+    {
+      "id": "DS-6",
+      "title": "App icon, splash and store art",
+      "owner": "S3 Design",
+      "needs": [
+        "OW-1",
+        "OW-2"
+      ],
+      "size": "S",
+      "track": "M5",
+      "label": "icon + store art",
+      "doc": "docs/plan/GOALS.md#ds-6--app-icon-splash-and-store-art"
+    },
+    {
+      "id": "OW-13",
+      "title": "Skim the drafted exercise instructions",
+      "owner": "You",
+      "needs": [],
+      "size": "S",
+      "track": "M5",
+      "label": "skim exercise texts",
+      "doc": "docs/plan/GOALS.md#ow-13--skim-the-drafted-exercise-instructions"
+    },
+    {
+      "id": "PL-7",
+      "title": "Android store build",
+      "owner": "S1 Platform",
+      "needs": [
+        "OW-4",
+        "PL-4",
+        "DS-6"
+      ],
+      "size": "S",
+      "track": "M5",
+      "label": "Android store build",
+      "doc": "docs/plan/GOALS.md#pl-7--android-store-build"
+    },
+    {
+      "id": "PL-8",
+      "title": "iOS build and device proof",
+      "owner": "S1 Platform",
+      "needs": [
+        "OW-4",
+        "PL-4",
+        "DS-6"
+      ],
+      "size": "L",
+      "track": "M5",
+      "label": "iOS build",
+      "doc": "docs/plan/GOALS.md#pl-8--ios-build-and-device-proof"
+    },
+    {
+      "id": "QA-4",
+      "title": "Device walkthroughs and accessibility on both platforms",
+      "owner": "S7 Quality",
+      "needs": [
+        "PL-7",
+        "PL-8",
+        "MS-3",
+        "MS-4"
+      ],
+      "size": "M",
+      "track": "M5",
+      "label": "device walkthroughs",
+      "doc": "docs/plan/GOALS.md#qa-4--device-walkthroughs-and-accessibility-on-both-platforms"
+    },
+    {
+      "id": "QA-5",
+      "title": "Store listings and compliance forms",
+      "owner": "S7 Quality",
+      "needs": [
+        "OW-6",
+        "OW-13",
+        "PL-7",
+        "PL-8",
+        "MS-3",
+        "MS-4"
+      ],
+      "size": "M",
+      "track": "M5",
+      "label": "listings + forms",
+      "doc": "docs/plan/GOALS.md#qa-5--store-listings-and-compliance-forms"
+    },
+    {
+      "id": "OW-8",
+      "title": "Recruit the beta testers",
+      "owner": "You",
+      "needs": [
+        "OW-2"
+      ],
+      "size": "S",
+      "track": "M5",
+      "label": "beta testers",
+      "doc": "docs/plan/GOALS.md#ow-8--recruit-the-beta-testers"
+    },
+    {
+      "id": "QA-6",
+      "title": "Beta on both stores",
+      "owner": "S7 Quality",
+      "needs": [
+        "QA-4",
+        "QA-5",
+        "OW-8",
+        "MS-1"
+      ],
+      "size": "L",
+      "track": "M5",
+      "label": "beta 14 days",
+      "doc": "docs/plan/GOALS.md#qa-6--beta-on-both-stores"
+    },
+    {
+      "id": "QA-7",
+      "title": "Launch: staged rollout and launch-week watch",
+      "owner": "S7 Quality",
+      "needs": [
+        "QA-6"
+      ],
+      "size": "M",
+      "track": "M5",
+      "label": "launch",
+      "doc": "docs/plan/GOALS.md#qa-7--launch-staged-rollout-and-launch-week-watch"
+    },
+    {
+      "id": "MS-5",
+      "title": "Store launch",
+      "owner": "Milestones",
+      "needs": [
+        "QA-7"
+      ],
+      "size": "S",
+      "track": "M5",
+      "label": "M5 STORE LAUNCH",
+      "doc": "docs/plan/GOALS.md#ms-5--store-launch"
+    },
+    {
+      "id": "OW-9",
+      "title": "Field validation (G12): interviews, counsel, pilot gyms, pre-sell",
+      "owner": "You",
+      "needs": [],
+      "size": "L",
+      "track": "M6",
+      "label": "G12 field work",
+      "doc": "docs/plan/GOALS.md#ow-9--field-validation-g12-interviews-counsel-pilot-gyms-pre-sell"
+    },
+    {
+      "id": "AI-2",
+      "title": "Food-AI accuracy harness (G12 part)",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "QA-1",
+        "OW-3"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "AI accuracy test",
+      "doc": "docs/plan/GOALS.md#ai-2--food-ai-accuracy-harness-g12-part"
+    },
+    {
+      "id": "OW-10",
+      "title": "G12 go/no-go memo",
+      "owner": "You",
+      "needs": [
+        "OW-9",
+        "AI-2"
+      ],
+      "size": "S",
+      "track": "M6",
+      "label": "G12 go memo",
+      "doc": "docs/plan/GOALS.md#ow-10--g12-gono-go-memo"
+    },
+    {
+      "id": "OW-11",
+      "title": "WhatsApp templates approved",
+      "owner": "You",
+      "needs": [
+        "OW-5",
+        "OW-10"
+      ],
+      "size": "S",
+      "track": "M6",
+      "label": "Meta templates",
+      "doc": "docs/plan/GOALS.md#ow-11--whatsapp-templates-approved"
+    },
+    {
+      "id": "G16.api",
+      "title": "Gym tenancy, roles, policy, consent, audit and jobs",
+      "owner": "S2 Backend",
+      "needs": [
+        "OW-10",
+        "G13"
+      ],
+      "size": "L",
+      "track": "M6",
+      "label": "tenancy API",
+      "doc": "docs/plan/GOALS.md#g16api--gym-tenancy-roles-policy-consent-audit-and-jobs"
+    },
+    {
+      "id": "G16.app",
+      "title": "Workspaces and the gym shell",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G16.api",
+        "MS-2"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "workspace switcher",
+      "doc": "docs/plan/GOALS.md#g16app--workspaces-and-the-gym-shell"
+    },
+    {
+      "id": "G17.api",
+      "title": "Owner core on the server",
+      "owner": "S2 Backend",
+      "needs": [
+        "G16.api"
+      ],
+      "size": "L",
+      "track": "M6",
+      "label": "owner core API",
+      "doc": "docs/plan/GOALS.md#g17api--owner-core-on-the-server"
+    },
+    {
+      "id": "G17.app",
+      "title": "Owner screens",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G17.api",
+        "G16.app"
+      ],
+      "size": "L",
+      "track": "M6",
+      "label": "owner screens",
+      "doc": "docs/plan/GOALS.md#g17app--owner-screens"
+    },
+    {
+      "id": "G18.api",
+      "title": "Members join, on the server",
+      "owner": "S2 Backend",
+      "needs": [
+        "G17.api",
+        "G13",
+        "OW-11"
+      ],
+      "size": "L",
+      "track": "M6",
+      "label": "join + WhatsApp API",
+      "doc": "docs/plan/GOALS.md#g18api--members-join-on-the-server"
+    },
+    {
+      "id": "G18.app",
+      "title": "Join a gym and the gym card",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G18.api",
+        "G17.app"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "join + gym card",
+      "doc": "docs/plan/GOALS.md#g18app--join-a-gym-and-the-gym-card"
+    },
+    {
+      "id": "G19.api",
+      "title": "Visits without a gate",
+      "owner": "S2 Backend",
+      "needs": [
+        "G18.api"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "visits API",
+      "doc": "docs/plan/GOALS.md#g19api--visits-without-a-gate"
+    },
+    {
+      "id": "G19.app",
+      "title": "Check-in scanner and visit screens",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G19.api",
+        "G18.app"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "check-in scanner",
+      "doc": "docs/plan/GOALS.md#g19app--check-in-scanner-and-visit-screens"
+    },
+    {
+      "id": "G20.api",
+      "title": "Alerts, renewal reminders and exit reasons",
+      "owner": "S2 Backend",
+      "needs": [
+        "G19.api",
+        "OW-11"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "retention API",
+      "doc": "docs/plan/GOALS.md#g20api--alerts-renewal-reminders-and-exit-reasons"
+    },
+    {
+      "id": "G20.app",
+      "title": "Today's calls",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G20.api",
+        "G17.app"
+      ],
+      "size": "S",
+      "track": "M6",
+      "label": "today's calls",
+      "doc": "docs/plan/GOALS.md#g20app--todays-calls"
+    },
+    {
+      "id": "G21.api",
+      "title": "Trainer plan loop on the server",
+      "owner": "S2 Backend",
+      "needs": [
+        "G18.api"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "trainer API",
+      "doc": "docs/plan/GOALS.md#g21api--trainer-plan-loop-on-the-server"
+    },
+    {
+      "id": "G21.app",
+      "title": "Trainer workspace",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G21.api",
+        "G18.app"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "trainer screens",
+      "doc": "docs/plan/GOALS.md#g21app--trainer-workspace"
+    },
+    {
+      "id": "G22.api",
+      "title": "Challenges, share cards and referrals on the server",
+      "owner": "S2 Backend",
+      "needs": [
+        "G19.api"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "challenges API",
+      "doc": "docs/plan/GOALS.md#g22api--challenges-share-cards-and-referrals-on-the-server"
+    },
+    {
+      "id": "G22.app",
+      "title": "Challenge, leaderboard and refer screens",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G22.api",
+        "G19.app"
+      ],
+      "size": "M",
+      "track": "M6",
+      "label": "challenge screens",
+      "doc": "docs/plan/GOALS.md#g22app--challenge-leaderboard-and-refer-screens"
+    },
+    {
+      "id": "G23",
+      "title": "Pilot release",
+      "owner": "S7 Quality",
+      "needs": [
+        "G17.app",
+        "G18.app",
+        "G19.app",
+        "G20.app",
+        "G21.app",
+        "G22.app",
+        "PL-7",
+        "PL-8",
+        "OW-6",
+        "MS-4"
+      ],
+      "size": "L",
+      "track": "M6",
+      "label": "pilot release",
+      "doc": "docs/plan/GOALS.md#g23--pilot-release"
+    },
+    {
+      "id": "MS-6",
+      "title": "Gym pilot (MVP)",
+      "owner": "Milestones",
+      "needs": [
+        "G23"
+      ],
+      "size": "S",
+      "track": "M6",
+      "label": "M6 gym pilot",
+      "doc": "docs/plan/GOALS.md#ms-6--gym-pilot-mvp"
+    },
+    {
+      "id": "OW-12",
+      "title": "Run the pilot and call the gate",
+      "owner": "You",
+      "needs": [
+        "MS-6"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "pilot gate call",
+      "doc": "docs/plan/GOALS.md#ow-12--run-the-pilot-and-call-the-gate"
+    },
+    {
+      "id": "G24",
+      "title": "Owner Pro and AI assistance",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "OW-12",
+        "G15.api",
+        "G20.api"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "Owner Pro",
+      "doc": "docs/plan/GOALS.md#g24--owner-pro-and-ai-assistance"
+    },
+    {
+      "id": "G25",
+      "title": "Member AI set logging and weekly review",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "OW-12",
+        "G15.app"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "member AI",
+      "doc": "docs/plan/GOALS.md#g25--member-ai-set-logging-and-weekly-review"
+    },
+    {
+      "id": "G26",
+      "title": "AI calling (gated by counsel)",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "OW-12",
+        "G24"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "AI calling",
+      "doc": "docs/plan/GOALS.md#g26--ai-calling-gated-by-counsel"
+    },
+    {
+      "id": "G27",
+      "title": "Online collection and Autopay",
+      "owner": "S2 Backend",
+      "needs": [
+        "OW-12",
+        "G17.api"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "online payments",
+      "doc": "docs/plan/GOALS.md#g27--online-collection-and-autopay"
+    },
+    {
+      "id": "G28",
+      "title": "Web console and multi-branch",
+      "owner": "S5 Gym app",
+      "needs": [
+        "OW-12",
+        "G17.app"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "web console",
+      "doc": "docs/plan/GOALS.md#g28--web-console-and-multi-branch"
+    },
+    {
+      "id": "G29.api",
+      "title": "Retention depth on the server",
+      "owner": "S2 Backend",
+      "needs": [
+        "OW-12",
+        "G22.api"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "retention depth API",
+      "doc": "docs/plan/GOALS.md#g29api--retention-depth-on-the-server"
+    },
+    {
+      "id": "G29.app",
+      "title": "Retention depth in the app",
+      "owner": "S5 Gym app",
+      "needs": [
+        "G29.api",
+        "G22.app"
+      ],
+      "size": "L",
+      "track": "M7",
+      "label": "retention depth app",
+      "doc": "docs/plan/GOALS.md#g29app--retention-depth-in-the-app"
+    },
+    {
+      "id": "G30",
+      "title": "Register reader (the one free AI)",
+      "owner": "S6 AI & Pro",
+      "needs": [
+        "OW-12",
+        "AI-2"
+      ],
+      "size": "M",
+      "track": "M7",
+      "label": "register reader",
+      "doc": "docs/plan/GOALS.md#g30--register-reader-the-one-free-ai"
+    },
+    {
+      "id": "MS-7",
+      "title": "Gym Phase 2",
+      "owner": "Milestones",
+      "needs": [
+        "G24",
+        "G25",
+        "G26",
+        "G27",
+        "G28",
+        "G29.app",
+        "G30"
+      ],
+      "size": "S",
+      "track": "M7",
+      "label": "M7 Phase 2",
+      "doc": "docs/plan/GOALS.md#ms-7--gym-phase-2"
+    },
+    {
+      "id": "AP-3",
+      "title": "Progression engine: next session's weights, by rule",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "L",
+      "track": "M8",
+      "label": "progression engine",
+      "doc": "docs/plan/GOALS.md#ap-3--progression-engine-next-sessions-weights-by-rule"
+    },
+    {
+      "id": "AP-4",
+      "title": "Muscle body map",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "body map",
+      "doc": "docs/plan/GOALS.md#ap-4--muscle-body-map"
+    },
+    {
+      "id": "AP-5",
+      "title": "Small parity wins",
+      "owner": "S3 Design",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "parity wins",
+      "doc": "docs/plan/GOALS.md#ap-5--small-parity-wins"
+    },
+    {
+      "id": "AP-6",
+      "title": "Offline reads",
+      "owner": "S1 Platform",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "offline reads",
+      "doc": "docs/plan/GOALS.md#ap-6--offline-reads"
+    },
+    {
+      "id": "AP-7",
+      "title": "Barcode scanner (H-17)",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "barcode scanner",
+      "doc": "docs/plan/GOALS.md#ap-7--barcode-scanner-h-17"
+    },
+    {
+      "id": "AP-8",
+      "title": "Home-screen widgets",
+      "owner": "S3 Design",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "widgets",
+      "doc": "docs/plan/GOALS.md#ap-8--home-screen-widgets"
+    },
+    {
+      "id": "QA-8",
+      "title": "TalkBack formatting spans re-test (#28)",
+      "owner": "S7 Quality",
+      "needs": [
+        "QA-3"
+      ],
+      "size": "S",
+      "track": "M8",
+      "label": "TalkBack #28",
+      "doc": "docs/plan/GOALS.md#qa-8--talkback-formatting-spans-re-test-28"
+    },
+    {
+      "id": "QA-10",
+      "title": "Client coverage to 80%",
+      "owner": "S7 Quality",
+      "needs": [
+        "QA-9",
+        "MS-3"
+      ],
+      "size": "L",
+      "track": "M8",
+      "label": "coverage 80%",
+      "doc": "docs/plan/GOALS.md#qa-10--client-coverage-to-80"
+    },
+    {
+      "id": "MS-8",
+      "title": "Depth and polish",
+      "owner": "Milestones",
+      "needs": [
+        "AP-3",
+        "AP-4",
+        "AP-5",
+        "AP-6",
+        "AP-7",
+        "AP-8",
+        "QA-8",
+        "QA-10"
+      ],
+      "size": "S",
+      "track": "M8",
+      "label": "M8 depth",
+      "doc": "docs/plan/GOALS.md#ms-8--depth-and-polish"
+    },
+    {
+      "id": "OW-14",
+      "title": "Choose the exercise media source",
+      "owner": "You",
+      "needs": [
+        "MS-7",
+        "MS-8"
+      ],
+      "size": "S",
+      "track": "M9",
+      "label": "pick media source",
+      "doc": "docs/plan/GOALS.md#ow-14--choose-the-exercise-media-source"
+    },
+    {
+      "id": "AP-9",
+      "title": "Exercise media in the app",
+      "owner": "S4 Member app",
+      "needs": [
+        "OW-14"
+      ],
+      "size": "M",
+      "track": "M9",
+      "label": "exercise media",
+      "doc": "docs/plan/GOALS.md#ap-9--exercise-media-in-the-app"
+    },
+    {
+      "id": "MS-9",
+      "title": "Complete",
+      "owner": "Milestones",
+      "needs": [
+        "AP-9"
+      ],
+      "size": "S",
+      "track": "M9",
+      "label": "M9 complete",
+      "doc": "docs/plan/GOALS.md#ms-9--complete"
+    }
+  ]
+}

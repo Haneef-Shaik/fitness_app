@@ -3,6 +3,9 @@
 > Start a fresh Claude Code session in `/Users/Adya/personals/fitness_app` and paste everything
 > below the line, replacing `<ID>` with the goal id (for example `DS-1`) and `<LANE>` with your
 > lane (for example `S3`). One goal per session.
+>
+> **Shortcut:** type `/run-goal <ID>` instead. The `run-goal` skill (`.claude/skills/run-goal/`)
+> carries the same procedure and is what the `goal-implementer` agent uses.
 
 ---
 

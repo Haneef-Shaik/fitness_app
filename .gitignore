@@ -32,3 +32,6 @@ services/api/var/
 docs/plan/.plan.lock
 docs/plan/*.tmp
 docs/plan/plan.json.next
+
+# Claude Code: worktrees made for isolated sub-agents (goal-implementer)
+.claude/worktrees/

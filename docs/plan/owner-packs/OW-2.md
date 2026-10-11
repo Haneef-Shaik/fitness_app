@@ -154,7 +154,7 @@ The region **cannot be changed later** (docs/12 §8 step 1).
 
 Crash reports carry no names, emails, bodies or IP addresses. The code strips them (docs/12 §8).
 
-**Answer:** ______
+**Answer:** our target udience is India/US and Europe all
 
 ---
 

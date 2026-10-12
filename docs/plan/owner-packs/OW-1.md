@@ -1,3 +1,24 @@
+# OW-1 — selected visual direction and current scope
+
+**Product decision recorded11 October2026.** Momentum remains selected: volt lime accent, complete
+dark/light/system, no competing green, platform-native controls,≥48dp targets,96dp Log set, Reduce
+Motion and one prominent action/state. Fresh reset means there is no Coach OS implementation to merge.
+
+Member tabs Today·Train·Food·Progress·Gym (Gym Join after pilot enablement); operational staff tabs
+Today·Members·Money·Visits·More; no trainer role/tabs. Retirement T-01–T-05 and revised N-05/N-06 plus
+new O-23/O-24 must be reconciled in Figma/implementation. This edit changes documentation, not Figma.
+
+No routine direction question remains. External font/brand/name/license and actual UI verification
+remain required; goal status is unchanged until its normal review. PRD v2.1/PROD-01/02 govern.
+
+## Historical decision pack —10 October2026
+
+Archived draft, not current choices or evidence. Old code/branch references predate the reset;
+blank Answer lines do not reopen selected product decisions.
+
+<details>
+<summary>Archived OW-1 draft</summary>
+
 # OW-1 · Choose the UI direction and settle its open rules
 
 > **DRAFT, for the owner to review.** Prepared by owner-concierge on 10 Oct 2026. Every
@@ -16,8 +37,8 @@ OW-2 it also opens DS-6 (app icon, splash and store art).
 **All five as recommended:** ______
 
 **What happens after you answer.**
-1. A session writes your answers into the charter as decision **D47** (`docs/08-PROJECT-CHARTER.md`
-   §6). D47 supersedes D9, the Iris violet accent. D36–D46 are already reserved by docs/17 for the
+1. A session writes your answers into the charter as decision **D47** (`docs/09-PROJECT-TRACKER.md`
+   §6). D47 supersedes D9, the Iris violet accent. D36–D46 are already reserved by docs/PRD.md for the
    gym decisions, so D47 is the next free number. A draft of the D47 row is at the end of this pack.
 2. You read the D47 row once. Ticking the goal Done is yours:
    `node scripts/plan/status.mjs set OW-1 done --who You`, or the board
@@ -151,3 +172,5 @@ Three rules go with it (docs/22 §9):
 | # | Decision | Date | Rationale |
 |---|----------|------|-----------|
 | D47 | **Momentum is the UI direction** (docs/22); **supersedes D9.** (1) Momentum. (2) From Coach OS, `main` keeps 48 dp targets (56 dp in the logger), Reduce Motion on press and the default stack animation; the rest stays on branch `codex/coach-os-redesign` (`b4a9ba9`). (3) No green: no green success colour, no green chart series. (4) Tabs Today · Train · Food · Progress · Gym, B-03 as a floating action button; the Gym tab shows once gym features ship and the member has a gym. (5) Accent volt lime, seed `#C6F432` (Dark `#CAFD00`, Light graphics `#556D00`); lime never as a thin line or small text on Light surfaces | 10 Oct | Owner. The only direction built to the expressive, platform-native, one-accent brief. The accent was chosen on 4 Oct by the same colour-vision test that chose D9 (docs/22 §1): ΔE 20 vs error red, 18:1 on dark. D9 rejected lime only because of a green chart series, which Momentum removes |
+
+</details>

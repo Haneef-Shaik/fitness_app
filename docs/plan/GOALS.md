@@ -1,5 +1,11 @@
 # FitLog master plan: every goal
 
+> **11 October 2026 reset:** the old implementation was removed from this branch.
+> Read the [fresh baseline](../RESET-BASELINE.md) and [PRD](../PRD.md) first. Historical code
+> paths and references in individual legacy cards are not requirements and must not be recreated
+> without a new foundation decision. The PRD owns requirements; this file owns sequencing only.
+
+
 > **Source of truth for the plan board.** Each `### ID · Title` card below becomes one node on the
 > board. Statuses live in [`status.json`](status.json); change them with
 > `node scripts/plan/status.mjs` or on the board (`node scripts/plan/serve.mjs`), never by
@@ -61,10 +67,19 @@ deliberately the **last** goal (owner, 7 Oct 2026).
 }
 ```
 
+> **11 October product decisions:** PRD v2.1 removes the dedicated trainer role and all gym
+> private-health reads/measurement writes. GT01–GT04 and T-01–T-05 are retired. G21.api/G21.app
+> retain only the original gym-template/member-owned-copy deliverable for owner/manager offers;
+> their trainer workspace and health-access portions are withdrawn. G24/G29 exclude diet/plan
+> coaching copilots, PT packs, assessments and coaching floor screens. IDs/statuses remain stable.
+> India launches first, with two complete languages and member launch before gym pilot. Product
+> rules are selected; provider/legal/licenses/device proof remain actual gates. No build goal is
+> marked Done by this documentation change. Use current PRD acceptance IDs, not old AC references.
+
 ## How to read a card
 
-- **Lane** is the session that owns the goal (see the lane charters in
-  [docs/23 §5](../23-MASTER-PLAN.md#5-lanes-the-parallel-sessions)). `You` means only the owner can
+- **Lane** is the session that owns the goal (see the current
+  [operating rules](../23-MASTER-PLAN.md#operating-rules)). `You` means only the owner can
   do it: accounts, money, legal, devices, decisions.
 - **Needs** are goals that must be **Done** first. Ready and blocked are derived from them, never
   set by hand.
@@ -76,50 +91,40 @@ deliberately the **last** goal (owner, 7 Oct 2026).
 
 ## M0 · Ground truth
 
-### OW-1 · Choose the UI direction and settle its open rules
-- **Lane:** You · **Size:** S · **Milestone:** M0 · **Label:** pick UI direction
+### OW-1 · Record selected Momentum direction and scope delta
+- **Lane:** You · **Size:** S · **Milestone:** M0 · **Label:** selected Momentum
 - **Needs:** —
 
-**Outcome.** One UI direction is chosen and written down, so the design and screen sessions build
-one thing. Recommended: **Momentum** (docs/22). It is the latest direction and the only one that
-matches the standing feedback (expressive, platform-native, one accent).
+**Outcome.** Product direction is selected: Momentum/volt lime, no conflicting green, complete dark/
+light/system themes, native five-tab member shell and documented workspace rules. Fresh reset means
+no old Coach OS code needs merging. PROD-01/PROD-02 are the current decision record.
 
-**Decide.**
-1. Momentum: yes or no. If no, name the direction; the M2/M3 cards keep their shape with other tokens.
-2. The uncommitted **Coach OS** diff (lime `#D7FF4F`, Hanken only, CoachPrompt, gym header icon).
-   Keep the parts that fit Momentum (48 dp targets, Reduce Motion on press, default stack
-   animation) and park the rest on a branch.
-3. The "no green" rule: success state and the fat chart series are green today (`tokens.ts`).
-4. Navigation: Today · Train · Food · Progress · Gym, plus the B-03 action menu.
-5. Accent volt lime `#C6F432` (already chosen 4 Oct by the colour-blind test). Confirm, so the app
-   icon can be redrawn and D9 superseded.
+**Scope.** Record accepted product decisions, reconcile historical Figma trainer frames against the
+current inventory, and pass actual font/token/asset verification to DS goals. No routine UI-choice
+question remains; brand/license evidence remains external. Trainer role/navigation absent.
 
 **Done when.**
-- [ ] Charter decision **D47** records the direction and supersedes D9 (`docs/08` §6). D36–D46
-  are reserved by docs/17 for the decisions G13–G21 record
-- [ ] Each of the five points above has a one-line answer in D47
+- [ ] Tracker decision record and current PRD/Momentum inventory agree; owner-controlled planner status
+  reflects this decision only after normal goal review (this edit does not change live status)
+- [ ] Designer receives retired T-family/new owner programme destinations and known Figma gaps
 
-**Read first.** docs/22 §1–§2 and §7; memory notes momentum-figma and expressive-over-minimal.
+**Read first.** PRD §§3/16/19/27; docs/22 current scope delta, not obsolete code references.
 
-### OW-2 · Make the launch decisions
-- **Lane:** You · **Size:** S · **Milestone:** M0 · **Label:** launch decisions
+### OW-2 · Complete external launch dependencies for selected India scope
+- **Lane:** You · **Size:** S · **Milestone:** M0 · **Label:** launch dependencies
 - **Needs:** —
 
-**Outcome.** Every open Phase 0 decision in the launch plan has an answer, so platform and store
-work can start.
+**Outcome.** India-first member Android/iOS launch, two complete languages, barcode/import/health P2,
+paid AI/trial and member/gym split are selected. No request to choose scope again. Final name, actual
+accounts/providers/regions, signed licenses/qualified reviews and store products remain real dependencies.
 
-**Decide.**
-- **L2** API and worker host: Railway, Fly.io or Render (`docs/11` L2, `docs/12` §7)
-- **L3** transactional email: confirm Resend as Supabase SMTP
-- **L5** barcode scanning: launch or v1.1 (AP-7)
-- **L7** launch scope: which [v1.1] items move into launch
-- **L8** name, brand and trademark check (blocks the icon, the feature graphic and the posters, Q32)
-- PITR on or off, Sentry data region, and the photo-backup gap (`docs/12` §11)
-- Confirm that **D33** (all AI behind Pro, 7-day trial) closes **L6 / Q6**
-- Launch platforms: Android and iOS together, or Android first
+**Scope.** Work the current OW-2 pack and PRD DEC-01–DEC-16; record procurement/proof separately from
+PROD-02 rules. Retain old India/US/Europe answer as long-term intent, not public launch permission.
 
 **Done when.**
-- [ ] Each answer is recorded in `docs/11` Phase 0 and, where it is a decision, in charter §6
+- [ ] Required M1/M4/M5 decisions have actual account/configuration/review evidence or explicit blocked gate
+- [ ] Architecture/API freeze and backup/object policy are recorded; no vendor approval fabricated
+- [ ] Release dependencies are reconciled with the reset baseline and selected scope
 
 ### QA-1 · Triage the working tree
 - **Lane:** S7 Quality · **Size:** S · **Milestone:** M0 · **Label:** clean main
@@ -146,8 +151,10 @@ half-finished work.
 - **Lane:** S7 Quality · **Size:** M · **Milestone:** M0 · **Label:** docs reconciled
 - **Needs:** QA-1, OW-2
 
-**Outcome.** Every doc says the same thing as the code and the tracker. The audit of 7 Oct found
-29 disagreements ([docs/23 §10](../23-MASTER-PLAN.md#10-doc-discrepancies-qa-2-fixes-these)).
+**Outcome.** Current specifications and the tracker agree with the reset baseline and actual
+implementation evidence. Follow [what the current plan governs](../23-MASTER-PLAN.md#what-this-plan-governs).
+The 7 Oct audit and the scope below are historical reconciliation evidence; deleted code and
+old build claims must not be treated as current implementation proof.
 
 **Scope (the main ones).**
 - Tracker: stale boxes TRK:114 (codegen exists), TRK:177 (H-14 is built), TRK:178 and the Q1
@@ -411,7 +418,7 @@ Leave a `tabsFor(workspace)` seam for G16.app.
 translation job rather than a rewrite. This lands before the screen sessions, which move strings as
 they restyle.
 
-**Scope (docs/17 §4 G14, 17:531–594).** A typed catalog (`src/lib/i18n/{en,hi,index}.ts`, D37).
+**Scope (current PRD5/19/23).** A typed catalog (`src/lib/i18n/{en,hi,index}.ts`, D37).
 en-IN and hi-IN formatters (₹1,00,000, dates, counts). A language setting in K-03 plus
 `user_profiles.locale` (one small migration). The catalog-completeness guard. The source-scan
 guard as a ratchet: it covers the directories already migrated, and each screen goal adds its own.
@@ -464,7 +471,7 @@ files are `app/train/**`, `app/session/**` and `features/workout-session/**`. It
 because both edit the logger.
 
 **Done when.**
-- [ ] The presentation tests are updated; ac-01, ac-02, ac-04, ac-05 and the offline flows pass on
+- [ ] The presentation tests are updated; AC01/02/14/17/29/38 and the offline flows pass on
   a release APK
 - [ ] The touched directories are in the i18n source-scan guard
 
@@ -479,7 +486,7 @@ and `app/progress/**`, except I-01 (SC-1). Add the chart tooltip and touch equiv
 from G6.
 
 **Done when.**
-- [ ] ac-11 passes; the G-03 and G-04 chart tests cover the touch read-out
+- [ ] AC03/05/19/42 pass; the G-03 and G-04 chart tests cover the touch read-out
 - [ ] The touched directories are in the i18n source-scan guard
 
 ### SC-4 · Food
@@ -492,7 +499,7 @@ from G6.
 SC-1's. The P-04 locked state waits for G15.app.
 
 **Done when.**
-- [ ] ac-07, ac-08, ac-09 and ac-10 pass on a release APK
+- [ ] AC04/15/18/28/40 pass on a release APK
 - [ ] The touched directories are in the i18n source-scan guard
 
 ### SC-5 · Auth and onboarding
@@ -574,7 +581,7 @@ bundle size on a release APK (Reanimated and the fonts are new weight). Refresh 
 
 **Done when.**
 - [ ] The a11y audit has a new dated section, with every finding fixed or accepted
-- [ ] p95 under 100 ms, cold start and bundle size are recorded in `docs/nfr-evidence.md`
+- [ ] p95 under 100 ms, cold start and bundle size are recorded in `docs/PRD.md`
 
 ### MS-3 · Member app in Momentum
 - **Lane:** Milestones · **Size:** S · **Milestone:** M3 · **Label:** M3 member app
@@ -596,7 +603,7 @@ sign-in and gym messaging wait on them.
 
 **Do.** Register the entity and the OTP template on DLT (TRAI) with the SMS provider (Q24 default:
 MSG91, Twilio fallback). Start Meta Business verification for the WhatsApp platform number (Q23).
-See docs/17:1164–1171.
+See docs/PRD.md:1164–1171.
 
 **Done when.**
 - [ ] The SMS provider can send a DLT-approved OTP to an Indian number
@@ -615,76 +622,74 @@ sandbox testers.
 **Done when.**
 - [ ] The products are visible in RevenueCat for both platforms, with the sandbox tester accounts
 
-### G13 · Phone sign-in
+### G13 · Phone sign-in with selected India delivery scope
 - **Lane:** S2 Backend · **Size:** L · **Milestone:** M4 · **Label:** phone sign-in
 - **Needs:** QA-1, OW-5
 
-**Outcome.** An Indian mobile number and an OTP are enough to create and use an account; email
-becomes optional (A01.1–A01.4).
+**Outcome.** Phone-only adult account and phone-addressed gym claim work; email nullable, E.164
+international structure, actual +91 production delivery first. Other public regions/delivery gated.
 
-**Scope (docs/17 §4 G13, 17:466–527).** `m19_phone_identity`: email nullable, unique `phone_e164`,
-a CHECK constraint. Provisioning and `MeOut.phone`. `POST /v1/hooks/send-sms` with a Standard
-Webhooks signature and `SmsSender`/MSG91. The `sms` rate policy. Supabase `[auth.sms]` on. Client
-A-11 and A-12, `signInWithPhone`, phone re-auth. Fix every assumption that `.email` is present.
-Record decision D36 (phone identity).
+**Scope.** PRD5/14/27: selected OTP expiry/resend/attempt limits, safe linking/reauth/reset, verified
+provider hook/abuse controls. Existing four identity methods remain. Exact provider/migration paths
+are architecture decisions, not proof deleted services exist.
 
 **Done when.**
-- [ ] `test_phone_identity.py` and `test_send_sms_hook.py` pass; deletion and export work for a
-  phone-only account
-- [ ] Maestro `sign-in-phone.yaml` passes, and a real OTP arrives on staging
+- [ ] Phone-only sign-in, age rejection, export/deletion and wrong-phone claim checks pass
+- [ ] Real +91 OTP arrives on staging through approved configured provider; signature/abuse tests pass
+- [ ] English/Hindi errors and current ID01–ID03/AC07/23 acceptance covered
 
-### G14.data · Indian food depth and Hinglish search (G14 part 2)
+### G14.data · Licensed Indian foods and Hinglish search
 - **Lane:** S2 Backend · **Size:** M · **Milestone:** M4 · **Label:** Indian food 500+
 - **Needs:** QA-1
 
-**Outcome.** Indian users find their food by the name they type, with household portions
-(M03.1–M03.3, L01.3–L01.4).
+**Outcome.** At least500 distinct India-focused foods/dishes, reviewed household conversions and
+English/Hindi/Hinglish aliases. Aliases do not inflate catalogue count.
 
-**Scope (docs/17 17:563–569).** At least 500 USDA-derived Indian dishes; no IFCT
-(`docs/data-sources.md`). Household units (katori, roti, glass, ladle, plate). Each dish shows its
-source and basis. Hindi and Hinglish aliases for foods and exercises. Bump `SEED_VERSION`.
+**Scope.** PRD9/21/27: source/license/version metadata, null nutrition/density rules, household fixtures
+(dal/daal, roti/chapati, chawal/rice, paneer/biryani). Source must actually be permitted; an old
+USDA-derived-only suggestion is not evidence licensing or composition has been reviewed.
 
 **Done when.**
-- [ ] ≥ 500 `fitlog_indian` rows, each energy value checked against its macros (the existing test)
-- [ ] The food search benchmark does not regress; the Hinglish searches find the intended food first
+- [ ] ≥500 distinct reviewed records, quantity/macro/source checks and meaningful search fixtures pass
+- [ ] Missing density/nutrition cannot silently become1:1 or0; licensed acquisition record exists
+- [ ] AC04/15/18 and two-language food search acceptance pass
 
-### G15.api · Pro entitlements on the server
+### G15.api · Pro entitlements and allowance lifecycle on server
 - **Lane:** S6 AI & Pro · **Size:** M · **Milestone:** M4 · **Label:** entitlements API
 - **Needs:** OW-7, AI-1
 
-**Outcome.** No AI model is called without a server-side Pro check (I21, D33).
+**Outcome.** Billable personal AI requires verified trial/Pro plus current AI permission. Quota
+20 text/10 photo per UTC day, two concurrent jobs; reserve/consume/release tied to original day bucket.
 
-**Scope (docs/17 §4 G15, 17:598–655).** `m20_entitlements`. `app/billing/` with the RevenueCat
-webhook, `GET /v1/me/entitlements`, `MeOut.pro` and admin grants. `CurrentProUser` and 403
-`PRO_REQUIRED` on `/food-analysis/text` and `/image`, re-checked in the worker. A Pro cap of 20 a
-day replaces `AI_DAILY_QUOTA`. Record decision D38.
+**Scope.** PRD10.3/18: signed billing events, actual provider cost reservation, queued cancellation/
+withdrawal/expiry dispatch races, job reconciliation, no auto-retry surprise billing. Ready-result
+review/confirmation remains after expiry/withdrawal. G30 limited free P2 register reader is separate.
 
 **Done when.**
-- [ ] `test_pro_gate.py` shows zero gateway calls for a non-Pro user; webhook replay changes nothing
-- [ ] `packages/api-types` is regenerated and merged (SP3)
+- [ ] AC12/27/28/40/44 pass, denied request calls provider zero times
+- [ ] Quota/spend/webhook/idempotency fixtures and concurrent permission race pass
+- [ ] Current API/shared types published (SP3); no historical20-total-AI quota remains
 
-### G15.app · Paywall and Pro in the app
+### G15.app · Paywall and guarded Pro flows
 - **Lane:** S6 AI & Pro · **Size:** M · **Milestone:** M4 · **Label:** paywall + ProGate
 - **Needs:** G15.api, MS-2
 
-**Outcome.** Members can start a trial, buy, restore and manage Pro, and every AI entry point
-respects it (AC-22, AC-28).
+**Outcome.** Verified localized trial/purchase/restore/manage and honest Free/locked/pending states.
 
-**Scope.** `react-native-purchases`, feature-detected (Expo Go cannot load it). P-01 paywall, P-02
-trial started, P-03 manage Pro (replaces K-11), P-04 locked state, all in Momentum. `ProGate` on
-every AI entry point listed at 17:627. The `entitlement.changed` mutation kind. Honest paywall copy
-(no dark patterns).
+**Scope.** PRD10/18, P-01–P-04. Actual price/SKUs from store; seven-day trial only when eligible.
+No storage eviction or loss of old proposals on downgrade; limits/storage/AI permission explained.
 
 **Done when.**
-- [ ] Jest covers ProGate on every entry point; AC-22 and AC-28 pass
-- [ ] Sandbox purchase and restore work on Android and on iOS
+- [ ] AC12/27/28/40/44 pass; every personal AI entry point checks server-backed permission
+- [ ] Sandbox purchase/restore works on both native platforms, conflicts/pending verification covered
+- [ ] Ready proposal can be confirmed without a new AI call after entitlement/permission ends
 
 ### MS-4 · Launch foundations
 - **Lane:** Milestones · **Size:** S · **Milestone:** M4 · **Label:** M4 phone/Hindi/Pro
 - **Needs:** G13, G14.data, G15.app
 
 **Exit.** Phone sign-in, the strings catalog with Indian food depth, and Pro are on `main`. These
-serve both the store launch and the gym platform (docs/17:30–32), and D33 puts Pro before the store
+serve both the store launch and the gym platform (docs/PRD.md:30–32), and D33 puts Pro before the store
 launch.
 
 ---
@@ -704,20 +709,21 @@ OAuth client. Configure Sign in with Apple, which iOS requires once Google sign-
 **Done when.**
 - [ ] Both accounts are active; the upload key's two backups are confirmed
 
-### OW-6 · Legal pages and counsel review
-- **Lane:** You · **Size:** M · **Milestone:** M5 · **Label:** legal + counsel
+### OW-6 · Actual legal pages and qualified review for selected scope
+- **Lane:** You · **Size:** M · **Milestone:** M5 · **Label:** legal + review
 - **Needs:** OW-2, OW-3, PL-4
 
-**Outcome.** The privacy policy and terms are final, reviewed and public.
+**Outcome.** Public terms/privacy and required gym notices/DPA/retention statements are genuinely
+reviewed for India launch, adult-only accounts and no staff personal-health sharing.
 
-**Do.** Resolve every `[OWNER: …]` marker in `services/api/app/legal/privacy.html` and `terms.html`.
-Name the processors (host, email, Sentry, Anthropic). Add the Health Connect and HealthKit
-statements. State the age position: Q9 says 16+, Q33 says 18+ for India. Get counsel review, then
-publish at the public URLs.
+**Scope.** PRD22/27: processor list from actual accounts, purpose-specific AI/utility/challenge notices,
+financial retention/tax receipt review; optional future health/calling/US-Europe expansion separately
+gated. Do not reopen16+ or trainer consent questions. Draft copy is not counsel approval.
 
 **Done when.**
-- [ ] No `[OWNER:` marker remains; counsel's sign-off is recorded in charter §6
-- [ ] The pages are served over HTTPS from production
+- [ ] Qualified reviewer sign-off/effective notice versions and actual processor/data-flow records exist
+- [ ] Pages served HTTPS and deletion route works; no required placeholder or false approval
+- [ ] Estimate suitability DEC-14 and gym financial policy reviewed by relevant qualified people
 
 ### DS-6 · App icon, splash and store art
 - **Lane:** S3 Design · **Size:** S · **Milestone:** M5 · **Label:** icon + store art
@@ -778,7 +784,7 @@ offline and recovery Maestro flows, and an Apple Health weight read. The owner p
 **Outcome.** Every flow a user can reach has been walked on real phones, on both platforms, by
 screen reader too.
 
-**Scope.** Walk the new screens on a phone (`docs/TODO.md`:59–62), including the Supabase sign-in
+**Scope.** Walk the new screens on a phone (`docs/PRD.md`:59–62), including the Supabase sign-in
 paths and "Continue with Google". K-09 with a real smart scale. A VoiceOver pass on the logger and
 the diary. TalkBack spot checks. Re-run every acceptance flow on release builds of both platforms
 (iOS for the first time).
@@ -837,34 +843,36 @@ AI cost per user, and sign-up → first set. Halt and fix if a guardrail breaks:
 100 ms, under 0.1% of sessions lost.
 
 **Done when.**
-- [ ] Both stores are at 100% rollout; the launch-week numbers are in the tracker
+- [ ] India releases on both stores are at 100% rollout; the launch-week numbers are in the tracker
 
 ### MS-5 · Store launch
 - **Lane:** Milestones · **Size:** S · **Milestone:** M5 · **Label:** M5 STORE LAUNCH
 - **Needs:** QA-7
 
-**Exit.** FitLog is live on Google Play and the App Store, in Momentum, with phone sign-in, Hindi,
+**Exit.** FitLog is live in India on Google Play and the App Store, in Momentum, with phone sign-in, Hindi,
 Pro and production infrastructure.
 
 ---
 
 ## M6 · Gym pilot (MVP)
 
-### OW-9 · Field validation (G12): interviews, counsel, pilot gyms, pre-sell
-- **Lane:** You · **Size:** L · **Milestone:** M6 · **Label:** G12 field work
+### OW-9 · Field validation and frozen pilot cohorts
+- **Lane:** You · **Size:** L · **Milestone:** M6 · **Label:** pilot field work
 - **Needs:** —
 
-**Outcome.** The evidence for D31's go/no-go: whether owners and members want this, what counsel
-allows, and five gyms ready to pilot.
+**Outcome.** Actual owner/member interviews, five signed India gyms, reviewed baseline register/ledger
+and external legal readiness; current product rules are selected, not another question pack.
 
-**Do (docs/17 §4 G12, 17:401–462).** 20–30 owner and 30–50 member interviews. Counsel on invite and
-consent copy, terms and DPA, the enrolment notice, minors (Q28, Q33) and the AI-calling opinion.
-Recruit five gyms in one cluster with signed pilot terms and a baseline. A two-gym concierge pilot.
-Pre-sell Owner Pro. Answer or default Q21–Q33.
+**Scope.**20–30 owner/30–50 adult member interviews, selected operational template/offering workflow,
+no trainer/private health access. Signed pilot protocol freezes PRD23.3 windows/denominators/minimum
+cohorts/exclusions. Capture≥20 baseline fully observed renewal terms/gym and≥50 eligible adults.
+Record stated indicative Owner Pro price responses without provisioning/purchase claims. Any two-gym
+concierge exercise uses lawful notices/actual consent and is documented separately.
 
 **Done when.**
-- [ ] Interview notes, counsel memo (copy marked "approved"), five signed gyms with baselines and
-  pre-sell results are in `docs/research/`
+- [ ] Interviews/signed terms/actual baseline samples and counsel notices exist in research records
+- [ ] Pilot metric protocol selected before day1; no unknown outcome is labelled measured evidence
+- [ ] DEC-04/07/08 actual gates passed or pilot activation remains blocked
 
 ### AI-2 · Food-AI accuracy harness (G12 part)
 - **Lane:** S6 AI & Pro · **Size:** M · **Milestone:** M6 · **Label:** AI accuracy test
@@ -879,15 +887,17 @@ and weights of real plates, with error per macro and per dish class.
 **Done when.**
 - [ ] The accuracy table for ≥ 2 models is in `docs/research/`, with the script re-runnable
 
-### OW-10 · G12 go/no-go memo
-- **Lane:** You · **Size:** S · **Milestone:** M6 · **Label:** G12 go memo
+### OW-10 · Evidence-based gym go/no-go memo
+- **Lane:** You · **Size:** S · **Milestone:** M6 · **Label:** gym go memo
 - **Needs:** OW-9, AI-2
 
-**Outcome.** A written go or no-go for the gym platform (H12.1–H12.4). **No-go** stops every G16+
-goal; mark them On hold. G13–G15 are kept either way.
+**Outcome.** Written Go/No-go for selected trainer-free India gym pilot. This is field readiness,
+not the later Scale gate. Member launch foundations remain independent either way.
 
 **Done when.**
-- [ ] `docs/research/R4-validation.md` states go or no-go, with the evidence and Q21–Q33 answered
+- [ ] Field records, signed gym agreements, qualified notices, baseline/minimum cohort evidence and AI
+  quality/cost report are linked; no routine retired Q21–Q33 decisions requested again
+- [ ] Memo states Go/No-go and reason; No-go holds gym activation under normal goal-status workflow
 
 ### OW-11 · WhatsApp templates approved
 - **Lane:** You · **Size:** S · **Milestone:** M6 · **Label:** Meta templates
@@ -900,189 +910,198 @@ start.
 **Done when.**
 - [ ] Each template's approval is recorded, with its id, in `docs/17` or the tracker
 
-### G16.api · Gym tenancy, roles, policy, consent, audit and jobs
+### G16.api · Gym tenancy, operational roles, permissions, audit and jobs
 - **Lane:** S2 Backend · **Size:** L · **Milestone:** M6 · **Label:** tenancy API
 - **Needs:** OW-10, G13
 
-**Outcome.** A gym exists as a tenant with staff roles. Every gym read goes through one policy
-module. Another gym's data is a 404 (I16).
+**Outcome.** Organisation/gym tenants, owner/manager/front-desk roles, operational purpose permissions,
+audits/jobs and server-enforced isolation. No trainer role or personal-health permission path.
 
-**Scope (docs/17 §4 G16, 17:659–722).** `m21_tenancy` (organizations, gyms, staff_memberships,
-gym_members core, consents, audit_log, jobs). `app/policy/`. The `gyms` and `gym_staff` routes. The
-route-walker isolation test. The D41 deletion and export rule for gym-owned tables (`SET NULL`).
-`JobWorker` and the gym-time scheduler. The `gym_invites` and `visits` rate policies. Record D39,
-D40 and D41.
+**Scope.** PRD §§12/16/20–23: reject retired role values; revoke staff on next request; protect register/
+finance/visit/export; safe User unlink SET NULL for retained gym records; purpose audit and workers.
+Freeze new API/data contracts before client work (SP3); old migration paths are historical.
 
 **Done when.**
-- [ ] AC-17 passes; the policy tests mirror the §8.1 matrix; the route walker covers every route
-- [ ] The job and scheduler tests pass; packages/api-types is regenerated (SP3)
+- [ ] AC09/21/30/37 pass and every gym route has cross-tenant/role coverage
+- [ ] Owner/manager health reads and staff measurement writes fail; no hidden legacy flag unlocks them
+- [ ] Current OpenAPI/shared contracts and migrations are published for client integration
 
-### G16.app · Workspaces and the gym shell
+### G16.app · Personal and operational gym workspaces
 - **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** workspace switcher
 - **Needs:** G16.api, MS-2
 
-**Outcome.** Staff switch between Personal and their gym, and each role gets its own tabs.
+**Outcome.** Staff switch Personal/their permitted gym, with owner/manager/front-desk operational shell.
 
-**Scope.** `src/features/workspace/`, a preference-backed switcher under the avatar, and
-`tabsFor(workspace)` on DS-5's seam. Owner tabs: Today · Members · Money · Visits · More. Trainer
-tabs: Today · Members · Plans · More. O-01 create gym and switcher, an empty O-02, `api-gym.ts`.
-This replaces the parked preview `app/gym/index.tsx`.
+**Scope.** O-01 gym setup/switcher, Today·Members·Money·Visits·More; restricted actions absent. No trainer
+tabs, assigned-health roster or T-family route. Gym-tab Join state follows PRD19. English/Hindi.
 
 **Done when.**
-- [ ] Jest covers `tabsFor` for each role and the workspace persistence
-- [ ] All new strings are in the catalog, English and Hindi
+- [ ] Navigation/role-revocation/permission tests cover all three staff roles and member context
+- [ ] Retired trainer routes cannot be reached by direct links or stale workspace preference
+- [ ] Both languages, themes and system states are covered
 
-### G17.api · Owner core on the server
+### G17.api · Owner register, membership and append-only finance
 - **Lane:** S2 Backend · **Size:** L · **Milestone:** M6 · **Label:** owner core API
 - **Needs:** G16.api
 
-**Outcome.** Members, imports, plans, memberships, fees, receipts and export work on the server,
-with money in paise and corrections by reversal only (I18).
+**Outcome.** Register/imports/plans/renewals/freezes/ledger/receipts/export work with exact selected dates
+and integer money. Reversal corrects mistakes; refund records real returns, disjoint principal.
 
-**Scope (docs/17 §4 G17, 17:726–779).** `m22_owner_core`. `domain/memberships.py` with the
-`nightly_status` job. Routes for members, imports (CSV/XLSX, at most 2,000 rows), plans,
-memberships, money and export. Server-assigned, gap-free receipt numbers. Export and offboarding
-jobs. Audit writes, freeze approval, GST lines, the notice version, erasure requests. Record D42.
+**Scope.** PRD12–13/20/22: ≤2,000-row imports, versioned sold terms, month-end convention, sold freeze
+allowance, atomic overlap resolution, separate dues/credit/cash, receipt numbering, export/offboarding.
+Front desk prepares membership requests; owner/manager approve. Taxes disabled until actual review.
 
 **Done when.**
-- [ ] AC-21: 50 parallel payments get gap-free receipt numbers; AC-24 passes; no float holds money
-- [ ] p95 under 300 ms on the member list; packages/api-types is regenerated (SP3)
+- [ ] AC06/11/20–22/30/35–37/43 pass, including all numeric/date/correction fixtures
+- [ ] Fifty committed payments produce unique gap-free receipts; no float money or reused refunded principal
+- [ ] List p95<300 ms with1,000 members; contracts ready (SP3)
 
-### G17.app · Owner screens
+### G17.app · Operational owner and front-desk screens
 - **Lane:** S5 Gym app · **Size:** L · **Milestone:** M6 · **Label:** owner screens
 - **Needs:** G17.api, G16.app
 
-**Outcome.** An owner runs the front desk from the app: members, import, plans, payments, receipts,
-dues, staff, reports, export.
+**Outcome.** Register/import/plans/dues/payments/receipts/staff/reports/exports work in Momentum.
 
-**Scope.** O-02…O-11, O-15, O-16, O-17, O-19 and O-20 (counts only), in Momentum (docs/22 page 13).
-Offline payments go through the outbox. AC-13 is timed.
+**Scope.** O-02–O-11/O-15–O-20 with current role controls, front-desk requests/approval status, finance
+correction previews and offline operational roster/reconciliation. No health history fields.
 
 **Done when.**
-- [ ] AC-13 passes within its time; Jest covers O-03, O-06 and O-09 in English and Hindi
-- [ ] A payment recorded offline syncs exactly once (tested)
+- [ ] AC06/13/21/35–37/43 pass in English/Hindi; timed150-member setup≤90 minutes
+- [ ] Offline payment has provisional acknowledgment only; authorized reconciliation creates one receipt
+- [ ] Roster24-hour mutation expiry/72-hour purge and sensitive field exclusion are verified
 
-### G18.api · Members join, on the server
-- **Lane:** S2 Backend · **Size:** L · **Milestone:** M6 · **Label:** join + WhatsApp API
+### G18.api · Adult gym linking and purpose-aware utility messages
+- **Lane:** S2 Backend · **Size:** L · **Milestone:** M6 · **Label:** join + messages API
 - **Needs:** G17.api, G13, OW-11
 
-**Outcome.** Invites, linking, per-gym consent and WhatsApp messages in the gym's name. Marketing to
-a gym-supplied number is impossible in code (I22).
+**Outcome.** Invites/phone-bound claims/operational permissions and gym-branded approved utility messages.
 
-**Scope (docs/17 §4 G18, 17:783–834).** `whatsapp.py` `MessageSender`, the template registry,
-`m23_messaging`, the WhatsApp webhook. The I22 guard and a per-gym spend ceiling. Invites and
-linking. The member API. The age gate at the agreed minimum (Q33). Record D43.
+**Scope.** PRD14/16/22: notice/source registry, no marketing to gym-supplied numbers, expiry/resend/
+idempotent claim, +91 delivery, reviewed templates/cost caps. No fitness sharing or trainer assignment.
 
 **Done when.**
-- [ ] AC-23 is seen to fail without the guard; AC-27 passes for invite and link; invites deduplicate
-- [ ] packages/api-types is regenerated (SP3)
+- [ ] AC07/10/23 pass, including wrong-phone and non-adult linking rejection
+- [ ] Purpose guard fails closed, provider dispatch reconciles ambiguity, API contracts ready (SP3)
+- [ ] New links never expose personal health data to gym staff
 
-### G18.app · Join a gym and the gym card
+### G18.app · Join gym, gym card and operational permissions
 - **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** join + gym card
 - **Needs:** G18.api, G17.app
 
-**Outcome.** A member taps an invite, confirms, and lands on their gym card; their consent is in
-their own hands.
+**Outcome.** Invited adult opens correct gym card after minimal onboarding; controls operational
+utility/challenge permissions without any health-sharing switches.
 
-**Scope.** A-13 join (deep link and code), A-14 age and consent, N-01 gym card (home card and full
-screen, the Gym tab appears), N-04 receipts and dues, N-05 sharing and consent, N-10 freeze request,
-O-20 statuses and resend. Invited members skip program setup.
+**Scope.** A-13/A-14, N-01/N-04/N-05 (revised Gym permissions), N-10, O-20 invite coverage.
+N-06 programme offers handled by G21.app; personal training setup can wait.
 
 **Done when.**
-- [ ] AC-14: Maestro `join-gym.yaml` passes on a release APK
-- [ ] N-01 is screenshotted in Hindi and English
+- [ ] AC07/13/23 pass on release builds with Hindi/English captures
+- [ ] Invite denial has safe personal-app path; no trainer, body-sharing or diet fields required
+- [ ] N-05 explains operational ownership and private personal-data boundary
 
-### G19.api · Visits without a gate
+### G19.api · Visits, historical eligibility and offline reconciliation
 - **Lane:** S2 Backend · **Size:** M · **Milestone:** M6 · **Label:** visits API
 - **Needs:** G18.api
 
-**Outcome.** Visits are recorded from the poster scan, workouts at the gym, staff marks and device
-imports. No coordinates are stored (I23), and the gym layer never blocks training (I20).
+**Outcome.** QR/staff/device attendance records preserve original time, validation and historical
+membership evidence. Operational visits, participation eligibility and challenge enrollment separate.
 
-**Scope (docs/17 §4 G19, 17:838–887).** `m24_visits`, signed poster payloads and a printable PDF,
-`POST /v1/me/visits` with a distance band only, the workout-at-gym candidate, manual marks, the
-device-import wizard API, a reliability flag. Record D44.
+**Scope.** PRD15/17/20: no user coordinates, signed poster, dedupe, review questionable time, operational
+cache revisions/revocation, one authorized reconciliation. Historical expiry never erases valid visits.
 
 **Done when.**
-- [ ] AC-16 (stored unverified) and the tamper test pass; no lat/lng column or log line exists
-- [ ] The containment test (I20) passes; device import is idempotent
+- [ ] AC08/24/37/39 pass; tamper/duplicate/backdated correction and revoked-staff cases covered
+- [ ] No raw user lat/lng in request storage/logs; no attendance failure blocks personal workout
+- [ ] Import idempotency, eligibility state versions and client contracts ready (SP3)
 
-### G19.app · Check-in scanner and visit screens
-- **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** check-in scanner
+### G19.app · Check-in, visits and offline operational review
+- **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** check-in + visits
 - **Needs:** G19.api, G18.app
 
-**Outcome.** A member checks in by scanning the poster, offline too, in under three seconds.
+**Outcome.** Member check-in and staff attendance work offline within permitted roster freshness,
+with truthful pending/unverified/Needs attention statuses.
 
-**Scope.** `expo-camera` and `expo-location` behind the permission primer. N-02 scanner, N-03 "you're
-in" with the celebration (DS-3), O-12 visits, O-13 visit import. The outbox path for offline scans.
+**Scope.** N-02/N-03, O-12/O-13; permission primers,24h staff cache mutation window,72h roster purge,
+and owner/manager reconciliation after role/member/charge changes per PRD20.
 
 **Done when.**
-- [ ] AC-15: a check-in works offline with p95 under 3 s, measured on a release APK
+- [ ] AC08/13/24/37/39 pass, scan→durable p95<3s on reference release build/3G profile
+- [ ] Stale cache cannot grant staff writes; original occurrence and eligibility reasons inspectable
 
-### G20.api · Alerts, renewal reminders and exit reasons
+### G20.api · Attendance-only retention and renewal dispatch
 - **Lane:** S2 Backend · **Size:** M · **Milestone:** M6 · **Label:** retention API
 - **Needs:** G19.api, OW-11
 
-**Outcome.** Owners get confident "call these members today" lists and renewal reminders that go
-out once each, in the gym's hours.
+**Outcome.** Operational absence/praise lists with data-quality confidence, evidence-based precision
+and logically once-only renewal offsets in gym local hours.
 
-**Scope (docs/17 §4 G20, 17:891–936).** `m25_retention`, pure `domain/retention.py`, the
-`evaluate_alerts`, `renewal_reminders` and `cost_report` jobs, the consented progress line, the
-`gym_calls` push, exit reasons, the precision metric in `GET /v1/admin/gym-metrics`. Record D45.
+**Scope.** PRD14–15/23: seven open dates absence, independent verification outcomes, no private
+progress lines, updated month/freeze reminder dates, caps and ambiguous-send reconciliation.
 
 **Done when.**
-- [ ] AC-19 and AC-20 pass; reminders fire once each between 09:00 and 20:00 gym time (tested)
+- [ ] AC10/11/36/41 pass; Jan31→Feb28 inclusive example and its reminder dates match finance
+- [ ] Disposition never auto-labels absence;4 verified absence/2 false alarms/4 unknown gives4/6 precision
+- [ ] No training/nutrition/body detail exposed in owner alerts; contracts ready (SP3)
 
-### G20.app · Today's calls
+### G20.app · Operational follow-up calls and evidence outcomes
 - **Lane:** S5 Gym app · **Size:** S · **Milestone:** M6 · **Label:** today's calls
 - **Needs:** G20.api, G17.app
 
-**Outcome.** O-14 lists today's calls with click-to-chat in the owner's own WhatsApp, and records
-the outcomes.
+**Outcome.** O-14 lists permitted utility follow-up with confidence explanations and separate contact/
+absence-verification fields; user deliberately opens their calling/chat app.
 
 **Done when.**
-- [ ] A `gym_calls` push opens O-14 (tested); an outcome recorded on O-14 updates the precision metric
+- [ ] AC11/13/41 pass; unknown evidence does not become a confirmed absence
+- [ ] Utility template/purpose/cost state visible; no private health-progress card or automated AI call
 
-### G21.api · Trainer plan loop on the server
-- **Lane:** S2 Backend · **Size:** M · **Milestone:** M6 · **Label:** trainer API
+### G21.api · Owner/manager gym programme offers and owned copies
+- **Lane:** S2 Backend · **Size:** M · **Milestone:** M6 · **Label:** programme offers API
 - **Needs:** G18.api
 
-**Outcome.** Gym templates, plan assignment as the member's own copy, and consented member views
-for trainers.
+**Scope reduction.** Stable G21.api retains its original gym-template/member-owned-copy capability.
+Dedicated trainer assignments, private member_data reads and staff body writes are withdrawn;
+GT01–GT04 retired, not reassigned.
 
-**Scope (docs/17 §4 G21, 17:940–979).** `m26_plan_loop` (template columns on `workout_programs`,
-`plan_assignments`, `body_metrics.recorded_by_user_id`), the deep-copy assignment, `member_data()`
-reads. Record D46.
+**Outcome.** Owner/manager version gym templates, offer to linked adult and track offer state only;
+acceptance makes one private member-owned copy.
+
+**Scope.** PRD6/16: offers pending/accepted/declined/withdrawn, immutable offered version/provenance,
+no automatic current-plan replacement; accepted copy survives unlink/offboard/template archive.
 
 **Done when.**
-- [ ] AC-18 and the I1 test pass; one trainer cannot read another trainer's member (policy test)
+- [ ] AC09/15/26 pass: v1 offer stays v1 after v2 edit; repeated accept yields one copy
+- [ ] Staff cannot read member copy edits/performance or record measurements; trainer role invalid
+- [ ] Updated contracts and permissions published (SP3)
 
-### G21.app · Trainer workspace
-- **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** trainer screens
+### G21.app · Gym programme offer and template screens
+- **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** programme offer screens
 - **Needs:** G21.api, G18.app
 
-**Outcome.** Trainers see today's members, assign plans and record measurements. Members see
-"today's plan from <trainer>".
+**Scope reduction.** Stable G21.app retains member plan-copy delivery; trainer workspace/T-01–T-05,
+health-sharing and staff measurement UI removed.
 
-**Scope.** T-01…T-05 (no AI copilot in the MVP), N-06, and the B-01 trainer-plan and weekly
-improvement cards.
+**Outcome.** Owner/manager More→Programmes (new O-23 templates/O-24 offers) and member N-06 gym offer
+preview/Accept/Decline; N-05 operational permissions, not health switches. Today may show pending offer,
+not “trainer says” or member private progress visible to gym.
 
 **Done when.**
-- [ ] Maestro `trainer-assigns-plan.yaml` passes on a release APK
+- [ ] AC13/26 pass, English/Hindi and both themes; accept/decline/withdrawn/error states covered
+- [ ] No T routes, primary-trainer roster, coaching dashboard or measurement editor
+- [ ] Figma scope delta acknowledged; new owner frames implemented/verified, not claimed already drawn
 
-### G22.api · Challenges, share cards and referrals on the server
+### G22.api · Optional challenges, independent streaks and referrals
 - **Lane:** S2 Backend · **Size:** M · **Milestone:** M6 · **Label:** challenges API
 - **Needs:** G19.api
 
-**Outcome.** Attendance challenges, a league leaderboard, weekly visit streaks and referral
-attribution.
+**Outcome.** Gym challenges opt-in, private ordinary visit streak independent of enrollment, referrals
+with deterministic attribution and historical eligibility.
 
-**Scope (docs/17 §4 G22, 17:983–1016).** `m27_challenges` and the standings and streak job. Standings
-exclude unverified scans, minors and opt-outs; names are masked. The eligibility rule follows the
-owner's QA-2 answer.
+**Scope.** PRD17: distinct operational/participation/challenge visits, timestamped opt-in/rejoin,
+masked names/tie rule, later expiry preserves valid events, legitimate corrections rebuild totals.
 
 **Done when.**
-- [ ] The standings tests cover each exclusion and the name masking; attribution is tested
+- [ ] AC25/39 pass including no-challenge streak, opt-out/rejoin, later expiry and backdated freeze
+- [ ] No minors/unverified/frozen-at-occurrence visits rank; contract fixtures ready (SP3)
 
 ### G22.app · Challenge, leaderboard and refer screens
 - **Lane:** S5 Gym app · **Size:** M · **Milestone:** M6 · **Label:** challenge screens
@@ -1097,20 +1116,20 @@ friends.
 **Done when.**
 - [ ] The share card renders the gym name, and none when the member opts out (tested)
 
-### G23 · Pilot release
+### G23 · India five-gym pilot release
 - **Lane:** S7 Quality · **Size:** L · **Milestone:** M6 · **Label:** pilot release
 - **Needs:** G17.app, G18.app, G19.app, G20.app, G21.app, G22.app, PL-7, PL-8, OW-6, MS-4
 
-**Outcome.** The five pilot gyms run on the MVP, in Hindi and English, on low-end Android phones.
+**Outcome.** Owner/manager/front-desk/member gym MVP, no trainer or private-health sharing, runs in five
+signed India gyms with complete English/Hindi and clear operational permissions.
 
-**Scope (docs/17 §4 G23, 17:1020–1074).** A native-speaker Hindi review, with the i18n source scan
-widened to all of `app/`. A reference ₹8–10k phone with an APK size budget. Instrumentation for the
-pilot funnels. Legal pages updated for gym roles. The runbook at `docs/24-PILOT-RUNBOOK.md`. A
-nightly Maestro gym suite. TestFlight and Play internal builds for pilot users.
+**Scope.** PRD23/25: device budgets, runbook, actual legal/provider/template proofs, nightly critical
+journeys, frozen metric protocol and reviewed baseline/sample data before day1.
 
 **Done when.**
-- [ ] AC-25 and AC-26 pass; the nightly gym suite is green; the runbook is reviewed
-- [ ] The pilot gyms are live, with their funnels visible
+- [ ] All MVP-G ACs including35–44 applicable gym cases pass; current-role route isolation complete
+- [ ] Pilot cohorts/window/exclusion rules and every external gate recorded; no fabricated outcomes
+- [ ] New O-23/O-24/N-05/N-06 UI is reconciled and retired T-frame links excluded
 
 ### MS-6 · Gym pilot (MVP)
 - **Lane:** Milestones · **Size:** S · **Milestone:** M6 · **Label:** M6 gym pilot
@@ -1123,28 +1142,38 @@ next.
 
 ## M7 · Gym Phase 2 (only after the pilot says "scale")
 
-### OW-12 · Run the pilot and call the gate
+### OW-12 · Measure per-gym pilot gates and scale/fix/stop
 - **Lane:** You · **Size:** L · **Milestone:** M7 · **Label:** pilot gate call
 - **Needs:** MS-6
 
-**Outcome.** A written scale, fix or stop decision against the §6.1 gate (16:259–268). The gate
-needs ≥ 40% of active members linked by day 60, ≥ 25% of linked members logging weekly, renewals up
-in ≥ 3 of 5 gyms, and ≥ 2 of 5 owners saying yes to the Pro price. Also decide Q31, the payment
-aggregator.
+**Outcome.** Written ten-week Scale/Fix/Stop against PRD23.3's **selected** frozen denominators.
+
+**Gate.** Every gym≥40% day60 adult link (minimum50 cohort),≥25% latest complete-week personal logging
+(minimum20 start-week linked cohort), aggregates also pass; all five have≥20 fully observed baseline/
+pilot expiry samples;≥3 gyms improve renewal≥5 percentage points absolute;≥2 accept stated Pro price.
+Pilot expiry window days1–63 followed through day70. Incomplete windows/sample→Fix/extend, never fake0%.
+Security/cost/operational guardrails must pass. Actual payment-provider choice remains external.
 
 **Done when.**
-- [ ] The decision memo is in `docs/research/`. If the call is stop or fix, mark the M7 goals On hold
-  and close MS-7 with a note
+- [ ] AC34/41 pass with source counts/evidence, no private health detail disclosed to gyms
+- [ ] Memo signed; Scale unblocks P2, Fix/Stop holds it under normal status workflow
+- [ ] No protocol change removes observed non-renewers from denominator
 
-### G24 · Owner Pro and AI assistance
+### G24 · Owner Pro operational AI assistance
 - **Lane:** S6 AI & Pro · **Size:** L · **Milestone:** M7 · **Label:** Owner Pro
 - **Needs:** OW-12, G15.api, G20.api
 
-**Outcome.** Owners pay for AI help: why this member is at risk, drafted messages, ask-the-gym, a
-diet-chart digitiser and the trainer plan copilot (PRO05, GYM08.6, O-21), with web billing.
+**Outcome.** Gym-entitled assistance for permitted operational register/dues/attendance questions,
+risk explanations and reviewed utility-message drafts; no automatic send or member-health analysis.
+
+**Scope.** PRD24: diet digitizer and coaching plan copilot are withdrawn from this goal/committed P2.
+Neither owners nor managers acquire private fitness permissions through AI. Future coaching requires
+new approved scope, not renamed trainer role. Billing and vendor approval remain actual gates.
 
 **Done when.**
-- [ ] Every Owner Pro AI call is entitlement-checked (I21) and covered by the pro-gate tests
+- [ ] Every AI call checks gym entitlement/role and cost cap; requests cannot join personal health tables
+- [ ] Grounding/prompt-injection/confirmation/utility-purpose negative cases pass
+- [ ] No diet/plan-copilot or private-health UI exposed; Scale gate approved
 
 ### G25 · Member AI set logging and weekly review
 - **Lane:** S6 AI & Pro · **Size:** L · **Milestone:** M7 · **Label:** member AI
@@ -1186,25 +1215,33 @@ gym. FitLog never holds funds (GYM04.8).
 **Done when.**
 - [ ] The web console passes the same isolation tests as the app (I16)
 
-### G29.api · Retention depth on the server
+### G29.api · Operational retention depth without coaching
 - **Lane:** S2 Backend · **Size:** L · **Milestone:** M7 · **Label:** retention depth API
 - **Needs:** OW-12, G22.api
 
-**Outcome.** The server half of docs/17's G29: automatic device import, PT packs, break mode, the
-fitness passport, the cohort report, broadcast credits, and the gym's own WhatsApp number.
+**Outcome.** Automatic device feeds, break mode, voluntary expiring passport, cohorts, approved
+broadcast credits and gym-owned WhatsApp sender under PRD24.
+
+**Removed portion.** PT/session packs, staff assessments and coaching floor view are out of committed
+roadmap. No trainer allocation/private health reads/writes. Passport grants specific artifact access,
+not live gym health permissions. A new service-credit/coaching product needs separately approved scope.
 
 **Done when.**
-- [ ] Each item has its tests and its packages/api-types change merged
+- [ ] Each retained feature has numeric/state fixtures, privacy/permission/idempotency tests and contracts
+- [ ] Broadcast source guard, caps and revocable passport evidence pass; no removed endpoint recreated
 
-### G29.app · Retention depth in the app
-- **Lane:** S5 Gym app · **Size:** L · **Milestone:** M7 · **Label:** retention depth app
+### G29.app · Operational retention depth screens
+- **Lane:** S5 Gym app · **Size:** L · **Milestone:** M7 · **Label:** retention depth screens
 - **Needs:** G29.api, G22.app
 
-**Outcome.** The app half of G29: N-09 break mode, the floor screen, PT pack and assessment-day
-screens, the passport.
+**Outcome.** N-09 break mode, voluntary passport, operational cohort/broadcast/device-feed/sender screens.
+
+**Scope.** No PT pack, assessment-day, coaching floor or trainer workspace. English/Hindi, explicit
+consent/expiry/revoke and operational ownership. Template offering stays G21, not coaching copilot.
 
 **Done when.**
-- [ ] Each screen has its tests in English and Hindi
+- [ ] Every retained feature passes current P2 acceptance and both languages/themes
+- [ ] Removed coaching frames are not reused for unauthorized private-health access
 
 ### G30 · Register reader (the one free AI)
 - **Lane:** S6 AI & Pro · **Size:** M · **Milestone:** M7 · **Label:** register reader
@@ -1293,7 +1330,7 @@ staleness in the UI. "Offline-first sync of every entity" stays in the backlog.
 OW-2's L5 answer moves it into launch, re-link this card under MS-5.
 
 **Done when.**
-- [ ] A scan finds a product and logs a portion; the ODbL notice is in K-10 and `data-sources.md`
+- [ ] A scan finds a product and logs a portion; the ODbL notice is in K-10 and `docs/PRD.md`
 
 ### AP-8 · Home-screen widgets
 - **Lane:** S3 Design · **Size:** M · **Milestone:** M8 · **Label:** widgets
@@ -1310,7 +1347,7 @@ OW-2's L5 answer moves it into launch, re-link this card under MS-5.
 - **Needs:** QA-3
 
 **Outcome.** The one dated accessibility finding is closed. Its re-test date is 15 Dec 2026
-(`docs/a11y-audit.md`).
+(`docs/PRD.md`).
 
 **Done when.**
 - [ ] #28 is closed or re-dated, with a phone recording, in the a11y audit
@@ -1362,7 +1399,7 @@ logger.
 
 **Scope.** A match script from the library to the media source, with a manual list for the misses.
 Media lives in private storage, never in this public repo. Offline caching. The credit line in
-About and `licences.json`. The attribution in `docs/data-sources.md`.
+About and `licences.json`. The attribution in `docs/PRD.md`.
 
 **Done when.**
 - [ ] Every library exercise has media or an explicit "none"; no media file is in git

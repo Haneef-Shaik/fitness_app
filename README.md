@@ -1,90 +1,30 @@
-# FitLog — Fitness & Nutrition Tracking Platform
+# FitLog — planning workspace
 
-| | |
-|---|---|
-| **Mobile** | React Native (Expo) — iOS + Android |
-| **API** | Python 3.13 + FastAPI |
-| **Database** | PostgreSQL 16 |
+This branch was reset on 11 October 2026 for a fresh implementation of the expanded project.
+The previous mobile app, API, shared packages, database configuration, deployment workflows,
+and application scripts have been removed. The planner runs independently with Node.js.
 
-Specs live in [docs/](docs/). Start with [docs/README.md](docs/README.md).
-The complete UI is in [docs/design/index.html](docs/design/index.html) — open it in a browser.
+Start with the [PRD](docs/PRD.md), [master plan](docs/23-MASTER-PLAN.md),
+[goal cards](docs/plan/GOALS.md), [project tracker](docs/09-PROJECT-TRACKER.md), and
+[reset baseline](docs/RESET-BASELINE.md).
+The current screen reference is [Momentum](docs/22-UI-MOMENTUM.md), in
+[Figma](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs).
+The [documentation index](docs/README.md) identifies the active sources for agents and contributors.
 
-## Layout
-
-```
-contracts/      OpenAPI + shared test vectors (the cross-language contract)
-packages/
-  domain/       TypeScript domain rules — used by the mobile app offline
-services/
-  api/          FastAPI service; app/domain/ is the authoritative implementation
-apps/
-  mobile/       Expo app
-```
-
-## Why the domain logic exists twice
-
-The logger must compute volume, estimated 1RM and personal-record candidates **locally**, because a
-set commit never waits for the network. The server recomputes them authoritatively when a session is
-finished. Two languages means two implementations — so both test suites run the **same JSON vectors**
-in [`contracts/vectors/`](contracts/vectors/). If they ever disagree, CI fails rather than a user
-watching their session summary change after it syncs.
-
-## Develop
+## Planner
 
 ```bash
-pnpm install            # TypeScript workspace
-pnpm --filter @fitlog/domain test
-
-cd services/api && uv sync && uv run pytest
+node scripts/plan/serve.mjs
+# Open http://127.0.0.1:4317
 ```
 
-## Run
-
-Signing in, the database and photo storage are **Supabase** ([docs/14](docs/14-SUPABASE.md));
-locally, its stack in Docker. Then two processes, and the separation is deliberate (D25):
+No dependency installation is needed. Goal status and activity remain in `docs/plan/status.json`
+and `docs/plan/activity.json`.
 
 ```bash
-pnpm supabase start                      # Postgres, Auth, Storage, and Mailpit for the emails
-eval "$(scripts/supabase-env.sh)"        # its URLs and keys, for the API, scripts and app
-# Migrations and the food/exercise catalog — once, and after pulling new migrations.
-# A direct connection: migrations never go through the transaction pooler.
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@127.0.0.1:54322/postgres bash scripts/migrate.sh
-cd services/api
-uv run uvicorn app.main:app --reload     # the API
-uv run python -m app.worker              # the food-analysis worker
+node scripts/plan/status.mjs summary
+node scripts/plan/build.mjs --check
+node --test scripts/plan/lib.test.mjs
 ```
 
-Emails the stack sends (sign-up confirmation, reset codes) land in Mailpit:
-<http://127.0.0.1:54324>.
-
-The worker calls the AI provider; the API never does. A model call takes seconds and sometimes
-takes the timeout, so doing it in a request handler would mean one slow plate photograph occupying
-a worker a set-commit needs — and **I14**, *no AI failure touches training*, would stop being true
-the first time the provider was slow.
-
-**No key is needed.** `AI_PROVIDER` defaults to `stub`: a deterministic offline gateway that the
-whole test suite runs against. Set `AI_PROVIDER=anthropic` and `AI_API_KEY` to use a real model.
-See [`services/api/.env.example`](services/api/.env.example) — and never commit a key.
-
-To check that the containment actually holds, rather than trusting that it does:
-
-```bash
-./scripts/verify-containment.sh
-```
-
-It starts both processes with the AI endpoint pointed at a closed port, then logs a whole workout
-over HTTP and reads history, analytics and the nutrition diary. Everything works; the analysis
-fails with `ai_unavailable` and nothing else notices.
-
-### Hosted
-
-The same two processes ship as **one Docker image** (`services/api/Dockerfile`): the default
-command is the API, `python -m app.worker` is the worker. Postgres, photo storage and sign-in are Supabase;
-`scripts/migrate.sh` is the release step; `.github/workflows/deploy.yml` builds, migrates and
-deploys staging, then production behind a reviewer. Every setting, and every click, is in the
-runbook: **[docs/12-DEPLOYMENT.md](docs/12-DEPLOYMENT.md)**.
-
-```bash
-docker build -t fitlog-api services/api
-docker run -p 8000:8000 -e DATABASE_URL=postgresql+asyncpg://fitlog:fitlog@host.docker.internal:5432/fitlog fitlog-api
-```
+See [planner instructions](docs/plan/README.md) for updating cards and rebuilding the board.

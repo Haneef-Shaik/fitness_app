@@ -1,3 +1,36 @@
+# Owner inbox — external dependencies only
+
+**Updated:**11 October2026 after owner-delegated product decisions. Current source: PRD v2.1 and
+PROD-01–PROD-12. The trainer role/private gym health access is removed; routine product questions
+are resolved. Statuses remain in status.json and were not changed by the documentation edit.
+
+## Current actions
+
+| Task | External proof needed | Milestone / goal |
+|---|---|---|
+| Platform/accounts/architecture | Actual hosts/identity/storage/SMTP/regions/keys/backups and API contract, not a claimed legacy deployment | M1; OW-2/OW-3/PL goals |
+| Brand/store/signing | Final cleared name/fonts/assets, store accounts/signing and reviewer evidence | M2/M5; DEC-01/16, OW-4/DS-6 |
+| Phone and approved utility messaging | +91 OTP delivery, required registrations/templates, explicit real-send budgets | M4/M6; OW-5/OW-11 |
+| Member Pro | Actual localized price/SKUs/trial/store sandbox and webhook tests | M4; OW-7/G15 |
+| Legal/qualified review | Real terms/privacy/gym notice/DPA/financial retention/tax/estimate review; adult only and private personal fitness are selected | M5/M6; OW-6/DEC-03/04/14 |
+| Content/AI/device evidence | Licensed seed/font content, measured AI quality/cost caps, supported-device/release accessibility and performance proof | M3–M5; DEC-08/12/16 |
+| Pilot field work | Five signed India gyms,≥50 eligible adults/gym,≥20 baseline expiry cases, frozen metric protocol and reviewed actual registers | M6; OW-9/OW-10 |
+| Pilot gate | Ten weeks; per-gym40% link/25% logging/minimum samples,≥5 percentage-point renewal gain in≥3/5,≥2 willing owners, verified security/cost | M7; OW-12 |
+| P2 providers/licenses | Actual collections/calling approvals; barcode/map/media licenses when due. No PT/coaching/trainer scope | M7–M9; DEC-10/11/16 |
+
+OW-1 records selected Momentum direction, not a request to choose UI again. OW-2 is actual external
+launch readiness. Read current owner packs, PRD27 and tracker; do not answer historical Q21–Q33 or
+follow deleted code paths as current tasks. No provider, message or purchase was provisioned here.
+
+## Historical inbox snapshot —10 October2026
+
+The former inbox is retained below solely as historical context. Its goal counts, main-branch state,
+question numbers, vendor estimates, approvals/defaults and deleted document/code paths are not live
+instructions. Current actions above and PRD v2.1 override them.
+
+<details>
+<summary>Archived pre-decision inbox</summary>
+
 # Owner inbox
 
 **Updated:** 10 Oct 2026, by owner-concierge, after the orchestrator's first advisory cycle.
@@ -31,7 +64,7 @@ it yourself in a session with `/run-goal QA-1` until O2 exists.
    - navigation;
    - the volt lime accent.
 3. Write **go** at the top, or change any **Answer:** line.
-4. Tell a session "OW-1 is answered". It writes decision **D47** into `docs/08-PROJECT-CHARTER.md`
+4. Tell a session "OW-1 is answered". It writes decision **D47** into `docs/09-PROJECT-TRACKER.md`
    §6, which supersedes D9.
 5. Read the D47 row once.
 
@@ -69,7 +102,7 @@ DS-6.
 3. Write **go** at the top, or change any **Answer:** line.
 4. Start the name search in Q5 today. It takes 1–2 weeks to be sure, and the icon waits on the name.
 5. Tell a session "OW-2 is answered". It records the answers:
-   - in `docs/11-LAUNCH-PLAN.md` Phase 0;
+   - in `docs/PRD.md` Phase 0;
    - the real decisions also in charter §6, as D48 onwards.
 
 **When it is done:** every Phase 0 row in docs/11 has an answer. Then you tick it:
@@ -99,8 +132,8 @@ DS-6.
 This is field work, not a decision. It takes three weeks or more, and every gym goal waits on it.
 Start the slow parts now.
 
-**What to do** (docs/17 §4 G12)
-1. **Book counsel this week.** Getting started takes 2–4 weeks (docs/17 §9). Ask them to cover:
+**What to do** (docs/PRD.md §4 G12)
+1. **Book counsel this week.** Getting started takes 2–4 weeks (docs/PRD.md §9). Ask them to cover:
    - the invite and consent flow;
    - the gym terms and data processing agreement (DPA);
    - the enrolment notice;
@@ -108,14 +141,14 @@ Start the slow parts now.
    - a written opinion on AI calling.
 2. **Interviews:**
    - 20–30 gym owners and 30–50 members;
-   - use the questions in `docs/research/R3-gym-b2b2c-strategy.md` §14.6;
+   - use the questions in `docs/PRD.md` §14.6;
    - ask what they did last month, not whether they would use it;
    - keep the notes in `docs/research/R4-validation/` (local files only).
 3. **Recruit five gyms** in one cluster (R3 §11.3). Sign the pilot terms and record each gym's
    baseline: last year's renewals and joiners.
-4. **Run a two-gym concierge pilot**, using today's FitLog and a sheet (docs/17 §4 G12 step 5).
-5. **Pre-sell Owner Pro** at the indicative price (docs/16 §9).
-6. **Answer Q21–Q33**, or accept their defaults in writing. They are in docs/16 §17, "Open
+4. **Run a two-gym concierge pilot**, using today's FitLog and a sheet (docs/PRD.md §4 G12 step 5).
+5. **Pre-sell Owner Pro** at the indicative price (docs/PRD.md §9).
+6. **Answer Q21–Q33**, or accept their defaults in writing. They are in docs/PRD.md §17, "Open
    questions"; docs/23 §11 says §16, which is the risks section.
 
 **When it is done:** the interview notes, the counsel memo (with the copy marked "approved"), five
@@ -221,10 +254,12 @@ OW-2 → OW-5 and OW-9 should start early:
 
 | Wait | Goal | How long | Since |
 |---|---|---|---|
-| Counsel engagement | OW-9 | 2–4 weeks (docs/17 §9) | not started |
+| Counsel engagement | OW-9 | 2–4 weeks (docs/PRD.md §9) | not started |
 | DLT registration (entity, sender, OTP template) with MSG91 | OW-5, after OW-2 | 1–2 weeks | not started |
 | Meta Business verification and the WhatsApp number | OW-5, after OW-2 | 1–3 weeks, then a review per template | not started |
 | Name and trademark search | OW-2 Q5 | 1–2 weeks | not started |
 | Play closed test (12+ testers, 14 continuous days) | QA-6, recruit in OW-8 | 14 days | not started |
 | First iOS App Review | QA-6 | days to weeks | not started |
 | Gym pilot | OW-12 | 10 weeks | not started |
+
+</details>

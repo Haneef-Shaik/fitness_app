@@ -1,5 +1,9 @@
 # Session prompt: run one goal
 
+> **11 October 2026 reset:** the old implementation was removed from this branch.
+> Read the [fresh baseline](../RESET-BASELINE.md) first; existing-code audits and build entry gates below need reconciliation.
+
+
 > Start a fresh Claude Code session in `/Users/Adya/personals/fitness_app` and paste everything
 > below the line, replacing `<ID>` with the goal id (for example `DS-1`) and `<LANE>` with your
 > lane (for example `S3`). One goal per session.
@@ -35,7 +39,7 @@ git checkout -b plan/<id>-<short-slug>
 1. The goal's card in `docs/plan/GOALS.md`: its outcome, scope and **Done when**. The `spec:` line
    from `show` is its anchor.
 2. Every doc and line range the card names. For a G-numbered goal, that includes its section in
-   `docs/17-GYMS-IMPLEMENTATION-PLAN.md` §4: entry gate, inherited handoffs, scope and exit
+   `docs/PRD.md` §4: entry gate, inherited handoffs, scope and exit
    criteria.
 3. `docs/23-MASTER-PLAN.md` §5 (lanes and file ownership) and §9 (standing rules).
 4. The handoff records in `docs/09-PROJECT-TRACKER.md` from the goals yours needs. Verify what they
@@ -83,7 +87,7 @@ node --test scripts/plan/lib.test.mjs                                           
 3. Append a handoff record to the `docs/09` changelog: outcome claimed, what you inherited and
    whether it held, what you produced with its evidence, what you left undone and why, and the traps
    you hit.
-4. Record any decision the goal forced in charter §6. docs/17 reserves D36–D46 for G13–G21.
+4. Record any decision the goal forced in charter §6. docs/PRD.md reserves D36–D46 for G13–G21.
 5. Commit `docs/plan/status.json` and `docs/plan/activity.json` along with the work.
 
 ## 7. Report at the end

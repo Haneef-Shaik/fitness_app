@@ -1,5 +1,9 @@
 # Plan board
 
+> **11 October 2026 reset:** the old implementation was removed from this branch.
+> Read the [fresh baseline](../RESET-BASELINE.md) first; existing-code audits and build entry gates below need reconciliation.
+
+
 The master plan's goals, dependency graph and live status, all local. Nothing here talks to the
 internet except the page's Google Fonts link, which falls back to system fonts offline.
 

@@ -1,16 +1,17 @@
 # UI direction 3 — "Momentum"
 ## An expressive, platform-native UI for people who train, built in Figma
 
-**Status:** proposed, for review; every screen in the inventory is drawn, and every screen page has a clickable prototype · **Date:** 4 October 2026 · **Where:** Figma file
+**Status:** selected visual direction; relevant PRD v2.1 Figma journeys updated and reviewed; 4 October counts remain historical · **Updated:** 11 October 2026 · **Where:** Figma file
 *FitLog — Momentum (expressive UI)* → <https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs>
 (the owner's Figma team, Professional plan; built with the Figma MCP connector).
 
-> The owner reviewed The Logbook ([docs/21](21-UI-LOGBOOK-RETHINK.md)) and its prototype and
-> found it fine but too minimal for gym-goers. The brief for this pass: not minimal; catch the
+> The owner rejected an earlier minimal direction as too quiet for gym-goers. The brief for this
+> pass: not minimal; catch the
 > eye; give the needed information at a glance with one purpose per page; feel native to the
 > platform without the user thinking about it; make effort feel rewarding, with subtle motion.
 > This document records the direction and where everything is in the file. It changes no code.
-> docs/15 is still what is live; docs/21 and this file are proposals.
+> This quoted design brief predates the reset. Momentum is now selected; the old implementation
+> was removed, and historical frame counts do not certify the revised scope.
 
 ---
 
@@ -30,7 +31,7 @@ card; error red only for errors and dues.
 > the summary tiles, protein but not calories, *You* on the podium).
 >
 > **Accent decision, 4 October 2026 — volt lime.** The accent was first an ember orange picked for
-> warmth. Tested the way [D9](08-PROJECT-CHARTER.md) chose the original accent (colour-vision
+> warmth. Tested with a colour-vision-deficiency separation check, rather than taste alone,
 > deficiency separation, not taste), it failed: its dark-mode fill was nearly the error red. Six
 > candidates were run through the same M3 scheme; numbers are CIEDE2000, worst case across normal
 > vision and simulated protan / deutan / tritan (Machado 2009). Under 10 is easy to confuse; over 20
@@ -74,6 +75,42 @@ Each choice traces to evidence. The same six cards are on the Figma cover page.
 The spring values come from the Material 3 Expressive motion scheme as implemented in Compose
 (`MotionScheme.expressive()`).
 
+## Current scope delta — 11 October 2026
+
+The relevant journeys now reflect PRD v2.1 in the existing file. The dedicated trainer page is
+`90 Retired · Trainer (v2.0)`; its prototype entry points and reactions are removed. Current gym
+permissions expose operational choices, not personal-health sharing. Owner/manager programme offers
+require explicit member acceptance into an owned copy and a separate current-programme selection.
+The gym sees offer status only. Historical retired frames remain available as references, not build targets.
+
+### Live v2.1 screen evidence
+
+These links identify actual editable frames, not proposed future screens. Related branches sit on the
+same page. Food AI is MVP; the other assistant concepts below are explicitly deferred Phase 2.
+
+| Journey | Live frame | Coverage |
+|---|---|---|
+| Owner programme templates | [O-23 hub](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=73-690), [day editor](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=88-1052), [prescriptions](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=88-1179) | Versioned templates, editable prescriptions, offer preparation/status; preserved full owner navigation. |
+| Member programme offer | [N-06 preview](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=45-278), [accepted copy](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=76-449) | Accept/decline, withdrawn offer, separate current-programme selection. |
+| Membership dates and freeze | [membership review](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=47-827), [freeze review](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=74-680), [early return](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=74-715) | Sold allowances, calendar boundaries, atomic renewal shifts, early-return alternatives, member pending request. |
+| Finance | [adjustments](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=47-1048), [refund](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=74-784), [correction](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=74-749) | Refund versus correction, waiver, unallocated credit, immutable original receipt and recorded outcomes. |
+| Food AI lifecycle · MVP | [text input](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=43-644), [result review](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=78-713), [confirmed](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=89-889) | Single-photo upload, consent, queued/sent cancellation, failure, daily limits, concurrency, correction, zero selection, expiry, provenance and confirmation. |
+| Member agent concepts · Phase 2 | [voice input](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=85-500), [review coverage](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=85-565), [Ask your data](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=85-596) | Added ambiguity/insufficient-data/empty concepts alongside existing deferred review and question screens; no MVP entry links. |
+| Owner agent concepts · Phase 2 | [Ask Gym](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=85-1389), [answer/draft review](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=85-1420) | Operational sources, role boundaries, explicit draft review and unavailable state; no automatic messaging or member health access. |
+| Offline operational handoff | [revoked staff](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=82-488), [authorized review](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=82-520) | Cache expiry, balance conflict, provisional payment, preserved original actor and linked authorized operation. |
+| Training and goals | [occurrence choice](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=79-512), [strength metric](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=42-1450), [rest](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=7-398) | Explicit planned occurrence, late/relink/delete/conflict states; locked strength baseline; clearer logger/rest action hierarchy. |
+| Privacy, storage and Pro | [AI controls](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=44-778), [storage limit](https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs?node-id=81-494) | Withdrawal, retained ready results, storage reservations, explicit online meal/body Save, current store offer copy and English/Hindi selection. |
+
+Validation: 97 revised/new/reference-variant frames were checked for presence, positive dimensions,
+editable native structure and fonts: 365 text layers, 789 component instances, Google Sans Flex/Roboto,
+no missing fonts and no whole-screen image fills. Thirteen reusable controls/navigation components and
+five spacing tokens supplement existing Momentum colors, shapes and styles. Revised routes were checked
+for missing destinations; the final four MVP links into deferred concepts were removed. Trainer flows
+are empty. Representative dark/light input, result, finance, storage, rest and offline screens were
+visually reviewed; clipping and contrast defects found during review were repaired. Three new Light
+variants cover AI review, freeze review and storage limits. This is design evidence, not application QA
+or a guarantee that every PRD screen has full localization/platform variants.
+
 ## 3 · What is in the Figma file
 
 | Page | Contents |
@@ -90,22 +127,26 @@ Frames are 412 × 915 (Android) and 402 × 874 (iPhone), like the earlier files.
 
 ### 3.1 The full inventory, page by page
 
-Every screen in [docs/04](04-SCREEN-ARCHITECTURE.md) (103) and [docs/16 §18](16-PRD-GYMS.md#18-screen-inventory-additions) (47) is drawn, with state variants, in the same system. Sheets and dialogs are drawn over the screen they open from. Phase 2 and gated screens carry a stamp.
+Every original planned member, owner and gym screen was recorded in the4 October prototype; that
+is not proof the current PRD v2.1 scope is fully drawn. Use the live v2.1 evidence above for revised destinations; the remaining table records the historical inventory. Sheets/dialogs open over their parent. Phase2
+and gated screens carry a stamp.
 
 | Page | Screens |
 |---|---|
 | 06 Auth & onboarding (21) | A-01 splash · A-02 welcome · A-03 sign up · A-04 log in · A-05a/b password reset · A-06 verify email · A-11 phone · A-12 OTP · A-13a/b join a gym (code, consent preview) · A-14 age and consent · A-07a–f the six onboarding steps · A-08 target review · A-09 starter plan · A-10 done |
 | 07 Today & Train (18) | B-02 customise Today · B-03 FAB menu · B-04 notifications · B-05 search · C-01 Train hub · C-02 programs · C-03 program · C-04 program edit · C-05 plan day · C-06 exercise picker · C-07 prescription · C-08 schedule · C-09 archive · D-01 library · D-02 exercise · D-03 custom exercise · D-04 muscles · D-05 names and merge (P2) |
-| 08 Logger & history (16) | E-01 start · E-02 session list · E-05 add/swap · E-06 advanced set · E-07 notes · E-09 discard · E-10 recovery · E-12 plates · E-13 supersets (P2) · F-01 history · F-02 filters · F-03 session · F-04 edit · F-05 previous occurrence · F-06 compare · F-07 calendar |
+| 08 Logger & history (16) | E-01 start · E-02 session list · E-05 add/swap · E-06 advanced set · E-07 notes · E-09 discard · E-10 recovery · E-12 plates · E-13 supersets (MVP; old stamp must change) · F-01 history · F-02 filters · F-03 session · F-04 edit · F-05 previous occurrence · F-06 compare · F-07 calendar |
 | 09 Analytics, body & goals (16) | G-01 overview · G-02 volume · G-03 progression · G-04 records · G-05 balance · G-06 adherence · G-07 e1RM formula · I-02 log metric · I-03 weight · I-04 measurement · I-05 photos · I-06 fields · J-01 goals · J-02 new goal · J-03 goal · J-04 outcome |
 | 10 Food (17) | H-02 meal · H-03 mode chooser · H-04 search · H-05 portion · H-06 describe (AI) · H-07 processing · H-09 camera · H-10 custom food · H-11 recipes · H-12 copy · H-13 quick add · H-14 analytics · H-15 targets · H-16 categories · H-17 barcode (P2) · H-18 AI audit · P-04 locked state |
 | 11 Settings, Pro & coach (15) | K-01 profile · K-02 security · K-03 units and language · K-04 logging · K-06 notifications · K-07 data and privacy · K-07b delete account · K-08 the coach · K-09 connected apps (P2) · K-10 about · P-01 paywall · P-02 trial · P-03 manage Pro · P-06 weekly review (P2) · P-06b ask your data (P2). K-05 is B-02; K-11 is P-03. |
-| 12 Gym · member (8) | N-02 scanner · N-04 receipts and dues · N-05 sharing · N-06 trainer's plan · N-08 refer · N-09 break mode (P2) · N-10 freeze · N-01 in Hindi |
+| 12 Gym · member (8) | N-02 scanner · N-04 receipts and dues · N-05 operational gym permissions (revised) · N-06 gym programme offer (revised) · N-08 refer · N-09 break mode (P2) · N-10 freeze · N-01 in Hindi |
 | 13 Owner workspace (24) | O-01 create gym · O-01b switcher · O-02 gym today · O-03 members · O-04 member · O-05 add member · O-06 import · O-06b register reader (P2) · O-07 plans · O-08 renew/freeze · O-09 record payment · O-10 receipt · O-11 dues · O-12 visits · O-13 visit import · O-14 today's calls · O-15 staff · O-16 more · O-17 reports · O-18 challenges · O-19 export · O-20 coverage · O-21 Owner Pro (P2) · O-22 AI calling (gated) |
-| 14 Trainer workspace (5) | T-01 today · T-02 member training · T-03 assign with plan copilot · T-04 templates · T-05 measurements |
+| 14 Retired historical workspace | T-01–T-05 removed; no replacement staff health workspace or measurement editor. Keep old frames only as marked archival reference. |
 | 15 System states (10) | L-01a empty · L-01b filtered empty · L-02a offline banner · L-02b sync centre · L-03 error · L-04 not found · L-05 session expired · L-06 permission primer · L-07 sync conflict · L-08 maintenance / degraded |
 
-Owner and trainer workspaces use their own navigation bars (Today · Members · Money · Visits · More, and Today · Members · Plans · More) in the same system; the gym's red appears only on gym-branded surfaces such as the receipt.
+Owner/manager/front-desk use Today · Members · Money · Visits · More with role restrictions; no
+trainer navigation remains. New O-23 Programme templates and O-24 Programme offers under More must be
+drawn in the same system; these frames are not claimed to exist yet. Gym red stays branded only.
 
 Pages 07, 08, 10 and 12 also hold one extra frame each, to the left of the grid: a labelled
 *prototype copy* of Today, the logger, Food or the gym card from page 02. They exist only so the
@@ -130,7 +171,7 @@ on page 02.
 | N-07 | Challenge · leaderboard | Friendly competition | Podium where only *You* is in the accent, "3 to finish" |
 | Light | B-01, H-01, G-01, N-01 | The same frames with the Light mode | — |
 
-Screen codes follow [docs/04](04-SCREEN-ARCHITECTURE.md) and [docs/16 §18](16-PRD-GYMS.md#18-screen-inventory-additions).
+Screen codes are implementation labels only; the [PRD](PRD.md) is the source of product scope.
 
 ## 4 · Tokens
 
@@ -186,7 +227,7 @@ static screen). Judge feel on a release build on the slowest supported Android.
 ## 6 · Prototype
 
 Every screen page is a prototype. Open the page, press *Present* and pick a flow from the list.
-There are 33 flows and 388 links in all. Figma links only work within one page, so each page plays
+The historical 4 October pass recorded 33 flows and 388 links; these are not current totals. Figma links only work within one page, so each page plays
 on its own, and a button whose screen lives on another page does nothing (for example *Start
 workout* on Today outside page 02).
 
@@ -202,19 +243,19 @@ workout* on Today outside page 02).
 The tab bar (Today, Food, Progress, Gym) works on the four root screens in Dark and in Light. Train
 lives on page 07, so the Train tab does nothing here.
 
-**Pages 06–15.**
+**Pages 06–15: use revised v2.1 entry points above; the route table below is historical.**
 
 | Page | Flows | What you can click |
 |---|---|---|
 | 06 | Sign up with email · Phone sign-in · join a gym · Log in · reset a password | Splash moves on by itself → Welcome → sign up → verify email → age and consent → the six onboarding steps (Next and Skip) → targets → starter plan → done. Phone → OTP (tap the keypad, or wait 3 s) → gym code → join Iron Temple → consent. Log in → forgot password → reset. |
 | 07 | Today · inbox and search · Train · programs and exercises · Quick actions (FAB menu) · Customise Today | Today copy: bell → notifications; Train tab ↔ Today tab. Train: search → results → exercise; Programs → program → plan day → picker and prescription sheets; edit, schedule, archive dialog. Exercise library → exercise → names and merge; custom exercise → muscles sheet. |
-| 08 | Logger · start a workout · History · Recover an unfinished workout | Start → today's plan → logger copy: tap the weight for the plate calculator, *Set 3* for the advanced set editor, history icon → previous occurrence, *Up next* → session list. Session list: Add → add/swap sheet, Finish → notes sheet, ⋮ → discard dialog, superset → supersets (P2). History → filters, calendar, session → edit, compare, repeat. |
+| 08 | Logger · start a workout · History · Recover an unfinished workout | Start → today's plan → logger copy: tap the weight for the plate calculator, *Set 3* for the advanced set editor, history icon → previous occurrence, *Up next* → session list. Session list: Add → add/swap sheet, Finish → notes sheet, ⋮ → discard dialog, superset → supersets (MVP; old prototype stamp outdated). History → filters, calendar, session → edit, compare, repeat. |
 | 09 | Analytics · Body · weight · Body · measurements · Goals · Progress photos | Overview rows → volume, progression (card → e1RM formula), records, balance, adherence. Weight and measurement + → log metric sheet; measurement ⋮ → fields sheet. Goals → goal, new goal, and the reached goal → outcome dialog. |
 | 10 | Food · log a meal · Free plan · AI is locked | Food copy: meals → meal detail (copy sheet, save as recipe, AI history in ⋮); empty Dinner → add-food sheet → photo, describe → processing, search → portion sheet → back to Food, quick add, recipes, barcode; ring → nutrition analytics; macro legend → targets; *Meals* header → categories. Locked sheet → search, quick add, recipes. |
 | 11 | Profile and settings · Go Pro · start a trial · Ask your data | Every profile row; data and privacy → delete-account dialog; the coach → weekly review. Paywall → trial sheet → Manage Pro. |
-| 12 | Gym · card, dues and a freeze · Refer a friend · Today's plan from your trainer · Sharing and consent · Break mode (Phase 2) | Gym card copy: Check in → scanner, Pay or dues → receipts, ⋮ → freeze sheet. Refer sheet closes back to the card. |
+| 12 | Gym · card, dues and a freeze · Refer a friend · Gym programme offer (revised N-06) · Operational permissions (revised N-05) · Break mode (Phase 2) | Gym card copy: Check in → scanner, Pay or dues → receipts, ⋮ → freeze sheet. Refer sheet closes back to the card. |
 | 13 | Owner · the front desk · Set up a gym | Owner tab bar on all five tabs. Gym name → workspace switcher; Due today → dues; Today's calls; Ask → Owner Pro → AI calling; a member → detail → edit, renew → receipt; Record payment sheet → receipt. Members → add, import → register reader. Visits → visit import. More → plans, staff, reports, challenges, coverage, export. |
-| 14 | Trainer · a plan for a member | Today ↔ Plans tabs; a member → training view → assign-plan sheet and measurements sheet. |
+| 14 | Retired | Original prototype is archival; no trainer, client-health or staff-measurement destination is delivered. |
 | 15 | Offline and sync | Offline banner → sync centre. The other states are reference boards with nothing to click. |
 
 Pushes use smart-animate on a gentle spring (450 ms); sheets and dialogs open with a 350 ms
@@ -243,19 +284,20 @@ as stand-ins (noted on each style). On device, use the system fonts.
   button that leads to another page does nothing, and the Train tab works only on page 07. The
   system states on page 15 (other than offline → sync centre), the Hindi gym card and the three
   iOS screens are not wired.
-- **Only page 02 has Light-mode copies.** Every other screen uses the same variables, so switching a
+- **Light copies cover page 02 plus representative v2.1 AI, freeze and storage screens.** Every other screen uses the same variables, so switching a
   frame's variable mode to Light shows it in Light; translucent tints keep their Dark values (below).
 - **iOS covers three screens.** The mapping table on page 04 applies to every other screen.
 - **No photographs.** The plate, register page, progress photos and camera views are drawn
   placeholders.
 - **Hindi is shown on one full screen** (N-01 on page 12) and in the type specimen; the full Hindi
-  pass belongs with AC-25 in implementation.
-- **Dates follow the 2026 calendar** with "today" as Saturday 3 October.
+  pass belongs with current PRD AC13/31 in implementation.
+- **Dates are illustrative fixtures.** Historical hero screens use 3 October 2026; revised flows
+  include October freeze/occurrence examples and the January–February 2027 membership boundary.
 - **Translucent tints are hard values.** Figma's renderers ignore paint opacity on colour
   variables (and duplicating a frame drops it), so tints such as a chip at 14% primary are stored as
   the resolved colour with opacity. Solid fills stay bound to variables, so Light mode still works.
-- **Screens are built from plain frames plus component instances** (icons, shapes, bars). Promote
-  cards and buttons to components when the direction is chosen.
+- **Screens remain editable frames and component instances.** The v2.1 pass adds reusable buttons,
+  information/AI cards, fields, selectors and owner navigation; older screens retain native rich layouts.
 
 ## 9 · How to review, and what happens next
 
@@ -264,16 +306,17 @@ as stand-ins (noted on each style). On device, use the system fonts.
 2. Press *Present* on page 02 and play *Member · a training day*. Then play the flows on pages
    06–15 (§6).
 3. On page 03, play M1–M4. On page 04, compare with the Android row.
-4. Choose a direction among Kinetic Performance (live), The Logbook (docs/21) and Momentum.
+4. Use the live v2.1 links above with the PRD. Retired trainer frames are historical references;
+   this design pass does not implement application behavior.
 
-If Momentum is chosen: generate the tokens into `apps/mobile/src/theme/tokens.ts` (both modes),
+For the fresh implementation: generate the tokens into `apps/mobile/src/theme/tokens.ts` (both modes),
 bundle Google Sans Flex and Roboto Condensed, build the primitives in this order — wavy progress
 (linear and circular), the 96 dp button, connected button group, shape badge, ring, coach proposal
 card — then redo B-01, E-03/E-04, E-11 and N-01 first, behind the motion tokens above.
 
 **The app icon and store art must follow the accent.** Today's icon (`apps/mobile/assets/icon.png`,
 adaptive icon, Play Store icon) and the listing art are Iris violet from D9, and in Momentum violet
-means "the coach". If Momentum is chosen, redraw them in volt lime on the near-black ground and
-record the change as a new decision superseding D9 in [docs/08](08-PROJECT-CHARTER.md). Keep three
+means "the coach". For the selected Momentum direction, create them in volt lime on the near-black ground and
+record the change in the [project tracker](09-PROJECT-TRACKER.md). Keep three
 rules with it: no green "success" colour, no green chart series, and lime never as a thin line or
 small text on Light surfaces.

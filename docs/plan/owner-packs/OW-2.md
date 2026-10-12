@@ -1,3 +1,36 @@
+# OW-2 — selected launch scope and actual external dependencies
+
+**Updated11 October2026.** Product decisions are selected under owner delegation:
+India first public release; member Android/iOS before gym pilot; English/Hindi complete; four auth
+methods (phone +91 initially, email, Google, Apple);≥200 exercises/≥500 Indian foods/three starters;
+barcode/health/import depth P2; Member Pro AI/seven-day eligible store trial. No trainer/private gym
+health-sharing/coaching/PT scope. Workouts offline; meal/body Save online with durable unsaved drafts.
+
+The historical answer about India/US/Europe is long-term audience intent. US/Europe public expansion
+needs separate regional gates; preserve international units/timezones/identity schema now.
+
+| External dependency | Required record | Status |
+|---|---|---|
+| Host/identity/storage/SMTP/regions | Architecture and actual owner-controlled accounts/contracts, provider data-flow review | Open; no accounts provisioned |
+| Brand/domain/store accounts | Final cleared name/domain, store/signing ownership and licensed visual/content assets | Open; FitLog working name |
+| Recovery/object backup | Provisioned database/object backup policy and measured restore meeting selected targets | Open; no accepted hidden photo-backup gap |
+| Observability region | Actual provider region/data flow/retention for India launch, with later expansion gated | Open; no US/EU region fabricated |
+| Price/SKUs | Actual local store products and billing evidence; historic₹149/₹999 indicative only | Open; seven-day eligible trial rule selected |
+| Legal/content/estimate review | Actual notices/DPA/retention/tax/suitability/licenses | Open; receipt tax disabled until reviewed |
+| Messaging/AI/device proof | +91 delivery/templates/budgets, weighed-meal quality/caps and exact reference-device measurements | Open; sandbox-only preparation |
+
+See PRD27 for accountable owners/milestones. Routine product decisions do not need another answer;
+qualified/provider evidence cannot be substituted by delegated product judgment. Planner status was
+not changed by these document edits.
+
+## Historical pack and owner response —10 October2026
+
+The original broader-audience answer and vendor candidates are retained below as history, not
+proof of launch approvals. Old recommended backup gaps and unanswered product rows are superseded.
+
+<details>
+<summary>Archived OW-2 draft and response</summary>
+
 # OW-2 · Make the launch decisions
 
 > **DRAFT, for the owner to review.** Prepared by owner-concierge on 10 Oct 2026. Every
@@ -22,14 +55,14 @@ Together with OW-1 it also opens DS-6 (icon and store art).
 **All as recommended:** ______
 
 **What happens after you answer.**
-1. A session records each answer in `docs/11-LAUNCH-PLAN.md` Phase 0 (an answer and date on rows
+1. A session records each answer in `docs/PRD.md` Phase 0 (an answer and date on rows
    L2–L8). The ones that are real decisions also go into charter §6 as new rows, D48 onwards. A
    proposed split is at the end of this pack.
 2. Ticking the goal Done is yours: `node scripts/plan/status.mjs set OW-2 done --who You`, or the
    board.
 
 **Where your users are.** Every question below assumes your launch users are in India. The plan is
-built that way: docs/16 is subtitled "India first", with Hindi (G14), DLT SMS (OW-5) and DPDP for
+built that way: docs/PRD.md is subtitled "India first", with Hindi (G14), DLT SMS (OW-5) and DPDP for
 age (Q33). If that is wrong, say so, because
 it changes the answers to Q1 and Q7.
 
@@ -104,8 +137,8 @@ Phone sign-in, Hindi and Pro are already in the launch (docs/23 §3.2, charter D
 
 ## Q5 · L8: the name, brand and trademark check
 
-This blocks the icon, the feature graphic and the gym posters (GOALS.md OW-2; docs/16 Q32). It is
-partly a task. The check takes 1–2 weeks (docs/17 §9), so start it today even if you answer
+This blocks the icon, the feature graphic and the gym posters (GOALS.md OW-2; docs/PRD.md Q32). It is
+partly a task. The check takes 1–2 weeks (docs/PRD.md §9), so start it today even if you answer
 everything else now.
 
 **Steps (about 30 minutes to start):**
@@ -113,7 +146,7 @@ everything else now.
    close name.
 2. Search the India trade marks registry's public search for "FitLog" in classes 9 (software) and 42
    (online services). Then do the same at USPTO and EUIPO, the three registries the R1 research used
-   (docs/research/R1-exercise-programs.md).
+   (docs/PRD.md).
 3. Write what you found on the Answer line: "none found", or the conflict.
 4. Do the same for "FitLog for Gyms" (Q32) before any poster is printed.
 
@@ -212,3 +245,5 @@ iOS has never been built. PL-8 needs a real iPhone from you (GOALS.md PL-8).
 | Q6 PITR, Q7 Sentry region, Q8 photo backups | docs/11 Phase 0, as a note under the table (docs/12 §11 and §15 item 12 point there) |
 | Q9 L6 | docs/11 L6 marked closed by D33 |
 | Q10 platforms | docs/11 Phase 0, and charter **D51** |
+
+</details>

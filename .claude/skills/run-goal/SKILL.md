@@ -53,7 +53,7 @@ By hand only, claim it:
 1. The card: `status.mjs show <ID>` gives its anchor in `docs/plan/GOALS.md`. Read the whole card:
    outcome, scope, Done when.
 2. Every doc and line range the card names. For a G-numbered goal, its section in
-   `docs/17-GYMS-IMPLEMENTATION-PLAN.md` §4. For a screen goal, the Figma pages in `docs/22`.
+   `docs/PRD.md` §4. For a screen goal, the Figma pages in `docs/22`.
 3. `docs/23-MASTER-PLAN.md` §5 (lanes and file ownership) and §9 (standing rules).
 4. The handoff records in `docs/09-PROJECT-TRACKER.md` from the goals yours needs. Verify what they
    claim; do not assume it.
@@ -154,5 +154,5 @@ diff, so make it checkable:
   2. Once merged to `main`: `node scripts/plan/status.mjs set <ID> done --who <lane> --ref <commit>`.
      It prints which goals that unblocks.
   3. Append the handoff to the `docs/09` changelog.
-  4. Record any decision the goal forced in charter §6. docs/17 reserves D36–D46 for G13–G21.
+  4. Record any decision the goal forced in charter §6. docs/PRD.md reserves D36–D46 for G13–G21.
   5. Commit `docs/plan/status.json` and `docs/plan/activity.json` along with the work.

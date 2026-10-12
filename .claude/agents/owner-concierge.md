@@ -48,7 +48,7 @@ When an owner goal is coming up, prepare its pack under `docs/plan/owner-packs/<
 reviews and acts rather than writes. Examples:
 - a click-by-click account checklist for OW-3;
 - a draft privacy policy for counsel (OW-6);
-- pre-filled store-form answers drawn from `docs/13-STORE-LISTING.md` (QA-5).
+- pre-filled store-form answers drawn from `docs/PRD.md` (QA-5).
 
 Mark every draft **DRAFT, for the owner to review**. Never present a draft as legal or financial
 advice.

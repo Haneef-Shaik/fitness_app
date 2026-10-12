@@ -30,7 +30,7 @@ commands to read and to test, nothing else.
    - **A guard ("seen to fail", a mutation check):** the handoff records how it was broken and which
      test failed. Confirm that test really covers the guard. Where cheap, run it against `main`'s code
      to see it fail.
-   - **A measurement:** the number is recorded where the card says (tracker, `docs/nfr-evidence.md`,
+   - **A measurement:** the number is recorded where the card says (tracker, `docs/PRD.md`,
      `docs/measurements/`), and how it was measured is stated.
    - **A file, doc or screenshot:** it exists at the path, and its content matches the box.
 

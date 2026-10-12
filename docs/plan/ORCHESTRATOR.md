@@ -1,5 +1,9 @@
 # Autonomous execution: one orchestrator, many agents
 
+> **11 October 2026 reset:** the old implementation was removed from this branch.
+> Read the [fresh baseline](../RESET-BASELINE.md) first; existing-code audits and build entry gates below need reconciliation.
+
+
 | Field | Value |
 |---|---|
 | Written | 2026-10-08 |

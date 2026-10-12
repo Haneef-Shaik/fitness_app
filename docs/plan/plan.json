@@ -121,23 +121,23 @@
   "goals": [
     {
       "id": "OW-1",
-      "title": "Choose the UI direction and settle its open rules",
+      "title": "Record selected Momentum direction and scope delta",
       "owner": "You",
       "needs": [],
       "size": "S",
       "track": "M0",
-      "label": "pick UI direction",
-      "doc": "docs/plan/GOALS.md#ow-1--choose-the-ui-direction-and-settle-its-open-rules"
+      "label": "selected Momentum",
+      "doc": "docs/plan/GOALS.md#ow-1--record-selected-momentum-direction-and-scope-delta"
     },
     {
       "id": "OW-2",
-      "title": "Make the launch decisions",
+      "title": "Complete external launch dependencies for selected India scope",
       "owner": "You",
       "needs": [],
       "size": "S",
       "track": "M0",
-      "label": "launch decisions",
-      "doc": "docs/plan/GOALS.md#ow-2--make-the-launch-decisions"
+      "label": "launch dependencies",
+      "doc": "docs/plan/GOALS.md#ow-2--complete-external-launch-dependencies-for-selected-india-scope"
     },
     {
       "id": "QA-1",
@@ -559,7 +559,7 @@
     },
     {
       "id": "G13",
-      "title": "Phone sign-in",
+      "title": "Phone sign-in with selected India delivery scope",
       "owner": "S2 Backend",
       "needs": [
         "QA-1",
@@ -568,11 +568,11 @@
       "size": "L",
       "track": "M4",
       "label": "phone sign-in",
-      "doc": "docs/plan/GOALS.md#g13--phone-sign-in"
+      "doc": "docs/plan/GOALS.md#g13--phone-sign-in-with-selected-india-delivery-scope"
     },
     {
       "id": "G14.data",
-      "title": "Indian food depth and Hinglish search (G14 part 2)",
+      "title": "Licensed Indian foods and Hinglish search",
       "owner": "S2 Backend",
       "needs": [
         "QA-1"
@@ -580,11 +580,11 @@
       "size": "M",
       "track": "M4",
       "label": "Indian food 500+",
-      "doc": "docs/plan/GOALS.md#g14data--indian-food-depth-and-hinglish-search-g14-part-2"
+      "doc": "docs/plan/GOALS.md#g14data--licensed-indian-foods-and-hinglish-search"
     },
     {
       "id": "G15.api",
-      "title": "Pro entitlements on the server",
+      "title": "Pro entitlements and allowance lifecycle on server",
       "owner": "S6 AI & Pro",
       "needs": [
         "OW-7",
@@ -593,11 +593,11 @@
       "size": "M",
       "track": "M4",
       "label": "entitlements API",
-      "doc": "docs/plan/GOALS.md#g15api--pro-entitlements-on-the-server"
+      "doc": "docs/plan/GOALS.md#g15api--pro-entitlements-and-allowance-lifecycle-on-server"
     },
     {
       "id": "G15.app",
-      "title": "Paywall and Pro in the app",
+      "title": "Paywall and guarded Pro flows",
       "owner": "S6 AI & Pro",
       "needs": [
         "G15.api",
@@ -606,7 +606,7 @@
       "size": "M",
       "track": "M4",
       "label": "paywall + ProGate",
-      "doc": "docs/plan/GOALS.md#g15app--paywall-and-pro-in-the-app"
+      "doc": "docs/plan/GOALS.md#g15app--paywall-and-guarded-pro-flows"
     },
     {
       "id": "MS-4",
@@ -636,7 +636,7 @@
     },
     {
       "id": "OW-6",
-      "title": "Legal pages and counsel review",
+      "title": "Actual legal pages and qualified review for selected scope",
       "owner": "You",
       "needs": [
         "OW-2",
@@ -645,8 +645,8 @@
       ],
       "size": "M",
       "track": "M5",
-      "label": "legal + counsel",
-      "doc": "docs/plan/GOALS.md#ow-6--legal-pages-and-counsel-review"
+      "label": "legal + review",
+      "doc": "docs/plan/GOALS.md#ow-6--actual-legal-pages-and-qualified-review-for-selected-scope"
     },
     {
       "id": "DS-6",
@@ -784,13 +784,13 @@
     },
     {
       "id": "OW-9",
-      "title": "Field validation (G12): interviews, counsel, pilot gyms, pre-sell",
+      "title": "Field validation and frozen pilot cohorts",
       "owner": "You",
       "needs": [],
       "size": "L",
       "track": "M6",
-      "label": "G12 field work",
-      "doc": "docs/plan/GOALS.md#ow-9--field-validation-g12-interviews-counsel-pilot-gyms-pre-sell"
+      "label": "pilot field work",
+      "doc": "docs/plan/GOALS.md#ow-9--field-validation-and-frozen-pilot-cohorts"
     },
     {
       "id": "AI-2",
@@ -807,7 +807,7 @@
     },
     {
       "id": "OW-10",
-      "title": "G12 go/no-go memo",
+      "title": "Evidence-based gym go/no-go memo",
       "owner": "You",
       "needs": [
         "OW-9",
@@ -815,8 +815,8 @@
       ],
       "size": "S",
       "track": "M6",
-      "label": "G12 go memo",
-      "doc": "docs/plan/GOALS.md#ow-10--g12-gono-go-memo"
+      "label": "gym go memo",
+      "doc": "docs/plan/GOALS.md#ow-10--evidence-based-gym-gono-go-memo"
     },
     {
       "id": "OW-11",
@@ -833,7 +833,7 @@
     },
     {
       "id": "G16.api",
-      "title": "Gym tenancy, roles, policy, consent, audit and jobs",
+      "title": "Gym tenancy, operational roles, permissions, audit and jobs",
       "owner": "S2 Backend",
       "needs": [
         "OW-10",
@@ -842,11 +842,11 @@
       "size": "L",
       "track": "M6",
       "label": "tenancy API",
-      "doc": "docs/plan/GOALS.md#g16api--gym-tenancy-roles-policy-consent-audit-and-jobs"
+      "doc": "docs/plan/GOALS.md#g16api--gym-tenancy-operational-roles-permissions-audit-and-jobs"
     },
     {
       "id": "G16.app",
-      "title": "Workspaces and the gym shell",
+      "title": "Personal and operational gym workspaces",
       "owner": "S5 Gym app",
       "needs": [
         "G16.api",
@@ -855,11 +855,11 @@
       "size": "M",
       "track": "M6",
       "label": "workspace switcher",
-      "doc": "docs/plan/GOALS.md#g16app--workspaces-and-the-gym-shell"
+      "doc": "docs/plan/GOALS.md#g16app--personal-and-operational-gym-workspaces"
     },
     {
       "id": "G17.api",
-      "title": "Owner core on the server",
+      "title": "Owner register, membership and append-only finance",
       "owner": "S2 Backend",
       "needs": [
         "G16.api"
@@ -867,11 +867,11 @@
       "size": "L",
       "track": "M6",
       "label": "owner core API",
-      "doc": "docs/plan/GOALS.md#g17api--owner-core-on-the-server"
+      "doc": "docs/plan/GOALS.md#g17api--owner-register-membership-and-append-only-finance"
     },
     {
       "id": "G17.app",
-      "title": "Owner screens",
+      "title": "Operational owner and front-desk screens",
       "owner": "S5 Gym app",
       "needs": [
         "G17.api",
@@ -880,11 +880,11 @@
       "size": "L",
       "track": "M6",
       "label": "owner screens",
-      "doc": "docs/plan/GOALS.md#g17app--owner-screens"
+      "doc": "docs/plan/GOALS.md#g17app--operational-owner-and-front-desk-screens"
     },
     {
       "id": "G18.api",
-      "title": "Members join, on the server",
+      "title": "Adult gym linking and purpose-aware utility messages",
       "owner": "S2 Backend",
       "needs": [
         "G17.api",
@@ -893,12 +893,12 @@
       ],
       "size": "L",
       "track": "M6",
-      "label": "join + WhatsApp API",
-      "doc": "docs/plan/GOALS.md#g18api--members-join-on-the-server"
+      "label": "join + messages API",
+      "doc": "docs/plan/GOALS.md#g18api--adult-gym-linking-and-purpose-aware-utility-messages"
     },
     {
       "id": "G18.app",
-      "title": "Join a gym and the gym card",
+      "title": "Join gym, gym card and operational permissions",
       "owner": "S5 Gym app",
       "needs": [
         "G18.api",
@@ -907,11 +907,11 @@
       "size": "M",
       "track": "M6",
       "label": "join + gym card",
-      "doc": "docs/plan/GOALS.md#g18app--join-a-gym-and-the-gym-card"
+      "doc": "docs/plan/GOALS.md#g18app--join-gym-gym-card-and-operational-permissions"
     },
     {
       "id": "G19.api",
-      "title": "Visits without a gate",
+      "title": "Visits, historical eligibility and offline reconciliation",
       "owner": "S2 Backend",
       "needs": [
         "G18.api"
@@ -919,11 +919,11 @@
       "size": "M",
       "track": "M6",
       "label": "visits API",
-      "doc": "docs/plan/GOALS.md#g19api--visits-without-a-gate"
+      "doc": "docs/plan/GOALS.md#g19api--visits-historical-eligibility-and-offline-reconciliation"
     },
     {
       "id": "G19.app",
-      "title": "Check-in scanner and visit screens",
+      "title": "Check-in, visits and offline operational review",
       "owner": "S5 Gym app",
       "needs": [
         "G19.api",
@@ -931,12 +931,12 @@
       ],
       "size": "M",
       "track": "M6",
-      "label": "check-in scanner",
-      "doc": "docs/plan/GOALS.md#g19app--check-in-scanner-and-visit-screens"
+      "label": "check-in + visits",
+      "doc": "docs/plan/GOALS.md#g19app--check-in-visits-and-offline-operational-review"
     },
     {
       "id": "G20.api",
-      "title": "Alerts, renewal reminders and exit reasons",
+      "title": "Attendance-only retention and renewal dispatch",
       "owner": "S2 Backend",
       "needs": [
         "G19.api",
@@ -945,11 +945,11 @@
       "size": "M",
       "track": "M6",
       "label": "retention API",
-      "doc": "docs/plan/GOALS.md#g20api--alerts-renewal-reminders-and-exit-reasons"
+      "doc": "docs/plan/GOALS.md#g20api--attendance-only-retention-and-renewal-dispatch"
     },
     {
       "id": "G20.app",
-      "title": "Today's calls",
+      "title": "Operational follow-up calls and evidence outcomes",
       "owner": "S5 Gym app",
       "needs": [
         "G20.api",
@@ -958,23 +958,23 @@
       "size": "S",
       "track": "M6",
       "label": "today's calls",
-      "doc": "docs/plan/GOALS.md#g20app--todays-calls"
+      "doc": "docs/plan/GOALS.md#g20app--operational-follow-up-calls-and-evidence-outcomes"
     },
     {
       "id": "G21.api",
-      "title": "Trainer plan loop on the server",
+      "title": "Owner/manager gym programme offers and owned copies",
       "owner": "S2 Backend",
       "needs": [
         "G18.api"
       ],
       "size": "M",
       "track": "M6",
-      "label": "trainer API",
-      "doc": "docs/plan/GOALS.md#g21api--trainer-plan-loop-on-the-server"
+      "label": "programme offers API",
+      "doc": "docs/plan/GOALS.md#g21api--ownermanager-gym-programme-offers-and-owned-copies"
     },
     {
       "id": "G21.app",
-      "title": "Trainer workspace",
+      "title": "Gym programme offer and template screens",
       "owner": "S5 Gym app",
       "needs": [
         "G21.api",
@@ -982,12 +982,12 @@
       ],
       "size": "M",
       "track": "M6",
-      "label": "trainer screens",
-      "doc": "docs/plan/GOALS.md#g21app--trainer-workspace"
+      "label": "programme offer screens",
+      "doc": "docs/plan/GOALS.md#g21app--gym-programme-offer-and-template-screens"
     },
     {
       "id": "G22.api",
-      "title": "Challenges, share cards and referrals on the server",
+      "title": "Optional challenges, independent streaks and referrals",
       "owner": "S2 Backend",
       "needs": [
         "G19.api"
@@ -995,7 +995,7 @@
       "size": "M",
       "track": "M6",
       "label": "challenges API",
-      "doc": "docs/plan/GOALS.md#g22api--challenges-share-cards-and-referrals-on-the-server"
+      "doc": "docs/plan/GOALS.md#g22api--optional-challenges-independent-streaks-and-referrals"
     },
     {
       "id": "G22.app",
@@ -1012,7 +1012,7 @@
     },
     {
       "id": "G23",
-      "title": "Pilot release",
+      "title": "India five-gym pilot release",
       "owner": "S7 Quality",
       "needs": [
         "G17.app",
@@ -1029,7 +1029,7 @@
       "size": "L",
       "track": "M6",
       "label": "pilot release",
-      "doc": "docs/plan/GOALS.md#g23--pilot-release"
+      "doc": "docs/plan/GOALS.md#g23--india-five-gym-pilot-release"
     },
     {
       "id": "MS-6",
@@ -1045,7 +1045,7 @@
     },
     {
       "id": "OW-12",
-      "title": "Run the pilot and call the gate",
+      "title": "Measure per-gym pilot gates and scale/fix/stop",
       "owner": "You",
       "needs": [
         "MS-6"
@@ -1053,11 +1053,11 @@
       "size": "L",
       "track": "M7",
       "label": "pilot gate call",
-      "doc": "docs/plan/GOALS.md#ow-12--run-the-pilot-and-call-the-gate"
+      "doc": "docs/plan/GOALS.md#ow-12--measure-per-gym-pilot-gates-and-scalefixstop"
     },
     {
       "id": "G24",
-      "title": "Owner Pro and AI assistance",
+      "title": "Owner Pro operational AI assistance",
       "owner": "S6 AI & Pro",
       "needs": [
         "OW-12",
@@ -1067,7 +1067,7 @@
       "size": "L",
       "track": "M7",
       "label": "Owner Pro",
-      "doc": "docs/plan/GOALS.md#g24--owner-pro-and-ai-assistance"
+      "doc": "docs/plan/GOALS.md#g24--owner-pro-operational-ai-assistance"
     },
     {
       "id": "G25",
@@ -1123,7 +1123,7 @@
     },
     {
       "id": "G29.api",
-      "title": "Retention depth on the server",
+      "title": "Operational retention depth without coaching",
       "owner": "S2 Backend",
       "needs": [
         "OW-12",
@@ -1132,11 +1132,11 @@
       "size": "L",
       "track": "M7",
       "label": "retention depth API",
-      "doc": "docs/plan/GOALS.md#g29api--retention-depth-on-the-server"
+      "doc": "docs/plan/GOALS.md#g29api--operational-retention-depth-without-coaching"
     },
     {
       "id": "G29.app",
-      "title": "Retention depth in the app",
+      "title": "Operational retention depth screens",
       "owner": "S5 Gym app",
       "needs": [
         "G29.api",
@@ -1144,8 +1144,8 @@
       ],
       "size": "L",
       "track": "M7",
-      "label": "retention depth app",
-      "doc": "docs/plan/GOALS.md#g29app--retention-depth-in-the-app"
+      "label": "retention depth screens",
+      "doc": "docs/plan/GOALS.md#g29app--operational-retention-depth-screens"
     },
     {
       "id": "G30",

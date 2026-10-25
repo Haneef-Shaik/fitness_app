@@ -61,9 +61,9 @@
       "status": "claimed",
       "who": "Codex",
       "ref": "07757a5",
-      "note": "Isolated contract/proposal checkpoint07757a5:169 tests and both JS exports pass; real-Git forged snapshot+hash rewrite rejected. Proposal corrections finished; independent checkpoint review running. Confirmed CI baseline fail-open must be fixed before integration. SQL/TS fixture, replay/diff and specific ADR approval still due.",
+      "note": "Review2 confirms original21 findings resolved; still REVISE for P2A-1..8 and PR-1..6. Bounded Claude correction workers97750dac and f2178f5b active with disjoint files. Fail-closed CI baseline and external erasure tombstones required. Candidate remains unmerged; SQL fixture/replay and specific ADR approval remain due.",
       "by": "session:Codex",
-      "at": "2026-10-25T21:32:42.790Z"
+      "at": "2026-10-25T22:29:53.151Z"
     }
   }
 }

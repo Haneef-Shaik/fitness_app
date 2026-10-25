@@ -257,5 +257,17 @@
     "by": "session:Codex",
     "at": "2026-10-25T21:32:42.790Z",
     "id": "a-1792963962790-s2tsa5"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "claimed",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "07757a5",
+    "note": "Review2 confirms original21 findings resolved; still REVISE for P2A-1..8 and PR-1..6. Bounded Claude correction workers97750dac and f2178f5b active with disjoint files. Fail-closed CI baseline and external erasure tombstones required. Candidate remains unmerged; SQL fixture/replay and specific ADR approval remain due.",
+    "by": "session:Codex",
+    "at": "2026-10-25T22:29:53.151Z",
+    "id": "a-1792967393151-iifr5q"
   }
 ]

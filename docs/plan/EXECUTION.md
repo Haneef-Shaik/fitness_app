@@ -64,25 +64,29 @@ These are observations from this session, not completed goal claims:
 
 ## Active worker
 
-AR-1 proposal revision1 and contract guard are checkpointed on the isolated goal branch at
-`07757a5`. All21 initial proposal findings were accepted and corrected by Claude; independent
-re-review of the changed proposal and code is running. Neither the proposal nor the implementation
-is accepted or integrated yet. The completed writers3495bffa and dd382163 have been stopped.
+AR-1 checkpoint `07757a5` remains on the isolated goal branch, unmerged. Coordinator tests (169),
+Android/iOS JavaScript exports and real-Git snapshot-tamper probes passed. Independent checkpoint
+[review2](../evidence/AR-1/checkpoint-review2.json) returned **REVISE** for both code and proposal.
+It confirms every original F1–F17/T1–T4 finding is resolved.
 
-Coordinator checks on this candidate pass: `pnpm check` (169 tests), Android and iOS JavaScript/Hermes
-exports, restoration of mutated source, and plan sync. An isolated clone proved that rewriting both
-a committed snapshot and its hash fails against real Git history; restoring it passes.
-[Detailed evidence](../evidence/AR-1/coordinator-checkpoint-07757a5.md).
+New required corrections are bounded and assigned:
 
-**Confirmed correction required:** `CI=1` without `FITLOG_CONTRACT_BASELINE` incorrectly passes.
-Make CI require a trusted event-derived baseline and available Git history, and wire the workflow
-without a candidate-controlled fallback. Keep this candidate unmerged until corrected and verified.
+- Code worker `97750dac-1bd4-4e15-a487-295d4a8097e2` (`97750dac`): P2A-1..8. Fail-closed
+  trusted CI baselines (including missing Git/read failures), atomic workflow wiring, refinement
+  boundaries, patch-version compatibility, client-only TypeScript and safe snapshot-write tests.
+  Scope is contract CLI/tests/config, domain typecheck script, the existing CI workflow and phase2A
+  evidence. No model/schema/snapshot/wire/database changes.
+- Docs worker `f2178f5b-1447-483a-9941-99da5753436b` (`f2178f5b`): PR-1..6 only. An external
+  erasure tombstone register must survive database rollback; also rate-limiter rejected requests,
+  actor-key foreign keys, demoted-role replay and durable review references. No source edits.
 
-Independent review: tool session76930, stream log `/tmp/fitlog-ar1-checkpoint-review2.jsonl`.
-Collect and save its verdict before assigning source corrections; no source writer is currently active.
-Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`.
-Read [saved supervisor state](runs/AR-1/supervisor.json) before dispatching. Shared TS/SQL fixtures,
-isolated replay/diff, owner approval of the completed ADR and final goal verification remain due.
+The code worker asked permission for one read-only `rtk proxy cat` of root package.json; Codex
+inspected the exact command and approved once. Permission checks remain enabled; no broad mode.
+
+Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
+Read [supervisor state](runs/AR-1/supervisor.json), worker states and corrections before dispatching.
+Both results need independent targeted verification before integration. Shared TS/SQL fixtures,
+isolated replay/schema diff and one approval of the completed ADR still remain; AR-1 is not Done.
 
 ## Resume order
 

@@ -61,9 +61,9 @@
       "status": "claimed",
       "who": "Codex",
       "ref": "codex/ar1-contract-freeze",
-      "note": "Phase1 architecture proposal/checkpoint/test-plan completed in isolated worktree; independent read-only proposal review running. Local Claude phase2A now implements contract-version snapshots and mutation guards only. Shared SQL/TS fixture, isolated replay/diff and specific owner approval remain required. No final goal acceptance or API/database change claimed.",
+      "note": "Independent proposal review returned REVISE; corrections F1-F17/T1-T4 assigned to docs-only worker dd382163. Contract guard permission-prefix stall resolved; phase2A resumed as3495bffa with exact test permissions. Disjoint scopes, no unverified integration. SQL/TS fixtures, isolated replay/diff and concrete ADR approval remain due.",
       "by": "session:Codex",
-      "at": "2026-10-25T19:29:39.517Z"
+      "at": "2026-10-25T20:32:30.693Z"
     }
   }
 }

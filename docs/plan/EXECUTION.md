@@ -64,19 +64,31 @@ These are observations from this session, not completed goal claims:
 
 ## Active worker
 
-AR-1 phase 1 completed its three documentation files in the isolated checkout, with architecture
-approval explicitly pending. Independent read-only review is running (see the saved supervisor state
-for the local stream log and tool session). Its output is a proposal, not final goal acceptance.
+AR-1 phase 1 completed its three documentation files in the isolated checkout. Independent review
+returned **REVISE**, with ten medium defects and lower findings F1–F17/T1–T4. The original verdict is
+[phase1-review.json](../evidence/AR-1/phase1-review.json). Examples: authorization must precede replay,
+read-only request transactions cannot write rate counters, 0.x contract ranges need minor-version
+compatibility, and privacy/erasure boundaries need explicit rules. These are proposal defects; no
+unverified architecture or implementation has been integrated, and no approval is requested yet.
 
-Phase 2A is now local Claude background session `232505dc-c267-4053-b129-7719d63c430f`
-(`232505dc`), confirmed working. It may edit only the domain version/snapshot implementation,
-tests, snapshot CLI and snapshots, and its phase evidence. It must prove mutation failures and may
-not change migrations, APIs, dependencies, statuses or acceptance results.
+Two local Claude background workers have disjoint allowed files:
 
-The isolated checkout remains `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch
+- `3495bffa-5ee9-48d5-8baf-5e917a2e905d` (`3495bffa`): phase2A contract version/snapshot guard,
+  domain tests/CLI/snapshots and phase2A evidence only. No API, dependency or database changes.
+- `dd382163-56b0-4156-b3b3-13660a08edf8` (`dd382163`): proposal corrections only (ADR003,
+  checkpoint, test plan and dispositions). It must address all review IDs and retain one pending
+  approval of the completed ADR. Accounts, region, vendors and legal approvals remain unclaimed.
+
+The original guard worker paused at a test permission because RTK normalized the command prefix.
+Codex inspected and approved the exact domain test, then resumed with narrowly matched test,
+typecheck, snapshot and root-check commands. Permission checks remain enabled; no auto/bypass mode.
+
+Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch
 `codex/ar1-contract-freeze`, base `9f148c1`. Frozen offline dependency installation passed.
-Reconcile [saved supervisor state](runs/AR-1/supervisor.json), both worker logs and actual diffs before
-any further dispatch. Shared TS/SQL fixtures, migration replay/diff and owner approval remain required.
+Reconcile [saved supervisor state](runs/AR-1/supervisor.json), logs and actual diffs before further
+dispatch. Collect each bounded result, independently re-review corrections and contract behavior,
+then continue shared TS/SQL fixtures and isolated replay/diff. Owner approval and final goal
+verification remain required before AR-1 Done.
 
 ## Resume order
 

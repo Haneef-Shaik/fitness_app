@@ -281,3 +281,11 @@ OW-2 → OW-5 and OW-9 should start early:
 | Gym pilot | OW-12 | 10 weeks | not started |
 
 </details>
+
+## AR-1 supervision checkpoint — 26 October 2026
+
+No owner action yet. The architecture proposal needs correction after independent review; Codex
+has assigned F1–F17 and T1–T4 to a documentation-only Claude worker. A separate worker implements
+the contract-version guard in disjoint files. Neither output is accepted or integrated yet.
+The completed, reviewed ADR will need one dated owner approval; routine engineering choices do not
+need ten separate approvals. Shared SQL/TypeScript fixtures and migration replay/diff are still due.

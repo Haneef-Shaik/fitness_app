@@ -1,0 +1,212 @@
+{
+  "goal": "AR-1",
+  "phase": "1 (proposal review, not final verification)",
+  "verdict": "REVISE",
+  "basis": "Read-only review of 003-architecture-freeze.md, checkpoint.md and test-plan.md against PRD \u00a7\u00a721.1\u201321.4 and 22.1 (plus \u00a7\u00a78.2, 10.3, 18.1, 20.2 and 22.3 where 003 cites them), the AR-1 card at GOALS.md:170-197, all 14 migrations, packages/domain, apps/mobile/src/data and scripts/backend. No commands run, nothing edited, no delegation.",
+  "boxes": [
+    {
+      "box": "003 covers every PRD \u00a721.1 component and \u00a721.3 rule, and the owner's approval is in the tracker decision log",
+      "state": "drafted; approval pending",
+      "note": "All 11 components and all 16 domain rows are present. Two \u00a721.3 rules are missing (F6, F13). Fix the defects below before asking for the one approval"
+    },
+    {
+      "box": "packages/domain exports a contract version...",
+      "state": "not started",
+      "note": "Matches checkpoint: index.ts:1-4 exports no version"
+    },
+    {
+      "box": "All migrations replay from empty to head...",
+      "state": "not started",
+      "note": "Matches checkpoint"
+    },
+    {
+      "box": "One shared fixture vector (AC03)...",
+      "state": "not started",
+      "note": "Matches checkpoint: values are inline at calculations.test.ts:15-22"
+    }
+  ],
+  "coverage": {
+    "components_21_1": "11/11 present (\u00a73.1\u20133.11). Each Implemented/Missing claim checked against source. Defects in storage (F9) and the API read limit (F2). The PRD's same-policy-contract rule for signed objects (\u00a73.4) and 'derived tables are not truth' (\u00a73.3) are covered",
+    "rules_21_3": {
+      "v1_version": "covered; the contract check is a no-op until 1.0.0 (F3)",
+      "identity_derives_owner": "covered",
+      "success_envelope": "covered",
+      "error_envelope_retryability_conflict": "covered",
+      "cursor_limit_50_100_stable_sort": "covered; sync sequence numbering underspecified (F8)",
+      "date_timezone_semantics": "covered",
+      "mutation_key_retriable_writes": "covered; hash scope and outcome pruning gaps (F17)",
+      "base_revision_if_match": "covered",
+      "commit_before_success": "covered",
+      "status_codes": "covered; several 'Today' entries inaccurate (F12)",
+      "PRO_REQUIRED_before_provider": "covered (\u00a73.9, \u00a74.14); matches PRD \u00a710.3 dispatch-committed table",
+      "async_202_job": "covered",
+      "signed_webhooks_raw_body_dedupe": "covered",
+      "decimal_and_minor_units": "covered; regex defect (F11) and money range defect (F4)",
+      "shared_fixture_vectors": "covered",
+      "exercise_semantics_from_authorized_instance": "MISSING (F13)",
+      "no_staff_health_API_and_owner_manager_offers": "MISSING (F6)"
+    },
+    "domains_21_3": "16/16 rows present; several minimum operations omitted (F14)",
+    "prd_22_1": "TLS, server-only secrets, 5/10-minute URLs, no public URLs, owner/tenant policy, isolation inventory, live roles, audit, log redaction, local encryption, no analytics or impersonation and review topics are all present. Missing: authorised proxy or revocable access (F9) and the staff-only-notes boundary (F6)",
+    "prd_21_2_21_4": "Deletion graph and indexes routed correctly. The actor-reference decision is absent (F7). Parts of \u00a721.4 are not covered (F15)",
+    "implemented_vs_missing_accuracy": "About 40 cited file:line references checked; nearly all accurate (config.toml:5,10,18,34,36,41,72,187-190,234; environment.mjs:4-5; api.ts:7-18,55-78; gym-api.ts:38; member_core:24-31,69-91,157-160,167-174; member_operations:20,114-116; validated_contracts:70-85; gym_operations:13-15,22,39-85,94-105; gym_read_models:5,26,33,76-79,120; function_lint_cleanup:32,77; freeze_preview_binding:14; gym_api_errors:6; scheduling_and_history:19-27; workout_correction_commands:43,51). Inaccuracies are listed in F5 and F12",
+    "security_tenant_identity_replay_decimals_queue_storage": "Reviewed. Defects: F1 (replay checked before authorisation), F2 (read counter), F4 and F11 (encodings), F7 (deletion), F8 (sync feed), F9 (storage revocation). The job queue section (\u00a73.5) matches PRD \u00a710.3: lease, dispatch_id reconciliation, 5/30/120 s retries, 5-minute deadline",
+    "authorizations_claimed": "None. 003 provisions nothing and claims no account, region, legal or vendor authority (003:20-24, 637-638)",
+    "test_plan_technical": "Fixture expectations hand-checked in IEEE doubles and SQL numeric: 640, 101.333333, 84 (failure), 84 (drop), 480 and 38 (per hand), 100, 620, 0, session 1920 with 3 working sets, deleted 116.666667 excluded. All agree with PRD \u00a78.2 (lines 402-421). The SQL migration and check script are syntactically sound: ::numeric division, trim_scale on PG 17, :'fixture' outside dollar quotes, set_config is transaction-local, the whole-row alias on jsonb_array_elements works. M1.1 (models.ts:4) and M4.1 (calculations.ts:28) target the right lines. Defects T1\u2013T4"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "where": "003:282-284 (\u00a74.3 step 4); contradicts 003:614 and current code at gym_read_models.sql:9-15 and freeze_preview_binding.sql:20-29",
+      "defect": "The record looks up the operation ID and hash before checking tenant and role. Today both gym definers authorise first. Following \u00a74.3 would let a revoked staff member or session replay stored finance outcomes. That regresses current code and breaks PRD \u00a722.1 'staff role cache cannot extend revoked permission'",
+      "fix": "Order: identity + session \u2192 tenant/role scope \u2192 lock \u2192 replay lookup \u2192 write-rate count \u2192 dependencies \u2192 per-kind permission \u2192 base revision \u2192 validation \u2192 write. operation_result_v1 re-runs identity and tenant checks and returns NOT_FOUND otherwise"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "where": "003:280-281, 450, 453",
+      "defect": "Reads are counted in the PostgREST pre-request function and stored in private.rate_windows. PostgREST runs GET/HEAD and STABLE/IMMUTABLE RPCs in READ ONLY transactions, and the pre-request function runs inside them. The counter write would fail (25006) on every direct table read that \u00a74.2 still allows",
+      "fix": "The pre-request function only checks (contract header). Choose a read-limit mechanism that does not write inside the request transaction, or scope it to volatile POST RPCs. Add 'access mode of pre-request on GET' to \u00a712"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "where": "003:256-258, 357, 573-574",
+      "defect": "The server rejects only an unsupported major version, but 0.x allows breaking changes in a minor bump (including the G-5 decimal switch). An app built against 0.2 would be accepted by a 0.3 server with incompatible payloads until 1.0.0",
+      "fix": "In 0.x, compare MAJOR.MINOR (caret semantics). Publish the supported range in health-v1. CONTRACT_UNSUPPORTED applies to any version outside that range"
+    },
+    {
+      "id": "F4",
+      "severity": "medium",
+      "where": "003:418",
+      "defect": "amountMinor is limited to 0..100,000,000,000. Existing signed money fields fall outside it: gym_charge_adjustments.delta_paise and gym_allocations.delta_paise (check <>0; written negative at gym_read_models.sql:89,93,107), and the gym_balance net/credit values (gym_operations.sql:126), all returned by gym_account_v1",
+      "fix": "Define non-negative money (prices, payments) and signed money (\u00b11e11 per row, sums bounded by Number.MAX_SAFE_INTEGER). Name which fields use which"
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "where": "003:367-368 and 618",
+      "defect": "QA-1 F-8e is routed to 'outcomes store results, not snapshots'. Outcome rows already store only {id, revision} (member_operations.sql:103). F-8e (bootstrap-security-review.md:191) is the full session-plus-sets snapshot written to public.workout_revisions on every operation (scheduling_and_history.sql:93-96). The rule fixes nothing, and MB-4 would treat F-8e as resolved",
+      "fix": "Add a workout_revisions rule: set-level revision rows or diffs, or snapshot only on correction kinds, never on set.commit. Route it to MB-4"
+    },
+    {
+      "id": "F6",
+      "severity": "medium",
+      "where": "003:515 (\u00a75), 519-535 (\u00a76), 619 (\u00a710)",
+      "defect": "PRD \u00a721.3's 'no staff health API' and 'owner/manager templates' constraints are dropped. \u00a710 routes 'staff notes and the private-health boundary' to \u00a76, but \u00a76 has no such row. Linked members can currently read gym_members.notes through register_read (gym_operations.sql:108; QA-1 F-2), while PRD \u00a722.3 treats these as staff-only",
+      "fix": "Add \u00a76 rows: no staff endpoint returns member health or personal records; offers are owner/manager only; staff-only notes are not readable by the linked member (column grant or view) and are excluded from member export. Owners G17.api and G18.api"
+    },
+    {
+      "id": "F7",
+      "severity": "medium",
+      "where": "checkpoint.md:60 (F-10); 003:91-96",
+      "defect": "Checkpoint F-10 says every actor_id needs the SET NULL that \u00a721.2 requires. PRD \u00a721.2 (PRD:1406) requires SET NULL only on the gym link. SET NULL on actor_id is a destructive update to rows that 003 \u00a73.3 makes immutable even to definers, and an immutability trigger would block the FK action anyway. 003 leaves actor-reference deletion undecided. Today, deleting an auth user with any personal row or staff action fails on NO ACTION foreign keys",
+      "fix": "Decide: actor references point at a retained non-personal actor key (minimal tombstoned profile or actor table) with RESTRICT; linked_user_id ON DELETE SET NULL; personal tables cascade from profiles or follow an explicit purge order. Correct checkpoint F-10"
+    },
+    {
+      "id": "F8",
+      "severity": "medium",
+      "where": "003:403-405",
+      "defect": "The per-account change_seq allocation is unspecified. A sequence or max()+1 lets a transaction that commits late fall behind a client cursor, so that client never receives the row. Member RPCs serialise on an advisory lock (function_lint_cleanup.sql:34), but transitional direct writes and gym writes to member-visible rows do not",
+      "fix": "Allocate from a per-account counter row updated in the same transaction (lock held until commit). Every writer to member-visible rows, gym commands included, stamps through it"
+    },
+    {
+      "id": "F9",
+      "severity": "medium",
+      "where": "003:102-113, 526-527",
+      "defect": "PRD \u00a722.1 (PRD:1481) requires an authorised proxy or revocable access where immediate revocation is needed, and \u00a722.3 says 'revoke access immediately' on deletion. 003 makes 300-second signed URLs the only path, so gym documents for revoked staff and assets after deletion stay fetchable for up to 300 s. Future passport-link revocability is also not stated",
+      "fix": "Per bucket, state whether a 300 s residual is accepted or an Edge streaming proxy checks access on each request. Deletion purges objects. Passport links are independently revocable"
+    },
+    {
+      "id": "F10",
+      "severity": "medium",
+      "where": "003:622-638, 428; checkpoint.md:66-68, 84-97, 104-106; test-plan.md:8, 125-128, 180",
+      "defect": "Ten pending owner gates where AR-1 needs one approval of a concrete ADR. G-2 (as architecture), G-4, G-5, G-6, G-9 and G-10, plus the defaults in G-7 and G-8, are reversible engineering decisions the owner has already delegated. G-9 deletes four unexecuted draft files that git can restore. The test plan branches on G-9 and sends a non-empty diff to the owner",
+      "fix": "Make these Decisions in the ADR body, with G-1 as the single dated approval. List separately, as owner-reserved and unclaimed: region (Mumbai), account and plan purchase (OW-3), vendor adoption (RevenueCat, Sentry and its data region, MSG91/WhatsApp), legal (DEC-04), prices (DEC-06), AI vendor (DEC-08), photo backup (DEC-09). In phase 2, delete the four files after the comparison table and notify S2. A non-empty diff or CLI failure goes to the orchestrator; only a local db reset needs owner confirmation"
+    },
+    {
+      "id": "F11",
+      "severity": "low",
+      "where": "003:415",
+      "defect": "The decimal regex accepts \"-0\", contradicting 'no -0'",
+      "fix": "^(0|-?[1-9][0-9]*(\\.[0-9]*[1-9])?|-?0\\.[0-9]*[1-9])$ (no lookahead, so pg_jsonschema can use it)"
+    },
+    {
+      "id": "F12",
+      "severity": "low",
+      "where": "003:391-393, 316, 336-337, 408, 644; checkpoint.md:55; test-plan.md:51",
+      "defect": "Inaccurate 'Today' entries. nutrition_targets has no revision column or timestamps at all (member_core.sql:123-127; api.ts:76). P0002 is already mapped to PT404 (gym_api_errors.sql:6) and 40001 to PT409 for freezes (gym_freezes.sql:158,170). freeze_action returns 22023 for a revoked session, not 42501 (freeze_preview_binding.sql:16). The GymHomeScreens path lacks its apps/mobile/ prefix. Only 4 of the 8 contracts are asserted (contract_trigger_dispatch.sql:5-17)",
+      "fix": "Correct each entry; add revision and created/updated time for targets to MB-5"
+    },
+    {
+      "id": "F13",
+      "severity": "low",
+      "where": "003 \u00a74.6/\u00a74.15 (479-497)",
+      "defect": "The \u00a721.3 rule 'exercise semantics come from the authorised instance; the client cannot override' (PRD:1444) is not recorded, although the code already enforces it (function_lint_cleanup.sql:83-87; contract_trigger_dispatch.sql:26-32)",
+      "fix": "Add a row: commands carry the instance ID, never type, load basis or multiplier"
+    },
+    {
+      "id": "F14",
+      "severity": "low",
+      "where": "003:501-518",
+      "defect": "The domain column is headed 'examples' and omits PRD minimum operations: verify identities; instance create/edit/delete; food categories and archive; target version preview and analytics; goal status; member-gym requests; exit reason",
+      "fix": "Retitle the column 'Minimum operations (PRD)' and list them all"
+    },
+    {
+      "id": "F15",
+      "severity": "low",
+      "where": "003:554-560",
+      "defect": "\u00a721.4 items missing: muscle hierarchy, aliases and servings, safe demo fixtures, and the import contract (preview, timezone/unit mapping, duplicates, row errors; Strong/Hevy as P2)",
+      "fix": "Add them with their owning goals"
+    },
+    {
+      "id": "F16",
+      "severity": "low",
+      "where": "003:232 vs 439-440",
+      "defect": "health-v1 is public, but JWT checks are off 'for those functions only', meaning the webhooks",
+      "fix": "List health-v1 as no-JWT, or state that it accepts the publishable key"
+    },
+    {
+      "id": "F17",
+      "severity": "low",
+      "where": "003:356-367; member_operations.sql:32-34",
+      "defect": "Hashing the contract major turns a lost-response retry after an app update into OPERATION_REUSED. Dependencies are hashed as an ordered list. Once outcomes are pruned, the dependency check returns retryable DEPENDENCY_PENDING forever, which PRD \u00a720.2 forbids ('not infinite retry')",
+      "fix": "Hash actor, scope, kind, entityId, baseRevision and payload; treat dependencies as a sorted set or leave them out. Keep applied operation IDs (without results) beyond 180 days, or make an expired dependency non-retryable. On OPERATION_REUSED, the client calls operation_result_v1 first"
+    },
+    {
+      "id": "T1",
+      "severity": "low",
+      "where": "test-plan.md:165-169",
+      "defect": "The drift probe is a comment. Not every differ the CLI may use reports comment-only drift, so the guard could falsely look broken",
+      "fix": "Probe with create table public.ar1_drift_probe(id integer); and grep for ar1_drift_probe"
+    },
+    {
+      "id": "T2",
+      "severity": "low",
+      "where": "test-plan.md:13-14, 85-87, 361",
+      "defect": "git diff --exit-code ignores untracked files. The snapshot and fixture are new, so the restore checks for M1.2, M1.4 and M4.3 prove nothing",
+      "fix": "Make a WIP commit or git add -N before the mutations, or record sha256 before and after in $AR1_TMP"
+    },
+    {
+      "id": "T3",
+      "severity": "low",
+      "where": "test-plan.md:198-199, 322-328; calculations.ts:33-36",
+      "defect": "toFixed rounds the binary double, not half away from zero on decimal ties. The '-0.000000' path is untested. A session with no eligible set gives volume 0 in TypeScript but NULL in SQL. No current vector hits these cases",
+      "fix": "State it as a known limit. Add formatDecimal(-0.0000001)\u2192\"0\" and a no-eligible-set session vector with one agreed answer (null, per PRD 'no invented kg volume')"
+    },
+    {
+      "id": "T4",
+      "severity": "low",
+      "where": "test-plan.md:113-115",
+      "defect": "The migration guard needs a local main ref, which shallow CI clones lack. AR1_BASE_REF is a temporary name for a permanent guard",
+      "fix": "Fail closed with a clear message. PL-1 fetches the base ref. Rename the variable, e.g. FITLOG_BASE_REF"
+    }
+  ],
+  "next_phase": [
+    "Revise 003 and the checkpoint for F1\u2013F17 and restructure \u00a711 per F10. Then ask the owner for one dated approval of the completed ADR (G-1), keeping region, accounts, vendors, legal and prices listed as owner-reserved and unclaimed.",
+    "Phase 2 does not need G-1. Start boxes 2\u20134 now with T1\u2013T4 applied: preflight \u2192 box 2 (M1.1\u2013M1.5) \u2192 SQL-source and migration guards (delete the four drafts after the comparison table) \u2192 box 4 (M4.1\u2013M4.3) \u2192 box 3 diff after the formula migration, plus the structural probe \u2192 pnpm check and backend:test \u2192 handoff.",
+    "Add to the \u00a712 verify list: PostgREST access mode during pre-request on GET; PT<status> versus PGRST bodies; response.status 202.",
+    "After revision, a short re-review of the changed sections only; then the goal verifier runs on phase 2 evidence."
+  ]
+}

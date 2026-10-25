@@ -64,12 +64,19 @@ These are observations from this session, not completed goal claims:
 
 ## Active worker
 
-AR-1 phase 1 is running as local Claude background session
-`f59a0dd3-a81a-4e71-8e5a-eb238744853f` (`f59a0dd3`), independently confirmed `working`.
-The isolated checkout is `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch
-`codex/ar1-contract-freeze`, base `9f148c1`. It may write only ADR 003 and the AR-1 checkpoint
-and test plan. No source changes or architecture approval are claimed. Reconcile its logs and
-[saved supervisor state](runs/AR-1/supervisor.json) before dispatching again.
+AR-1 phase 1 completed its three documentation files in the isolated checkout, with architecture
+approval explicitly pending. Independent read-only review is running (see the saved supervisor state
+for the local stream log and tool session). Its output is a proposal, not final goal acceptance.
+
+Phase 2A is now local Claude background session `232505dc-c267-4053-b129-7719d63c430f`
+(`232505dc`), confirmed working. It may edit only the domain version/snapshot implementation,
+tests, snapshot CLI and snapshots, and its phase evidence. It must prove mutation failures and may
+not change migrations, APIs, dependencies, statuses or acceptance results.
+
+The isolated checkout remains `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch
+`codex/ar1-contract-freeze`, base `9f148c1`. Frozen offline dependency installation passed.
+Reconcile [saved supervisor state](runs/AR-1/supervisor.json), both worker logs and actual diffs before
+any further dispatch. Shared TS/SQL fixtures, migration replay/diff and owner approval remain required.
 
 ## Resume order
 

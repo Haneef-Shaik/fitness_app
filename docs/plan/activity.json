@@ -221,5 +221,17 @@
     "by": "session:Codex",
     "at": "2026-10-25T18:33:49.101Z",
     "id": "a-1792953229101-ng76vp"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "claimed",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/ar1-contract-freeze",
+    "note": "Phase1 architecture proposal/checkpoint/test-plan completed in isolated worktree; independent read-only proposal review running. Local Claude phase2A now implements contract-version snapshots and mutation guards only. Shared SQL/TS fixture, isolated replay/diff and specific owner approval remain required. No final goal acceptance or API/database change claimed.",
+    "by": "session:Codex",
+    "at": "2026-10-25T19:29:39.517Z",
+    "id": "a-1792956579517-r55ec7"
   }
 ]

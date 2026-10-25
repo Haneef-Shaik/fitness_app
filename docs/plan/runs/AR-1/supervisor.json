@@ -1,20 +1,27 @@
 {
   "goal": "AR-1",
-  "phase": 1,
+  "phase": "2A",
   "state": "working",
   "executor": "local Claude Code",
-  "sessionId": "f59a0dd3-a81a-4e71-8e5a-eb238744853f",
-  "shortId": "f59a0dd3",
+  "sessionId": "232505dc-c267-4053-b129-7719d63c430f",
+  "shortId": "232505dc",
   "worktree": "/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app",
   "branch": "codex/ar1-contract-freeze",
   "base": "9f148c1",
   "startedDate": "2026-10-25",
   "allowedWrites": [
-    "docs/architecture/003-architecture-freeze.md",
-    "docs/plan/runs/AR-1/checkpoint.md",
-    "docs/plan/runs/AR-1/test-plan.md"
+    "packages/domain/src/contract.ts",
+    "packages/domain/src/contract.test.ts",
+    "packages/domain/src/cli/snapshot-contract.ts",
+    "packages/domain/src/index.ts",
+    "packages/domain/package.json",
+    "packages/domain/contracts/*",
+    "docs/plan/runs/AR-1/phase2A.md"
   ],
-  "resume": "Inspect claude agents --json and claude logs f59a0dd3 before dispatching. Use full sessionId to resume. Review these three files before executable phase2. Owner approval remains pending.",
+  "resume": "Reconcile claude agents and logs232505dc plus phase1 reviewer log. Phase2A only implements version/snapshot guard, no database or wire-format changes. Review and independently verify before integration. Pending further phases: shared TS/SQL fixture and isolated migration replay/schema diff. Final concrete ADR owner approval remains pending.",
   "heartbeat": "fitlog-coordinate-local-claude-delivery",
-  "launchNotes": "Earlier idle/picker sessions 7479b746 and 7f26074f were stopped. Current task prompt and Read calls confirmed in logs."
+  "launchNotes": "Phase1 session f59a0dd3 completed and was stopped. Phase2A session confirmed working. Offline frozen install passed using1095 cached packages; no dependency/lock changes.",
+  "phase1": "Completed; three documentation files present in isolated checkout. Independent proposal review running; no approval claimed.",
+  "phase1ReviewLog": "/tmp/fitlog-ar1-phase1-review.jsonl",
+  "phase1ReviewExecSession": 2652
 }

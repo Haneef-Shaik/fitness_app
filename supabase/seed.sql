@@ -1,0 +1,2 @@
+-- Product catalog content is added through reviewed, versioned seeds.
+-- No real users, auth credentials, phone numbers or private health records belong in this file.

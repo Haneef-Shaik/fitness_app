@@ -185,5 +185,29 @@
     "by": "session:Codex",
     "at": "2026-10-25T16:20:33.302Z",
     "id": "a-1792945233302-aax7s6"
+  },
+  {
+    "kind": "update",
+    "goal": "OW-2",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "owner-confirmation-2026-10-25",
+    "note": "Owner explicitly confirmed a fresh launch with no existing users or data redirected. Recording DEC-15 n/a and submitting the dependency register for independent verification.",
+    "by": "session:Codex",
+    "at": "2026-10-25T18:22:57.472Z",
+    "id": "a-1792952577472-gxwjzu"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/ar1-contract-freeze",
+    "note": "Starting an isolated local Claude architecture/contract-freeze worktree. First bounded phase prepares ADR 003 and an implementation checkpoint; owner architecture approval and executable contract/replay/fixture evidence remain required.",
+    "by": "session:Codex",
+    "at": "2026-10-25T18:25:30.749Z",
+    "id": "a-1792952730749-s08kyp"
   }
 ]

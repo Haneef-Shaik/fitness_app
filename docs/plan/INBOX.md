@@ -6,10 +6,11 @@ Codex coordinates the authenticated local Claude workers. Cloud is a fallback if
 cannot work. Current handoff: [EXECUTION.md](EXECUTION.md). Status on the board remains authoritative;
 prepared evidence is not a completed goal.
 
-- **DEC-15 / OW-2:** confirm whether any existing users or data will be redirected into the rebuild.
-  The [dependency register](../evidence/OW-2/dependency-register.md) is prepared, but no dated answer
-  exists. A fresh launch needs a recorded no-cutover decision; a cutover needs an explicit migration
-  goal. No migration exemption has been recorded.
+- **DEC-15 / OW-2:** answered 25 Oct 2026. The owner confirmed a fresh launch: "no existing users or
+  data will be redirected" (tracker MIG-01). The DEC-15 ledger row reads `n/a`, and no migration goal
+  is needed. Historical snapshots and volumes are preserved; no deletion or migration is authorised.
+  Nothing more is needed from the owner on DEC-15. The
+  [dependency register](../evidence/OW-2/dependency-register.md) awaits independent verification.
 - The register maps all DEC-01–DEC-17 rows to their goals and gates. External accounts, legal review,
   licensing, device tests and pilot evidence remain open until actual proof is supplied.
 

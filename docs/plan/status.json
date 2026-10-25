@@ -18,12 +18,12 @@
       "at": "2026-10-25T16:20:33.302Z"
     },
     "OW-2": {
-      "status": "not started",
-      "who": "You",
-      "ref": "",
-      "note": "25 Oct reconciliation: product scope is selected (PROD-01 to PROD-12). Remaining: DEC-01 to DEC-17 states and proofs; each now has a row in docs/plan/ACCEPTANCE.md.",
-      "by": "session:You",
-      "at": "2026-10-25T14:35:15.008Z"
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "owner-confirmation-2026-10-25",
+      "note": "Owner explicitly confirmed a fresh launch with no existing users or data redirected. Recording DEC-15 n/a and submitting the dependency register for independent verification.",
+      "by": "session:Codex",
+      "at": "2026-10-25T18:22:57.472Z"
     },
     "OW-1": {
       "status": "done",
@@ -56,6 +56,14 @@
       "note": "25 Oct reconciliation: the rebuild has no AI gateway yet; the v1 config.py note no longer applies.",
       "by": "session:S6",
       "at": "2026-10-25T14:35:15.199Z"
+    },
+    "AR-1": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/ar1-contract-freeze",
+      "note": "Starting an isolated local Claude architecture/contract-freeze worktree. First bounded phase prepares ADR 003 and an implementation checkpoint; owner architecture approval and executable contract/replay/fixture evidence remain required.",
+      "by": "session:Codex",
+      "at": "2026-10-25T18:25:30.749Z"
     }
   }
 }

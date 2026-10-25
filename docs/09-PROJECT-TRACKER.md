@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Updated | 25 October 2026 |
-| Current baseline | New mobile/theme foundation after the 11 October reset, with connected member and gym work in progress (uncommitted; QA-1 lands it on `main`) |
+| Current baseline | Reviewed mobile/backend foundation on local `main` (QA-1 Done); architecture freeze AR-1 in progress |
 | Requirements | [PRD](PRD.md) |
 | Delivery sequence | [Master plan](23-MASTER-PLAN.md) and [goal cards](plan/GOALS.md) |
 | Goal status | [plan/status.json](plan/status.json), changed only through `scripts/plan/status.mjs` or the board |
@@ -29,7 +29,7 @@ recoverable, but it is not evidence for this rebuild.
 | --- | --- | --- |
 | Product requirements | Complete, consolidated in `docs/PRD.md` | External gate evidence; product rules selected in v2.1 |
 | Design | Relevant Momentum PRD v2.1 journeys updated in Figma and reviewed | Full Hindi/platform variants, real assets and implementation QA |
-| Planning | 114 goal cards (94 retained, 20 added) reconciled with the reset on 25 October; every PRD scenario, budget, decision and deliverable has a ledger row | QA-1, then AR-1; see `status.mjs ready` |
+| Planning | 114 goal cards (94 retained, 20 added) reconciled with the reset on 25 October; every PRD scenario, budget, decision and deliverable has a ledger row | QA-1 Done; AR-1 in progress; see `status.mjs ready` |
 | Application | Initial Expo/TypeScript theme foundation implemented locally | Native builds/device QA; data/API foundation and member flows |
 | Platform | Not started | New environment and deployment decision record |
 | Gym pilot | Not started | Fresh field-validation notes and counsel guidance |
@@ -57,6 +57,7 @@ Record a decision in this format:
 | 2026-10-17 (consolidated 25 Oct) | UI-01 | Momentum is the only UI direction; trainer UI T-01–T-05 is retired. Retain volt lime, dark/light/system, the five-tab member shell and the operational staff shell | Documentary consolidation of the existing owner-backed TECH-01 and PROD-01 decisions, PRD §19 and DEC-01; this records their scope without claiming a new owner approval on 25 Oct | OW-1; [Figma gap register](evidence/OW-1/figma-gaps.md); brand clearance remains DS-6 |
 | 2026-10-25 | PLAN-01 | Reconcile the goal plan with the reset. Keep all 94 IDs and statuses, add 20 goals for unowned PRD work, give every card a checkable contract and every milestone Exit checks, and add the acceptance ledger | The reset left the member backend, contract freeze, food AI, operations and acceptance runs without goals, and milestones had no checkable exit | [docs/23 §4](23-MASTER-PLAN.md#4-the-25-october-reconciliation); every goal |
 | 2026-10-25 | PLAN-02 | `main` is the integration branch once QA-1 lands the reset and the foundation on it | Integrating goals into the pre-reset `main` would mix v1 and the rebuild | [docs/23 §6](23-MASTER-PLAN.md#6-branches-and-integration); QA-1 |
+| 2026-10-25 | MIG-01 | No legacy-user cutover. The owner answered: "Fresh launch: no existing users or data will be redirected." No account, workout or food data is migrated into the rebuild. Historical snapshots and volumes (Git history, the 11 Oct reset snapshot, local Supabase volumes and historical containers) are preserved as they are; this decision authorises no deletion and no migration | Explicit owner answer to DEC-15 on 25 Oct 2026. PRD §27 needs a migration only if actual existing users are redirected. Records the owner's answer only; no technical-lead signature or other external approval is claimed | DEC-15 ([ledger](plan/ACCEPTANCE.md)); PRD §§21.4, 27; [OW-2 register](evidence/OW-2/dependency-register.md); OW-2 |
 
 The product owner selected trainer removal and explicitly delegated remaining product decisions.
 PROD records do not assert counsel/vendor/licensing approval or completed implementation. Actual

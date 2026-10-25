@@ -1,0 +1,55 @@
+{
+  "goal": "OW-2",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "box": "`docs/evidence/OW-2/dependency-register.md` gives every DEC row in [ACCEPTANCE.md](ACCEPTANCE.md) its current state and the proof that will close it",
+      "evidence": "ACCEPTANCE.md:115-139 has 25 DEC rows. Register \u00a71 (dependency-register.md:40-64) has 25 numbered rows, and I compared them one at a time. Requirement, gate, Proved-by list and last prover (the writer) match the ledger for all 25. Each row has a Current state cell and a Proof-that-closes-it cell. \u00a72 (lines 71-394) gives each DEC its missing proof, next action and what stays blocked. The box numbers cited for the writers match GOALS.md: DS-6:1060, OW-6:1046-1047, G13:909, G15.app:999, AI-2:970, PL-5:347-348, DS-5:493, QA-4:1133, QA-3:847, QA-5:1148, OW-11:1248, G23:1480, OW-12:1517, G24:1534, G26:1560, G27:1573, AP-7:1717, AP-9:1832. The deciders and milestones match PRD.md:1890-1906. The board state at line 31 matches status.json:12-35 and 60-67: OW-1 and QA-1 are done, OW-2 and AR-1 are claimed. The DEC-15 blocked list at line 345 matches every 'Needs: OW-2' in GOALS.md: MS-0, OW-3, OW-4, OW-5, OW-6, OW-8 and DS-6.",
+      "result": "met (two low-severity stale details, see findings)"
+    },
+    {
+      "box": "DEC-15 is answered: no legacy-user cutover (its ledger row set to `n/a \u00b7 <reason>`), or a migration goal is added to this plan",
+      "evidence": "ACCEPTANCE.md:134 reads `n/a \u00b7 no legacy-user cutover; owner confirmed fresh launch with no existing users or data redirected on 2026-10-25 (tracker MIG-01)`. That is the `n/a \u00b7 <reason>` form ACCEPTANCE.md:27 allows, and it names DEC-15 with no legacy cutover as an example. The tracker at 09-PROJECT-TRACKER.md:60 is MIG-01, dated 2026-10-25, and quotes the owner exactly as stated to the coordinator: \"Fresh launch: no existing users or data will be redirected.\" MIG-01 authorises no deletion or migration and preserves Git history, the reset snapshot, the volumes and the containers. Its Why column says: 'Records the owner's answer only; no technical-lead signature or other external approval is claimed'. The register matches: lines 321-324, 341-342 and 423-425 ('Technical lead (dated): not recorded. No signature is claimed.'). No technical-lead signature is invented anywhere. On the open question in handoff.md:50-51: PRD.md:1904 makes approval by owner and technical lead conditional ('before any legacy-user cutover'; 'Only if redirecting actual existing users\u2026 otherwise not a launch blocker'). The owner's statement alone is therefore enough for `n/a`. INBOX.md:9-13 and EXECUTION.md:61-62 and 82-83 agree with this. The other 24 DEC rows still read `open`.",
+      "result": "met"
+    },
+    {
+      "box": "No entry claims an approval, account or licence without dated proof",
+      "evidence": "I went through the register entry by entry. Every 'External proof on record' says None, a candidate, or that nothing is needed (DEC-13 and DEC-17 are verification rows). Each time the register uses approved, licensed, signed, provisioned, cleared or registered, the word appears in missing proof, closing proof, or a negation (lines 79, 81, 101, 104, 160, 179, 228, 371, 446). I checked the dated owner items it cites against their sources: TECH-01 at tracker:56 (2026-10-17); the accent choice at owner-packs/OW-1.md:144 (4 Oct); media-last at GOALS.md:1809 (7 Oct 2026); the audience quote at owner-packs/OW-2.md:190 (10 Oct); MIG-01 at tracker:60 (2026-10-25). The register labels each of these as a choice, not an account, licence or external approval. The fonts are marked '(unverified)'. Their OFL notice files exist at apps/mobile/assets/licenses/*-OFL.txt, and the register claims no licence clearance for them. The 50 gap-free receipts (tracker:284) are labelled implementation evidence, not a statutory review. Prices of \u20b9149/\u20b9999 are marked 'not approved'. No hosting region is recorded; 'likely Singapore' is shown as never answered. MSG91, Render, Resend, Sentry, MuscleMap and Open Food Facts are all marked as candidates.",
+      "result": "met"
+    }
+  ],
+  "findings": [
+    {
+      "file": "docs/evidence/OW-2/dependency-register.md",
+      "line": 362,
+      "severity": "low",
+      "reason": "Box 1, DEC-16 row A, current state: 'This is uncommitted local work.' is out of date. QA-1 is done (status.json:12-19, 'Reviewed foundation is on local main'). The session git snapshot shows no untracked apps/mobile files, and .gitignore does not exclude apps/mobile/assets/licenses/. The OFL notices are therefore committed on main. The error understates progress and claims no licence, so the box still holds. The fix is to say 'committed on main by QA-1; DS-2 has not verified'."
+    },
+    {
+      "file": "docs/evidence/OW-2/dependency-register.md",
+      "line": 478,
+      "severity": "low",
+      "reason": "The box-3 self-check repeats the stale 'or uncommitted local work' wording. It should be corrected together with line 362. It does not create any approval or licence claim."
+    },
+    {
+      "file": "docs/evidence/OW-2/dependency-register.md",
+      "line": 109,
+      "severity": "low",
+      "reason": "Box 1, DEC-02 next action begins 'QA-1 lands;'. QA-1 is already done (status.json:12-19), and line 31 of the same register says so. The coordinator refreshed DEC-01 and DEC-13 but missed this line. The closing proof and current state are unaffected."
+    },
+    {
+      "file": "docs/plan/ACCEPTANCE.md",
+      "line": 134,
+      "severity": "info",
+      "reason": "Not a box defect; this is about process. ACCEPTANCE.md:32-33 says a result changes only on a goal branch through /run-goal and goal-verifier, never by hand on main. The DEC-15 result sits uncommitted in main's working tree. handoff.md:47-49 discloses this, so it needs to be handled at integration."
+    }
+  ],
+  "limitations": [
+    "There is no AGENTS.md at the repo root; the only copies are under node_modules/@supabase/*. In its place I read .claude/agents/goal-verifier.md and .claude/skills/verify-goal/SKILL.md as the governing verifier contract.",
+    "I ran no commands and no git. I did not run `node scripts/plan/build.mjs --check` or `pnpm check`. The coordinator is running `pnpm check`, and this PASS depends on it passing, including the ledger-format check on ACCEPTANCE.md:134.",
+    "That the OFL files are committed is an inference. It rests on the session git snapshot, .gitignore and QA-1's done note, not on `git ls-files`.",
+    "I accepted the owner's DEC-15 statement as the trusted statement supplied to the coordinator on 2026-10-25. I checked that MIG-01 quotes it exactly; I could not check it independently against any other source.",
+    "I did not check that the /private/tmp reset snapshot or the local Supabase volumes still exist. With no cutover, none of the three boxes depends on them.",
+    "I verified only the working-tree content. I did not review a diff against main or the integration state. I did not check activity.json, the tracker lines changed elsewhere, or docs/plan/EXECUTION.md beyond the DEC-15 and OW-2 mentions."
+  ]
+}

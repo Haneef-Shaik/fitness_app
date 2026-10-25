@@ -29,12 +29,12 @@ These are observations from this session, not completed goal claims:
   is now on local `main`; implementation commit `67e6d1c` contains the reviewed foundation. Unrelated
   marketing artifacts, review screenshots, error.log and ignored environments were preserved.
 - 114 goals, 230 dependencies, 94 acceptance-ledger rows. OW-1 and QA-1 are Done after independent
-  passes on attempt 2 and integration. OW-2's dependency register is prepared but DEC-15 awaits the
-  owner. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
+  passes on attempt 2 and integration. OW-2's dependency register records the owner's fresh-launch
+  decision (MIG-01); independent verification is running. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
   respect SP0 before contract-dependent feature work.
 - `pnpm check` passed before this handoff: TypeScript, lint/design rules, 10 domain tests,
-  27 mobile tests, 21 planner tests and contract/ledger validation. New planner sync tests
-  are additional checks. This is not backend, native-device or release acceptance evidence.
+  126 mobile tests, 22 planner tests and contract/ledger validation on the reviewed foundation.
+  This is not native-device or release acceptance evidence.
 - Claude Code is installed and its login is confirmed with normal macOS keychain access.
   Sandboxed commands report no login because they cannot access that keychain. Launch the
   bounded local Claude worker through the approved execution tool; do not copy credentials.
@@ -55,9 +55,20 @@ These are observations from this session, not completed goal claims:
 - ORCHESTRATOR.md O2–O5 remain unimplemented: `status.mjs next --slots 1` is unsupported;
   there is no working continuous scheduler, recovery ledger, runner or kill-drill evidence.
   Do not represent the existing agent prompts as an operating unattended service.
-- Hourly local supervision was proposed, but automatic approval review rejected creating it because
-  recurring resource use and project edits require explicit scheduling authorization. The owner was
-  asked through the chat; no automation exists unless a later approval and successful creation say so.
+- The owner explicitly approved hourly local supervision on 25 October. The thread heartbeat
+  `fitlog-coordinate-local-claude-delivery` is ACTIVE and resumes this chat hourly for bounded
+  Codex-coordinated local Claude work. This is distinct from the unimplemented O2–O5 Claude runner.
+  The owner also confirmed a fresh launch with no existing users or data redirected; DEC-15 is
+  being recorded as not applicable through OW-2.
+
+## Active worker
+
+AR-1 phase 1 is running as local Claude background session
+`f59a0dd3-a81a-4e71-8e5a-eb238744853f` (`f59a0dd3`), independently confirmed `working`.
+The isolated checkout is `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch
+`codex/ar1-contract-freeze`, base `9f148c1`. It may write only ADR 003 and the AR-1 checkpoint
+and test plan. No source changes or architecture approval are claimed. Reconcile its logs and
+[saved supervisor state](runs/AR-1/supervisor.json) before dispatching again.
 
 ## Resume order
 
@@ -68,14 +79,16 @@ These are observations from this session, not completed goal claims:
    and verify Claude installation/authentication there. Local credentials are not automatically
    cloud credentials. Establish the repository revision and transfer reviewed foundation commits
    before dispatching work against that checkout.
-3. Reconcile OW-1 against the existing dated Momentum decision and documented Figma gaps.
-   Prepare OW-2's dependency register from known evidence, leaving actual external approvals
-   unresolved. OW-9 requires real field work. Do not invent owner approval or completion.
-4. Review/adopt the foundation through QA-1, retain all unrelated local changes, run the full
-   card gates, and integrate the reviewed baseline on `main` before creating feature worktrees.
+3. OW-1 and QA-1 are complete. Reconcile OW-2's independent verdict and integration state before
+   any new dispatch. Its DEC-15 answer is MIG-01; all other external approvals remain unresolved.
+   OW-9 requires real field work. Do not invent owner approval or completion.
+4. Inspect the AR-1 worker above and review its bounded phase output. Continue executable contract,
+   replay and shared-fixture work in that worktree after review; obtain specific owner approval of
+   the concrete ADR before declaring AR-1 Done. Preserve unrelated local changes.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
-   Manual Codex coordination can precede the automated scheduler. Before enabling unattended
-   execution, implement and verify O2–O5, including interruption recovery and explicit limits.
+   The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
+   running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified
+   before claiming the older Claude runner's unattended execution or crash-recovery guarantees.
 6. Continue through all milestone gates. Accounts, licensed assets, physical release-device
    evidence, legal review and real pilot durations remain external dependencies until proved.
 

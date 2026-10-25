@@ -60,10 +60,10 @@
     "AR-1": {
       "status": "claimed",
       "who": "Codex",
-      "ref": "07757a5",
-      "note": "Review2 confirms original21 findings resolved; still REVISE for P2A-1..8 and PR-1..6. Bounded Claude correction workers97750dac and f2178f5b active with disjoint files. Fail-closed CI baseline and external erasure tombstones required. Candidate remains unmerged; SQL fixture/replay and specific ADR approval remain due.",
+      "ref": "22c5386",
+      "note": "Contract checkpoint independently PASS with coordinator179 tests and CI probes. Phase2B shared AC03 TS/SQL fixture worker71d2d674 active; proposal PR corrections continue separately. No DB applied/reset, no integration or final goal acceptance. Persisted contracts, isolated replay/diff, ADR approval and all-box verification remain.",
       "by": "session:Codex",
-      "at": "2026-10-25T22:29:53.151Z"
+      "at": "2026-10-25T23:45:18.464Z"
     }
   }
 }

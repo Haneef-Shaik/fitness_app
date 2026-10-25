@@ -1,0 +1,48 @@
+{
+  "goal": "AR-1",
+  "scope": "Only P2A-1 to P2A-8. The proposal was not re-reviewed. No edits, git, delegation, database or external actions",
+  "verdict": "PASS",
+  "verdict_basis": "Code reading only. The exact domain test and typecheck were not run (shell denied). This PASS holds only if both exit 0 when the coordinator runs them. One non-blocking low finding (F1)",
+  "dispositions": {
+    "P2A-1": "Resolved. snapshot-contract.ts:110 treats CI as off only when it is unset, empty, '0' or 'false'. In CI, :131 throws for an unset or blank variable before any git call, and :133 refuses all zeros. mobile-ci.yml:24 picks the baseline by event_name: base.sha for pull_request, before for push, otherwise ''. A pull request never falls back to `before`, and nothing falls back to HEAD. fetch-depth 0 (:29), the variable (:24) and the guard step (:30-44) are in the same file, so they land together. The guard runs before install and rejects empty, all-zero and malformed values. RED run #2 (corrections.md:192-194) shows the new tests failing on the old code",
+    "P2A-2": "Resolved. The variable is read at :130-133, before the first git call at :135. :136 throws for a configured baseline when rev-parse --show-prefix fails, including a spawn failure (status null, 'git did not run'). :137 keeps the quiet note only for a local run with no variable. Tests :217-227 cover a scratch directory outside the repository (local and CI) and a missing git binary (ENOENT)",
+    "P2A-3": "Resolved. gitCommand (:96-101) keeps the exit status and stderr; a spawn error or output overflow gives status null. gitSource (:116-120) lists files with ls-tree -r -z --full-name and throws on a non-zero exit. It reads only listed files with cat-file blob, which also throws. A file that is not listed reads as null, and that is the only way absence is reported. The `<sha>:<path>` read uses the full path, consistent with the --full-name listing. Test :229-239 simulates merge-base, ls-tree and cat-file failures, and M3.1/M3.2 are recorded",
+    "P2A-4": "Resolved. :197-200: a missing ref and HEAD^{tree} throw 'not a commit'. :202-215: HEAD, locally and in CI, gives one HEAD@<12 hex> source that records 0.1.0; an unlisted file and an absent directory read as null. :233: an unrelated ref (simulated) throws. :188-195: CI with the variable unset, '' or blank throws; all zeros throws; a local '' throws; CI=false, CI=0 and no CI run as local",
+    "P2A-5": "Resolved as the review specified. I checked all 13 vectors (:249-263) by hand against models.ts:4, 9-11, 29, 93 and 103. Each expected issue matches: custom@repsMax, custom@ for goal, timezone and body entry, and too_small@ for a name that is blank after trimming. The inventory (:271-278) matches a search of src for refine and trim (paise has neither). The limitation 4 text is corrected (phase2A.md:179-186). One residual: F1",
+    "P2A-6": "Resolved. :170 runs first, so sharing MAJOR.MINOR means a PATCH-only bump. :172-174 then compares schemas and persisted, ignoring version (wireOf :34-38), and refuses any difference. The last snapshot cannot be missing, because hashProblems at :162 already passed. Test :149-160 derives its versions from the latest snapshot and covers a schemas change, a persisted change, an unchanged PATCH and a MINOR",
+    "P2A-7": "Resolved. tsconfig.client.json inherits the strict options and sets types [], files [src/index.ts] and include []. The domain typecheck (package.json:7) runs both compiles, and the root typecheck (root package.json:13) calls it, so pnpm check covers it. That Node globals are really excluded rests on the recorded M3.3 probe, which I did not re-run",
+    "P2A-8": "Resolved. createExclusive (:180-184) opens with wx and removes a file only if it created it and the write then failed. writeSnapshot (:186-197) removes its own snapshot when the temporary file already exists (EEXIST), and both of its own files when the rename fails. It never removes a temporary file it did not create. writtenProblems (:199-202) is exported and used in main (:215). Tests :162-186 cover: a clean write that verifies and matches the committed hash; EEXIST leaving the directory byte-identical; another run's temporary file kept; and a rename onto a directory leaving only that directory. The lock is documented as deferred (corrections.md:161-168; phase2A.md:189-191)"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "blocking": false,
+      "file": "packages/domain/src/contract.test.ts",
+      "lines": "259-262 (rule at models.ts:93; claims at phase2A-corrections.md:110 and phase2A.md:181)",
+      "defect": "The body-entry rule accepts an entry with any one of four values: weightKg, bodyFat, measurements or a note. The vectors pin only note-only and measurement-only as accepted. Deleting `e.weightKg !== null ||` or `e.bodyFat !== null ||` from models.ts:93 would fail no domain test: calculations.test.ts:61 only tests a rejection, and no test file references bodyEntrySchema directly. Both docs say every rule's accept and reject boundary is pinned, so that claim is overstated",
+      "fix": "Add `['a body entry with only a weight', bodyEntrySchema, { ...bodyEntry, notes: '', weightKg: 80 }, []]` and `['a body entry with only body fat', bodyEntrySchema, { ...bodyEntry, notes: '', bodyFat: 20 }, []]`, or narrow the two doc sentences"
+    }
+  ],
+  "commands": [
+    {
+      "command": "cat /tmp/fitlog-ar1-checkpoint-review2.json; ls packages/domain \u2026",
+      "result": "Denied by the session's permission mode. Nothing ran. Files were read with Read, Grep and Glob instead"
+    },
+    {
+      "command": "rtk proxy pnpm --filter @fitlog/domain test",
+      "result": "NOT RUN (shell denied). The only results are those recorded in corrections.md #3 and #8: 31 of 31 pass"
+    },
+    {
+      "command": "rtk proxy pnpm --filter @fitlog/domain typecheck",
+      "result": "NOT RUN (shell denied). The only results are those recorded in corrections.md #5 and #9: both compiles clean"
+    }
+  ],
+  "limitations": [
+    "No test, typecheck or mutation run was executed. Every result is either reasoned from the code or taken from corrections.md",
+    "No git was run. 'Source frozen' rests on the session-start status: only mobile-ci.yml, phase2A.md, package.json, snapshot-contract.ts and contract.test.ts are modified, and three files are untracked. models.ts, contract.ts and contracts/ are not among them. docs/evidence/AR-1-phase1-review.json is outside P2A scope and was not reviewed",
+    "CI was not executed. The expression precedence, fetch-depth 0 fetching base.sha and `before`, and how local `main` resolves on the runner are all reasoned",
+    "The Zod internals the inventory relies on (_zod.def, and the check kinds custom and overwrite) are taken from Zod 4 behaviour. node_modules was not read",
+    "AR-1 is still incomplete: PR-1 to PR-6, the owner's G-1 approval, the database half of box 2, boxes 3 and 4, the first real CI run, the gates and the goal verifier"
+  ]
+}

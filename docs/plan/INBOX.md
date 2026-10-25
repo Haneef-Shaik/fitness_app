@@ -284,11 +284,11 @@ OW-2 → OW-5 and OW-9 should start early:
 
 ## AR-1 supervision checkpoint — 26 October 2026
 
-No owner action yet. Independent review2 confirms all original proposal findings resolved, but
-requires P2A-1..8 contract/CI corrections and PR-1..6 proposal corrections. Codex assigned these to
-two local Claude workers with disjoint files. The restore design must keep tombstones outside the
-database rollback domain; CI must fail closed without a readable trusted baseline.
+No owner action yet. Contract checkpoint22c5386 independently passed targeted review; coordinator179
+tests/typechecks and CI baseline negative/positive probes pass. It remains isolated and unmerged.
+One low coverage follow-up (weight-only/body-fat-only body entries) belongs to MB-6.
 
-Candidate07757a5 remains unmerged. Coordinator tests169 and both JavaScript exports passed, but no
-native-device, production or release acceptance is claimed. Shared SQL/TypeScript fixtures and
-isolated migration replay/diff remain due. The completed reviewed ADR needs one dated owner approval.
+Claude phase2B now prepares the shared AC03 TypeScript/SQL fixture and append-only formula migration;
+SQL has not run. A separate worker finishes proposal PR-1..6. Disposable DB fixture execution,
+persisted-contract checks and full replay/diff remain due. The completed reviewed ADR still needs
+one dated owner approval. No hosted CI, native-device or release acceptance is claimed.

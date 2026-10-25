@@ -64,29 +64,29 @@ These are observations from this session, not completed goal claims:
 
 ## Active worker
 
-AR-1 checkpoint `07757a5` remains on the isolated goal branch, unmerged. Coordinator tests (169),
-Android/iOS JavaScript exports and real-Git snapshot-tamper probes passed. Independent checkpoint
-[review2](../evidence/AR-1/checkpoint-review2.json) returned **REVISE** for both code and proposal.
-It confirms every original F1–F17/T1–T4 finding is resolved.
+AR-1 phase2A contract corrections are accepted as intermediate checkpoint `22c5386`, still isolated
+and unmerged. Independent [review3](../evidence/AR-1/p2a-review3.json) PASS is based on code reading,
+conditional on tests/typecheck; coordinator `pnpm check` (179 tests) fulfills those conditions.
+CI-mode negative/positive baseline and literal workflow-script probes pass. Hosted CI is unproved.
+Low nonblocking F1 (weight-only/body-fat-only acceptance vectors) is assigned to MB-6.
+[Checkpoint disposition](../evidence/AR-1/phase2A-acceptance.md).
 
-New required corrections are bounded and assigned:
+Current disjoint workers:
 
-- Code worker `97750dac-1bd4-4e15-a487-295d4a8097e2` (`97750dac`): P2A-1..8. Fail-closed
-  trusted CI baselines (including missing Git/read failures), atomic workflow wiring, refinement
-  boundaries, patch-version compatibility, client-only TypeScript and safe snapshot-write tests.
-  Scope is contract CLI/tests/config, domain typecheck script, the existing CI workflow and phase2A
-  evidence. No model/schema/snapshot/wire/database changes.
-- Docs worker `f2178f5b-1447-483a-9941-99da5753436b` (`f2178f5b`): PR-1..6 only. An external
-  erasure tombstone register must survive database rollback; also rate-limiter rejected requests,
-  actor-key foreign keys, demoted-role replay and durable review references. No source edits.
-
-The code worker asked permission for one read-only `rtk proxy cat` of root package.json; Codex
-inspected the exact command and approved once. Permission checks remain enabled; no broad mode.
+- `71d2d674-9d77-46b2-b4e6-512a5d4a5f70` (`71d2d674`): phase2B new shared AC03 fixture,
+  real TypeScript calculator tests, private SQL formula migration and rollback-only SQL test file.
+  No database, API/model/index/package edits or git. The coordinator generated the new empty
+  migration through Supabase CLI after reading current official guidance. SQL is not yet executed.
+- `f2178f5b-1447-483a-9941-99da5753436b` (`f2178f5b`): proposal PR-1..6 corrections only.
+  A one-time canonical evidence read was approved after auto-review rejected a persistent grant.
+  Redundant manual JSON-copy checking was interrupted; resumed with the same saved permissions and
+  verified local evidence. No broad permission or bypass mode. No owner approval claimed.
 
 Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
-Read [supervisor state](runs/AR-1/supervisor.json), worker states and corrections before dispatching.
-Both results need independent targeted verification before integration. Shared TS/SQL fixtures,
-isolated replay/schema diff and one approval of the completed ADR still remain; AR-1 is not Done.
+Read [supervisor state](runs/AR-1/supervisor.json) before dispatch. SQL execution must use a disposable
+isolated test database, with serialized replay/diff. Never reset historical/user data. Persisted-contract
+comparison, fixture SQL execution, all migrations replay/schema diff, proposal re-review, one owner
+approval and final all-box verification/integration still remain before AR-1 Done.
 
 ## Resume order
 

@@ -40,6 +40,7 @@ export const paths = (dir = PLAN_DIR) => ({
   status: join(dir, "status.json"),
   activity: join(dir, "activity.json"),
   board: join(dir, "board.html"),
+  acceptance: join(dir, "ACCEPTANCE.md"),
   lock: join(dir, ".plan.lock"),
 });
 
@@ -182,6 +183,137 @@ export function parseGoalsMarkdown(text, { docPath = "docs/plan/GOALS.md" } = {}
   return { ...head, goals: planGoals };
 }
 
+/* ---------- contracts: each card's Done-when or Exit-checks boxes ---------- */
+
+const CONTRACT_HEADING = /^\*\*(Done when|Exit checks)\.\*\*/;
+const BOX = /^\s*[-*]\s+\[( |x|X)\]\s+(.+?)\s*$/;
+
+/**
+ * Each goal's contract: the checkbox list right under its **Done when.** or **Exit checks.** line.
+ * A blank line after the first box ends the list, so boxes in later prose or in code are not part
+ * of it. Returns Map(id → [{ text, ticked }]).
+ */
+export function cardChecks(text) {
+  const out = new Map();
+  let current = null;
+  let collecting = false;
+  let inCode = false;
+  for (const line of text.split("\n")) {
+    if (/^\s*```/.test(line)) { inCode = !inCode; collecting = false; continue; }
+    if (inCode) continue;
+    const h = line.match(GOAL_HEADING);
+    if (h) { current = h[1]; out.set(current, []); collecting = false; continue; }
+    if (/^#{1,3}\s/.test(line)) { current = null; collecting = false; continue; }
+    if (!current) continue;
+    if (CONTRACT_HEADING.test(line)) { collecting = true; continue; }
+    if (!collecting) continue;
+    const list = out.get(current);
+    const box = line.match(BOX);
+    if (box) list.push({ text: box[2], ticked: box[1] !== " " });
+    else if (/^\s+\S/.test(line) && list.length) list[list.length - 1].text += " " + line.trim();
+    else if (line.trim() === "" && !list.length) continue;
+    else collecting = false;
+  }
+  return out;
+}
+
+/** Every goal needs a contract; a card without boxes cannot be verified or declared. */
+export const checkContracts = (plan, checks) =>
+  plan.goals.filter(g => !(checks.get(g.id) || []).length).map(g => `${g.id} has no Done-when or Exit-checks boxes`);
+
+/* ---------- the acceptance ledger (docs/plan/ACCEPTANCE.md) ---------- */
+
+const LEDGER_ROW = /^\|\s*(AC\d{2}|NF-\d{2}|DEC-\d{2}|PD-\d{2})\s*\|/;
+const RESULT = /^(open|(pass|fail) · \d{4}-\d{2}-\d{2} · \S.*|n\/a · \S.*)$/;
+export const isMilestone = id => /^MS-/.test(id);
+const isPassing = result => /^(pass|n\/a) · /.test(result);
+
+/** Rows of every ledger table: | ID | Release | Requirement | Proved by | Gate | Result |. */
+export function parseLedger(text) {
+  return text.split("\n").filter(l => LEDGER_ROW.test(l)).map(line => {
+    const cells = line.split("|").slice(1, -1).map(c => c.trim());
+    if (cells.length !== 6) throw new Error(`ledger row has ${cells.length} cells, not 6: ${line}`);
+    const [id, release, requirement, provedBy, gate, result] = cells;
+    return { id, release, requirement, goals: splitIds(provedBy.replace(/,/g, " ")), gate, result };
+  });
+}
+
+export function loadLedger(dir = PLAN_DIR) {
+  const p = paths(dir).acceptance;
+  return existsSync(p) ? parseLedger(readFileSync(p, "utf8")) : [];
+}
+
+/** The PRD's acceptance scenarios (§25: "| AC01 / M |") and external decisions (§27: "| DEC-01 |"). */
+export function parsePrdAcceptance(text) {
+  const acs = new Map();
+  const decs = new Set();
+  for (const line of text.split("\n")) {
+    const ac = line.match(/^\|\s*(AC\d{2})\s*\/\s*([MG](?:\/[MG])?)\s*\|/);
+    if (ac) acs.set(ac[1], ac[2]);
+    const dec = line.match(/^\|\s*(DEC-\d{2})\s*\|/);
+    if (dec) decs.add(dec[1]);
+  }
+  return { acs, decs };
+}
+
+export function ancestorsOf(plan, id) {
+  const byId = new Map(plan.goals.map(g => [g.id, g]));
+  const seen = new Set();
+  const walk = gid => {
+    for (const n of byId.get(gid)?.needs || []) if (!seen.has(n)) { seen.add(n); walk(n); }
+  };
+  walk(id);
+  return seen;
+}
+
+/**
+ * Check the ledger against the plan and the PRD. `rules.member` is the gate every member (M)
+ * acceptance row must name; `rules.gym` lists the gates a gym (G) row may name. Returns a list of
+ * problems; empty means every PRD scenario and decision has a row that a real gate waits on.
+ */
+export function checkLedger(plan, rows, prd, rules) {
+  const errors = [];
+  const ids = new Set(plan.goals.map(g => g.id));
+  const seen = new Set();
+  for (const r of rows) {
+    const key = `${r.id}@${r.gate}`;
+    if (seen.has(key)) errors.push(`${r.id} appears twice at ${r.gate}`);
+    seen.add(key);
+    if (r.id.startsWith("AC")) {
+      if (!["M", "G"].includes(r.release)) errors.push(`${r.id}: release "${r.release}" must be M or G`);
+      else if (!(prd.acs.get(r.id) || "").split("/").includes(r.release)) errors.push(`${r.id} (${r.release}) is not in the PRD's acceptance table`);
+      if (r.release === "M" && r.gate !== rules.member) errors.push(`${r.id} (M) must be gated at ${rules.member}`);
+      if (r.release === "G" && !rules.gym.includes(r.gate)) errors.push(`${r.id} (G) must be gated at ${rules.gym.join(" or ")}`);
+    }
+    if (r.id.startsWith("DEC") && !prd.decs.has(r.id)) errors.push(`${r.id} is not in the PRD's decision table`);
+    if (!r.goals.length) errors.push(`${r.id}: no proving goal`);
+    const unknown = r.goals.filter(g => !ids.has(g));
+    unknown.forEach(g => errors.push(`${r.id}: ${g} is not a goal in the plan`));
+    if (!ids.has(r.gate) || !isMilestone(r.gate)) errors.push(`${r.id}: gate ${r.gate} is not a milestone in the plan`);
+    else if (!unknown.length && r.goals.length) {
+      const upstream = ancestorsOf(plan, r.gate);
+      if (!r.goals.some(g => g === r.gate || upstream.has(g))) errors.push(`${r.id}: ${r.gate} does not wait on any of ${r.goals.join(", ")}`);
+    }
+    if (!RESULT.test(r.result)) errors.push(`${r.id}: result "${r.result}" must be open, pass · YYYY-MM-DD · evidence, fail · YYYY-MM-DD · evidence, or n/a · reason`);
+  }
+  for (const [id, release] of prd.acs) {
+    for (const part of release.split("/")) {
+      if (!rows.some(r => r.id === id && r.release === part)) errors.push(`${id} (${part}) is in the PRD but has no ledger row`);
+    }
+  }
+  for (const id of prd.decs) if (!rows.some(r => r.id === id)) errors.push(`${id} is in the PRD but has no ledger row`);
+  return errors;
+}
+
+/** What stands between a milestone and being declared: open needs, open ledger rows, its exit checks. */
+export function gateReport(plan, status, rows, checks, id) {
+  if (!isMilestone(id) || !plan.goals.some(g => g.id === id)) throw new Error(`${id} is not a milestone in the plan`);
+  const gated = rows.filter(r => r.gate === id);
+  const open = openNeeds(plan, status, id);
+  const openRows = gated.filter(r => !isPassing(r.result));
+  return { id, openNeeds: open, rows: gated, openRows, checks: checks.get(id) || [], declarable: !open.length && !openRows.length };
+}
+
 /* ---------- validation and derived state ---------- */
 
 export function validatePlan(plan) {
@@ -267,12 +399,26 @@ function cleanFields(fields) {
 
 const feedId = at => `a-${Date.parse(at)}-${Math.random().toString(36).slice(2, 8)}`;
 
+/** Why a goal may not be declared Done yet: open needs and, for a milestone, open ledger rows. */
+function doneProblems(dir, plan, status0, id) {
+  const problems = [];
+  const open = openNeeds(plan, status0, id);
+  if (open.length) problems.push(`${open.join(", ")} ${open.length === 1 ? "is" : "are"} not Done`);
+  if (isMilestone(id)) {
+    const rows = loadLedger(dir).filter(r => r.gate === id && !isPassing(r.result));
+    if (rows.length) problems.push(`ledger rows still open: ${rows.map(r => `${r.id} (${r.result.split(" · ")[0]})`).join(", ")}`);
+  }
+  return problems;
+}
+
 /**
  * Set one goal's status and add a feed entry, under the lock. Both files are read before
  * either is written, so a damaged feed cannot leave a status saved behind a reported failure.
- * Moving into "claimed" while a need is open is refused unless `force`.
+ * Moving into "claimed" while a need is open is refused unless `force`. Moving into "done" while a
+ * need is open, or a milestone's ledger rows are not passed, is refused unless `override` gives a
+ * reason, which is kept in the note.
  */
-export function setStatus(dir, id, fields, { by = null, source = null, kind = "update", force = false } = {}) {
+export function setStatus(dir, id, fields, { by = null, source = null, kind = "update", force = false, override = "" } = {}) {
   const plan = loadPlan(dir);
   if (!plan.goals.some(g => g.id === id)) throw new PlanError("stale", `no goal ${id} in the plan; reload the board or rebuild it`);
   const status = normaliseStatus(fields.status);
@@ -285,6 +431,15 @@ export function setStatus(dir, id, fields, { by = null, source = null, kind = "u
     if (status === "claimed" && prevStatus !== "claimed" && !force) {
       const open = openNeeds(plan, status0, id);
       if (open.length) throw new PlanError("blocked", `${id} is blocked by ${open.join(", ")}; finish those first or pass --force`);
+    }
+    if (status === "done" && prevStatus !== "done") {
+      const problems = doneProblems(dir, plan, status0, id);
+      const reason = typeof override === "string" ? override.trim() : "";
+      if (problems.length && !reason) throw new PlanError("blocked", `${id} cannot be Done: ${problems.join("; ")}. Finish them, or pass --override "<reason>"`);
+      if (problems.length) {
+        clean.note = [clean.note ?? prev.note ?? "", `override: ${reason} (${problems.join("; ")})`].filter(Boolean).join(" · ")
+          .slice(0, FIELD_LIMITS.note);
+      }
     }
     const at = new Date().toISOString();
     const next = {

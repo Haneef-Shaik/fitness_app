@@ -1,5 +1,10 @@
 # Autonomous execution: one orchestrator, many agents
 
+> **25 October 2026 execution update:** the owner requested Codex as the main coordinator,
+> Claude for implementation, local first with cloud as a fallback. See [EXECUTION.md](EXECUTION.md) for the current
+> handoff and verified blockers. The Claude-only local architecture below is the earlier design;
+> O2–O5 have not been implemented, and this document does not establish a running service.
+
 > **11 October 2026 reset:** the old implementation was removed from this branch.
 > Read the [fresh baseline](../RESET-BASELINE.md) first; existing-code audits and build entry gates below need reconciliation.
 

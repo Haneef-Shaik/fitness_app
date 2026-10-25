@@ -117,9 +117,14 @@ On the verdict:
 
 ## 7. Gates and the owner
 
-- **Milestones:** for each `MS-*` goal that is Ready (all needs Done), start `milestone-gatekeeper`.
-  - On a pass: `status.mjs set <MS-ID> done --who orchestrator --note "gate verified"`.
-  - On a fail: report what is missing.
+- **Milestones:** for each `MS-*` goal that is Ready (all needs Done), first run
+  `node scripts/plan/status.mjs gate <MS-ID>`.
+  - If it shows open ledger rows, do not start the gatekeeper. Report the rows, and the goal that is
+    each row's last prover.
+  - Otherwise start `milestone-gatekeeper`.
+    - On a pass, start `goal-integrator` with the verdict to record the milestone. It runs
+      `status.mjs set <MS-ID> done` and fills in the tracker's milestone ledger.
+    - On a fail, report what is missing.
 - **The owner:** if any owner goal (`You` lane) is Ready, or anything was escalated, held or split
   this cycle, start `owner-concierge`. Give it those items and the summary output, so it rewrites
   `docs/plan/INBOX.md`.

@@ -1,0 +1,26 @@
+{
+  "goal": "OW-1",
+  "boxes": [
+    {
+      "box": "The tracker decision log has an owner-dated entry: Momentum is the only UI direction and the trainer UI is retired",
+      "met": true,
+      "evidence": "docs/09-PROJECT-TRACKER.md:57 UI-01, dated '2026-10-17 (consolidated 25 Oct)', in the decision log: 'Momentum is the only UI direction; trainer UI T-01–T-05 is retired', and it keeps volt lime, dark/light/system, the five-tab member shell and the staff shell. Its owner backing comes from two earlier rows: TECH-01 (tracker:56, 2026-10-17, 'Owner explicitly confirmed … retaining Momentum') and PROD-01 (tracker:44, 2026-10-11), with tracker:61 'The product owner selected trainer removal'. The row says outright that it claims no new owner approval on 25 Oct. That matches the card's Scope, 'Confirm PROD-01, PROD-02 and TECH-01 in the tracker as the UI decision' (GOALS.md:109). PRD:1236 and PRD:1890 agree with it."
+    },
+    {
+      "box": "docs/evidence/OW-1/figma-gaps.md lists every frame still to draw (O-23, O-24, Hindi, iOS), each with the goal that needs it",
+      "met": false,
+      "evidence": "Met for O-23, O-24, Hindi and the trainer retirement. O-23 (figma-gaps.md:75-86): 10 rows covering all of PRD §16.2 (create, version, archive, reorder, picker, §19.3 states, front-desk absence), all tied to G21.app 1/3, G16.app 1 and DS-5 2. O-24 (:103-113): 9 rows, plus N-06 rows (:118-124), each naming its goal. Hindi (:146-181): all 14 MVP-M families and 12 MVP-G rows, each naming a goal, with an explicit P2 exclusion list (:183-185). Trainer retirement (§5, :221-248): explicitly retired, nothing to draw, a do-not-draw list, and app enforcement through G16.app 2, G21.app 2, G16.api 1 and MS-6 check 4 (GOALS.md:1494). I spot-checked the box citations against GOALS.md and they are accurate. NOT met for iOS (:201-214). The register neither lists these MVP-M frames nor gives a reason to leave them out: A-01, A-07a–f, A-08–A-10; B-02–B-05; C-01–C-09; D-01–D-04; E-01, E-02, E-05–E-07, E-09, E-12, E-13; F-01–F-07; G-01–G-07; I-01–I-06 and J-01–J-04; H-02, H-04–H-07, H-10–H-16, H-18. The card's Scope asks for 'full iOS coverage', and tracker:104 and docs/22:289 record iOS as only three screens. By the register's own rule, QA-4 box 1 (every M row on iOS) needs these frames, the same way it justifies iOS-4 and iOS-8."
+    }
+  ],
+  "documentary_verdict": "fail — box 1 met; box 2 needs the missing iOS rows (owning goal QA-4 1, plus the SC builders), or a stated exclusion rule backed by an owner decision. The register keeps the 11 Oct node links (docs/22:93-94, tracker-verified) separate from live completeness: 'Figma opened in this pass: No' (:9), 'current state is unverified' (:16-22), and §7 says OW-1 needs only the list (:271). It invents no box for live-Figma drawing or a designer handover.",
+  "integration_pending": true,
+  "problems": [
+    "iOS gap list is incomplete (see box 2). This is the only issue that fails a box.",
+    "The handoff is stale after UI-01. It still says box 1 is 'Not claimed' (handoff.md:22) and asks for an owner row in blocker 1 (:152-155). Update it to cite tracker:57 UI-01, say who added it, note that it claims no new approval, and close blocker 1.",
+    "Handoff blockers 2 (live Figma audit) and 5 (designer handover) are filed under 'Unresolved blockers' (:156-170). Reclassify them as follow-ups outside the boxes, so they are not read as extra Done-when conditions. Register §7 already frames them correctly.",
+    "Tracker line references are one line out after the UI-01 insertion, in both files: tracker:60→61, :94→95, :96-97→97-98, :100→101, :103→104, and the handoff's :94-104→95-105. Lines 44, 45 and 56 are unchanged.",
+    "Register §0 (:32-36) still cites TECH-01 and PROD-01 rather than UI-01. Optional consistency fix.",
+    "Minor: the UI-01 date (2026-10-17) is TECH-01's date. The owner's trainer-removal decision is PROD-01's 2026-10-11, which the row cites. UI-01 also leaves PROD-02 out of its basis, though the card's Scope names it. The box does not require either.",
+    "Nothing is committed, nothing is on main, and status.json is untouched. QA-1 Needs OW-1, and how this evidence reaches main is undecided (handoff blocker 3). Even a pass here would authorize evidence integration only, not Done."
+  ]
+}

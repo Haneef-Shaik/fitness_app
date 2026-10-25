@@ -1,5 +1,18 @@
 # Owner inbox — external dependencies only
 
+## Local execution — 25 October 2026
+
+Codex coordinates the authenticated local Claude workers. Cloud is a fallback if local execution
+cannot work. Current handoff: [EXECUTION.md](EXECUTION.md). Status on the board remains authoritative;
+prepared evidence is not a completed goal.
+
+- **DEC-15 / OW-2:** confirm whether any existing users or data will be redirected into the rebuild.
+  The [dependency register](../evidence/OW-2/dependency-register.md) is prepared, but no dated answer
+  exists. A fresh launch needs a recorded no-cutover decision; a cutover needs an explicit migration
+  goal. No migration exemption has been recorded.
+- The register maps all DEC-01–DEC-17 rows to their goals and gates. External accounts, legal review,
+  licensing, device tests and pilot evidence remain open until actual proof is supplied.
+
 **Updated:**11 October2026 after owner-delegated product decisions. Current source: PRD v2.1 and
 PROD-01–PROD-12. The trainer role/private gym health access is removed; routine product questions
 are resolved. Statuses remain in status.json and were not changed by the documentation edit.
@@ -17,6 +30,9 @@ are resolved. Statuses remain in status.json and were not changed by the documen
 | Pilot field work | Five signed India gyms,≥50 eligible adults/gym,≥20 baseline expiry cases, frozen metric protocol and reviewed actual registers | M6; OW-9/OW-10 |
 | Pilot gate | Ten weeks; per-gym40% link/25% logging/minimum samples,≥5 percentage-point renewal gain in≥3/5,≥2 willing owners, verified security/cost | M7; OW-12 |
 | P2 providers/licenses | Actual collections/calling approvals; barcode/map/media licenses when due. No PT/coaching/trainer scope | M7–M9; DEC-10/11/16 |
+
+Each external decision (DEC-01–DEC-17) now has a row in [ACCEPTANCE.md](ACCEPTANCE.md) naming its
+owner goal and the milestone gate that waits on it (25 October reconciliation).
 
 OW-1 records selected Momentum direction, not a request to choose UI again. OW-2 is actual external
 launch readiness. Read current owner packs, PRD27 and tracker; do not answer historical Q21–Q33 or

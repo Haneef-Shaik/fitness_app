@@ -1,8 +1,12 @@
 # Plan board
 
-> **11 October 2026 reset:** the old implementation was removed from this branch.
-> Read the [fresh baseline](../RESET-BASELINE.md) first; existing-code audits and build entry gates below need reconciliation.
+Current Codex/Claude execution responsibilities and local bootstrap prerequisites are recorded in
+[EXECUTION.md](EXECUTION.md).
 
+> **25 October 2026:** the goals were reconciled with the [11 October reset](../RESET-BASELINE.md).
+> Every card now has a checkable contract, every milestone has Exit checks, and
+> [ACCEPTANCE.md](ACCEPTANCE.md) maps each PRD acceptance scenario, budget, decision and deliverable to
+> its goals and gate. See [docs/23 §4](../23-MASTER-PLAN.md#4-the-25-october-reconciliation).
 
 The master plan's goals, dependency graph and live status, all local. Nothing here talks to the
 internet except the page's Google Fonts link, which falls back to system fonts offline.
@@ -29,7 +33,9 @@ The server binds to `127.0.0.1` only and refuses requests from any other host or
 ```bash
 node scripts/plan/status.mjs summary                       # milestones and lanes at a glance
 node scripts/plan/status.mjs ready --lane S3               # what a lane can start now
-node scripts/plan/status.mjs show DS-1                     # needs, unblocks, status, spec anchor
+node scripts/plan/status.mjs show DS-1                     # needs, unblocks, Done-when boxes, ledger rows
+node scripts/plan/status.mjs gate MS-2                     # can this milestone be declared? if not, why
+node scripts/plan/status.mjs ledger --gate MS-5 --open     # acceptance rows still open before a gate
 node scripts/plan/status.mjs set DS-1 start --who S3 --ref plan/ds-1-tokens
 node scripts/plan/status.mjs set DS-1 review --ref "PR #12"
 node scripts/plan/status.mjs set DS-1 done --ref 1a2b3c4
@@ -37,15 +43,27 @@ node scripts/plan/status.mjs set DS-1 done --ref 1a2b3c4
 
 Statuses are `not started`, `claimed` (alias `start`), `in review` (`review`), `done` and
 `on hold` (`hold`). **Ready** and **blocked** are worked out from the needs and never stored.
-Claiming a blocked goal is refused unless you pass `--force`.
+
+- Claiming a blocked goal is refused unless you pass `--force`.
+- **Done is guarded.** Setting a goal Done is refused while one of its needs is not Done. Setting a
+  milestone Done is also refused while a ledger row gated at it is not `pass` or `n/a`. Both hold on
+  the board too.
+- `--override "<reason>"` declares Done anyway and keeps the reason in the note and the feed. It is
+  for documented exceptions only, such as MS-7 after an OW-12 Fix or Stop
+  ([docs/23 §8](../23-MASTER-PLAN.md#8-declaring-done)).
 
 ## Change the plan
 
 1. Edit the cards in [GOALS.md](GOALS.md). Its fenced `json` block holds the lanes, milestones,
-   sync points and board settings.
-2. Run `node scripts/plan/build.mjs`. It checks ids, needs and cycles, writes `plan.json`, and
-   rebuilds `board.html` with the `dependency-board` skill's builder. If the skill is not at
-   `~/.claude/skills/dependency-board`, set `DEPENDENCY_BOARD_SKILL`.
+   sync points, board settings and `acceptanceGates`. Every card needs a **Done when** list (a
+   milestone needs **Exit checks**). If a new goal proves a PRD scenario, budget, decision or
+   deliverable, add it to that row's *Proved by* in [ACCEPTANCE.md](ACCEPTANCE.md).
+2. Run `node scripts/plan/build.mjs`. It checks ids, needs and cycles, and that every card has a
+   contract. It also checks that every PRD scenario and decision has a ledger row whose gate waits on
+   its goals. Then it writes `plan.json` and rebuilds `board.html` with the `dependency-board`
+   skill's builder. If the skill is not at `~/.claude/skills/dependency-board`, set
+   `DEPENDENCY_BOARD_SKILL`. `pnpm check` runs the same checks with `--check`, and rejects
+   generated `plan.json` or embedded board data that no longer matches GOALS.md.
 3. Restart nothing. An open board notices the new `board.html` and reloads itself.
 
 Statuses survive a rebuild, because they are keyed by goal id. A goal that is removed from the plan
@@ -55,11 +73,13 @@ keeps its row in `status.json`, and the build warns about it.
 
 | File | Written by | What |
 |---|---|---|
-| `GOALS.md` | people | Every goal, plus the board settings. **The source of the plan** |
+| `GOALS.md` | people | Every goal with its contract, plus the board settings. **The source of the plan** |
+| `ACCEPTANCE.md` | people (results only by each row's last prover) | Every PRD acceptance scenario, budget, external decision and deliverable, with its goals, gate and result |
 | `plan.json` | `build.mjs` | GOALS.md as data. Do not edit |
 | `board.html` | `build.mjs` | The page. Do not edit |
 | `status.json` | the board, `status.mjs` | Current status per goal. **Commit it with the work** |
 | `activity.json` | the board, `status.mjs` | The append-only update feed |
-| `SESSION-PROMPT.md` | people | What to paste to run a goal in a fresh session |
+| `SESSION-PROMPT.md` | people | How to run a goal in a fresh session (`/run-goal <ID>`) |
+| `runs/<ID>/` | goal sessions | Each goal's checkpoint and handoff |
 
 Tests for the tooling: `node --test scripts/plan/lib.test.mjs` (or `pnpm plan:test`).

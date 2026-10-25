@@ -22,6 +22,10 @@ The retained goals and specifications describe intended behavior; absent foundat
 be accounted for before using the original dependency graph to schedule implementation.
 The 94 existing cards and their statuses have been preserved, without marking any build work done.
 
+**Reconciled 25 October 2026:** the goal graph now accounts for this baseline. See
+[docs/23 §4](23-MASTER-PLAN.md#4-the-25-october-reconciliation) and the
+[acceptance ledger](plan/ACCEPTANCE.md). The paragraph below records the original instruction.
+
 Before implementation, reconcile QA-1 and the affected goal entry gates with this empty baseline,
 including auth/profile, data contracts, offline storage, training, nutrition, body metrics,
 analytics, tests, and deployment foundations. The current task removes the old implementation;

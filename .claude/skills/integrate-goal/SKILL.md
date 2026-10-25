@@ -1,6 +1,6 @@
 ---
 name: integrate-goal
-description: How to merge one verified FitLog plan goal into main. It rebases the goal branch, runs the full gates, fast-forwards main, marks the goal Done with its commit, appends the handoff to the tracker, and cleans up the worktree. Used by goal-integrator, one goal at a time, only after a passing verdict.
+description: How to merge one verified FitLog plan goal into main. It rebases the goal branch, runs the full gates, fast-forwards main, marks the goal Done with its commit, appends the handoff to the tracker, and cleans up the worktree. Also how to record a milestone after a passing gate verdict. Used by goal-integrator, one at a time, only after a passing verdict.
 argument-hint: "[goal-id] [branch] [worktree-path]"
 ---
 
@@ -48,13 +48,16 @@ That is what makes a later rollback exact. Once the run ledger exists (O2), reco
    On a conflict: run `git -C <worktree> rebase --abort` and report `RESULT: conflict` with the list
    of conflicting files. Stop.
 2. **Run the full gates on the rebased branch**, in the worktree, whatever the diff touched. The
-   rebase may have combined it with other goals' work:
+   rebase may have combined it with other goals' work. These are the `docs/23` §7 gates:
    ```bash
-   cd <worktree>/services/api && uv run pytest -q && uv run ruff check . && uv run alembic check
-   cd <worktree> && pnpm --filter @fitlog/mobile typecheck && pnpm --filter @fitlog/mobile test:ci
-   cd <worktree> && node --test scripts/plan/lib.test.mjs
+   cd <worktree> && pnpm install --frozen-lockfile && pnpm check
+   cd <worktree> && pnpm backend:test        # needs the local stack: pnpm exec supabase status
+   cd <worktree> && pnpm --filter @fitlog/mobile exec expo export --platform ios --platform android --output-dir .expo/export-native
    ```
-   Any failure: report `RESULT: gates-failed` with the failing lines. Stop; `main` is untouched.
+   If the local Supabase stack is not running and the diff touches `supabase/`, `packages/domain/`,
+   `scripts/backend/` or `apps/mobile/src/data/`, report `RESULT: refused` with that reason. Never
+   point the suite at another backend. Any failure: report `RESULT: gates-failed` with the failing
+   lines. Stop; `main` is untouched.
 3. **Fast-forward `main`**, from the main checkout:
    ```bash
    git merge --ff-only <branch>
@@ -63,7 +66,8 @@ That is what makes a later rollback exact. Once the run ledger exists (O2), reco
    ```bash
    node scripts/plan/status.mjs set <ID> done --who integrator --ref <short hash>
    ```
-   Note the goals it reports as now ready.
+   Note the goals it reports as now ready. It refuses while a need is open. That should never
+   happen here, so report it as `RESULT: refused`. Never pass `--override`.
 5. **Append the handoff to the tracker.** Add the contents of `docs/plan/runs/<ID>/handoff.md`, with
    the merged commit hash, to the changelog in `docs/09-PROJECT-TRACKER.md`. Start the entry with the
    marker line `<!-- handoff:<ID>:<short hash> -->`. This is the only file you edit.
@@ -81,11 +85,25 @@ That is what makes a later rollback exact. Once the run ledger exists (O2), reco
 8. **Push only if allowed.** If `var/orchestrator/config.json` exists and has `"push": true`, run
    `git push origin main` (never `--force`). Otherwise do not push; the owner pushes.
 
+## Recording a milestone
+
+You are started with a **passing `milestone-gatekeeper` verdict** for `MS-n`. Same preconditions: the
+main checkout is on `main` and clean apart from the two status files.
+
+1. Confirm `node scripts/plan/status.mjs gate MS-n` says "can be declared". If not, report
+   `RESULT: refused` with its output.
+2. Run `node scripts/plan/status.mjs set MS-n done --who integrator --ref "gate verdict <date>, attempt <n>"`.
+   - The only exception is MS-7 after an OW-12 Fix or Stop, when the task says so. Then add
+     `--override "OW-12 <decision>, memo <link>"`.
+3. In `docs/09-PROJECT-TRACKER.md`, fill in the gate's row in the **Milestone ledger**: Status
+   `Declared`, the date, and the verdict reference. This is the only edit.
+4. Commit: `git add docs/09-PROJECT-TRACKER.md docs/plan/status.json docs/plan/activity.json && git commit -m "docs(MS-n): milestone declared"`.
+
 ## Final message
 
 ```
-GOAL: <ID>
-RESULT: merged | conflict | gates-failed | refused
+GOAL: <ID or MS-n>
+RESULT: merged | declared | conflict | gates-failed | refused
 MAIN_BEFORE: <main's commit before the fast-forward>
 MAIN: <new main commit hash, or unchanged>
 NOTES: <now-ready goals, or the reason>

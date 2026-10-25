@@ -1,13 +1,18 @@
 # FitLog — plans and specifications
 
-The current branch is a planning workspace for a fresh implementation. Read the
+The current branch contains the plans and a connected local member/gym implementation in progress. Read the
 [reset baseline](RESET-BASELINE.md) before using historical implementation evidence.
 
 | Purpose | Document |
 |---|---|
 | Complete product requirements and feature inventory | [PRD](PRD.md) |
+| Mobile foundation and validation limits | [Architecture record](architecture/001-mobile-foundation.md) |
+| Current connected implementation and remaining gaps | [Member/gym implementation record](architecture/002-connected-member-and-gym.md) |
+| Full delivery checklist | [Implementation progress](implementation/PROGRESS.md) |
+| Changing colors, typography, spacing and shapes | [Theming guide](THEMING.md) |
 | Expanded project plan | [23 — Master plan](23-MASTER-PLAN.md) |
-| Goal cards and dependencies | [plan/GOALS.md](plan/GOALS.md) |
+| Goal cards, dependencies and each goal's definition of done | [plan/GOALS.md](plan/GOALS.md) |
+| Acceptance ledger: every PRD scenario, budget, decision and deliverable, with its goals and gate | [plan/ACCEPTANCE.md](plan/ACCEPTANCE.md) |
 | Local planner and live status | [plan/README.md](plan/README.md) |
 | Evidence and reset status | [09 — Project tracker](09-PROJECT-TRACKER.md) |
 | Momentum reference and current-vs-historical Figma scope delta | [22 — Momentum](22-UI-MOMENTUM.md) |

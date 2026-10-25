@@ -28,7 +28,8 @@ in the main checkout. A worktree's copy is a snapshot from when it branched.
 node scripts/plan/status.mjs show <ID>
 ```
 
-Every goal under **needs** must be Done. If one is not, **stop**:
+`show` prints the goal's needs, its **Done when** boxes and the acceptance-ledger rows it helps
+prove. Every goal under **needs** must be Done. If one is not, **stop**:
 - under the orchestrator, report `STATUS: blocked`;
 - by hand, tell the person which need is open.
 
@@ -37,44 +38,57 @@ By hand only, claim it:
 
 ## 2. Branch and environment
 
-- Branch name: `plan/<id-lowercase>-<short-slug>`, for example `plan/ds-1-colour-tokens`.
+- Branch name: `plan/<id-lowercase>-<short-slug>`, for example `plan/mb-3-durable-outbox`.
   - Under the orchestrator, rename the worktree's branch: `git branch -m plan/<id>-<slug>`.
   - By hand: `git switch -c plan/<id>-<slug>` from an up-to-date `main`.
-- In a fresh worktree, install once:
-  - `pnpm install --frozen-lockfile` at the root;
-  - `uv sync` in `services/api` if you will touch or test the API.
-- Tests that need Postgres use `TEST_DATABASE_URL` when it is set. Never drop or reset any database
-  other than a test database.
+- In a fresh worktree, install once: `pnpm install --frozen-lockfile` at the root.
+- If the goal touches `supabase/`, `packages/domain/`, `scripts/backend/` or `apps/mobile/src/data/`,
+  start the **local** stack: `pnpm exec supabase start`. Backend tests refuse any other backend.
+  Never point a test at staging or production. Never reset a database other than the local one.
 - **Resume, don't restart.** If `docs/plan/runs/<ID>/checkpoint.md` exists on your branch, read it
   first and continue from where it says.
 
 ## 3. Read before you touch anything
 
-1. The card: `status.mjs show <ID>` gives its anchor in `docs/plan/GOALS.md`. Read the whole card:
-   outcome, scope, Done when.
-2. Every doc and line range the card names. For a G-numbered goal, its section in
-   `docs/PRD.md` §4. For a screen goal, the Figma pages in `docs/22`.
-3. `docs/23-MASTER-PLAN.md` §5 (lanes and file ownership) and §9 (standing rules).
-4. The handoff records in `docs/09-PROJECT-TRACKER.md` from the goals yours needs. Verify what they
-   claim; do not assume it.
-5. Under the orchestrator, on a retry: the earlier verifier verdicts in your task. They say exactly
-   what was missing.
+1. **The card.** `status.mjs show <ID>` gives its anchor in `docs/plan/GOALS.md`. Read the whole
+   card: outcome, PRD line, scope, existing work and Done when.
+2. **The PRD sections** on the card's **PRD** line, in `docs/PRD.md`. The PRD wins any conflict.
+3. **The screens.** For a screen goal, read the Figma frames named on the card, through
+   `docs/22-UI-MOMENTUM.md` and its live screen evidence links.
+4. **`docs/23-MASTER-PLAN.md`:** §5 (lanes and file ownership), §7 (evidence and gates) and §9
+   (standing rules).
+5. **Existing work.** Read the code the card's **Existing work** line names. Verify it against the
+   card. Adopt it if it holds; otherwise replace it. It is never evidence on its own.
+6. **Earlier handoffs.** Read the handoffs in `docs/09-PROJECT-TRACKER.md` from the goals yours needs.
+   Verify what they claim; do not assume it.
+7. **On a retry** (under the orchestrator): read the earlier verifier verdicts in your task. They say
+   exactly what was missing.
 
 ## 4. Standing rules
 
+These are the rules in `docs/23` §9. In short:
+
 - **TDD.** Write the test first and see it fail. Mutation-check every guard: break it on purpose, see
   a named test fail, and record that output. The `tdd-guide` sub-agent can plan the tests with you.
-- **Stay in your lane's files** (docs/23 §5). A change needed in a shared file another lane owns goes
-  in the handoff as a request.
-- **Coverage only goes up.** Never lower a threshold, skip a test or weaken an assertion to get green.
-- **Strings through `t()`** on every screen you touch once G14.app is Done. Add the directory to the
-  source-scan guard.
-- **Invariants** I1–I24 hold. AI output is a proposal the user confirms.
-- **No cloud, nothing outward-facing.** No pushes, deploys, store actions, emails or payments. Never
-  commit secrets, purchased media or user data; the repo is public.
-- **Verify, don't assert.** Measurements beat claims: p95, request counts, screenshots.
-- **Commits:** the house format (`feat:`, `fix:`, `test:`, `docs:` …) and the goal id in each
-  subject, for example `feat(DS-1): Momentum colour roles`.
+- **Stay in your lane's files** (docs/23 §5). A change needed in a file another lane owns goes in the
+  handoff as a request, unless the card names that file.
+- **Quality only goes up.** Never lower a threshold, skip a test or weaken an assertion to get green.
+- **Tokens and strings.** Colours, fonts and sizes come from the theme. Every user-facing string goes
+  through `t()`.
+- **Contract first (SP3).** Migrations and the contract package merge before the screens that use
+  them. Migrations are append-only: never edit one that is already on `main`.
+- **Product invariants** (docs/23 §9 rule 6) hold, among them:
+  - no staff access to private health data;
+  - integer money and append-only finance;
+  - a durable local acknowledgement before "logged";
+  - AI output counts only after the member confirms it.
+- **Nothing outward-facing.** No pushes, deploys, store actions, real messages, payments or paid
+  provider calls, unless the card is an owner-approved PL or OW step that names them. Never commit
+  secrets, personal data or licensed media; the repo is public.
+- **Verify, don't assert.** Measurements beat claims. Record the method, device, release build and
+  sample size.
+- **Commits:** the house format with the goal id in each subject, for example
+  `feat(MB-3): durable set outbox`.
 
 ## 5. Work in steps, with a checkpoint after each
 
@@ -83,34 +97,51 @@ Work through the card's scope in order. After each step:
 2. update `docs/plan/runs/<ID>/checkpoint.md`: steps done, the next step, anything surprising;
 3. commit it.
 
-If you run out of turns, the next session resumes from it. If the scope turns out wrong (missing
-something, or partly done already), note it in the checkpoint and the handoff. Do not quietly change
-the goal.
+If you run out of turns, the next session resumes from the checkpoint. If the scope turns out wrong
+(missing something, or partly done already), note it in the checkpoint and the handoff. Do not
+quietly change the goal or its card.
 
 **Never rewrite history on your branch**: no `git reset`, `git rebase -i`, `git commit --amend` on
 pushed or checkpointed commits, and no deleting commits. To undo a step, add a revert commit. A later
 attempt or a rollback may need every commit you made.
 
-## 6. Review your own diff
+## 6. Prove each box, and write ledger results only if you are the last prover
+
+- Put each box's evidence where `docs/23` §7 says:
+  - a test you ran;
+  - a command's result line;
+  - a file in `docs/evidence/<ID>/` (a measurement note states method, device, build and sample size);
+  - a capture beside its Figma frame.
+- **Acceptance ledger.** `status.mjs show <ID>` lists the ledger rows your goal appears in. If your
+  goal is the **last** goal in a row's *Proved by* list, set that row's result in
+  `docs/plan/ACCEPTANCE.md`:
+  `pass · YYYY-MM-DD · <builds or environment> · <evidence path or run link>`. If you are not the
+  last prover, put your evidence in the handoff only, and never edit the row.
+- Run `node scripts/plan/build.mjs --check` after any change to `GOALS.md` or `ACCEPTANCE.md`.
+
+## 7. Review your own diff
 
 When the scope is done, run these sub-agents on `git diff main...HEAD`:
 - `code-reviewer`;
-- `security-reviewer` (for routes, auth, storage, imports, AI or user data);
+- `security-reviewer` (for routes, RPCs, policies, auth, storage, imports, AI or user data);
 - `tdd-guide`, to audit the tests.
 
 Fix every critical and high finding, then list the rest in the handoff.
 
-## 7. Run the gates your change touches
+## 8. Run the standard gates the diff touches
+
+These are the `docs/23` §7 gates:
 
 ```bash
-cd services/api && uv run pytest -q && uv run ruff check . && uv run alembic check   # backend
-pnpm --filter @fitlog/mobile typecheck && pnpm --filter @fitlog/mobile test:ci        # mobile
-node --test scripts/plan/lib.test.mjs                                                  # plan tooling
+pnpm check                                                    # always
+pnpm backend:test                                             # if supabase/, packages/domain/, scripts/backend/ or src/data/ changed
+pnpm --filter @fitlog/mobile exec expo export --platform ios --platform android --output-dir .expo/export-native   # if apps/mobile/ changed
 ```
 
-Keep the exact commands and their result lines for the handoff.
+Also run the journey suite (once QA-11 is Done) for any box that names a scenario on a release
+build. Keep the exact commands and their result lines for the handoff.
 
-## 8. Write the handoff
+## 9. Write the handoff
 
 Write `docs/plan/runs/<ID>/handoff.md` and commit it. The verifier reads only this, the card and the
 diff, so make it checkable:
@@ -123,7 +154,11 @@ diff, so make it checkable:
 ## Done when
 | Box | Met | Evidence |
 |-----|-----|----------|
-| <box text> | yes/no | <test name + command + result line, measurement, or file:line> |
+| <box text, verbatim> | yes/no | <test name + command + result line, measurement file, capture path, or run link> |
+
+## Acceptance evidence
+| Ledger row | Run (build or environment, date) | Result | Evidence | Row written here? |
+|------------|----------------------------------|--------|----------|-------------------|
 
 ## Gates
 | Gate | Command | Result |
@@ -142,17 +177,21 @@ diff, so make it checkable:
 ## Left undone, and why
 ## Found for other goals
 ## Requests for other lanes' files
+## Decisions forced (for the tracker decision log)
 ## Traps hit
 ```
 
-## 9. Finish
+## 10. Finish
 
 - **Under the orchestrator:** stop here. Do not change status. End with the summary block from your
   agent definition.
 - **By hand:**
-  1. `node scripts/plan/status.mjs set <ID> review --who <lane> --ref "<PR or commit>"`.
-  2. Once merged to `main`: `node scripts/plan/status.mjs set <ID> done --who <lane> --ref <commit>`.
-     It prints which goals that unblocks.
-  3. Append the handoff to the `docs/09` changelog.
-  4. Record any decision the goal forced in charter §6. docs/PRD.md reserves D36–D46 for G13–G21.
-  5. Commit `docs/plan/status.json` and `docs/plan/activity.json` along with the work.
+  1. Run `node scripts/plan/status.mjs set <ID> review --who <lane> --ref "<PR or commit>"`.
+  2. Have the goal verified with the `verify-goal` skill (or the `goal-verifier` agent) before
+     merging.
+  3. Once it is merged to `main`, run
+     `node scripts/plan/status.mjs set <ID> done --who <lane> --ref <commit>`. It refuses while a
+     need is open, and it prints which goals that unblocks.
+  4. Append the handoff to the handoff log in `docs/09-PROJECT-TRACKER.md`, starting with
+     `<!-- handoff:<ID>:<short hash> -->`. Add any decision the goal forced to the decision log.
+  5. Commit `docs/plan/status.json` and `docs/plan/activity.json` along with the bookkeeping.

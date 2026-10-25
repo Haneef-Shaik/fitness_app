@@ -22,7 +22,7 @@ pins. Include:
   removed.
 
 Name the existing test file each test belongs in, following the repo's layout:
-- `services/api/tests/test_*.py`
+- `scripts/backend/verify*.mjs` (local Supabase integration suites) and `packages/domain/src/*.test.ts`
 - `apps/mobile/**/__tests__/*.test.ts(x)`
 - `packages/*/test/*`
 
@@ -35,7 +35,7 @@ Name the existing test file each test belongs in, following the repo's layout:
    the code on `main` or reason precisely about whether it could pass without the change.
 3. **Quality bars:**
    - no `.skip`, `xit`, `it.only`, `@pytest.mark.skip` or `xfail` added;
-   - thresholds in `apps/mobile/jest.config.js` and the API coverage settings not lowered;
+   - thresholds in `apps/mobile/jest.config.cjs` and the domain coverage settings not lowered;
    - no assertions removed or weakened.
 4. **Coverage of the change.** Run the relevant suite with coverage when it is cheap, and report the
    changed files that stay uncovered.

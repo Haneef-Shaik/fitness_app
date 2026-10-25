@@ -5,17 +5,26 @@
 //   node scripts/plan/status.mjs summary                 milestones and lanes at a glance
 //   node scripts/plan/status.mjs ready [--lane S3]       goals whose needs are all done
 //   node scripts/plan/status.mjs list [--lane S3] [--state blocked]
-//   node scripts/plan/status.mjs show <ID>               needs, unblocks, status, doc anchor
+//   node scripts/plan/status.mjs show <ID>               needs, unblocks, status, contract, ledger rows
+//   node scripts/plan/status.mjs gate <MS-ID>            can this milestone be declared, and if not, why
+//   node scripts/plan/status.mjs ledger [--gate MS-5] [--open]   acceptance ledger rows and results
 //   node scripts/plan/status.mjs set <ID> <status> [--who S3] [--ref feat/x] [--note "…"] [--force]
+//                                [--override "<reason>"]
 //
 // <status> is one of: not started, claimed (alias: start), in review (review), done, on hold (hold).
+// Done is refused while a need is open or, for a milestone, while a ledger row gated at it is not
+// passed. --override "<reason>" declares it anyway and keeps the reason in the note.
+import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { PLAN_DIR, dependentsOf, loadPlan, loadStatus, openNeeds, setStatus, stateOf } from "./lib.mjs";
+import {
+  PLAN_DIR, cardChecks, dependentsOf, gateReport, loadLedger, loadPlan, loadStatus, openNeeds, paths, setStatus, stateOf,
+} from "./lib.mjs";
 
 const STATE_LABEL = { done: "Done", review: "In review", running: "Running", hold: "On hold", ready: "Ready", blocked: "Blocked" };
 const OPTIONS = {
   who: { type: "string" }, ref: { type: "string" }, note: { type: "string" },
   lane: { type: "string" }, state: { type: "string" }, force: { type: "boolean" },
+  override: { type: "string" }, gate: { type: "string" }, open: { type: "boolean" },
 };
 
 let o;
@@ -33,6 +42,9 @@ const status = loadStatus();
 const st = id => stateOf(plan, status, id);
 const row = g => `${g.id.padEnd(9)} ${STATE_LABEL[st(g.id)].padEnd(9)} ${g.owner.padEnd(16)} ${g.title}`;
 const byLane = goals => (o.lane ? goals.filter(g => g.owner.toLowerCase().startsWith(o.lane.toLowerCase())) : goals);
+const contracts = () => cardChecks(readFileSync(paths().goals, "utf8"));
+const box = c => `    [${c.ticked ? "x" : " "}] ${c.text}`;
+const ledgerRow = r => `    ${r.id.padEnd(6)} ${r.release.padEnd(2)} ${r.gate.padEnd(5)} ${r.result.padEnd(6)}  ${r.requirement}`;
 
 function summary() {
   const listed = (plan.people || []).map(x => (typeof x === "string" ? x : x.name));
@@ -60,6 +72,31 @@ function show(id) {
   console.log(`  needs:    ${g.needs.map(n => `${n} (${STATE_LABEL[st(n)]})`).join(", ") || "nothing"}`);
   console.log(`  unblocks: ${dependentsOf(plan, id).join(", ") || "nothing"}`);
   console.log(`  spec:     ${g.doc}`);
+  const checks = contracts().get(id) || [];
+  console.log(`  ${id.startsWith("MS-") ? "exit checks" : "done when"}:`);
+  checks.forEach(c => console.log(box(c)));
+  const rows = loadLedger().filter(r => r.goals.includes(id) || r.gate === id);
+  if (rows.length) {
+    console.log("  acceptance ledger (docs/plan/ACCEPTANCE.md):");
+    rows.forEach(r => console.log(ledgerRow(r)));
+  }
+}
+
+function gate(id) {
+  const r = gateReport(plan, status, loadLedger(), contracts(), id);
+  console.log(`${id} · ${plan.goals.find(g => g.id === id).title} — ${r.declarable ? "can be declared" : "cannot be declared yet"}`);
+  console.log(`  open needs: ${r.openNeeds.map(n => `${n} (${STATE_LABEL[st(n)]})`).join(", ") || "none"}`);
+  console.log(`  ledger rows gated here: ${r.rows.length}, open ${r.openRows.length}`);
+  r.openRows.forEach(x => console.log(ledgerRow(x)));
+  console.log("  exit checks (milestone-gatekeeper verifies each against evidence):");
+  r.checks.forEach(c => console.log(box(c)));
+  if (r.declarable) console.log(`  next: run milestone-gatekeeper on ${id}; on a pass, status.mjs set ${id} done --ref "<verdict>"`);
+}
+
+function ledger() {
+  const rows = loadLedger().filter(r => (!o.gate || r.gate === o.gate) && (!o.open || !/^(pass|n\/a) · /.test(r.result)));
+  rows.forEach(r => console.log(ledgerRow(r)));
+  console.log(`${rows.length} row(s)`);
 }
 
 try {
@@ -67,12 +104,14 @@ try {
   else if (cmd === "ready") byLane(plan.goals).filter(g => st(g.id) === "ready").forEach(g => console.log(row(g)));
   else if (cmd === "list") byLane(plan.goals).filter(g => !o.state || st(g.id) === o.state).forEach(g => console.log(row(g)));
   else if (cmd === "show") show(o._[0]);
+  else if (cmd === "gate") gate(o._[0]);
+  else if (cmd === "ledger") ledger();
   else if (cmd === "set") {
     const [id, ...words] = o._;
-    if (!id || !words.length) throw new Error("usage: set <ID> <status> [--who …] [--ref …] [--note …] [--force]");
+    if (!id || !words.length) throw new Error("usage: set <ID> <status> [--who …] [--ref …] [--note …] [--force] [--override \"<reason>\"]");
     const who = o.who;
     const { prev, next } = setStatus(PLAN_DIR, id, { status: words.join(" "), who, ref: o.ref, note: o.note },
-      { by: who ? `session:${who}` : "session:cli", force: !!o.force });
+      { by: who ? `session:${who}` : "session:cli", force: !!o.force, override: o.override || "" });
     console.log(`${id}: ${prev} → ${next.status}`);
     const fresh = loadStatus();
     if (next.status === "done") {

@@ -26,12 +26,16 @@
       "colour": "#be185d"
     },
     {
-      "name": "S6 AI & Pro",
+      "name": "S6 Food, AI & Pro",
       "colour": "#c2410c"
     },
     {
       "name": "S7 Quality",
       "colour": "#475569"
+    },
+    {
+      "name": "S8 Member backend",
+      "colour": "#4d7c0f"
     },
     {
       "name": "Milestones",
@@ -42,32 +46,46 @@
     "M0": "Ground truth",
     "M1": "Production platform",
     "M2": "Momentum foundations",
-    "M3": "Member app in Momentum",
-    "M4": "Launch foundations: phone, Hindi, Pro",
-    "M5": "Store launch",
-    "M6": "Gym pilot (MVP)",
+    "M3": "Member core",
+    "M4": "Launch foundations: phone, Hindi, AI, Pro",
+    "M5": "Store launch (MVP-M)",
+    "M6": "Gym pilot (MVP-G)",
     "M7": "Gym Phase 2 (after the pilot gate)",
     "M8": "Depth and polish",
-    "M9": "Exercise media (last)"
+    "M9": "Exercise media and project complete"
   },
   "syncPoints": [
+    {
+      "id": "SP0",
+      "goals": [
+        "AR-1"
+      ],
+      "text": "SP0 contract freeze: S8 hands the architecture record, the versioned contract package and the fixture runner to every lane"
+    },
     {
       "id": "SP1",
       "goals": [
         "DS-5"
       ],
-      "text": "SP1 kit + shell freeze: S3 hands tokens, components and the tab shell to every screen session"
+      "text": "SP1 kit + shell freeze: S3 hands tokens, components and both shells to every screen session"
     },
     {
       "id": "SP2",
       "goals": [
         "G14.app"
       ],
-      "text": "SP2 string catalog: S4 hands t(), the locale formatters and the guard ratchet to every screen session"
+      "text": "SP2 string catalog: S4 hands t(), the locale formatters and the literal guard to every screen session"
     },
     {
       "id": "SP3",
       "goals": [
+        "MB-1",
+        "MB-2",
+        "MB-3",
+        "MB-4",
+        "MB-5",
+        "MB-6",
+        "MB-7",
         "G15.api",
         "G16.api",
         "G17.api",
@@ -77,11 +95,11 @@
         "G21.api",
         "G22.api"
       ],
-      "text": "SP3 API contract: the .api goal merges migrations, routes and regenerated packages/api-types before its .app goal starts"
+      "text": "SP3 data contract: a backend goal merges its migrations, commands and regenerated contracts before the screens that use them start"
     }
   ],
   "config": {
-    "subtitle": "From docs/plan/GOALS.md (7 Oct 2026). Lanes are parallel Claude Code sessions plus you. Columns are the earliest wave a goal can start.",
+    "subtitle": "From docs/plan/GOALS.md, reconciled 25 Oct 2026. Lanes are parallel Claude Code sessions plus you. Columns are the earliest wave a goal can start.",
     "milestone": "MS-5",
     "milestoneLabel": "Store launch",
     "sizes": {
@@ -91,15 +109,22 @@
     },
     "firstStepLabel": "Wave 0",
     "stepLabel": "Wave",
-    "workflowHint": "Pick the top Ready goal in your lane. Claim it with `node scripts/plan/status.mjs set <ID> start --who <lane>`, run it with docs/plan/SESSION-PROMPT.md, set In review when the PR is up and Done when it is merged to main. Only Done unblocks the goals that wait on it.",
-    "refPlaceholder": "branch, PR or commit, e.g. plan/ds-1-tokens",
+    "workflowHint": "Pick the top Ready goal in your lane and run /run-goal <ID>. A goal is Done only after goal-verifier passes every Done-when box and it is merged to main; a milestone only after milestone-gatekeeper passes its Exit checks and `status.mjs gate MS-n` shows nothing open.",
+    "refPlaceholder": "branch, PR or commit, e.g. plan/ds-1-colour-tokens",
     "hubs": [
       {
         "key": "T",
         "ids": [
           "QA-1"
         ],
-        "text": "T = QA-1, a clean main"
+        "text": "T = QA-1, the foundation on main"
+      },
+      {
+        "key": "C",
+        "ids": [
+          "AR-1"
+        ],
+        "text": "C = AR-1, the frozen architecture and contract"
       },
       {
         "key": "F",
@@ -116,57 +141,76 @@
         "text": "L = MS-5, the store launch"
       }
     ],
+    "acceptanceGates": {
+      "member": "MS-5",
+      "gym": [
+        "MS-6",
+        "MS-7"
+      ]
+    },
     "slug": "fitlog-master-plan"
   },
   "goals": [
     {
       "id": "OW-1",
-      "title": "Record selected Momentum direction and scope delta",
+      "title": "Record the selected Momentum direction and its Figma gaps",
       "owner": "You",
       "needs": [],
       "size": "S",
       "track": "M0",
-      "label": "selected Momentum",
-      "doc": "docs/plan/GOALS.md#ow-1--record-selected-momentum-direction-and-scope-delta"
+      "label": "Momentum recorded",
+      "doc": "docs/plan/GOALS.md#ow-1--record-the-selected-momentum-direction-and-its-figma-gaps"
     },
     {
       "id": "OW-2",
-      "title": "Complete external launch dependencies for selected India scope",
+      "title": "Register every external launch dependency",
       "owner": "You",
       "needs": [],
       "size": "S",
       "track": "M0",
       "label": "launch dependencies",
-      "doc": "docs/plan/GOALS.md#ow-2--complete-external-launch-dependencies-for-selected-india-scope"
+      "doc": "docs/plan/GOALS.md#ow-2--register-every-external-launch-dependency"
     },
     {
       "id": "QA-1",
-      "title": "Triage the working tree",
+      "title": "Land the post-reset foundation on main",
       "owner": "S7 Quality",
       "needs": [
         "OW-1"
       ],
       "size": "S",
       "track": "M0",
-      "label": "clean main",
-      "doc": "docs/plan/GOALS.md#qa-1--triage-the-working-tree"
+      "label": "foundation on main",
+      "doc": "docs/plan/GOALS.md#qa-1--land-the-post-reset-foundation-on-main"
+    },
+    {
+      "id": "AR-1",
+      "title": "Freeze the architecture and the versioned data contract *(new 25 Oct)*",
+      "owner": "S8 Member backend",
+      "needs": [
+        "QA-1"
+      ],
+      "size": "M",
+      "track": "M0",
+      "label": "contract freeze",
+      "doc": "docs/plan/GOALS.md#ar-1--freeze-the-architecture-and-the-versioned-data-contract-new-25-oct"
     },
     {
       "id": "QA-2",
-      "title": "Reconcile the docs with reality",
+      "title": "Reconcile the docs with the code",
       "owner": "S7 Quality",
       "needs": [
         "QA-1",
-        "OW-2"
+        "AR-1"
       ],
       "size": "M",
       "track": "M0",
       "label": "docs reconciled",
-      "doc": "docs/plan/GOALS.md#qa-2--reconcile-the-docs-with-reality"
+      "doc": "docs/plan/GOALS.md#qa-2--reconcile-the-docs-with-the-code"
     },
     {
       "id": "QA-9",
-      "title": "Lint and coverage gates",
+      "title": "Lint, type and coverage gates that only go up",
       "owner": "S7 Quality",
       "needs": [
         "QA-1"
@@ -174,11 +218,11 @@
       "size": "M",
       "track": "M0",
       "label": "lint + coverage",
-      "doc": "docs/plan/GOALS.md#qa-9--lint-and-coverage-gates"
+      "doc": "docs/plan/GOALS.md#qa-9--lint-type-and-coverage-gates-that-only-go-up"
     },
     {
       "id": "PL-1",
-      "title": "CI green on GitHub, e2e run once, main protected",
+      "title": "Hosted CI green and main protected",
       "owner": "S1 Platform",
       "needs": [
         "QA-1"
@@ -186,7 +230,7 @@
       "size": "S",
       "track": "M0",
       "label": "CI green",
-      "doc": "docs/plan/GOALS.md#pl-1--ci-green-on-github-e2e-run-once-main-protected"
+      "doc": "docs/plan/GOALS.md#pl-1--hosted-ci-green-and-main-protected"
     },
     {
       "id": "MS-0",
@@ -195,6 +239,7 @@
       "needs": [
         "OW-1",
         "OW-2",
+        "AR-1",
         "QA-2",
         "QA-9",
         "PL-1"
@@ -209,7 +254,8 @@
       "title": "Open the platform accounts",
       "owner": "You",
       "needs": [
-        "OW-2"
+        "OW-2",
+        "AR-1"
       ],
       "size": "M",
       "track": "M1",
@@ -231,15 +277,16 @@
     },
     {
       "id": "PL-3",
-      "title": "Email that arrives",
+      "title": "Auth email that arrives",
       "owner": "S1 Platform",
       "needs": [
-        "PL-2"
+        "PL-2",
+        "MB-1"
       ],
       "size": "S",
       "track": "M1",
       "label": "email + reset",
-      "doc": "docs/plan/GOALS.md#pl-3--email-that-arrives"
+      "doc": "docs/plan/GOALS.md#pl-3--auth-email-that-arrives"
     },
     {
       "id": "PL-4",
@@ -270,7 +317,7 @@
       "title": "Push notifications switched on",
       "owner": "S1 Platform",
       "needs": [
-        "OW-3"
+        "PL-2"
       ],
       "size": "S",
       "track": "M1",
@@ -278,9 +325,21 @@
       "doc": "docs/plan/GOALS.md#pl-6--push-notifications-switched-on"
     },
     {
+      "id": "PL-9",
+      "title": "Monitoring, alerts, feature flags and the runbook *(new 25 Oct)*",
+      "owner": "S1 Platform",
+      "needs": [
+        "PL-4"
+      ],
+      "size": "M",
+      "track": "M1",
+      "label": "ops + runbook",
+      "doc": "docs/plan/GOALS.md#pl-9--monitoring-alerts-feature-flags-and-the-runbook-new-25-oct"
+    },
+    {
       "id": "AI-1",
       "title": "Production AI provider, guarded",
-      "owner": "S6 AI & Pro",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "PL-2"
       ],
@@ -298,6 +357,7 @@
         "PL-4",
         "PL-5",
         "PL-6",
+        "PL-9",
         "AI-1"
       ],
       "size": "S",
@@ -369,15 +429,16 @@
     },
     {
       "id": "G14.app",
-      "title": "Strings catalog, locale formats and the Hindi spine (G14 part 1)",
+      "title": "Strings catalog, locale formats and the Hindi spine",
       "owner": "S4 Member app",
       "needs": [
-        "QA-1"
+        "QA-1",
+        "AR-1"
       ],
       "size": "M",
       "track": "M2",
       "label": "i18n spine",
-      "doc": "docs/plan/GOALS.md#g14app--strings-catalog-locale-formats-and-the-hindi-spine-g14-part-1"
+      "doc": "docs/plan/GOALS.md#g14app--strings-catalog-locale-formats-and-the-hindi-spine"
     },
     {
       "id": "MS-2",
@@ -393,16 +454,128 @@
       "doc": "docs/plan/GOALS.md#ms-2--momentum-foundations"
     },
     {
-      "id": "SC-1",
-      "title": "Member hero loop",
-      "owner": "S3 Design",
+      "id": "CT-1",
+      "title": "Exercise catalogue and three starter programmes *(new 25 Oct)*",
+      "owner": "S4 Member app",
       "needs": [
-        "MS-2"
+        "AR-1"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "exercise content",
+      "doc": "docs/plan/GOALS.md#ct-1--exercise-catalogue-and-three-starter-programmes-new-25-oct"
+    },
+    {
+      "id": "MB-1",
+      "title": "Identity, adult onboarding, sessions and preferences *(new 25 Oct)*",
+      "owner": "S8 Member backend",
+      "needs": [
+        "AR-1"
       ],
       "size": "L",
       "track": "M3",
-      "label": "hero screens",
-      "doc": "docs/plan/GOALS.md#sc-1--member-hero-loop"
+      "label": "identity + profile",
+      "doc": "docs/plan/GOALS.md#mb-1--identity-adult-onboarding-sessions-and-preferences-new-25-oct"
+    },
+    {
+      "id": "MB-2",
+      "title": "Exercises, programmes, schedule and occurrences *(new 25 Oct)*",
+      "owner": "S8 Member backend",
+      "needs": [
+        "MB-1",
+        "CT-1"
+      ],
+      "size": "L",
+      "track": "M3",
+      "label": "plans + schedule",
+      "doc": "docs/plan/GOALS.md#mb-2--exercises-programmes-schedule-and-occurrences-new-25-oct"
+    },
+    {
+      "id": "MB-3",
+      "title": "Live logging and the durable offline outbox *(new 25 Oct)*",
+      "owner": "S8 Member backend",
+      "needs": [
+        "MB-2"
+      ],
+      "size": "L",
+      "track": "M3",
+      "label": "logger + outbox",
+      "doc": "docs/plan/GOALS.md#mb-3--live-logging-and-the-durable-offline-outbox-new-25-oct"
+    },
+    {
+      "id": "MB-4",
+      "title": "History, corrections and training analytics *(new 25 Oct)*",
+      "owner": "S8 Member backend",
+      "needs": [
+        "MB-3"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "history + analytics",
+      "doc": "docs/plan/GOALS.md#mb-4--history-corrections-and-training-analytics-new-25-oct"
+    },
+    {
+      "id": "MB-5",
+      "title": "Food catalogue, diary, recipes and targets *(new 25 Oct)*",
+      "owner": "S6 Food, AI & Pro",
+      "needs": [
+        "MB-1"
+      ],
+      "size": "L",
+      "track": "M3",
+      "label": "food diary",
+      "doc": "docs/plan/GOALS.md#mb-5--food-catalogue-diary-recipes-and-targets-new-25-oct"
+    },
+    {
+      "id": "MB-6",
+      "title": "Body records, private photos, goals and Today *(new 25 Oct)*",
+      "owner": "S8 Member backend",
+      "needs": [
+        "MB-4",
+        "MB-5"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "body + goals",
+      "doc": "docs/plan/GOALS.md#mb-6--body-records-private-photos-goals-and-today-new-25-oct"
+    },
+    {
+      "id": "MB-7",
+      "title": "Account lifecycle: export, erasure, notifications and support *(new 25 Oct)*",
+      "owner": "S1 Platform",
+      "needs": [
+        "MB-6"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "export + erasure",
+      "doc": "docs/plan/GOALS.md#mb-7--account-lifecycle-export-erasure-notifications-and-support-new-25-oct"
+    },
+    {
+      "id": "QA-11",
+      "title": "Critical-journey and fault suite on release builds *(new 25 Oct)*",
+      "owner": "S7 Quality",
+      "needs": [
+        "MB-3",
+        "DS-5"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "journey suite",
+      "doc": "docs/plan/GOALS.md#qa-11--critical-journey-and-fault-suite-on-release-builds-new-25-oct"
+    },
+    {
+      "id": "SC-1",
+      "title": "Live logger hero loop",
+      "owner": "S3 Design",
+      "needs": [
+        "MS-2",
+        "MB-4"
+      ],
+      "size": "L",
+      "track": "M3",
+      "label": "logger loop",
+      "doc": "docs/plan/GOALS.md#sc-1--live-logger-hero-loop"
     },
     {
       "id": "SC-2",
@@ -418,35 +591,37 @@
     },
     {
       "id": "SC-3",
-      "title": "Analytics, body and goals",
-      "owner": "S4 Member app",
-      "needs": [
-        "MS-2"
-      ],
-      "size": "M",
-      "track": "M3",
-      "label": "analytics + body",
-      "doc": "docs/plan/GOALS.md#sc-3--analytics-body-and-goals"
-    },
-    {
-      "id": "SC-4",
-      "title": "Food",
+      "title": "Today, progress, body and goals",
       "owner": "S4 Member app",
       "needs": [
         "MS-2",
-        "SC-1"
+        "MB-6"
+      ],
+      "size": "M",
+      "track": "M3",
+      "label": "today + progress",
+      "doc": "docs/plan/GOALS.md#sc-3--today-progress-body-and-goals"
+    },
+    {
+      "id": "SC-4",
+      "title": "Food screens",
+      "owner": "S6 Food, AI & Pro",
+      "needs": [
+        "MS-2",
+        "MB-5"
       ],
       "size": "M",
       "track": "M3",
       "label": "food screens",
-      "doc": "docs/plan/GOALS.md#sc-4--food"
+      "doc": "docs/plan/GOALS.md#sc-4--food-screens"
     },
     {
       "id": "SC-5",
       "title": "Auth and onboarding",
       "owner": "S3 Design",
       "needs": [
-        "MS-2"
+        "MS-2",
+        "MB-1"
       ],
       "size": "M",
       "track": "M3",
@@ -455,15 +630,16 @@
     },
     {
       "id": "SC-6",
-      "title": "Settings",
+      "title": "Settings, privacy and account",
       "owner": "S5 Gym app",
       "needs": [
-        "MS-2"
+        "MS-2",
+        "MB-7"
       ],
       "size": "M",
       "track": "M3",
       "label": "settings screens",
-      "doc": "docs/plan/GOALS.md#sc-6--settings"
+      "doc": "docs/plan/GOALS.md#sc-6--settings-privacy-and-account"
     },
     {
       "id": "SC-7",
@@ -479,31 +655,32 @@
     },
     {
       "id": "AP-1",
-      "title": "Manage programs, exercises and custom foods",
+      "title": "Manage programmes, exercises and custom foods",
       "owner": "S5 Gym app",
       "needs": [
-        "DS-4"
+        "SC-2",
+        "SC-4"
       ],
       "size": "M",
       "track": "M3",
       "label": "manage menus",
-      "doc": "docs/plan/GOALS.md#ap-1--manage-programs-exercises-and-custom-foods"
+      "doc": "docs/plan/GOALS.md#ap-1--manage-programmes-exercises-and-custom-foods"
     },
     {
       "id": "AP-2",
-      "title": "Edit a past session properly (F-04)",
+      "title": "Edit a past session (F-04)",
       "owner": "S5 Gym app",
       "needs": [
-        "DS-4"
+        "SC-2"
       ],
       "size": "M",
       "track": "M3",
       "label": "past-session edit",
-      "doc": "docs/plan/GOALS.md#ap-2--edit-a-past-session-properly-f-04"
+      "doc": "docs/plan/GOALS.md#ap-2--edit-a-past-session-f-04"
     },
     {
       "id": "QA-3",
-      "title": "Momentum verification pass",
+      "title": "Member core verified on Android release builds",
       "owner": "S7 Quality",
       "needs": [
         "SC-1",
@@ -514,24 +691,25 @@
         "SC-6",
         "SC-7",
         "AP-1",
-        "AP-2"
+        "AP-2",
+        "QA-11"
       ],
       "size": "M",
       "track": "M3",
-      "label": "verify Momentum",
-      "doc": "docs/plan/GOALS.md#qa-3--momentum-verification-pass"
+      "label": "verify member core",
+      "doc": "docs/plan/GOALS.md#qa-3--member-core-verified-on-android-release-builds"
     },
     {
       "id": "MS-3",
-      "title": "Member app in Momentum",
+      "title": "Member core",
       "owner": "Milestones",
       "needs": [
         "QA-3"
       ],
       "size": "S",
       "track": "M3",
-      "label": "M3 member app",
-      "doc": "docs/plan/GOALS.md#ms-3--member-app-in-momentum"
+      "label": "M3 member core",
+      "doc": "docs/plan/GOALS.md#ms-3--member-core"
     },
     {
       "id": "OW-5",
@@ -559,23 +737,24 @@
     },
     {
       "id": "G13",
-      "title": "Phone sign-in with selected India delivery scope",
+      "title": "Phone sign-in for India (+91)",
       "owner": "S2 Backend",
       "needs": [
-        "QA-1",
-        "OW-5"
+        "MB-1",
+        "OW-5",
+        "PL-2"
       ],
       "size": "L",
       "track": "M4",
       "label": "phone sign-in",
-      "doc": "docs/plan/GOALS.md#g13--phone-sign-in-with-selected-india-delivery-scope"
+      "doc": "docs/plan/GOALS.md#g13--phone-sign-in-for-india-91"
     },
     {
       "id": "G14.data",
       "title": "Licensed Indian foods and Hinglish search",
-      "owner": "S2 Backend",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
-        "QA-1"
+        "MB-5"
       ],
       "size": "M",
       "track": "M4",
@@ -583,22 +762,60 @@
       "doc": "docs/plan/GOALS.md#g14data--licensed-indian-foods-and-hinglish-search"
     },
     {
+      "id": "G14.hi",
+      "title": "Complete Hindi for every member flow *(new 25 Oct)*",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-3",
+        "G14.app"
+      ],
+      "size": "M",
+      "track": "M4",
+      "label": "complete Hindi",
+      "doc": "docs/plan/GOALS.md#g14hi--complete-hindi-for-every-member-flow-new-25-oct"
+    },
+    {
+      "id": "AI-3",
+      "title": "Food AI: uploads, jobs, proposals and confirmation *(new 25 Oct)*",
+      "owner": "S6 Food, AI & Pro",
+      "needs": [
+        "SC-4",
+        "AI-1"
+      ],
+      "size": "L",
+      "track": "M4",
+      "label": "food AI",
+      "doc": "docs/plan/GOALS.md#ai-3--food-ai-uploads-jobs-proposals-and-confirmation-new-25-oct"
+    },
+    {
+      "id": "AI-2",
+      "title": "Food-AI accuracy harness",
+      "owner": "S6 Food, AI & Pro",
+      "needs": [
+        "AI-3"
+      ],
+      "size": "M",
+      "track": "M4",
+      "label": "AI accuracy",
+      "doc": "docs/plan/GOALS.md#ai-2--food-ai-accuracy-harness"
+    },
+    {
       "id": "G15.api",
-      "title": "Pro entitlements and allowance lifecycle on server",
-      "owner": "S6 AI & Pro",
+      "title": "Pro entitlements and the AI allowance lifecycle",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "OW-7",
-        "AI-1"
+        "AI-3"
       ],
       "size": "M",
       "track": "M4",
       "label": "entitlements API",
-      "doc": "docs/plan/GOALS.md#g15api--pro-entitlements-and-allowance-lifecycle-on-server"
+      "doc": "docs/plan/GOALS.md#g15api--pro-entitlements-and-the-ai-allowance-lifecycle"
     },
     {
       "id": "G15.app",
       "title": "Paywall and guarded Pro flows",
-      "owner": "S6 AI & Pro",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "G15.api",
         "MS-2"
@@ -615,11 +832,13 @@
       "needs": [
         "G13",
         "G14.data",
-        "G15.app"
+        "G14.hi",
+        "G15.app",
+        "AI-2"
       ],
       "size": "S",
       "track": "M4",
-      "label": "M4 phone/Hindi/Pro",
+      "label": "M4 phone/Hindi/AI/Pro",
       "doc": "docs/plan/GOALS.md#ms-4--launch-foundations"
     },
     {
@@ -636,7 +855,7 @@
     },
     {
       "id": "OW-6",
-      "title": "Actual legal pages and qualified review for selected scope",
+      "title": "Legal pages and qualified review for the selected scope",
       "owner": "You",
       "needs": [
         "OW-2",
@@ -646,7 +865,7 @@
       "size": "M",
       "track": "M5",
       "label": "legal + review",
-      "doc": "docs/plan/GOALS.md#ow-6--actual-legal-pages-and-qualified-review-for-selected-scope"
+      "doc": "docs/plan/GOALS.md#ow-6--legal-pages-and-qualified-review-for-the-selected-scope"
     },
     {
       "id": "DS-6",
@@ -663,13 +882,15 @@
     },
     {
       "id": "OW-13",
-      "title": "Skim the drafted exercise instructions",
+      "title": "Review the exercise instructions and starter programmes",
       "owner": "You",
-      "needs": [],
+      "needs": [
+        "CT-1"
+      ],
       "size": "S",
       "track": "M5",
-      "label": "skim exercise texts",
-      "doc": "docs/plan/GOALS.md#ow-13--skim-the-drafted-exercise-instructions"
+      "label": "review exercise texts",
+      "doc": "docs/plan/GOALS.md#ow-13--review-the-exercise-instructions-and-starter-programmes"
     },
     {
       "id": "PL-7",
@@ -700,8 +921,34 @@
       "doc": "docs/plan/GOALS.md#pl-8--ios-build-and-device-proof"
     },
     {
+      "id": "PL-10",
+      "title": "Product analytics events *(new 25 Oct)*",
+      "owner": "S1 Platform",
+      "needs": [
+        "PL-4",
+        "MS-3"
+      ],
+      "size": "M",
+      "track": "M5",
+      "label": "analytics events",
+      "doc": "docs/plan/GOALS.md#pl-10--product-analytics-events-new-25-oct"
+    },
+    {
+      "id": "QA-12",
+      "title": "Pre-launch security and privacy review *(new 25 Oct)*",
+      "owner": "S7 Quality",
+      "needs": [
+        "MS-3",
+        "MS-4"
+      ],
+      "size": "M",
+      "track": "M5",
+      "label": "security review",
+      "doc": "docs/plan/GOALS.md#qa-12--pre-launch-security-and-privacy-review-new-25-oct"
+    },
+    {
       "id": "QA-4",
-      "title": "Device walkthroughs and accessibility on both platforms",
+      "title": "Release builds on both platforms: acceptance and accessibility",
       "owner": "S7 Quality",
       "needs": [
         "PL-7",
@@ -711,8 +958,8 @@
       ],
       "size": "M",
       "track": "M5",
-      "label": "device walkthroughs",
-      "doc": "docs/plan/GOALS.md#qa-4--device-walkthroughs-and-accessibility-on-both-platforms"
+      "label": "both platforms",
+      "doc": "docs/plan/GOALS.md#qa-4--release-builds-on-both-platforms-acceptance-and-accessibility"
     },
     {
       "id": "QA-5",
@@ -750,8 +997,10 @@
       "needs": [
         "QA-4",
         "QA-5",
+        "QA-12",
         "OW-8",
-        "MS-1"
+        "MS-1",
+        "PL-10"
       ],
       "size": "L",
       "track": "M5",
@@ -772,7 +1021,7 @@
     },
     {
       "id": "MS-5",
-      "title": "Store launch",
+      "title": "Store launch (MVP-M)",
       "owner": "Milestones",
       "needs": [
         "QA-7"
@@ -780,7 +1029,7 @@
       "size": "S",
       "track": "M5",
       "label": "M5 STORE LAUNCH",
-      "doc": "docs/plan/GOALS.md#ms-5--store-launch"
+      "doc": "docs/plan/GOALS.md#ms-5--store-launch-mvp-m"
     },
     {
       "id": "OW-9",
@@ -791,19 +1040,6 @@
       "track": "M6",
       "label": "pilot field work",
       "doc": "docs/plan/GOALS.md#ow-9--field-validation-and-frozen-pilot-cohorts"
-    },
-    {
-      "id": "AI-2",
-      "title": "Food-AI accuracy harness (G12 part)",
-      "owner": "S6 AI & Pro",
-      "needs": [
-        "QA-1",
-        "OW-3"
-      ],
-      "size": "M",
-      "track": "M6",
-      "label": "AI accuracy test",
-      "doc": "docs/plan/GOALS.md#ai-2--food-ai-accuracy-harness-g12-part"
     },
     {
       "id": "OW-10",
@@ -820,7 +1056,7 @@
     },
     {
       "id": "OW-11",
-      "title": "WhatsApp templates approved",
+      "title": "WhatsApp utility templates approved",
       "owner": "You",
       "needs": [
         "OW-5",
@@ -829,15 +1065,15 @@
       "size": "S",
       "track": "M6",
       "label": "Meta templates",
-      "doc": "docs/plan/GOALS.md#ow-11--whatsapp-templates-approved"
+      "doc": "docs/plan/GOALS.md#ow-11--whatsapp-utility-templates-approved"
     },
     {
       "id": "G16.api",
       "title": "Gym tenancy, operational roles, permissions, audit and jobs",
       "owner": "S2 Backend",
       "needs": [
-        "OW-10",
-        "G13"
+        "AR-1",
+        "MB-1"
       ],
       "size": "L",
       "track": "M6",
@@ -859,7 +1095,7 @@
     },
     {
       "id": "G17.api",
-      "title": "Owner register, membership and append-only finance",
+      "title": "Register, imports, membership and append-only finance",
       "owner": "S2 Backend",
       "needs": [
         "G16.api"
@@ -867,11 +1103,11 @@
       "size": "L",
       "track": "M6",
       "label": "owner core API",
-      "doc": "docs/plan/GOALS.md#g17api--owner-register-membership-and-append-only-finance"
+      "doc": "docs/plan/GOALS.md#g17api--register-imports-membership-and-append-only-finance"
     },
     {
       "id": "G17.app",
-      "title": "Operational owner and front-desk screens",
+      "title": "Owner, manager and front-desk screens",
       "owner": "S5 Gym app",
       "needs": [
         "G17.api",
@@ -880,7 +1116,7 @@
       "size": "L",
       "track": "M6",
       "label": "owner screens",
-      "doc": "docs/plan/GOALS.md#g17app--operational-owner-and-front-desk-screens"
+      "doc": "docs/plan/GOALS.md#g17app--owner-manager-and-front-desk-screens"
     },
     {
       "id": "G18.api",
@@ -888,8 +1124,7 @@
       "owner": "S2 Backend",
       "needs": [
         "G17.api",
-        "G13",
-        "OW-11"
+        "G13"
       ],
       "size": "L",
       "track": "M6",
@@ -936,20 +1171,19 @@
     },
     {
       "id": "G20.api",
-      "title": "Attendance-only retention and renewal dispatch",
+      "title": "Attendance-based retention and renewal dispatch",
       "owner": "S2 Backend",
       "needs": [
-        "G19.api",
-        "OW-11"
+        "G19.api"
       ],
       "size": "M",
       "track": "M6",
       "label": "retention API",
-      "doc": "docs/plan/GOALS.md#g20api--attendance-only-retention-and-renewal-dispatch"
+      "doc": "docs/plan/GOALS.md#g20api--attendance-based-retention-and-renewal-dispatch"
     },
     {
       "id": "G20.app",
-      "title": "Operational follow-up calls and evidence outcomes",
+      "title": "Today's calls and follow-up outcomes",
       "owner": "S5 Gym app",
       "needs": [
         "G20.api",
@@ -958,23 +1192,24 @@
       "size": "S",
       "track": "M6",
       "label": "today's calls",
-      "doc": "docs/plan/GOALS.md#g20app--operational-follow-up-calls-and-evidence-outcomes"
+      "doc": "docs/plan/GOALS.md#g20app--todays-calls-and-follow-up-outcomes"
     },
     {
       "id": "G21.api",
-      "title": "Owner/manager gym programme offers and owned copies",
+      "title": "Owner/manager programme offers and member-owned copies",
       "owner": "S2 Backend",
       "needs": [
-        "G18.api"
+        "G18.api",
+        "MB-2"
       ],
       "size": "M",
       "track": "M6",
       "label": "programme offers API",
-      "doc": "docs/plan/GOALS.md#g21api--ownermanager-gym-programme-offers-and-owned-copies"
+      "doc": "docs/plan/GOALS.md#g21api--ownermanager-programme-offers-and-member-owned-copies"
     },
     {
       "id": "G21.app",
-      "title": "Gym programme offer and template screens",
+      "title": "Programme template and offer screens",
       "owner": "S5 Gym app",
       "needs": [
         "G21.api",
@@ -983,7 +1218,7 @@
       "size": "M",
       "track": "M6",
       "label": "programme offer screens",
-      "doc": "docs/plan/GOALS.md#g21app--gym-programme-offer-and-template-screens"
+      "doc": "docs/plan/GOALS.md#g21app--programme-template-and-offer-screens"
     },
     {
       "id": "G22.api",
@@ -999,7 +1234,7 @@
     },
     {
       "id": "G22.app",
-      "title": "Challenge, leaderboard and refer screens",
+      "title": "Challenge, leaderboard and referral screens",
       "owner": "S5 Gym app",
       "needs": [
         "G22.api",
@@ -1008,7 +1243,7 @@
       "size": "M",
       "track": "M6",
       "label": "challenge screens",
-      "doc": "docs/plan/GOALS.md#g22app--challenge-leaderboard-and-refer-screens"
+      "doc": "docs/plan/GOALS.md#g22app--challenge-leaderboard-and-referral-screens"
     },
     {
       "id": "G23",
@@ -1021,10 +1256,10 @@
         "G20.app",
         "G21.app",
         "G22.app",
-        "PL-7",
-        "PL-8",
         "OW-6",
-        "MS-4"
+        "OW-10",
+        "OW-11",
+        "MS-5"
       ],
       "size": "L",
       "track": "M6",
@@ -1033,7 +1268,7 @@
     },
     {
       "id": "MS-6",
-      "title": "Gym pilot (MVP)",
+      "title": "Gym pilot (MVP-G)",
       "owner": "Milestones",
       "needs": [
         "G23"
@@ -1041,11 +1276,11 @@
       "size": "S",
       "track": "M6",
       "label": "M6 gym pilot",
-      "doc": "docs/plan/GOALS.md#ms-6--gym-pilot-mvp"
+      "doc": "docs/plan/GOALS.md#ms-6--gym-pilot-mvp-g"
     },
     {
       "id": "OW-12",
-      "title": "Measure per-gym pilot gates and scale/fix/stop",
+      "title": "Measure the pilot and decide Scale, Fix or Stop",
       "owner": "You",
       "needs": [
         "MS-6"
@@ -1053,12 +1288,12 @@
       "size": "L",
       "track": "M7",
       "label": "pilot gate call",
-      "doc": "docs/plan/GOALS.md#ow-12--measure-per-gym-pilot-gates-and-scalefixstop"
+      "doc": "docs/plan/GOALS.md#ow-12--measure-the-pilot-and-decide-scale-fix-or-stop"
     },
     {
       "id": "G24",
       "title": "Owner Pro operational AI assistance",
-      "owner": "S6 AI & Pro",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "OW-12",
         "G15.api",
@@ -1072,7 +1307,7 @@
     {
       "id": "G25",
       "title": "Member AI set logging and weekly review",
-      "owner": "S6 AI & Pro",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "OW-12",
         "G15.app"
@@ -1084,8 +1319,8 @@
     },
     {
       "id": "G26",
-      "title": "AI calling (gated by counsel)",
-      "owner": "S6 AI & Pro",
+      "title": "AI calling (closed until approved)",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "OW-12",
         "G24"
@@ -1093,11 +1328,11 @@
       "size": "L",
       "track": "M7",
       "label": "AI calling",
-      "doc": "docs/plan/GOALS.md#g26--ai-calling-gated-by-counsel"
+      "doc": "docs/plan/GOALS.md#g26--ai-calling-closed-until-approved"
     },
     {
       "id": "G27",
-      "title": "Online collection and Autopay",
+      "title": "Online collection and autopay",
       "owner": "S2 Backend",
       "needs": [
         "OW-12",
@@ -1149,8 +1384,8 @@
     },
     {
       "id": "G30",
-      "title": "Register reader (the one free AI)",
-      "owner": "S6 AI & Pro",
+      "title": "Paper-register reader (the one free AI)",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "OW-12",
         "AI-2"
@@ -1158,7 +1393,20 @@
       "size": "M",
       "track": "M7",
       "label": "register reader",
-      "doc": "docs/plan/GOALS.md#g30--register-reader-the-one-free-ai"
+      "doc": "docs/plan/GOALS.md#g30--paper-register-reader-the-one-free-ai"
+    },
+    {
+      "id": "G31",
+      "title": "Gym-bought member seats *(new 25 Oct)*",
+      "owner": "S2 Backend",
+      "needs": [
+        "OW-12",
+        "G15.api"
+      ],
+      "size": "M",
+      "track": "M7",
+      "label": "gym seats",
+      "doc": "docs/plan/GOALS.md#g31--gym-bought-member-seats-new-25-oct"
     },
     {
       "id": "MS-7",
@@ -1171,7 +1419,8 @@
         "G27",
         "G28",
         "G29.app",
-        "G30"
+        "G30",
+        "G31"
       ],
       "size": "S",
       "track": "M7",
@@ -1180,7 +1429,7 @@
     },
     {
       "id": "AP-3",
-      "title": "Progression engine: next session's weights, by rule",
+      "title": "Progression engine: next session's targets, by rule",
       "owner": "S4 Member app",
       "needs": [
         "MS-5"
@@ -1188,7 +1437,7 @@
       "size": "L",
       "track": "M8",
       "label": "progression engine",
-      "doc": "docs/plan/GOALS.md#ap-3--progression-engine-next-sessions-weights-by-rule"
+      "doc": "docs/plan/GOALS.md#ap-3--progression-engine-next-sessions-targets-by-rule"
     },
     {
       "id": "AP-4",
@@ -1204,7 +1453,7 @@
     },
     {
       "id": "AP-5",
-      "title": "Small parity wins",
+      "title": "Small parity wins and imports",
       "owner": "S3 Design",
       "needs": [
         "MS-5"
@@ -1212,7 +1461,7 @@
       "size": "M",
       "track": "M8",
       "label": "parity wins",
-      "doc": "docs/plan/GOALS.md#ap-5--small-parity-wins"
+      "doc": "docs/plan/GOALS.md#ap-5--small-parity-wins-and-imports"
     },
     {
       "id": "AP-6",
@@ -1229,7 +1478,7 @@
     {
       "id": "AP-7",
       "title": "Barcode scanner (H-17)",
-      "owner": "S4 Member app",
+      "owner": "S6 Food, AI & Pro",
       "needs": [
         "MS-5"
       ],
@@ -1251,16 +1500,52 @@
       "doc": "docs/plan/GOALS.md#ap-8--home-screen-widgets"
     },
     {
+      "id": "AP-10",
+      "title": "Health Connect and Apple Health *(new 25 Oct)*",
+      "owner": "S1 Platform",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "health apps",
+      "doc": "docs/plan/GOALS.md#ap-10--health-connect-and-apple-health-new-25-oct"
+    },
+    {
+      "id": "AP-11",
+      "title": "Exercise substitution *(new 25 Oct)*",
+      "owner": "S4 Member app",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "substitution",
+      "doc": "docs/plan/GOALS.md#ap-11--exercise-substitution-new-25-oct"
+    },
+    {
+      "id": "AP-12",
+      "title": "Nutrition depth *(new 25 Oct)*",
+      "owner": "S6 Food, AI & Pro",
+      "needs": [
+        "MS-5"
+      ],
+      "size": "M",
+      "track": "M8",
+      "label": "nutrition depth",
+      "doc": "docs/plan/GOALS.md#ap-12--nutrition-depth-new-25-oct"
+    },
+    {
       "id": "QA-8",
-      "title": "TalkBack formatting spans re-test (#28)",
+      "title": "Close the accessibility findings deferred at launch",
       "owner": "S7 Quality",
       "needs": [
-        "QA-3"
+        "MS-5"
       ],
       "size": "S",
       "track": "M8",
-      "label": "TalkBack #28",
-      "doc": "docs/plan/GOALS.md#qa-8--talkback-formatting-spans-re-test-28"
+      "label": "a11y follow-up",
+      "doc": "docs/plan/GOALS.md#qa-8--close-the-accessibility-findings-deferred-at-launch"
     },
     {
       "id": "QA-10",
@@ -1286,6 +1571,9 @@
         "AP-6",
         "AP-7",
         "AP-8",
+        "AP-10",
+        "AP-11",
+        "AP-12",
         "QA-8",
         "QA-10"
       ],
@@ -1320,16 +1608,29 @@
       "doc": "docs/plan/GOALS.md#ap-9--exercise-media-in-the-app"
     },
     {
-      "id": "MS-9",
-      "title": "Complete",
-      "owner": "Milestones",
+      "id": "QA-13",
+      "title": "Maintenance handoff and known limitations *(new 25 Oct)*",
+      "owner": "S7 Quality",
       "needs": [
         "AP-9"
       ],
       "size": "S",
       "track": "M9",
+      "label": "final handoff",
+      "doc": "docs/plan/GOALS.md#qa-13--maintenance-handoff-and-known-limitations-new-25-oct"
+    },
+    {
+      "id": "MS-9",
+      "title": "Project complete",
+      "owner": "Milestones",
+      "needs": [
+        "AP-9",
+        "QA-13"
+      ],
+      "size": "S",
+      "track": "M9",
       "label": "M9 complete",
-      "doc": "docs/plan/GOALS.md#ms-9--complete"
+      "doc": "docs/plan/GOALS.md#ms-9--project-complete"
     }
   ]
 }

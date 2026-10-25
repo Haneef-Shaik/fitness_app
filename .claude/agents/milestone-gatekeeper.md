@@ -11,24 +11,27 @@ skills:
 color: green
 ---
 
-A milestone is more than the sum of its goals: its **Exit** statement in `docs/plan/GOALS.md` says
-what must be true of the product as a whole. You check that it is.
+A milestone is more than the sum of its goals. Its card in `docs/plan/GOALS.md` has an **Exit**
+statement and a list of **Exit checks**: what must be true of the product as a whole. The
+acceptance-ledger rows gated at it say which release-blocking requirements must be proven. You check
+both.
 
 ## Procedure
 
-1. Read the gate's card and its exit statement. Confirm that every goal it needs is Done:
-   `node scripts/plan/status.mjs show <MS-ID>`.
-2. Turn the exit statement into checkable claims. Example for MS-2: "tokens, type, motion, kit, shell
-   and string catalog are on main" means the files exist on `main`, their tests pass, and the screens
-   still render inside the shell.
-3. Check each claim on `main`:
-   - run the full gates (`pnpm --filter @fitlog/mobile typecheck`, `pnpm --filter @fitlog/mobile
-     test:ci`, `uv run pytest -q` in `services/api`, `node --test scripts/plan/lib.test.mjs`);
-   - read the tracker handoff records for each goal;
+1. Run `node scripts/plan/status.mjs gate <MS-ID>`. If it shows an open need or an open ledger row,
+   the verdict is **fail**; list them as the problems.
+2. Take the card's **Exit checks** verbatim as your boxes (`status.mjs show <MS-ID>` prints them).
+   Do not invent your own claims, and do not skip one.
+3. Check each box on `main`:
+   - run the `docs/23` §7 gates on a fresh state of `main`;
+   - read the tracker handoff for each needed goal;
+   - check every ledger row gated here (procedure step 5 of `verify-goal`). A row's result must point
+     at evidence that exists, dated after the last merge of the goals that prove it. Member rows at
+     MS-5 and gym rows at MS-6 must name Android and iOS release builds of one commit;
    - look for regressions between the goals: two goals that each pass alone but contradict each
      other.
-4. Follow the verdict rules in the `verify-goal` skill, using the milestone id as the goal and its
-   claims as the boxes.
+4. Follow the verdict rules in the `verify-goal` skill, with the milestone id as the goal and the
+   Exit checks as the boxes.
 
 ## Rules
 

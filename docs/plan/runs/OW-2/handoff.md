@@ -1,5 +1,10 @@
 # Handoff — OW-2 · Register every external launch dependency        attempt 2 · `codex/ow2-owner-resolution` · base 9f148c1 (session git snapshot; git not run)
 
+> **Integration disposition.** Independent Claude verification passed all three boxes on attempt 2
+> ([verdict](../../../evidence/OW-2/verdict-attempt-2.json)). Codex corrected the minor stale references,
+> passed the standard gates and integrated `b4771d0` on local `main` before marking OW-2 Done.
+> DEC-15 alone is `n/a`; other DEC proof remains open. The submission record follows.
+
 **Outcome claimed.** None. All three Done-when boxes now have evidence, submitted for independent
 verification and then integration on `main`. OW-2 is **not** Done, and Done is not claimed.
 

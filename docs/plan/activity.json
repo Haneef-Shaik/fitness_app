@@ -209,5 +209,17 @@
     "by": "session:Codex",
     "at": "2026-10-25T18:25:30.749Z",
     "id": "a-1792952730749-s08kyp"
+  },
+  {
+    "kind": "update",
+    "goal": "OW-2",
+    "from": "claimed",
+    "to": "done",
+    "who": "Codex",
+    "ref": "b4771d0",
+    "note": "All three boxes independently PASS on attempt 2; minor stale references corrected. Owner MIG-01 resolves DEC-15 n/a. pnpm check and planner sync checks pass; reviewed evidence fast-forward integrated on local main. Other DEC proofs remain open.",
+    "by": "session:Codex",
+    "at": "2026-10-25T18:33:49.101Z",
+    "id": "a-1792953229101-ng76vp"
   }
 ]

@@ -30,7 +30,8 @@ These are observations from this session, not completed goal claims:
   marketing artifacts, review screenshots, error.log and ignored environments were preserved.
 - 114 goals, 230 dependencies, 94 acceptance-ledger rows. OW-1 and QA-1 are Done after independent
   passes on attempt 2 and integration. OW-2's dependency register records the owner's fresh-launch
-  decision (MIG-01); independent verification is running. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
+  decision (MIG-01); all three boxes independently passed and `b4771d0` is integrated on main.
+  OW-2 is Done. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
   respect SP0 before contract-dependent feature work.
 - `pnpm check` passed before this handoff: TypeScript, lint/design rules, 10 domain tests,
   126 mobile tests, 22 planner tests and contract/ledger validation on the reviewed foundation.
@@ -59,7 +60,7 @@ These are observations from this session, not completed goal claims:
   `fitlog-coordinate-local-claude-delivery` is ACTIVE and resumes this chat hourly for bounded
   Codex-coordinated local Claude work. This is distinct from the unimplemented O2–O5 Claude runner.
   The owner also confirmed a fresh launch with no existing users or data redirected; DEC-15 is
-  being recorded as not applicable through OW-2.
+  recorded as not applicable through completed OW-2.
 
 ## Active worker
 
@@ -79,8 +80,8 @@ and test plan. No source changes or architecture approval are claimed. Reconcile
    and verify Claude installation/authentication there. Local credentials are not automatically
    cloud credentials. Establish the repository revision and transfer reviewed foundation commits
    before dispatching work against that checkout.
-3. OW-1 and QA-1 are complete. Reconcile OW-2's independent verdict and integration state before
-   any new dispatch. Its DEC-15 answer is MIG-01; all other external approvals remain unresolved.
+3. OW-1, QA-1 and OW-2 are complete and integrated on main. OW-2's DEC-15 answer is MIG-01;
+   all other external approvals remain unresolved.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. Inspect the AR-1 worker above and review its bounded phase output. Continue executable contract,
    replay and shared-fixture work in that worktree after review; obtain specific owner approval of

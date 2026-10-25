@@ -1,10 +1,10 @@
 # OW-2 · External launch dependency register
 
-**Date:** 25 Oct 2026 · **Status:** submitted for independent verification. OW-2 is not Done and
-Done is not claimed. DEC-15 is answered: on 25 Oct 2026 the owner confirmed a fresh launch with no
+**Date:** 25 Oct 2026 · **Status:** independently verified PASS (attempt 2), integrated on local
+`main` as `b4771d0`; Codex marked OW-2 Done through the status CLI. DEC-15 is answered: on 25 Oct 2026 the owner confirmed a fresh launch with no
 existing users or data redirected (tracker MIG-01). The DEC-15 row in
 [ACCEPTANCE.md](../../plan/ACCEPTANCE.md) reads `n/a`; every other DEC row still reads `open`. This
-file changes no goal status and no other ledger row.
+register changes no other ledger row.
 
 **Sources read.** [GOALS.md OW-2](../../plan/GOALS.md#ow-2--register-every-external-launch-dependency)
 and the card of every goal named below; [PRD §27](../../PRD.md#27-assumptions-and-external-decisions)
@@ -29,7 +29,7 @@ answer can make a row `n/a` only where the PRD allows it; today that is DEC-15 a
 - **Writes the row** is the last goal in the row's *Proved by* list. Under the ledger rules it is the
   only goal that sets the result.
 - **Board state** is from `status.json` as read on 25 Oct 2026. OW-1 and QA-1 are `done`; OW-2
-  and AR-1 are `claimed`. OW-1 evidence is integrated on `main` (tracker UI-01).
+  is `done` after acceptance; AR-1 is `claimed`. OW-1 evidence is integrated on `main` (tracker UI-01).
 - No entry records an approval, account, licence or measurement, because none has dated proof. The
   owner's DEC-15 answer (MIG-01) is a scope answer, not an external approval.
 
@@ -340,10 +340,10 @@ record, what proof is missing, the next practical action and what stays blocked 
   depends on them.
 - **Not recorded.** A separate technical-lead signature. MIG-01 records the owner's answer only, and
   none is claimed here.
-- **Next action.** None for the owner. A verifier checks the row, MIG-01 and this entry.
-- **Blocked until it closes.** Nothing waits on DEC-15 any longer. OW-2 is still not Done until all
-  three boxes are independently verified, so **OW-3, OW-4, OW-5, OW-6, OW-8, DS-6 and MS-0** stay
-  blocked on the board until then.
+- **Next action.** None for DEC-15. The independent verifier passed all three OW-2 boxes and the
+  reviewed evidence is integrated on main.
+- **Blocked until it closes.** Nothing waits on DEC-15 or OW-2 any longer. Successor goals retain
+  their other dependencies and external-proof requirements.
 
 ### DEC-16 · Licences: fonts and seed content (MS-5), barcode and body map (MS-8), media (MS-9)
 

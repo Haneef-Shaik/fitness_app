@@ -18,12 +18,12 @@
       "at": "2026-10-25T16:20:33.302Z"
     },
     "OW-2": {
-      "status": "claimed",
+      "status": "done",
       "who": "Codex",
-      "ref": "owner-confirmation-2026-10-25",
-      "note": "Owner explicitly confirmed a fresh launch with no existing users or data redirected. Recording DEC-15 n/a and submitting the dependency register for independent verification.",
+      "ref": "b4771d0",
+      "note": "All three boxes independently PASS on attempt 2; minor stale references corrected. Owner MIG-01 resolves DEC-15 n/a. pnpm check and planner sync checks pass; reviewed evidence fast-forward integrated on local main. Other DEC proofs remain open.",
       "by": "session:Codex",
-      "at": "2026-10-25T18:22:57.472Z"
+      "at": "2026-10-25T18:33:49.101Z"
     },
     "OW-1": {
       "status": "done",

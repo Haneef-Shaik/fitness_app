@@ -10,7 +10,8 @@ prepared evidence is not a completed goal.
   data will be redirected" (tracker MIG-01). The DEC-15 ledger row reads `n/a`, and no migration goal
   is needed. Historical snapshots and volumes are preserved; no deletion or migration is authorised.
   Nothing more is needed from the owner on DEC-15. The
-  [dependency register](../evidence/OW-2/dependency-register.md) awaits independent verification.
+  [dependency register](../evidence/OW-2/dependency-register.md) independently passed all OW-2 boxes
+  and was integrated on local main (`b4771d0`); OW-2 is Done.
 - The register maps all DEC-01–DEC-17 rows to their goals and gates. External accounts, legal review,
   licensing, device tests and pilot evidence remain open until actual proof is supplied.
 

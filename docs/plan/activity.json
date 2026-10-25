@@ -245,5 +245,17 @@
     "by": "session:Codex",
     "at": "2026-10-25T20:32:30.693Z",
     "id": "a-1792960350693-dqgw7i"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "claimed",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "07757a5",
+    "note": "Isolated contract/proposal checkpoint07757a5:169 tests and both JS exports pass; real-Git forged snapshot+hash rewrite rejected. Proposal corrections finished; independent checkpoint review running. Confirmed CI baseline fail-open must be fixed before integration. SQL/TS fixture, replay/diff and specific ADR approval still due.",
+    "by": "session:Codex",
+    "at": "2026-10-25T21:32:42.790Z",
+    "id": "a-1792963962790-s2tsa5"
   }
 ]

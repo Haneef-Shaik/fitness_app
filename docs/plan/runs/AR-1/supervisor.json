@@ -1,10 +1,10 @@
 {
   "goal": "AR-1",
-  "phase": "2A plus disjoint proposal corrections",
-  "state": "working",
+  "phase": "checkpoint review before phase2A corrections",
+  "state": "under independent review",
   "executor": "local Claude Code",
-  "sessionId": "3495bffa-5ee9-48d5-8baf-5e917a2e905d",
-  "shortId": "3495bffa",
+  "sessionId": null,
+  "shortId": null,
   "worktree": "/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app",
   "branch": "codex/ar1-contract-freeze",
   "base": "9f148c1",
@@ -18,27 +18,16 @@
     "packages/domain/contracts/*",
     "docs/plan/runs/AR-1/phase2A.md"
   ],
-  "resume": "Reconcile both workers before dispatch. Architecture review REVISE is saved on canonical main; corrected docs need short independent re-review. Guard needs primary gates and independent review including actual mutation results. No integration or goal Done until verification. Shared TS/SQL fixture and isolated migration replay/diff remain future phases. Final specific ADR owner approval remains pending; routine engineering does not need10 separate approvals.",
+  "resume": "First collect checkpoint reviewer session76930/log. Save verdict. Fix confirmed fail-open CI baseline and other concrete findings through bounded Claude. Exact file scope: contract CLI/tests and CI workflow with trusted event base/fetch history; no model/wire/db changes. Review corrections, repeat gates and real-baseline probes, then independent targeted verify before integration. AR-1 still needs shared TS/SQL fixture, isolated replay/schema diff, concrete ADR owner approval and final verification.",
   "heartbeat": "fitlog-coordinate-local-claude-delivery",
-  "launchNotes": "Prior guard232505dc was blocked because RTK hook rewrote rtk proxy pnpm to rtk pnpm. Coordinator attached, reviewed exact RED domain-test command and chose one-time Yes. Stopped prior worker; resumed as3495bffa with exact test/typecheck/snapshot/check forms allowed for both prefixes. No broad auto/bypass mode enabled. Both replacement workers confirmed working.",
-  "phase1": "Independent review REVISE:10 medium architecture defects plus lower findings F1-F17/T1-T4; corrections assigned, no approval request yet.",
+  "launchNotes": "Completed workers3495bffa and dd382163 were stopped to freeze source. Candidate07757a5 committed only on codex/ar1-contract-freeze, not main. No active source writer; independent read/test reviewer executing.",
+  "phase1": "All21 findings accepted and corrected in proposal revision1; fresh re-review running, approval remains pending.",
   "phase1ReviewLog": "/tmp/fitlog-ar1-phase1-review.jsonl",
   "phase1ReviewExecSession": null,
   "phase1ReviewVerdict": "docs/evidence/AR-1/phase1-review.json",
-  "workers": [
-    {
-      "phase": "2A contract guard",
-      "sessionId": "3495bffa-5ee9-48d5-8baf-5e917a2e905d",
-      "shortId": "3495bffa",
-      "scope": "Only prior domain files/contracts and phase2A.md; no wire changes, database or migrations.",
-      "state": "working"
-    },
-    {
-      "phase": "proposal corrections",
-      "sessionId": "dd382163-56b0-4156-b3b3-13660a08edf8",
-      "shortId": "dd382163",
-      "scope": "Only ADR003, checkpoint.md, test-plan.md, phase1-dispositions.md; do not edit source or phase2A.md.",
-      "state": "working"
-    }
-  ]
+  "workers": [],
+  "candidate": "07757a5",
+  "checkpointReviewLog": "/tmp/fitlog-ar1-checkpoint-review2.jsonl",
+  "checkpointReviewExecSession": 76930,
+  "phase2A": "Local candidate complete; coordinator pnpm check169tests plus Android/iOS JS exports pass. Real-Git coordinated snapshot+manifest rewrite rejected in isolated clone and restored tests pass. Confirmed CI=1 without trusted baseline incorrectly exits0; not accepted."
 }

@@ -60,10 +60,10 @@
     "AR-1": {
       "status": "claimed",
       "who": "Codex",
-      "ref": "codex/ar1-contract-freeze",
-      "note": "Independent proposal review returned REVISE; corrections F1-F17/T1-T4 assigned to docs-only worker dd382163. Contract guard permission-prefix stall resolved; phase2A resumed as3495bffa with exact test permissions. Disjoint scopes, no unverified integration. SQL/TS fixtures, isolated replay/diff and concrete ADR approval remain due.",
+      "ref": "07757a5",
+      "note": "Isolated contract/proposal checkpoint07757a5:169 tests and both JS exports pass; real-Git forged snapshot+hash rewrite rejected. Proposal corrections finished; independent checkpoint review running. Confirmed CI baseline fail-open must be fixed before integration. SQL/TS fixture, replay/diff and specific ADR approval still due.",
       "by": "session:Codex",
-      "at": "2026-10-25T20:32:30.693Z"
+      "at": "2026-10-25T21:32:42.790Z"
     }
   }
 }

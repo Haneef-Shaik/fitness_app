@@ -1,11 +1,27 @@
 {
   "name": "fitlog",
   "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "packageManager": "pnpm@10.27.0",
   "scripts": {
+    "dev": "pnpm --filter @fitlog/mobile start",
+    "android": "pnpm --filter @fitlog/mobile android",
+    "ios": "pnpm --filter @fitlog/mobile ios",
+    "web": "pnpm --filter @fitlog/mobile web",
+    "typecheck": "pnpm --filter @fitlog/domain typecheck && pnpm --filter @fitlog/mobile typecheck",
+    "lint": "pnpm --filter @fitlog/mobile lint",
+    "test": "pnpm --filter @fitlog/domain test && pnpm --filter @fitlog/mobile test:ci && pnpm plan:test",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm plan:build --check",
+    "backend:env": "node scripts/backend/environment.mjs",
+    "backend:test": "node scripts/backend/verify.mjs && node scripts/backend/verify-gym.mjs && node scripts/backend/verify-freeze-projection.mjs && node scripts/backend/verify-freezes.mjs",
     "plan:build": "node scripts/plan/build.mjs",
     "plan:board": "node scripts/plan/serve.mjs",
     "plan:status": "node scripts/plan/status.mjs",
     "plan:test": "node --test scripts/plan/lib.test.mjs"
+  },
+  "devDependencies": {
+    "supabase": "2.121.0"
   }
 }

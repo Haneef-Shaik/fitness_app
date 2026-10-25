@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+.pnpm-store/
 .venv/
 __pycache__/
 *.pyc
@@ -7,6 +8,8 @@ __pycache__/
 
 # builds & caches
 dist/
+dist-native/
+dist-verified/
 build/
 .expo/
 .next/

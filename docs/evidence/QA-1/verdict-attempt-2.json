@@ -1,0 +1,50 @@
+{
+  "goal": "QA-1",
+  "attempt": 2,
+  "verdict": "pass",
+  "boxes": [
+    {
+      "box": "`main` contains the foundation; `git ls-files` shows no build output, and a secret scan of the tree is clean",
+      "met": true,
+      "evidence": "Canonical .git/refs/heads/main = 67e6d1c94cf9941a4c61d412c9aa7df2585ee6cb. In the clone, `rtk proxy git log --oneline` shows 67e6d1c → a8d8f31 → 4a7a6ea → 7fe8191, and `rtk proxy git status --short --branch` shows `## main...origin/main` with nothing changed, even after all gates ran. `rtk proxy git ls-files` lists 313 paths. None of them is dist*/, .expo/, build/, coverage/, node_modules, supabase/.temp, supabase/.branches or .env*, except apps/mobile/.env.example, whose publishable key is empty. .gitignore:10-24 covers these paths. Gitleaks: bootstrap-gates.md:21 records the final run after the fix as 309 candidate files, exit 0, no findings. My own scan of the clone found no sb_secret_ keys, sb_publishable_ values, JWTs, PEM keys, AWS/GitHub/OpenAI/Slack/Google tokens or literal secret assignments. The only matches were env() references at config.toml:102,302,334 and a UI label at i18n/app.ts:36."
+    },
+    {
+      "box": "On a fresh clone of `main`, `pnpm install --frozen-lockfile`, `pnpm check` and (local Supabase running) `pnpm backend:test` pass; result lines are in the handoff",
+      "met": true,
+      "evidence": "Clone /private/tmp/fitlog-qa1-main-67e6d1c. `rtk proxy pnpm install --frozen-lockfile` → 'Lockfile is up to date, resolution step is skipped … Done in 1.2s using pnpm v10.27.0'. `rtk proxy pnpm check` → tsc passes for domain and mobile; eslint --max-warnings=0 and 'Design rules verified'; domain 'pass 10 fail 0'; mobile 'Test Suites: 7 passed, 7 total / Tests: 126 passed, 126 total'; planner 'pass 22 fail 0'; 'plan.json and board.html match GOALS.md'. `rtk proxy pnpm backend:test` printed all four lines: 'Local backend integration passed…', 'Gym integration passed…', 'Freeze projection passed…' and 'Freeze integration passed…'. The suites guard on API_URL 127.0.0.1:55321, so the local stack was up. These lines match handoff.md:29-41."
+    },
+    {
+      "box": "Android and iOS JavaScript exports pass from the same clone",
+      "met": true,
+      "evidence": "`rtk proxy pnpm --filter @fitlog/mobile exec expo export --platform ios --platform android --output-dir .expo/export-native` in the same clone → 'ios bundles (1): _expo/static/js/ios/entry-69fef94d….hbc (4.5MB)', 'android bundles (1): _expo/static/js/android/entry-b6ebb81e….hbc (4.8MB)', 'Exported: .expo/export-native'. These are JavaScript/Hermes exports only, which is what the box asks for."
+    },
+    {
+      "box": "Review reports are in `docs/evidence/QA-1/`, and every finding left open names its owning goal",
+      "met": true,
+      "evidence": "The canonical docs/evidence/QA-1/ holds bootstrap-code-review.md, bootstrap-security-review.md, auth-callback-verification.md, auth-callback-fix.md, bootstrap-reproducibility-fix.md, portability.md, preview-portability-fix.md, bootstrap-gates.md and disposition.md. These are uncommitted evidence awaiting the bookkeeping commit. F-8i, the only attempt-1 failure, is fixed in source: preview-account.mjs:4-5 imports tmpdir and join, and :17 writes `join(tmpdir(), 'fitlog-preview-account.json')` with `mode: 0o600`. The canonical copy is identical. `rtk proxy git log --stat` shows 67e6d1c changed only that file (+3/-1). No '/private/tmp' or 'rtk' appears in scripts/backend. F-1 is closed: no setSession or token parsing in app source; supabase.ts:9 sets pkce and detectSessionInUrl:false; MemberProvider.tsx:30 and AuthScreen.tsx:22 share AUTH_CALLBACK_PATH. G-1 is fixed at config.toml:72, and R-1 at config.toml:164-171 (six exact URLs). The open findings have owners: F-2 MB-1/G16.api; F-3, F-7 and F-8d G17.api; F-4, F-5 and F-8g MB-3; F-6 CT-1/MB-2/MB-5; F-8a and F-8f MB-2; F-8b G18.api/G17.api; F-8c G16.api; F-8e MB-4; F-8h AR-1 (security-review.md:85-195). C-1 to C-5 go to MB-3/MB-1 (code-review.md:54-80). G-3 strict-peer and expo checks go to PL-1 (handoff.md:105). R-2, R-3 and F-up 1-5 go to MB-1/SC-5/PL-2/PL-4 (auth-callback-verification.md:52-58). F-up 6 listed QA-1 as a co-owner and is reassigned to MB-1/SC-5 (handoff.md:101; disposition.md:16-17). Portability.md's Windows and backend-CI limits go to PL-1 (handoff.md:104-105). Its hard-coded container name follows from the fixed project_id at config.toml:5, so it is not a portability defect. No Critical or High remains open."
+    }
+  ],
+  "ledger": [
+    {
+      "row": "PD-01@MS-5",
+      "ok": true,
+      "note": "QA-1 is the first of the provers (QA-1, PL-2, QA-12, QA-5), not the last. Line 145 of ACCEPTANCE.md reads 'open' and is identical in the clone and the canonical repo. `rtk proxy git log --stat -3` shows no QA-1 commit touches docs/plan/ACCEPTANCE.md, and handoff.md:21-22 makes no ledger claim."
+    }
+  ],
+  "gates": {
+    "check": "pass",
+    "backend": "pass",
+    "export": "pass",
+    "journeys": "n/a"
+  },
+  "rules": {
+    "scope": "ok",
+    "quality_bars": "ok",
+    "secrets": "ok",
+    "strings": "ok",
+    "invariants": "ok",
+    "status_files": "ok"
+  },
+  "problems": [],
+  "retry_guidance": ""
+}

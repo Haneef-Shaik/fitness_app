@@ -25,10 +25,13 @@ operations, and preserve the existing uncommitted foundation during bootstrap.
 
 These are observations from this session, not completed goal claims:
 
-- Branch: `v2/develop`, HEAD `846fd1f`, with extensive existing modified and untracked work.
-- 114 goals, 230 dependencies, 94 acceptance-ledger rows. OW-1 passed independent documentary
-  verification on attempt 2 and is In review, pending integration on `main`. OW-2's dependency
-  register is prepared but DEC-15 awaits the owner. OW-9 requires field work. No goal is Done yet.
+- Bootstrap began on `v2/develop` at `846fd1f` with extensive existing work. The canonical checkout
+  is now on local `main`; implementation commit `67e6d1c` contains the reviewed foundation. Unrelated
+  marketing artifacts, review screenshots, error.log and ignored environments were preserved.
+- 114 goals, 230 dependencies, 94 acceptance-ledger rows. OW-1 and QA-1 are Done after independent
+  passes on attempt 2 and integration. OW-2's dependency register is prepared but DEC-15 awaits the
+  owner. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
+  respect SP0 before contract-dependent feature work.
 - `pnpm check` passed before this handoff: TypeScript, lint/design rules, 10 domain tests,
   27 mobile tests, 21 planner tests and contract/ledger validation. New planner sync tests
   are additional checks. This is not backend, native-device or release acceptance evidence.
@@ -52,6 +55,9 @@ These are observations from this session, not completed goal claims:
 - ORCHESTRATOR.md O2–O5 remain unimplemented: `status.mjs next --slots 1` is unsupported;
   there is no working continuous scheduler, recovery ledger, runner or kill-drill evidence.
   Do not represent the existing agent prompts as an operating unattended service.
+- Hourly local supervision was proposed, but automatic approval review rejected creating it because
+  recurring resource use and project edits require explicit scheduling authorization. The owner was
+  asked through the chat; no automation exists unless a later approval and successful creation say so.
 
 ## Resume order
 

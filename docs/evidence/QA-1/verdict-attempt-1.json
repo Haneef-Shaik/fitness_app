@@ -1,0 +1,52 @@
+{
+  "goal": "QA-1",
+  "attempt": 1,
+  "verdict": "fail",
+  "boxes": [
+    {
+      "box": "`main` contains the foundation; `git ls-files` shows no build output, and a secret scan of the tree is clean",
+      "met": true,
+      "evidence": "Clone and canonical .git/refs/heads/main both = a8d8f31bf16b41cdaedcfaf42db06930173068cd. `git ls-files` (313 paths) lists apps/mobile, packages/domain, supabase (14 migrations, config.toml, seed.sql, development-catalogue.sql), scripts/backend, the workflow and the lockfile. It has no dist*/, .expo/, build/, coverage/, supabase/.temp, supabase/.branches, node_modules or .env* except apps/mobile/.env.example, whose key is empty. .gitignore:10-24 covers these paths. My own pattern scan of the tracked tree found no sb_secret_/sb_publishable_ values, JWTs, PEM keys, AWS/GitHub/OpenAI/Slack tokens or literal secret assignments. config.toml secrets are env() references. The backend scripts read keys from `supabase status` at runtime and create random UUID passwords. The coordinator's Gitleaks result of 306 files is stated only in the handoff; bootstrap-gates.md:16 records an earlier 301-file run."
+    },
+    {
+      "box": "On a fresh clone of `main`, `pnpm install --frozen-lockfile`, `pnpm check` and (local Supabase running) `pnpm backend:test` pass; result lines are in the handoff",
+      "met": true,
+      "evidence": "Run in /private/tmp/fitlog-qa1-main-a8d8f31. `rtk proxy pnpm install --frozen-lockfile` → 'Lockfile is up to date… Done in 1.3s using pnpm v10.27.0'. `rtk proxy pnpm check` → domain 'pass 10 fail 0'; mobile 'Test Suites: 7 passed, 7 total / Tests: 126 passed, 126 total'; planner 'pass 22 fail 0'; tsc, eslint --max-warnings=0 and design rules pass; 'plan.json and board.html match GOALS.md'. `rtk proxy pnpm backend:test` → all four suites print the same 'passed' lines as handoff.md:37-41. The configured seed (config.toml:72 sql_paths includes development-catalogue.sql, which contains exercise 20000000-…0001) satisfies verify.mjs:39-40 without a manual seed. scripts/backend contains no rtk call."
+    },
+    {
+      "box": "Android and iOS JavaScript exports pass from the same clone",
+      "met": true,
+      "evidence": "`rtk proxy pnpm --filter @fitlog/mobile exec expo export --platform ios --platform android --output-dir .expo/export-native` in the same clone → 'ios bundles (1): …entry-69fef94d….hbc (4.5MB)', 'android bundles (1): …entry-b6ebb81e….hbc (4.8MB)', 'Exported: .expo/export-native'. These are JS/Hermes exports only, not native or release builds."
+    },
+    {
+      "box": "Review reports are in `docs/evidence/QA-1/`, and every finding left open names its owning goal",
+      "met": false,
+      "evidence": "The reports are present in the canonical docs/evidence/QA-1/: bootstrap-code-review.md, bootstrap-security-review.md, auth-callback-fix.md, auth-callback-verification.md, bootstrap-reproducibility-fix.md, portability.md and bootstrap-gates.md. F-1 is closed in source: auth-callback.ts:18-41 does an exact prefix match, refuses fragments, accepts a single code and refuses while signed in; there is no supabase setSession in apps/mobile/src; supabase.ts:9 sets pkce and detectSessionInUrl:false. G-1 is fixed (config.toml:72). R-1 is fixed (config.toml:164-171; AuthScreen.tsx:5,22 uses AUTH_CALLBACK_PATH). C-1–C-5, F-2–F-8h, R-2/R-3 and the F-ups name later goals. However, bootstrap-security-review.md:195 F-8i (scripts/backend/preview-account.mjs:15 hard-codes the macOS-only path /private/tmp/fitlog-preview-account.json) names its owner as 'QA-1 portability note'. It is unfixed in source, absent from handoff.md:84-100, and not addressed in portability.md, so once QA-1 closes no goal owns it."
+    }
+  ],
+  "ledger": [
+    {
+      "row": "PD-01@MS-5",
+      "ok": true,
+      "note": "QA-1 is the first of the provers (QA-1, PL-2, QA-12, QA-5), not the last. The row is still 'open' and identical in the clone and canonical ACCEPTANCE.md:145. Handoff.md:21-22 confirms no ledger change."
+    }
+  ],
+  "gates": {
+    "check": "pass",
+    "backend": "pass",
+    "export": "pass",
+    "journeys": "n/a"
+  },
+  "rules": {
+    "scope": "ok",
+    "quality_bars": "ok",
+    "secrets": "ok",
+    "strings": "ok",
+    "invariants": "ok",
+    "status_files": "ok"
+  },
+  "problems": [
+    "Done-when box 4: security finding F-8i (bootstrap-security-review.md:195; scripts/backend/preview-account.mjs:15 writes credentials to the macOS-only /private/tmp path) names QA-1 itself as owner. It is neither fixed nor reassigned in handoff.md's 'Review findings left open' table, so once QA-1 closes it has no owning goal."
+  ],
+  "retry_guidance": "1) Fix preview-account.mjs:15 to use a portable path such as os.tmpdir() with mode 0600, or reassign F-8i to a named later goal (e.g. PL-1 or MB-1) in the security report and the handoff findings table. If it is a source fix, rerun the fresh-clone-of-main gates. 2) Make handoff.md agree with bootstrap-gates.md on the secret scan: record the 306-file Gitleaks run (date, scope, exit 0) in the evidence file, which currently shows only 301. 3) Optionally assign portability.md's Windows pnpm.cmd limit to an owner, and record the code review's G-3 suggestions (--strict-peer-dependencies, expo install --check) as PL-1 work. 4) Resubmit for verification. Do not change the PD-01 row."
+}

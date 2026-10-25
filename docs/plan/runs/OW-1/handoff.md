@@ -1,5 +1,10 @@
 # Handoff — OW-1 · Record the selected Momentum direction and its Figma gaps        attempt 2 · v2/develop (bootstrap, uncommitted) · base 846fd1f
 
+> **Integration close-out, 25 October:** independent attempt 2 passed both boxes
+> ([verdict](../../../evidence/OW-1/verdict-attempt-2.json)); evidence commit `7fe8191` is on local
+> `main`. Fresh-main checks passed before Codex marked OW-1 Done. The submission record below
+> describes its earlier bootstrap preparation, not the current integration state.
+
 > **Bootstrap correction, not a goal-worktree run.** Prepared 25 October 2026 by the Claude execution
 > worker under the Codex orchestrator, after independent verification of attempt 1 accepted box 1
 > (through tracker UI-01) and failed box 2 (the iOS list lacked most member screen families). This pass

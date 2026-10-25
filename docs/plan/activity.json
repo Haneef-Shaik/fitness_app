@@ -137,5 +137,53 @@
     "by": "session:Codex",
     "at": "2026-10-25T15:52:42.119Z",
     "id": "a-1792943562119-58cs9i"
+  },
+  {
+    "kind": "update",
+    "goal": "OW-1",
+    "from": "in review",
+    "to": "done",
+    "who": "Codex",
+    "ref": "7fe8191",
+    "note": "Independent Claude verdict passed attempt 2; evidence is integrated on main. Fresh main clone a8d8f31 passed frozen install, pnpm check, all backend suites and Android/iOS JS exports. Live Figma drawing remains owned by later goals.",
+    "by": "session:Codex",
+    "at": "2026-10-25T16:03:05.685Z",
+    "id": "a-1792944185685-pa9eji"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-1",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "a8d8f31",
+    "note": "OW-1 is integrated and Done. Bootstrap foundation is on local main in reviewed commits 4a7a6ea/a8d8f31; fresh clone gates passed. Preparing final independent goal verification and handoff before acceptance.",
+    "by": "session:Codex",
+    "at": "2026-10-25T16:03:05.859Z",
+    "id": "a-1792944185859-ftagrd"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-1",
+    "from": "claimed",
+    "to": "in review",
+    "who": "Codex",
+    "ref": "docs/evidence/QA-1/verdict-attempt-2.json",
+    "note": "Independent Claude attempt 2 passed all four Done-when boxes and reran frozen install, pnpm check, backend suites and Android/iOS JS exports in fresh main clone 67e6d1c.",
+    "by": "session:Codex",
+    "at": "2026-10-25T16:20:33.148Z",
+    "id": "a-1792945233148-kjltqx"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-1",
+    "from": "in review",
+    "to": "done",
+    "who": "Codex",
+    "ref": "67e6d1c",
+    "note": "Accepted after independent pass on attempt 2. Reviewed foundation is on local main; all required fresh-clone gates pass; source/secret/build-output checks pass; deferred findings have owning goals. No release, native-device or hosted-CI completion claimed.",
+    "by": "session:Codex",
+    "at": "2026-10-25T16:20:33.302Z",
+    "id": "a-1792945233302-aax7s6"
   }
 ]

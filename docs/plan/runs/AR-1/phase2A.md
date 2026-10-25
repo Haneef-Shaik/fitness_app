@@ -7,6 +7,7 @@
 | Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`, on top of `9f148c1` |
 | Runtime | Node v26.7.0, Zod 4.6.7, TypeScript 6.0.3 (installed by the coordinator) |
 | **AR-1 status** | **Not complete.** Box 1 still needs the owner's G-1 approval of 003. Boxes 2–4 remain open (see the end of this file) |
+| Corrections | The second checkpoint review found P2A-1 to P2A-8. They are fixed and recorded in [phase2A-corrections.md](phase2A-corrections.md) (26 October 2026). The commands, results and mutation checks below are left as they were run. Notes marked **Correction** flag claims that were wrong when written or are now stale |
 
 ## Rules this phase kept
 
@@ -16,7 +17,8 @@
   ACCEPTANCE.md edits, provider calls or delegation.
 - **No git commands were run by hand.** Nothing is staged or committed. The new test and CLI do call git
   themselves, read-only, to find a baseline: `rev-parse --show-prefix`, `rev-parse --verify`,
-  `merge-base`, `cat-file -e` and `cat-file blob`.
+  `merge-base`, `cat-file -e` and `cat-file blob`. **Correction (P2A-3):** `cat-file -e` is gone. Files are now
+  listed with `ls-tree` and read with `cat-file blob`, and any git failure throws instead of reading as an absent file.
 - Shell commands were only the permitted domain `test`, `typecheck` and `contract:snapshot` scripts and the
   root `pnpm check`, each prefixed with `rtk`.
 
@@ -26,7 +28,7 @@
 |---|---|
 | `packages/domain/src/contract.ts` | New. Safe to load in the client: no Node imports. Exports `CONTRACT_VERSION = '0.1.0'`, `contractSchemas`, `persistedContracts`, `contractSnapshot()`, `contractSnapshotJson()` and the types `ContractSnapshot` and `ContractJson` |
 | `packages/domain/src/cli/snapshot-contract.ts` | New. Node only (`fs`, `crypto`, `child_process`). Holds the snapshot command and the history checks the tests reuse |
-| `packages/domain/src/contract.test.ts` | New. 11 tests |
+| `packages/domain/src/contract.test.ts` | New. 11 tests (21 after the corrections) |
 | `packages/domain/src/index.ts` | Adds `export * from './contract.ts';` |
 | `packages/domain/package.json` | Adds the script `"contract:snapshot": "node --import tsx src/cli/snapshot-contract.ts"` |
 | `packages/domain/contracts/0.1.0.json` | Generated, 4,309 lines. SHA-256 `74914ca920f1f9c97957e74ea8b1bf5eea62dfbd26f7c5c80ba9cf91cdcc88e4` |
@@ -60,15 +62,26 @@ Three files were edited on purpose during the mutation checks and then restored 
      the baseline recorded.
   2. Refuse a version that is not semver.
   3. Refuse a version that already has a file or a manifest entry.
-  4. Refuse a version that is not greater than the last snapshot.
+  4. Refuse a version that is not greater than the last snapshot. **Added by the corrections (P2A-6):**
+     also refuse a PATCH-only bump whose `schemas` or `persisted` section differs from the last snapshot.
   5. Only then write. The snapshot is created with `flag: 'wx'`, so it can never replace a file. The
      manifest goes to a temporary file, also `wx`, and is moved into place with `renameSync`. If that
      fails, the files this run created are removed. After writing, the command checks the result again.
+     **Correction (P2A-8):** the cleanup was wider than described. If the temporary file already existed, the
+     `catch` deleted it, although this run had not created it. None of the write path had been run. Both are fixed
+     and tested.
 - **Git baselines.** By default the baselines are `HEAD` and the fork point from local `main`
   (`git merge-base HEAD main`). `HEAD` catches uncommitted edits; the fork point catches edits committed on
   this branch. Setting `FITLOG_CONTRACT_BASELINE=<ref>` replaces both, so CI can pass the pull request base.
   A configured ref that does not resolve is an error. Nothing assumes `origin/main` holds the rebuild:
-  no remote ref is read.
+  no remote ref is read. **Correction (P2A-1, P2A-2):** two gaps made this guard fail open:
+  - The error depended on Git working. If `rev-parse --show-prefix` failed, the function returned no baselines
+    before it read the variable.
+  - CI never set the variable. It ran with `CI=1` on a shallow merge checkout, where `HEAD` is the candidate and no
+    local `main` exists.
+
+  Both are fixed. CI must set the variable, the workflow sets it from the event, and a configured baseline fails
+  closed when Git or the work tree is unavailable.
 
 ## Commands and results, in order
 
@@ -135,6 +148,14 @@ The five tests named in test-plan §1, plus six more:
 | `the snapshot command refuses an existing version before planning any write` | `planSnapshot` accepts a version that already has a snapshot |
 | `the snapshot command validates existing history before planning a new version` | `planSnapshot` plans a write over broken history or for a version that is not new |
 
+**Correction:** the corrections add 10 tests:
+- the configured-baseline and CI cases;
+- the PATCH rule;
+- three write-path tests;
+- the refinement vectors and an inventory.
+
+They are listed in [phase2A-corrections.md](phase2A-corrections.md).
+
 ## Limitations of the hash and immutability guards
 
 1. **First baseline.** No commit contains `packages/domain/contracts/` yet. `HEAD` and the `main` fork
@@ -142,20 +163,32 @@ The five tests named in test-plan §1, plus six more:
    catches a coordinated rewrite of `0.1.0.json` and `manifest.json`.** Once it is committed on this branch,
    `HEAD` catches uncommitted edits. Once it is merged to `main`, the fork point catches edits on later
    branches. Before that merge, a rewrite committed on the same branch can only be caught in review.
+   **Now stale:** `07757a5` committed the snapshot. The baseline test reports `HEAD@07757a5f5f17: checked` against
+   real history. The `main` fork point (`9f148c1`) still has none until the branch is merged.
 2. **A baseline is only as trusted as its ref.** The author controls `HEAD` and local `main`. The guard catches
    accidents and honest mistakes, not someone who deliberately rewrites history. For that, CI (PL-1) should
-   set `FITLOG_CONTRACT_BASELINE` to the protected pull request base.
+   set `FITLOG_CONTRACT_BASELINE` to the protected pull request base. **Correction (P2A-1):** "should" understated
+   it. Without the variable, CI checked no trusted baseline at all. `mobile-ci.yml` now sets it from the event, with
+   full history, and the guard refuses to run in CI without it. That workflow has not yet run in CI.
 3. **The hash covers file bytes.** If git converts line endings on checkout (`core.autocrlf`), the hash breaks.
    A `.gitattributes` rule such as `packages/domain/contracts/*.json -text` would prevent that. That file
    was outside this phase's allowed writes.
 4. **JSON Schema cannot express `.refine()` or transforms.** It misses four rules today: `repsMin <= repsMax`,
    "enter a measurement or note", `deadline >= startDate`, and IANA zone validity (`timezone` renders as
    `{"type":"string"}`). It also misses `name`'s `.trim()`. Changing any of these needs a manual bump.
-   Behavioural tests and fixture vectors catch the change itself.
+   Behavioural tests and fixture vectors catch the change itself. **Correction (P2A-5):** that last sentence was
+   false when written. Only the body-entry refine's reject case was tested (`calculations.test.ts:61`).
+   - `contract.test.ts` now pins the accept and reject boundary of every one of these rules.
+   - An inventory test fails if a refine or trim is added or removed anywhere in the contract.
+   - It also names the persisted contracts that Postgres validates without them: `days`, `instances` and `goal`
+     carry refines, and `exercise` and `food` carry only the trim.
+
+   A predicate change away from every vector is still caught only in review.
 5. **The output depends on the Zod version.** A Zod upgrade that renders schemas differently fails the
    current-schema test and forces a bump even if runtime behaviour is unchanged. That is deliberate.
 6. **Concurrent runs.** Two runs for different versions at once could lose one manifest append, because the
-   last rename wins. The hash test would then report the unlisted snapshot file.
+   last rename wins. The hash test would then report the unlisted snapshot file. **Unchanged by the
+   corrections:** no lock was added. The reasons are in phase2A-corrections.md, P2A-8.
 7. **Uncommitted snapshots are not history yet.** The command never overwrites a file. To regenerate a
    snapshot that was never committed, delete the file and its manifest entry by hand.
 
@@ -168,6 +201,11 @@ The five tests named in test-plan §1, plus six more:
 - **Box 2, follow-ups:** retire or allowlist the four SQL files (G-9, test-plan §2, M2.1–M2.2); commit the
   snapshot so the baseline guard has history (limitation 1); have PL-1 set `FITLOG_CONTRACT_BASELINE` in CI;
   add the optional 0.2.0 with the §4 primitives (test-plan §1 step 5) and reconcile the 003 §8 wording.
+  **Update:**
+  - The snapshot was committed in `07757a5`.
+  - The corrections set the variable in `mobile-ci.yml`. That has not yet run in CI, and PL-1 should reuse the same
+    value for `FITLOG_BASE_REF`.
+  - The other items here are still open.
 - **Box 3:** replay from empty with an empty schema diff, and the drift probe (test-plan §3).
 - **Box 4:** the shared AC03 fixture for TypeScript and SQL (test-plan §4, M4.1–M4.3).
 - `pnpm backend:test` gates, `handoff.md`, then the goal verifier. AR-1 is **not** complete, and no status,

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "test": "node --import tsx --test src/*.test.ts", "typecheck": "tsc --noEmit", "contract:snapshot": "node --import tsx src/cli/snapshot-contract.ts" },
+  "scripts": { "test": "node --import tsx --test src/*.test.ts", "typecheck": "tsc --noEmit && tsc -p tsconfig.client.json --noEmit", "contract:snapshot": "node --import tsx src/cli/snapshot-contract.ts" },
   "dependencies": { "zod": "4.6.7" },
   "devDependencies": { "tsx": "4.21.0", "typescript": "~6.0.3", "@types/node": "^22.0.0" }
 }

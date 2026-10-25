@@ -1,6 +1,6 @@
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
@@ -19,6 +19,8 @@ export type Manifest = z.infer<typeof manifestSchema>;
 export interface ContractSource { readonly label: string; read(file: string): Buffer | null }
 export interface ContractDirectory extends ContractSource { list(): readonly string[] }
 export interface SnapshotPlan { file: string; snapshot: string; sha256: string; manifest: string }
+export interface GitResult { readonly status: number | null; readonly stdout: Buffer; readonly stderr: string }
+export type Git = (cwd: string, args: readonly string[]) => GitResult;
 
 export const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 const snapshotFile = (version: string) => `${version}.json`;
@@ -26,6 +28,13 @@ function compareVersions(a: string, b: string): number {
   const [x, y] = [a.split('.').map(BigInt), b.split('.').map(BigInt)];
   const i = x.findIndex((part, n) => part !== y[n]);
   return i < 0 ? 0 : x[i]! < y[i]! ? -1 : 1;
+}
+const minorLine = (version: string) => version.split('.').slice(0, 2).join('.');
+/** The parts of a snapshot that clients and the database see; `version` is left out. */
+function wireOf(bytes: Buffer, label: string): unknown[] {
+  let json: { schemas?: unknown; persisted?: unknown } | null;
+  try { json = JSON.parse(bytes.toString('utf8')); } catch (error) { throw new Error(`${label} is not JSON (${(error as Error).message})`); }
+  return [json?.schemas, json?.persisted];
 }
 
 export function directory(dir: string): ContractDirectory {
@@ -83,38 +92,71 @@ export function baselineProblems(current: ContractSource, baseline: ContractSour
   });
 }
 
-function git(cwd: string, args: readonly string[]): string | null {
-  try { return execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return null; }
+/** Runs a git binary read-only and keeps its exit status and stderr, so a failure is never mistaken for an absent file. */
+export const gitCommand = (binary: string): Git => (cwd, args) => {
+  const run = spawnSync(binary, ['-C', cwd, ...args], { stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 });
+  return run.error
+    ? { status: null, stdout: Buffer.alloc(0), stderr: run.error.message }
+    : { status: run.status, stdout: run.stdout, stderr: run.stderr.toString('utf8').trim() };
+};
+export const systemGit = gitCommand('git');
+const failure = ({ status, stderr }: GitResult) => `${status === null ? 'git did not run' : `exit ${status}`}${stderr ? `: ${stderr}` : ''}`;
+function gitOutput(git: Git, cwd: string, args: readonly string[], label: string): Buffer {
+  const run = git(cwd, args);
+  if (run.status !== 0) throw new Error(`${label}: git ${args.join(' ')} failed (${failure(run)})`);
+  return run.stdout;
 }
+/** CI is on unless the variable is unset, empty, '0' or 'false'. */
+const inCI = (env: NodeJS.ProcessEnv) => !['', '0', 'false'].includes((env.CI ?? '').trim().toLowerCase());
+
 /**
- * Read-only Git baselines. By default HEAD (catches an uncommitted edit) and the fork point from local main (catches an edit
- * committed on this branch). FITLOG_CONTRACT_BASELINE replaces both, for CI to pass the pull request base. A baseline that
- * holds no manifest yet has no history to protect: that is the first-baseline limitation.
+ * One baseline commit's contracts/ files. ls-tree lists them, so a file absent at the baseline reads as null; a failed
+ * listing or blob read (missing objects in a shallow or partial clone, I/O errors) throws with git's stderr.
  */
-export function gitBaselines(dir: string, env: NodeJS.ProcessEnv = process.env): { sources: ContractSource[]; notes: string[] } {
-  const root = dirname(dir);
-  const prefix = git(root, ['rev-parse', '--show-prefix']);
-  if (prefix === null) return { sources: [], notes: ['not in a Git work tree, so no baseline was checked'] };
-  const path = `${prefix}${basename(dir)}/`;
+function gitSource(git: Git, root: string, base: string, dir: string, path: string, label: string): ContractSource {
+  const listed = new Set(gitOutput(git, root, ['ls-tree', '-r', '-z', '--full-name', '--name-only', base, '--', dir], label).toString('utf8')
+    .split('\0').filter((entry) => entry.startsWith(path) && !entry.slice(path.length).includes('/')).map((entry) => entry.slice(path.length)));
+  return { label, read: (file) => (listed.has(file) ? gitOutput(git, root, ['cat-file', 'blob', `${base}:${path}${file}`], label) : null) };
+}
+
+/**
+ * Read-only Git baselines. Locally, by default, HEAD (catches an uncommitted edit) and the fork point from local main
+ * (catches an edit committed on this branch). FITLOG_CONTRACT_BASELINE replaces both. CI must set it to the trusted base
+ * commit, and a configured baseline fails closed: unset or empty in CI, all zeros, Git or the work tree unavailable, a ref
+ * that is not a commit or shares no history with HEAD, or a listing or read that fails. A baseline that holds no manifest
+ * yet has no history to protect: that is the first-baseline limitation.
+ */
+export function gitBaselines(dir: string, env: NodeJS.ProcessEnv = process.env, git: Git = systemGit): { sources: ContractSource[]; notes: string[] } {
   const configured = env[BASELINE_ENV];
+  if (inCI(env) && !configured?.trim()) throw new Error(`${BASELINE_ENV} must be set in CI to the trusted base commit (it is ${configured === undefined ? 'unset' : 'empty'})`);
+  if (configured !== undefined && !configured.trim()) throw new Error(`${BASELINE_ENV} is empty: unset it to use HEAD and main, or set it to the trusted base commit`);
+  if (configured !== undefined && /^0+$/.test(configured.trim())) throw new Error(`${BASELINE_ENV}=${configured} is the all-zero SHA, which names no commit, so there is no trusted baseline`);
+  const root = dirname(dir);
+  const top = git(root, ['rev-parse', '--show-prefix']);
+  if (top.status !== 0 && configured !== undefined) throw new Error(`${BASELINE_ENV}=${configured} cannot be checked: ${root} is not in a usable Git work tree (${failure(top)})`);
+  if (top.status !== 0) return { sources: [], notes: [`not in a usable Git work tree (${failure(top)}), so no baseline was checked`] };
+  const path = `${top.stdout.toString('utf8').trim()}${basename(dir)}/`;
   const sources: ContractSource[] = [];
   const notes: string[] = [];
   const seen = new Set<string>();
-  for (const ref of configured ? [configured] : ['HEAD', 'main']) {
+  for (const ref of configured === undefined ? ['HEAD', 'main'] : [configured]) {
     const commit = git(root, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
-    const base = commit === null ? null : git(root, ['merge-base', 'HEAD', commit]);
-    if (base === null && configured) throw new Error(`${BASELINE_ENV}=${ref} is not a commit that shares history with HEAD`);
-    if (base === null) { notes.push(`${ref}: not found or unrelated to HEAD; skipped`); continue; }
+    if (commit.status !== 0 && configured !== undefined) throw new Error(`${BASELINE_ENV}=${ref} is not a commit in this repository (${failure(commit)}); CI must fetch full history`);
+    if (commit.status !== 0) { notes.push(`${ref}: not found (${failure(commit)}); skipped`); continue; }
+    const fork = git(root, ['merge-base', 'HEAD', commit.stdout.toString('utf8').trim()]);
+    if (fork.status !== 0 && configured !== undefined) throw new Error(`${BASELINE_ENV}=${ref} is not a commit that shares history with HEAD (${failure(fork)})`);
+    if (fork.status !== 0) { notes.push(`${ref}: unrelated to HEAD (${failure(fork)}); skipped`); continue; }
+    const base = fork.stdout.toString('utf8').trim();
     const label = `${ref}@${base.slice(0, 12)}`;
     if (seen.has(base)) { notes.push(`${label}: same commit as an earlier baseline`); continue; }
     seen.add(base);
     notes.push(`${label}: checked`);
-    sources.push({ label, read: (file) => (git(root, ['cat-file', '-e', `${base}:${path}${file}`]) === null ? null : execFileSync('git', ['-C', root, 'cat-file', 'blob', `${base}:${path}${file}`], { encoding: 'buffer' })) });
+    sources.push(gitSource(git, root, base, basename(dir), path, label));
   }
   return { sources, notes };
 }
 
-/** Validates the existing history first, then refuses an existing or non-increasing version. Writes nothing. */
+/** Validates the existing history first, then refuses an existing or non-increasing version, or a PATCH bump that changes schemas. Writes nothing. */
 export function planSnapshot({ current, baselines, version, snapshot }: { current: ContractDirectory; baselines: readonly ContractSource[]; version: string; snapshot: string }): SnapshotPlan {
   const manifest = readManifest(current) ?? { snapshots: [] };
   const problems = [...manifestProblems(manifest), ...hashProblems(current, manifest), ...baselines.flatMap((base) => baselineProblems(current, base))];
@@ -126,24 +168,37 @@ export function planSnapshot({ current, baselines, version, snapshot }: { curren
   }
   const last = manifest.snapshots.at(-1)?.version;
   if (last !== undefined && compareVersions(version, last) <= 0) throw new Error(`CONTRACT_VERSION ${version} must be greater than the last snapshot, ${last}`);
+  // 003 §4.1: a patch never changes the wire format within its compatibility line.
+  if (last !== undefined && minorLine(version) === minorLine(last) && !isDeepStrictEqual(wireOf(current.read(snapshotFile(last))!, snapshotFile(last)), wireOf(Buffer.from(snapshot), `the ${version} snapshot`))) {
+    throw new Error(`CONTRACT_VERSION ${version} only bumps PATCH from ${last}, but the schemas differ; a patch never changes the wire format, so bump MINOR (before 1.0.0 that starts a new compatibility line)`);
+  }
   const hash = sha256(Buffer.from(snapshot));
   return { file, snapshot, sha256: hash, manifest: `${JSON.stringify({ snapshots: [...manifest.snapshots, { version, sha256: hash }] }, null, 2)}\n` };
 }
 
+/** Creates a file that must not exist yet. Only a file this call created is ever removed, if writing to it fails. */
+function createExclusive(path: string, text: string): void {
+  const fd = openSync(path, 'wx');
+  try { writeFileSync(fd, text); } catch (error) { closeSync(fd); rmSync(path, { force: true }); throw error; }
+  closeSync(fd);
+}
 /** The snapshot is created exclusively (never replaced); the manifest is swapped in with an atomic rename. */
 export function writeSnapshot(dir: string, plan: SnapshotPlan): void {
   mkdirSync(dir, { recursive: true });
   const snapshotPath = join(dir, plan.file);
   const temporary = join(dir, `${MANIFEST}.${process.pid}.tmp`);
-  writeFileSync(snapshotPath, plan.snapshot, { flag: 'wx' });
-  try {
-    writeFileSync(temporary, plan.manifest, { flag: 'wx' });
-    renameSync(temporary, join(dir, MANIFEST));
-  } catch (error) {
+  createExclusive(snapshotPath, plan.snapshot);
+  try { createExclusive(temporary, plan.manifest); } catch (error) { rmSync(snapshotPath, { force: true }); throw error; }
+  try { renameSync(temporary, join(dir, MANIFEST)); } catch (error) {
     rmSync(temporary, { force: true });
     rmSync(snapshotPath, { force: true });
     throw error;
   }
+}
+/** The check the command runs after writing: the manifest ends at the version, and every listed file has its recorded hash. */
+export function writtenProblems(files: ContractDirectory, version: string): string[] {
+  const manifest = readManifest(files) ?? { snapshots: [] };
+  return [...manifestProblems(manifest, version), ...hashProblems(files, manifest)];
 }
 
 const reason = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -157,9 +212,7 @@ function main(): void {
     plan = planSnapshot({ current: directory(contractsDir), baselines: gitBaselines(contractsDir).sources, version: CONTRACT_VERSION, snapshot: contractSnapshotJson() });
   } catch (error) { return fail(`refused, nothing written: ${reason(error)}`); }
   try { writeSnapshot(contractsDir, plan); } catch (error) { return fail(`could not write; any file this run created was removed: ${reason(error)}`); }
-  const written = directory(contractsDir);
-  const manifest = readManifest(written) ?? { snapshots: [] };
-  const problems = [...manifestProblems(manifest, CONTRACT_VERSION), ...hashProblems(written, manifest)];
+  const problems = writtenProblems(directory(contractsDir), CONTRACT_VERSION);
   if (problems.length) return fail(`wrote contracts/${plan.file}, but the result does not verify:\n- ${problems.join('\n- ')}`);
   process.stdout.write(`Wrote contracts/${plan.file} (sha256 ${plan.sha256}) and appended it to contracts/${MANIFEST}\n`);
 }

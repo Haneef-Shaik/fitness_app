@@ -2,7 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Review | `/tmp/fitlog-ar1-phase1-review.json`, an independent, read-only review of phase 1. Verdict **REVISE**: 17 findings on 003 and the checkpoint (F1–F17), 4 on the test plan (T1–T4) |
+| Review | [`docs/evidence/AR-1/phase1-review.json`](../../../evidence/AR-1/phase1-review.json), an independent, read-only review of phase 1. It was first read at `/tmp/fitlog-ar1-phase1-review.json`; revision 2 (PR-6) moved the citation to the durable copy. Verdict **REVISE**: 17 findings on 003 and the checkpoint (F1–F17), 4 on the test plan (T1–T4) |
+| Later | Checkpoint review 2 ([`checkpoint-review2.json`](../../../evidence/AR-1/checkpoint-review2.json)) found all 21 resolved, plus proposal findings PR-1 to PR-6. Those are dispositioned in [proposal-revision2.md](proposal-revision2.md); the notes below mark where they touch F7 and T4 |
 | Revision | Revision 1, 26 October 2026, in worktree `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app` (branch `codex/ar1-contract-freeze`, `9f148c1` plus phase 2A's uncommitted files) |
 | Files changed | [`003`](../../../architecture/003-architecture-freeze.md), [`checkpoint.md`](checkpoint.md), [`test-plan.md`](test-plan.md), and this new file. Nothing else |
 | Method | Each finding was checked by reading the PRD and the cited source. No command, git, source edit, migration, status, ledger or credential change; no external action; no delegation |
@@ -128,6 +129,13 @@
   - `actors.erased_at` doubles as the purge tombstone register that PRD §22.3 requires.
   - Retention of the bare UUID is a legal question (R-4, DEC-04), not claimed here.
 - **Changed.** 003 §3.3 and §11 (R-4); checkpoint F-10 corrected.
+- **Revision 2 note (PR-1, PR-3).** F7 stays resolved, and the actor table and its `RESTRICT`
+  references are unchanged. Two parts are corrected:
+  - `actors.erased_at` alone cannot be the tombstone register, because a pre-erasure backup has it
+    empty. It is now the in-database copy of an external, append-only register (003 §3.3).
+  - `actors.id` has no foreign key of its own, and the actor row is created with the profile.
+
+  Details are in [proposal-revision2.md](proposal-revision2.md).
 - **Checkpoint F-10 as first written:** "The deletion graph is undefined: `gym_members.linked_user_id`
   and every `actor_id` reference `profiles(id)` without the `SET NULL` that §21.2 requires".
 
@@ -339,6 +347,11 @@
     code is not changed here; the checkpoint asks its owner to fail closed in CI too.
   - New checks M2.3 and M2.4 prove that the guard fails closed.
 - **Changed.** Test plan §0 and §2; 003 §8; checkpoint "Remaining AR-1 work".
+- **Revision 2 note (PR-5).** T4 stays resolved for `FITLOG_BASE_REF`. The request above, which asked
+  the package owner to fail closed in CI "too", is now a decision in 003 §8: the contract baseline guard
+  fails closed in CI. The correction (P2A-1 to P2A-8) is candidate `22c5386`, implemented and tested
+  locally. Independent verification is pending, and no hosted CI run proves it. Details are in
+  [proposal-revision2.md](proposal-revision2.md).
 
 ## Checkpoint findings as first written
 
@@ -373,7 +386,9 @@ rows are in [checkpoint.md](checkpoint.md#findings).
 These points go beyond the review. The re-review should check them:
 1. Stored outcomes hold only identifiers, revisions, receipt numbers and status (003 §4.4, §4.6).
 2. `tags` are staff-only alongside `notes`, and `gym_account_v1` is closed as a second leak path (003 §6).
-3. The actor key equals the auth UUID and doubles as the tombstone register (003 §3.3).
+3. The actor key equals the auth UUID and doubles as the tombstone register (003 §3.3). Review 2 found
+   the register insufficient (PR-1). Revision 2 keeps `erased_at` only as the in-database copy of an
+   external register.
 4. Linked members' gym data gets its own feed counter on `gym_members` (003 §4.8).
 5. Rate windows live in an `UNLOGGED` table (003 §4.12).
 6. New checkpoint findings F-15 to F-20.

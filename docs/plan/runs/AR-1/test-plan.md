@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | For | AR-1 phase 2: the database half of box 2, the SQL guards, and boxes 3 and 4. Lane S8 Member backend |
-| Written | 26 October 2026 in phase 1, and revised the same day after the independent review (T1–T4, F10, F12; [dispositions](phase1-dispositions.md)). **The author of this plan has run nothing.** Phase 2A's runs are in [phase2A.md](phase2A.md) |
+| Written | 26 October 2026 in phase 1, and revised the same day after the independent review (T1–T4, F10, F12; [dispositions](phase1-dispositions.md)). Revision 2 (PR-5 and the routed checks of PR-1 and PR-2; [proposal-revision2.md](proposal-revision2.md)) changed only §2's CI policy and §7. **The author of this plan has run nothing.** Phase 2A's runs are in [phase2A.md](phase2A.md) |
 | Base | Branch `codex/ar1-contract-freeze` at `9f148c1`, plus phase 2A's uncommitted files and [003](../../../architecture/003-architecture-freeze.md) |
 | Approval | None needed to run this plan. Box 1 needs the owner's one approval, G-1 |
 
@@ -151,6 +151,9 @@ That last check is computed as follows. It runs git through `execFileSync` with 
 - CI fetches enough history for the merge base to exist.
 - CI sets phase 2A's `FITLOG_CONTRACT_BASELINE` to the same commit, so both guards judge against one
   trusted base.
+- **Both guards fail closed in CI (decision, 003 §8, revision 2).** The contract guard's half is the
+  `packages/domain` owner's candidate `22c5386`, implemented and tested locally, with independent
+  verification pending. No hosted CI run proves it yet, so this plan does not count it as evidence.
 
 ### The four SQL files (QA-1 F-8h; 003 §7, former G-9)
 
@@ -486,8 +489,14 @@ Also record:
   webhooks or rate limits, and adding the §4 primitives to the contract. Those are planned for MB-1 and
   the goals named in 003.
 - Changing `sessionSummary`'s volume for sessions with no eligible set (MB-4, checkpoint F-20).
-- Changing phase 2A's baseline variable or its default. That belongs to the `packages/domain` owner;
-  the checkpoint carries the request.
+- Changing phase 2A's baseline variable, its default or its CI behaviour. That belongs to the
+  `packages/domain` owner. Failing closed in CI is a decision (003 §8), and the owner's correction is
+  candidate `22c5386`, not verified here.
+- The checks that 003 §12 routes elsewhere in revision 2:
+  - rejected requests are counted and replays are not (MB-1; PR-2);
+  - tombstones survive a restore, and a failed register append stops erasure (MB-7, PL-5; PR-1).
+
+  They need code that AR-1 does not build.
 - Any change to `status.json`, the GOALS.md boxes or ACCEPTANCE.md. AR-1 is an early prover of PD-02,
   not its last prover.
 - Push, deploy or any remote Supabase command.

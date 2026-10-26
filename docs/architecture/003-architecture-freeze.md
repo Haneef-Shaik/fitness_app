@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Status | **Proposal. Owner approval PENDING.** One approval only: G-1 (§11). Nothing here is frozen until the owner's dated entry is in the [tracker decision log](../09-PROJECT-TRACKER.md) |
-| Goal | AR-1. Phase 1 wrote this record, the [checkpoint](../plan/runs/AR-1/checkpoint.md) and the [next-phase test plan](../plan/runs/AR-1/test-plan.md). Revision 1 answers the independent phase-1 review; every finding's disposition is in [phase1-dispositions.md](../plan/runs/AR-1/phase1-dispositions.md). Phase 2A is in progress ([phase2A.md](../plan/runs/AR-1/phase2A.md)). AR-1 is **not** complete |
-| Date | 26 October 2026 (draft and revision 1) |
+| Goal | AR-1. Phase 1 wrote this record, the [checkpoint](../plan/runs/AR-1/checkpoint.md) and the [next-phase test plan](../plan/runs/AR-1/test-plan.md). Revision 1 answers the independent phase-1 review ([review](../evidence/AR-1/phase1-review.json); [dispositions](../plan/runs/AR-1/phase1-dispositions.md)). Revision 2 answers proposal findings PR-1 to PR-6 of the second checkpoint review ([review](../evidence/AR-1/checkpoint-review2.json); [dispositions](../plan/runs/AR-1/proposal-revision2.md)). Phase 2A is in progress ([phase2A.md](../plan/runs/AR-1/phase2A.md)). AR-1 is **not** complete |
+| Date | 26 October 2026 (draft, revision 1 and revision 2) |
 | Read at | Branch `codex/ar1-contract-freeze`, commit `9f148c1` (QA-1 accepted on local `main`), plus phase 2A's uncommitted files in `packages/domain` |
 | PRD | §§21.1–21.4, 22.1, 22.3, 26.1 (M0), 26.2; DEC-02 (technical part) |
 | Relation | [001](001-mobile-foundation.md) is historical. [002](002-connected-member-and-gym.md) records the 17–19 October implementation. This record sets the target that implementation converges on. Neither earlier record is edited |
@@ -98,6 +98,17 @@
   - **Actor key.** `private.actors(id, created_at, erased_at)` holds one row per account. It is
     created at onboarding and never deleted. It has no name, contact or health field. Its `id` is the
     auth user ID, so policies that compare with `auth.uid()` keep working.
+    - `actors.id` has **no foreign key** to `auth.users` or `profiles`. Deleting the profile (step 5)
+      or the auth user (step 6) therefore neither cascades into the actor row nor is blocked by the
+      `RESTRICT` references to it.
+    - `complete_onboarding` inserts the actor row in the same transaction as the profile, before the
+      profile (`on conflict do nothing`, so a retry is harmless). Today that transaction inserts the
+      profile at `20261017164336_validated_contracts.sql:83`. Every writer of an actor reference
+      first passes `member_active()`, which needs the profile
+      (`20261019121035_gym_read_models.sql:8`; `20261019140839_freeze_preview_binding.sql:16`). So no
+      actor reference can exist before its actor row.
+    - The migration that adds the table inserts one row for every existing profile before it adds the
+      foreign keys. Existing rows are kept.
   - **Actor references point at the actor key.** These are `actor_id`, `decided_by` and
     `gym_roles.user_id`, the actors on `gym_commands` and `gym_audit`, and every future consent, role,
     support and job audit actor. Each references `private.actors(id)` with `ON DELETE RESTRICT`.
@@ -108,17 +119,56 @@
   - **Personal tables.** `owner_id` references `profiles(id)` with `ON DELETE CASCADE`, as a backstop
     only. MB-7's erasure job deletes in an explicit, observable order:
     1. revoke sessions and staff roles;
-    2. set `actors.erased_at`;
+    2. append the tombstone to the external register and confirm it (below), then set
+       `actors.erased_at`. Step 3 does not start until the append is confirmed;
     3. delete objects;
     4. delete derived rows, then source rows;
     5. delete the profile, which fires the `SET NULL` on the gym link;
     6. delete the auth user.
 
     Each step is a job attempt. A failed step alerts and retries (PRD §22.3).
-  - **Tombstone register.** `actors.erased_at` is also the purge tombstone register. After a restore,
-    every account with `erased_at` set is purged again before it is served (PRD §22.3; MB-7 box 2).
-  - Whether keeping the bare actor UUID after erasure fits the reviewed retention schedule is a legal
-    question (R-4, DEC-04). The UUID carries no personal field.
+  - **Tombstone register (decision, revision 2).** A backup or point-in-time copy taken before an
+    erasure has `erased_at` empty for that account, so a register that lives only in the database
+    cannot stop a restore from bringing the user back. The register therefore has two copies:
+    - **External register.** This is the copy that restores rely on. Each entry holds the actor UUID,
+      the erasure time and the erasure job ID, and no personal field. It lives outside every database
+      rollback domain: not in the production database, its backups or point-in-time copies, or any
+      other database a restore can roll back. A Storage bucket in the same project does not qualify,
+      because its object metadata and listing live in `storage.objects`, inside the database being
+      restored. The register is append-only: the erasure worker's credential can add an entry but
+      cannot overwrite or delete one, and an entry goes only when its retention ends.
+    - **Append before erasure completes.** Step 2 appends the entry and waits for confirmation before
+      step 3 deletes anything. If the append fails, the attempt fails closed: no later step runs, the
+      job alerts and retries (PRD §22.3), and the account stays revoked by step 1. The append is
+      idempotent on the actor UUID, so a retry never adds a second entry. If retries run into the
+      30-day primary-store erasure deadline, the deadline signal fires (§3.11).
+    - **Retention.** An entry is kept until every backup and point-in-time copy taken before its
+      erasure has expired. That is at least the longest backup expiry in force: 90 days or less by
+      default (PRD §22.3), and longer for any recorded backup-retention exception.
+    - **In-database copy.** `actors.erased_at` remains as the copy inside the database. It covers
+      copies taken after an erasure; the external register covers copies taken before it.
+    - **Restore.** PL-5's runbook restores into an isolated project that serves no client. It imports
+      the external register. For every account that is listed there, or has `erased_at` set, it sets
+      `erased_at` and runs this purge order from step 3. It checks that no personal row, object
+      reference or auth user remains for any of those accounts, and serves clients only after that
+      check passes. A restore path that cannot keep clients out until then is not used.
+    - **Proof.** MB-7 box 2's test (GOALS.md:663) restores a pre-erasure snapshot and replays the
+      tombstones from the external register, never from `erased_at`. A second test shows that a failed
+      append stops erasure before step 3. PL-5's drill runs the same import and purge, and AC30 checks
+      that no erased account comes back. None of this has run.
+    - **Candidate arrangement (never provisioned).** A write-once object store with a retention lock
+      (object lock in compliance mode or an equivalent), in a storage account separate from every
+      Supabase project. Each tombstone is one object, named by actor UUID, with its retention date set
+      when it is written. `worker-v1` holds a write-only credential in Edge secrets; only the restore
+      runbook holds a credential that can list and read. A separate ops database would not satisfy the
+      rule, because its own restores could roll the register back.
+    - **Status of the arrangement.** The decision is about the properties above. The store, its account,
+      vendor and region are not chosen. Opening an account is R-2, adopting the vendor is R-3, and
+      keeping the bare UUID in the register is R-4. MB-7 configures the register and PL-5 proves it.
+      Nothing has been provisioned, and no owner or external approval is claimed.
+  - Whether keeping the bare actor UUID after erasure, in `private.actors` and in the external
+    register, fits the reviewed retention schedule is a legal question (R-4, DEC-04). The UUID carries
+    no personal field.
 - **Implemented.**
   - Owner foreign keys, and composite `(owner_id, id)` keys between sessions, occurrences and
     programmes (`20261017161031_member_core.sql:69-88`).
@@ -137,6 +187,8 @@
     cascades from `auth.users` (`20261017161031_member_core.sql:7`), and personal tables reference
     `profiles` without a cascade. So deleting an auth user who has any personal row or any staff action
     fails today (MB-7, G17.api).
+  - The actor table, the external tombstone register and the restore runbook's import and purge
+    (MB-7, PL-5; owner-reserved parts R-2, R-3 and R-4).
   - Created and updated times are missing on `meal_items`, `body_entries`, `goals`,
     `nutrition_targets`, `workout_sessions`, `performed_sets` and `schedule_occurrences`
     (`20261017161031_member_core.sql:69-144`). Mutable gym tables have no updated time
@@ -356,8 +408,10 @@ kind `set.commit`). It is a PD-02 deliverable.
    writes, so it is safe inside the `READ ONLY` transactions that PostgREST uses for `GET`/`HEAD`, and
    reportedly for `STABLE`/`IMMUTABLE` functions (§12). Whether `db-pre-request` can be set on hosted
    Supabase is also checked in §12.
-4. The definer runs these steps in this order:
-   1. **Identity, active account and current session.** Otherwise `401 UNAUTHENTICATED`.
+4. The definer runs these steps in this order. Step 1 runs in the definer's outer block. Steps 2–10
+   run in an inner `BEGIN … EXCEPTION` block (§4.12):
+   1. **Identity, active account and current session.** Otherwise `401 UNAUTHENTICATED`, raised. Nothing
+      is counted, because there is no account to count against.
    2. **Scope.** A member command acts on the caller's own account. A gym command needs a live role in
       that gym, or a live link for the kinds a linked member may issue (a freeze request). A foreign or
       revoked scope returns `404 NOT_FOUND`.
@@ -366,19 +420,45 @@ kind `set.commit`). It is a PD-02 deliverable.
    4. **Replay lookup.** Same `operationId`, actor, scope and hash: return the stored outcome with
       `meta.replayed: true`, writing and counting nothing. A different hash, actor or scope returns
       `409 OPERATION_REUSED` (§4.6).
-   5. **Write-rate count** (§4.12).
+   5. **Write-rate check** (§4.12). This reads the committed window counts and returns
+      `429 RATE_LIMITED` when a limit is reached. It writes nothing.
    6. **Dependencies** (§4.6).
    7. **Per-kind permission.** Otherwise `403 FORBIDDEN`.
    8. **Base revision.** Otherwise `409 REVISION_CONFLICT`.
    9. **Validation**, JSON Schema plus SQL rules. Otherwise `400` or `422`.
    10. **Write** the rows (each stamped with its feed sequence, §4.8), the outcome and any audit rows;
        return the envelope.
-5. The transaction commits before PostgREST returns success (PRD §21.3).
+5. **Count, then finish** (outer block, §4.12). Unless the replay lookup (step 4.4) returned a stored
+   outcome, the outer block adds one to
+   the caller's write windows, whatever the outcome. If the inner block raised, PostgreSQL has already
+   rolled its writes back. The outer block then returns the error envelope with `response.status` set
+   (§4.5), so the count is the only thing that commits.
+6. The transaction commits before PostgREST returns (PRD §21.3).
 
 Because scope is checked before replay, a revoked staff member or a revoked session cannot replay a
 stored finance outcome (PRD §22.1: a cached role never extends a revoked permission).
 `operation_result_v1` runs steps 1 and 2 too, and returns `NOT_FOUND` for an operation belonging to
 another actor or scope.
+
+**Demotion (decision, revision 2).** A demoted actor still holds a live role in the gym, but one that
+may no longer issue the kind (for example, a manager moved to front desk). Unlike a revoked actor, they
+pass steps 1 and 2. So step 4 returns their own stored outcome before step 7 would refuse them, and
+`operation_result_v1`, which runs only steps 1 and 2, returns it too.
+- This is accepted **only because** §4.4 limits a stored outcome to identifiers, revisions, receipt
+  numbers and status. The replay shows the actor nothing beyond the identifiers of their own earlier
+  result.
+- "Trimmed" includes rows stored before the trim. A replay returns only the §4.4 fields of the stored
+  result, and the row itself is not rewritten (§7: existing rows are preserved).
+- Until a definer's outcomes are trimmed, no change may move one of its per-kind checks behind replay:
+  - `freeze_action` checks per-kind permission before replay today
+    (`20261019140839_freeze_preview_binding.sql:22`, then `:24-27`), and its results carry freeze
+    projections (`:70`). G17.api keeps that order until those outcomes are trimmed.
+  - `gym_command_core` already replays (`20261019121035_gym_read_models.sql:15`) before its per-kind
+    checks (`:42,47,62,84,97`). `membership.issue`, `charge.waive`, `payment.refund` and
+    `payment.reverse` store balances (`:60,95,117`). So today a demoted manager can replay their own
+    earlier balance. This exposure already exists; the record did not create it. G17.api closes it
+    with the §4.4 trim (checkpoint F-17).
+- F1 is not reopened: a revoked actor still fails step 2.
 
 **Today.** `gym_command_core` checks identity, then role, then locks, then looks up the replay
 (`20261019121035_gym_read_models.sql:8-15`), which matches steps 1–4. `freeze_action` locks before it
@@ -407,12 +487,21 @@ check identity, then lock, then look up the replay (`20261017164212_workout_corr
 **Envelope.** `{ code, message, fieldErrors, retryable, retryAfterSeconds, conflict, paywall, requestId }`.
 `message` is safe developer text; screens show `t(code)` and never `message`.
 
-**Binding.** Every v1 function raises SQLSTATE `PT<status>`; PostgREST turns that into the HTTP
-status, as `PT404` and `PT409` already do. The error DETAIL is the JSON envelope without `message`.
-The contract package's parser turns PostgREST's `{code, message, details, hint}` body into the
-envelope. Edge Functions return the envelope as their body. If a test shows that PostgREST's `PGRST`
-raise form returns the envelope directly with a `Retry-After` header, the binding may switch in a
-minor version; the parser accepts both.
+**Binding (revised in revision 2 so that rejected requests are counted, §4.12).**
+- **After identity.** Errors in §4.3 steps 2–10 are raised inside the definer's inner block. The outer
+  block catches them and returns the envelope as the function's result, with PostgREST's
+  `response.status` set to the HTTP status and `response.headers` carrying `Retry-After` for 429. This
+  is the same mechanism §4.10 uses for 202.
+  - SQLSTATEs the definer did not raise itself are mapped too: class `22` becomes `INVALID_REQUEST`,
+    `23505` becomes `DUPLICATE_ENTITY`, and anything else becomes `INTERNAL`.
+  - A statement timeout or cancel (`57014`) is not caught by `WHEN OTHERS`. It rolls back uncounted.
+- **Before the definer, or at identity.** The pre-request contract check and step 1 raise SQLSTATE
+  `PT<status>`. PostgREST turns that into the HTTP status, as `PT404` and `PT409` already do, and the
+  error DETAIL is the JSON envelope without `message`.
+- **Parsing.** The contract package's parser accepts both forms: a returned envelope with a non-2xx
+  status, and PostgREST's `{code, message, details, hint}` body. Edge Functions return the envelope as
+  their body. If a test shows that PostgREST's `PGRST` raise form returns the envelope directly with a
+  `Retry-After` header, the pre-definer binding may switch in a minor version.
 
 | Code | HTTP | Retryable | Meaning | Today |
 |---|---|---|---|---|
@@ -641,20 +730,44 @@ PostgREST's `response.status` setting (check in AI-3). Today there is no asynchr
 
 ### 4.12 Traffic limits
 
-- **Writes:** 120 per minute and 5,000 per day per user. They are counted inside the command, after the
-  replay check (§4.3 step 5). Replays never count (PRD §18.1).
-- **Reads:** 600 per minute per user. They are counted only inside v1 read RPCs (list, detail, sync).
-  Those are declared `VOLATILE` and called by `POST`, so they run in a read-write transaction and can
-  count.
-- **Never counted:** the pre-request function counts nothing, and nothing writes inside a `READ ONLY`
-  transaction.
-- **Transitional direct table reads** are not counted by the database. They are bounded by RLS and by
-  `max_rows` (1,000), and they end when MB-3, MB-4, G16.api and G17.api replace them with read RPCs.
+- **Writes:** 120 per minute and 5,000 per day per user. Every v1 command that passes identity counts
+  once, whatever its outcome: accepted, or rejected with 403, 404, 409, 422 or 429. A replay never
+  counts (PRD §18.1).
+- **Reads:** 600 per minute per user. Every call to a v1 read RPC (list, detail, sync) that passes
+  identity counts once, whatever its outcome. Those RPCs are declared `VOLATILE` and called by `POST`,
+  so they run in a read-write transaction and can count.
+- **Mechanism (decision, revision 2).** Each v1 definer has two blocks (§4.3):
+  1. The outer block checks identity.
+  2. An inner `BEGIN … EXCEPTION` block runs everything else. Its rate check (§4.3 step 5; for a read,
+     right after scope) reads the committed window counts and raises `RATE_LIMITED` at the limit. It
+     writes nothing.
+  3. When the inner block ends, whether it succeeded or its error was caught, the outer block upserts
+     `+1` into each window for the class, unless the inner block replayed. After a caught error the
+     inner block's writes are already rolled back, so the count and the returned error envelope
+     (§4.5) are the only effects that commit.
+- **Not chosen:** an outer limiter in Edge or the platform. Data RPCs go straight to PostgREST (§4.2),
+  so it would need a gateway in front of PostgREST, which the platform decision does not include.
+- **Never counted:**
+  - replays;
+  - the pre-request function, which counts nothing and never writes, so nothing writes inside a
+    `READ ONLY` transaction;
+  - requests that fail identity, which have no account to count against.
+- **Not counted by the database (stated residual).** These requests never reach a v1 definer and never
+  take the per-account lock:
+  - a missing or unsupported contract header, refused by the pre-request function;
+  - bodies that PostgREST itself rejects;
+  - transitional direct table reads. RLS and `max_rows` (1,000) bound them, and they end when MB-3,
+    MB-4, G16.api and G17.api replace them with read RPCs.
+
+  PL-9 watches these rates (§3.11), and adds an outer limiter only if a measurement shows abuse.
 - Counters live in `private.rate_windows(user_id, class, window_start, count)`, an `UNLOGGED` table
-  upserted in the request's own transaction and pruned by the scheduler. A rolled-back request does
-  not count. A crash resets the counters, which is acceptable for anti-abuse limits.
-- Edge Functions count through the same SQL function.
-- Over the limit returns `429 RATE_LIMITED` with `retryAfterSeconds` set to the end of the window.
+  pruned by the scheduler. A crash resets the counters, and concurrent requests may overshoot a
+  window by the few that are in flight. Both are acceptable for anti-abuse limits.
+- Edge Functions count through the same SQL function. The counting call commits whatever the request's
+  outcome, and a replay is not counted.
+- Over the limit returns `429 RATE_LIMITED` with `retryAfterSeconds` (and `Retry-After`) set to the end
+  of the window. A 429 counts too, so a client that ignores `retryAfterSeconds` keeps its window full.
+- §12 holds the executable check for all of this.
 - One active export, one import and one erasure per account are job limits, separate from traffic.
 - Gym budgets and provider caps are separate again. Today there are none (MB-1, PL-9).
 
@@ -842,9 +955,26 @@ PostgREST's `response.status` setting (check in AI-3). Today there is no asynchr
   - a past snapshot changes;
   - committed history differs from a Git baseline.
 
-  Phase 2A reads its baseline from `FITLOG_CONTRACT_BASELINE`. CI sets that variable and the migration
-  guard's `FITLOG_BASE_REF` to the same trusted base commit
+  Phase 2A reads its baseline from `FITLOG_CONTRACT_BASELINE`.
+- **CI fails closed on the contract baseline (decision, revision 2).** When `CI` is set, the baseline
+  guard requires `FITLOG_CONTRACT_BASELINE`, set to the trusted base commit from the CI event: the pull
+  request's base, or the previous head on a push. It never comes from content of the change. If the
+  variable is unset or empty, the ref does not resolve, or git is unavailable, `pnpm check` fails;
+  nothing falls back to `HEAD` or a local `main`. The migration guard's `FITLOG_BASE_REF` follows the
+  same rule (T4). Both use the same commit, and CI fetches enough history for it
   ([test plan §2](../plan/runs/AR-1/test-plan.md)).
+- **State of that decision.** Implemented and tested locally, not proven:
+  - The `packages/domain` owner's correction (P2A-1 to P2A-8) is committed as candidate `22c5386`. The
+    coordinator reports 179 passing tests and passing negative and positive CI-baseline probes.
+    Independent code verification is pending.
+  - As read in this worktree, `.github/workflows/mobile-ci.yml:19-44` now sets the variable from the
+    event, checks out full history and refuses an empty, all-zero or malformed value. No hosted CI run
+    has shown it.
+  - Until the candidate is verified, merged and seen both passing and failing in hosted CI, **CI is not
+    proven to check any contract baseline**. Before the candidate, CI checked none: `pnpm check` ran
+    with `CI=1` on a shallow checkout without the variable (checkpoint review 2, P2A-1).
+  - The migration guard (`check-sql-sources.mjs`, AR-1 phase 2) and its `FITLOG_BASE_REF` are not
+    built yet. PL-1 runs that guard in CI.
 - `private.contracts`, the schemas Postgres stores, must equal the snapshot's persisted section for all
   eight names; `pnpm backend:test` checks this. Only four of the eight (`days`, `instances`,
   `nutrients`, `measurements`) are asserted on write today
@@ -882,7 +1012,10 @@ files.
 - **Secrets.** Supabase Vault and Edge Function secrets on the server; EAS environment variables for
   public build configuration only.
 - **Backups.** RPO 15 minutes and RTO 4 hours are selected. OW-2's register infers that production
-  point-in-time recovery is needed; buying it is R-2, and PL-5 proves it with a drill. The object and
+  point-in-time recovery is needed; buying it is R-2, and PL-5 proves it with a drill. Every restore
+  imports the external tombstone register and purges before it serves (§3.3), and PL-5's drill shows
+  that (AC30). Backups expire after at most 90 days by default; the register keeps each entry at least
+  that long (PRD §22.3). The object and
   photo backup policy, a nightly copy or an explicitly accepted gap, is **open** (R-7, DEC-09). PL-5
   writes the owner's choice into this section.
 
@@ -919,7 +1052,7 @@ gates; the old numbers are kept so the history can be followed.
 | Former gate | Decision | Section |
 |---|---|---|
 | G-2 (architecture part) | Postgres on Supabase as the system of record, with Supabase Auth, Storage, Edge Functions, `pg_cron` and `pg_net` | §2, §3 |
-| G-4 | The `/v1` binding: `_v1` PostgREST RPCs and `-v1` Edge Functions, camelCase JSON, `PT<status>` errors | §4.2, §4.5 |
+| G-4 | The `/v1` binding: `_v1` PostgREST RPCs and `-v1` Edge Functions, camelCase JSON. Error envelopes are returned with `response.status` after identity and raised as `PT<status>` before it (revision 2) | §4.2, §4.5, §4.12 |
 | G-5 | Decimal strings and signed or non-negative `{amountMinor, currency}` as the planned v1 wire format, not in 0.1.0 | §4.9, §8 |
 | G-6 | Jobs in Postgres with an Edge worker; a separate host only if measured limits fail | §3.5 |
 | G-7 (default only) | Direct store server notifications behind a provider-neutral adapter | §3.8 |
@@ -932,9 +1065,9 @@ gates; the old numbers are kept so the history can be followed.
 | ID | Item | On record | Path |
 |---|---|---|---|
 | R-1 | Hosting region for staging and production (former G-3) | Engineering recommendation: Supabase Mumbai (`ap-south-1`); Singapore archived | Owner; OW-3; DEC-04 may change it |
-| R-2 | Accounts and plan purchases: Supabase organisation, projects and plan (including point-in-time recovery), EAS, store developer accounts | Nothing opened | OW-3, OW-4 |
-| R-3 | Vendor adoption: RevenueCat; Sentry or another error tracker and its data region; SMTP (Resend or Postmark); SMS (MSG91, DLT); WhatsApp (Meta Cloud API or a reseller); Expo push | Candidates only | DEC-05, OW-3, OW-5, OW-11 |
-| R-4 | Legal positions: notices, DPA, minors, retention schedules (including retained actor keys, §3.3), regional deployment | None | DEC-04 |
+| R-2 | Accounts and plan purchases: Supabase organisation, projects and plan (including point-in-time recovery), EAS, store developer accounts, and the storage account for the external tombstone register (§3.3) | Nothing opened | OW-3, OW-4 |
+| R-3 | Vendor adoption: RevenueCat; Sentry or another error tracker and its data region; SMTP (Resend or Postmark); SMS (MSG91, DLT); WhatsApp (Meta Cloud API or a reseller); Expo push; the write-once store for the tombstone register and its region (§3.3) | Candidates only | DEC-05, OW-3, OW-5, OW-11 |
+| R-4 | Legal positions: notices, DPA, minors, retention schedules (including retained actor keys and the external tombstone register, §3.3), regional deployment | None | DEC-04 |
 | R-5 | Prices and store SKUs | None | DEC-06, OW-7 |
 | R-6 | AI model and vendor | Chosen from AI-2 measurements | DEC-08, AI-1, AI-2 |
 | R-7 | Object and photo backup policy: a nightly copy or an accepted gap | Open | DEC-09, PL-5 |
@@ -950,6 +1083,8 @@ DEC-15 is not reserved: the owner has confirmed a fresh launch (§7), and OW-2 r
 | `PT<status>` errors with a JSON DETAIL survive to the client; whether the `PGRST` form gives a better body | Integration test | MB-1 |
 | `db-pre-request` can be configured on hosted Supabase | Staging check | MB-1, PL-2 |
 | `UNLOGGED` rate-window table: behaviour after a crash and with any read replica | Documentation and a local test | MB-1 |
+| **Rejected requests are counted; replays are not; transaction modes stay valid** (§4.3, §4.12) | Integration test against the local stack, with a mutation check. (1) Send 121 v1 commands within one minute, each rejected with a mix of 403, 404, 409 and 422. Expect: the first 120 return their own status with the envelope, the 121st returns 429 with `Retry-After`, `private.rate_windows` holds 121 for the minute window, and no command, outcome or audit row was written. This also shows that PostgREST commits when a function returns normally with a 4xx `response.status`. (2) Replay one applied command 200 times. Every replay returns `meta.replayed: true`, and the count does not move. (3) A `GET` direct table read and a `POST` to a v1 read RPC both succeed with no `25006`, and only the RPC moves the read count. (4) Mutation: move the increment into the inner block. Test (1) must fail; then restore the change and prove the restore | MB-1 |
+| **Tombstones survive a restore** (§3.3) | (1) MB-7 test: erase an account, restore a snapshot taken before the erasure into a scratch database, import the external register and purge. No personal row, object reference or auth user for that account remains, and sign-in fails. Mutation: skip the import, and the test must fail. (2) MB-7 test: make the register append fail. Erasure stops before step 3 and retries, and nothing is deleted. (3) Staging check of the chosen store: the worker credential cannot overwrite or delete an entry, and each entry's retention covers the longest backup expiry. (4) PL-5 drill: the runbook imports the register and purges before serving, and no erased test account comes back (AC30) | MB-7, PL-5 (store chosen under R-2, R-3) |
 | `response.status` 202 from an RPC | Integration test | AI-3 |
 | Signed upload URL lifetime | Read current Supabase docs, then test | MB-6 |
 | `gym-file-v1` streaming proxy: object size and time limits, and that it calls the same SQL predicate as RLS | Integration test | G17.api |
@@ -963,3 +1098,4 @@ DEC-15 is not reserved: the owner has confirmed a fresh launch (§7), and OW-2 r
 |---|---|
 | 26 Oct 2026 | Phase-1 draft (10 owner gates) |
 | 26 Oct 2026 | Revision 1 after the independent phase-1 review: F1–F17 and T1–T4 dispositioned in [phase1-dispositions.md](../plan/runs/AR-1/phase1-dispositions.md). The gates become one approval (G-1), engineering decisions in the body and the owner-reserved list R-1 to R-7. 0.1.0 scope reconciled with phase 2A. Approval still PENDING |
+| 26 Oct 2026 | Revision 2 after checkpoint review 2, proposal findings PR-1 to PR-6, dispositioned in [proposal-revision2.md](../plan/runs/AR-1/proposal-revision2.md). An external append-only tombstone register (§3.3, §9). The actor key has no foreign key of its own (§3.3). Rejected requests are counted through an outer and an inner block (§4.3, §4.5, §4.12). A demotion replay policy (§4.3). The CI contract baseline fails closed (§8). New §12 checks. Durable review links. F1–F17 and T1–T4 stay resolved. Still one approval, G-1, PENDING |

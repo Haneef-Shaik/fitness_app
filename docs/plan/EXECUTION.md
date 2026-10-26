@@ -104,13 +104,15 @@ aggregate/identity/privacy work retains named owners in the AR1handoff.
 
 ## Current Claude execution — 26 October 2026
 
-Two bounded phases run in isolated worktrees from green main2a95726. Read
+Three bounded phases run in isolated worktrees: MB-1 and QA-9 from green main2a95726,
+and QA-2 from green main5fefc31. Read
 [current supervisor state](runs/local-supervision.json) and actual native registry before dispatch.
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
 | MB-1 | `ed3d665c-13c2-44d8-b120-7eb1b8c9c91a` | fitlog-mb1 / codex/mb1-identity | Pure-code phase1G: four safety lows and nonvacuous M2 |
 | QA-9 | `287f647f-b235-44cd-9804-676b8e566c57` | fitlog-qa9 / codex/qa9-quality-ratchets | Separate touched-file Prettier phase and R17 records correction |
+| QA-2 | `b2a0045c-02aa-4d5c-b73d-1bf7a5814a26` | fitlog-qa2-docs / codex/fitlog-qa2-docs | Scoped documentation reconciliation and stale-path audit |
 
 Prior c5b052c9 and908f412f stopped after completed final reports. MB1 accepted disposable RED
 phase2-2-red-2:27 checks, exact five profile failures each HTTP200 one row, banned reference,
@@ -125,6 +127,14 @@ separate touched-file formatting with exact prettier3.6.2 devDependency/lockfile
 wiring. R17 remainder belongs PL1 for CI wiring only. No threshold/floor changes authorized.
 Fresh independent review follows formatting; exact floor at main integration and explicitly
 approved hosted lint-negativeCI remain open. Neither goalDone/integrated. No owner action.
+
+QA-2 was started by the owner-requested ready-work coordination on 26 October19:00UTC.
+Its current phase edits only the card's named documentation and its evidence/checkpoint.
+Command execution that mutates state, shared databases or external services is deferred;
+independent verification follows the completed handoff. At 19:02UTC all three workers were
+confirmed busy in the normal-permission native registry and their transcripts showed progress.
+The sandbox registry omits these workers; absence there is not evidence they stopped.
+Collect all three completed handoffs before assigning follow-up work in their lanes.
 
 ## Resume order
 

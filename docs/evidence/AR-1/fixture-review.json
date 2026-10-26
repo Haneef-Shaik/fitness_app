@@ -1,0 +1,87 @@
+{
+  "verdict": "PASS",
+  "verdictScope": "AR-1 phase 2B shared-fixture checkpoint only. It is NOT final AR-1 acceptance: boxes 1 and 3 and the closing part of box 4 are still open, and the AC03 ledger row stays open (ACCEPTANCE.md:47 assigns it to MB-4, SC-3, QA-3 and QA-4, not AR-1).",
+  "answer": "Yes, for this checkpoint. Both runners take every input and expected value from packages/domain/fixtures/ac03-training.v1.json, and the primary's run matched the exact-bytes SHA-256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877. TypeScript: AC03 session volume 1920 and 3 working sets come from the real sessionSummary, and e1RM 101.333333 from the real epley; every set also passes validateSetForExercise. SQL: set volume and e1RM come from the real private.external_set_volume_v1 and private.epley_e1rm_v1. The SQL session total of 1920 and count of 3 are a sum() and count() written in the test over the real set and eligibility functions. That matches PRD 8.2's definition of session volume, but no SQL session function exists yet (MB-4 owns it). I checked all 16 set vectors by hand: TypeScript doubles formatted with toFixed(6) and SQL trim_scale(round(numeric,6)) agree, with no ties at the seventh decimal. The parameter types and allowed values match the table checks in member_core.sql:41-43,91,94.",
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "MEDIUM",
+      "kind": "false-evidence risk (traceability)",
+      "path": "docs/plan/runs/AR-1/phase2B.md:9,195-210; docs/evidence/AR-1/ (only phase1-review.json and checkpoint-review2.json exist)",
+      "issue": "The primary's SQL runs exist only in this review request. That covers RED (missing functions), GREEN (16 sets and 2 sessions), the five SQL mutations with restores, PG 17.11 and the exact-bytes hash. phase2B.md still says 'The SQL has never run' and lists those results as predictions.",
+      "action": "Save a dated verification record in docs/evidence/AR-1/ or the handoff. Include: the exact commands; the image tag and digest; which migrations were applied to the isolated database and how the private schema and roles got there; the exact GREEN, RED and mutation output lines; and shasum before each mutation and after each restore. Add an addendum to phase2B.md rather than rewriting its history."
+    },
+    {
+      "id": "R2",
+      "severity": "MEDIUM",
+      "kind": "final-acceptance blocker (does not block this checkpoint)",
+      "path": "scripts/backend/verify-fixtures.mjs (missing); package.json:18; test-plan.md:258-259,438",
+      "issue": "Box 4 says the shared vector 'runs in ... a SQL test'. Today the SQL check is a manual psql call, not part of backend:test. The documented `-v fixture=\"$(cat \u2026)\"` call drops the trailing newline (phase2B gap 5), so its hash will not equal the TypeScript hash.",
+      "action": "Write verify-fixtures.mjs as test-plan \u00a74 specifies: execFileSync with an argument array, passing the exact file bytes, and refusing anything but the local stack. Chain it into backend:test. Make it fail unless the SQL hash notice equals the file's SHA-256."
+    },
+    {
+      "id": "R3",
+      "severity": "LOW",
+      "kind": "evidence precision",
+      "path": "scripts/backend/sql/training-fixtures.sql:77-83; phase2B.md:61",
+      "issue": "The SQL session checks (1920 and 3) use a sum() and count() written in the check, over the real set functions. 'No reducer' is only true of the TypeScript side.",
+      "action": "Word the handoff as: SQL proves the set-level formulas, and the session total is composed in the test per PRD 8.2. Do not claim a SQL session aggregate or a completed-session filter exists; both belong to MB-4."
+    },
+    {
+      "id": "R4",
+      "severity": "LOW",
+      "kind": "mutation coverage gap",
+      "path": "packages/domain/src/calculations.ts:28; test-plan.md:455-458",
+      "issue": "M4.1 has not run: no mutation of the TypeScript formula (/30 changed to /31). The TypeScript half of the redefined set-level null mutation (bodyweight-no-load-12 volume null changed to \"0\") is not recorded either. Phase 2B ran only the TypeScript half of M4.3, and the primary's mutations were SQL-only.",
+      "action": "Run M4.1 and restore it, proving the restore with `git diff --exit-code -- packages/domain/src/calculations.ts`. Run the TypeScript half of null-to-zero and restore it with `shasum -a 256 -c`. Record that M4.4 moved from session level to set level."
+    },
+    {
+      "id": "R5",
+      "severity": "LOW",
+      "kind": "fail-closed hardening",
+      "path": "scripts/backend/sql/training-fixtures.sql:24-27",
+      "issue": "The SQL check accepts any file with the right name, formula and version, at least 10 set vectors and at least 1 session vector. It does not require the AC03 IDs. Only the TypeScript coverage test and the matching hash protect the AC03 claim, so running backend:test alone on a weakened fixture would pass.",
+      "action": "Make the SQL check fail unless the IDs ac03-working-80x8 and ac03-session are present. Keep every expected value in the fixture only."
+    },
+    {
+      "id": "R6",
+      "severity": "LOW",
+      "kind": "doc correctness",
+      "path": "docs/plan/runs/AR-1/phase2B.md:105-106; supabase/migrations/20261017161031_member_core.sql:91",
+      "issue": "The claim that equal e1RMs 'always compare equal' holds only while loads keep fewer decimal places than PostgreSQL's division precision (about 16 at these sizes). load_kg is numeric with no declared scale. If two equal numerators carry very different numbers of decimals, the quotients have different digit counts and compare unequal.",
+      "action": "Qualify the claim in the record. Route a bounded load scale to MB-1 (003 \u00a74.9 says each field states its scale), or have MB-4 compare at a fixed scale."
+    },
+    {
+      "id": "R7",
+      "severity": "LOW",
+      "kind": "duplicate source of truth (deferred)",
+      "path": "packages/domain/src/calculations.test.ts:15-22",
+      "issue": "The AC03 values (1920, 3, 80*(1+8/30)) are still written inline, so AC03 expectations live in two places (003 \u00a74.13 'Today').",
+      "action": "The packages/domain owner should later remove these lines or point them at the fixture. This does not block box 4."
+    },
+    {
+      "id": "R8",
+      "severity": "INFO",
+      "kind": "performance note for MB-4",
+      "path": "supabase/migrations/20261025234317_training_formula_v1.sql:8-35",
+      "issue": "PostgreSQL never inlines SQL functions that have `set search_path`, so per-row calls inside MB-4 aggregates pay function-call overhead, including the nested eligibility call.",
+      "action": "No change in AR-1. MB-4 should measure this or inline the predicate at the call site."
+    }
+  ],
+  "securityReview": "No findings. All three functions are security invoker, immutable and parallel safe, with search_path set to empty and EXECUTE revoked from public, anon and authenticated. authenticated has USAGE on the private schema (member_core.sql:4), so those revokes matter, and the primary's PUBLIC-grant mutation shows the check catches a grant. The check runs no dynamic SQL. The fixture reaches the DO block through a transaction-local setting, not pasted into the code, and everything runs inside begin/rollback with ON_ERROR_STOP. No table, grant or public RPC changes, so database.types.ts is unaffected.",
+  "regressionReview": "None found. encoding.ts is not exported from index.ts, so the contract surface is unchanged. The migration only adds private functions, its timestamp comes after 20261019140839, and no existing migration is edited. No existing backend test lists private functions. Test counts add up: domain 31 to 37, plus mobile 126 and plan 22, gives the 185 the primary reported. Phase 2A was not reopened.",
+  "proven": [
+    "Box 4 (checkpoint level): one fixture file drives both runners, tied together by the matching SHA-256",
+    "Box 4, TypeScript half: the real calculators match 16 set vectors and 2 AC03 session vectors; the coverage, unique-ID and reference checks pass; M4.3 (TypeScript) fails as expected and its restore is proven",
+    "Box 4, SQL half: per the primary's run, on an isolated PG 17.11 database the functions match 16 set vectors and 2 session vectors (GREEN) and are missing before the migration (RED); the bad-expected, wrong-formula, null-to-zero, missing-fixture and PUBLIC-grant mutations fail, and the restores pass",
+    "The null-versus-0 distinction is proven at set level in both languages (zero-load gives \"0\"; assisted, unloaded, timed, distance, warm-up and deleted sets give null)"
+  ],
+  "remaining": [
+    "Box 4 final: R1 (record the evidence), R2 (runner wired into backend:test, exact-bytes hash), R4 (M4.1 and TypeScript null-to-zero), then run it against the replayed local head",
+    "Box 3: replay all migrations from empty to the new head and get an empty schema diff, with no reset. The isolated GREEN proves the functions' behaviour, not that the migrations apply in order",
+    "Box 2, database half: verify-contracts.mjs and M1.5 (not reviewed here)",
+    "Box 1: the owner's G-1 approval in the tracker decision log",
+    "Gates and handoff.md, then the goal verifier. No GOALS, ACCEPTANCE or status change until then",
+    "Out of AR-1, owned by MB-4: session volume null when no set is eligible (pending vector no-eligible-session, F-20); a session best e1RM; a real SQL session aggregate with the completed-session filter; the open question on bodyweight load 0 (phase2B gap 3)"
+  ]
+}

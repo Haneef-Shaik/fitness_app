@@ -1,0 +1,58 @@
+{
+  "fixture": "ac03-training",
+  "fixtureVersion": 1,
+  "formula": "training.v1",
+  "source": "PRD 8.2 formula contract and acceptance scenario AC03; docs/architecture/003 sections 4.9 and 4.13",
+  "decimal": "Expected decimals are canonical decimal strings (003 section 4.9) rounded to 6 places. SQL round(numeric) rounds ties half away from zero and is authoritative. TypeScript formatDecimal uses toFixed on the binary double, so an exact tie at the seventh decimal could round differently; no vector has one",
+  "nullSemantics": "Every expectation is present and null is explicit. null means the formula does not apply, so no value exists: a warm-up or deleted set, an assisted set, a timed or distance set, or a missing reps or load; for e1RM also a non-resistance set, a load not above 0, or reps outside 1 to 30. The decimal 0 is a real result for an eligible set at 0 kg and never stands in for null. A session sum over no eligible set is null (003 section 4.9); TypeScript sessionSummary still reports 0 for it, so that session is pending for MB-4 and only its sets are asserted",
+  "exercises": {
+    "bench": { "name": "Bench press", "type": "resistance", "loadBasis": "total", "multiplier": 1 },
+    "dumbbellPress": { "name": "Dumbbell press", "type": "resistance", "loadBasis": "per_hand", "multiplier": 2 },
+    "assistedPullUp": { "name": "Assisted pull-up", "type": "bodyweight", "loadBasis": "assistance", "multiplier": 1 },
+    "weightedDip": { "name": "Weighted dip", "type": "bodyweight", "loadBasis": "total", "multiplier": 1 },
+    "pullUp": { "name": "Pull-up", "type": "bodyweight", "loadBasis": "none", "multiplier": 1 },
+    "kettlebellSwing": { "name": "Kettlebell swing", "type": "timed", "loadBasis": "total", "multiplier": 1 },
+    "farmerCarry": { "name": "Farmer carry", "type": "distance", "loadBasis": "per_hand", "multiplier": 2 }
+  },
+  "setVectors": [
+    { "id": "ac03-working-80x8", "exercise": "bench", "setType": "working", "deleted": false, "reps": 8, "loadKg": "80", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "640", "e1rmKg": "101.333333" } },
+    { "id": "ac03-warmup-40x10", "exercise": "bench", "setType": "warmup", "deleted": false, "reps": 10, "loadKg": "40", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": null, "e1rmKg": null } },
+    { "id": "deleted-working-100x5", "exercise": "bench", "setType": "working", "deleted": true, "reps": 5, "loadKg": "100", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": null, "e1rmKg": null } },
+    { "id": "failure-70x6", "exercise": "bench", "setType": "failure", "deleted": false, "reps": 6, "loadKg": "70", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "420", "e1rmKg": "84" } },
+    { "id": "drop-60x12", "exercise": "bench", "setType": "drop", "deleted": false, "reps": 12, "loadKg": "60", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "720", "e1rmKg": "84" } },
+    { "id": "per-hand-30x8", "exercise": "dumbbellPress", "setType": "working", "deleted": false, "reps": 8, "loadKg": "30", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "480", "e1rmKg": "38" } },
+    { "id": "per-hand-12.5x10", "exercise": "dumbbellPress", "setType": "working", "deleted": false, "reps": 10, "loadKg": "12.5", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "250", "e1rmKg": "16.666667" } },
+    { "id": "assistance-20x8", "exercise": "assistedPullUp", "setType": "working", "deleted": false, "reps": 8, "loadKg": "20", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": null, "e1rmKg": null } },
+    { "id": "weighted-bodyweight-10x10", "exercise": "weightedDip", "setType": "working", "deleted": false, "reps": 10, "loadKg": "10", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "100", "e1rmKg": null } },
+    { "id": "bodyweight-no-load-12", "exercise": "pullUp", "setType": "working", "deleted": false, "reps": 12, "loadKg": null, "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": null, "e1rmKg": null } },
+    { "id": "timed-20x16-60s", "exercise": "kettlebellSwing", "setType": "working", "deleted": false, "reps": 20, "loadKg": "16", "durationSeconds": 60, "distanceMetres": null, "expect": { "volumeKgReps": null, "e1rmKg": null } },
+    { "id": "distance-30-per-hand-40m", "exercise": "farmerCarry", "setType": "working", "deleted": false, "reps": null, "loadKg": "30", "durationSeconds": 45, "distanceMetres": "40", "expect": { "volumeKgReps": null, "e1rmKg": null } },
+    { "id": "reps-1-lower-bound", "exercise": "bench", "setType": "working", "deleted": false, "reps": 1, "loadKg": "100", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "100", "e1rmKg": "103.333333" } },
+    { "id": "reps-30-upper-bound", "exercise": "bench", "setType": "working", "deleted": false, "reps": 30, "loadKg": "50", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "1500", "e1rmKg": "100" } },
+    { "id": "reps-31-above-bound", "exercise": "bench", "setType": "working", "deleted": false, "reps": 31, "loadKg": "20", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "620", "e1rmKg": null } },
+    { "id": "zero-load", "exercise": "bench", "setType": "working", "deleted": false, "reps": 10, "loadKg": "0", "durationSeconds": null, "distanceMetres": null, "expect": { "volumeKgReps": "0", "e1rmKg": null } }
+  ],
+  "sessionVectors": [
+    {
+      "id": "ac03-session",
+      "description": "PRD AC03: three 80x8 bench working sets and a 40x10 warm-up",
+      "sets": ["ac03-working-80x8", "ac03-working-80x8", "ac03-working-80x8", "ac03-warmup-40x10"],
+      "expect": { "volumeKgReps": "1920", "workingSets": 3 }
+    },
+    {
+      "id": "ac03-session-with-deleted-set",
+      "description": "AC03 plus a deleted 100x5 working set, which must change nothing",
+      "sets": ["ac03-working-80x8", "ac03-working-80x8", "ac03-working-80x8", "ac03-warmup-40x10", "deleted-working-100x5"],
+      "expect": { "volumeKgReps": "1920", "workingSets": 3 }
+    }
+  ],
+  "pendingSessionVectors": [
+    {
+      "id": "no-eligible-session",
+      "owner": "MB-4",
+      "description": "Assisted, unloaded bodyweight and timed working sets only. PRD 8.2 and 003 section 4.9 expect session volume null; sessionSummary reports 0 today (checkpoint F-20). Each set is asserted as a set vector; the session total is not asserted until MB-4 changes sessionSummary",
+      "sets": ["assistance-20x8", "bodyweight-no-load-12", "timed-20x16-60s"],
+      "prdExpect": { "volumeKgReps": null }
+    }
+  ]
+}

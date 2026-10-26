@@ -1,0 +1,62 @@
+{
+  "base": "07757a5f5f17a51a8c81c7830accdf054f3ae049",
+  "domainCIProbes": [
+    {
+      "case": "missing",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "blank",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "allzero",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "unresolvable",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "trusted",
+      "exit": 0,
+      "expectedPass": true,
+      "result": "pass"
+    }
+  ],
+  "workflowValidationProbes": [
+    {
+      "case": "missing",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "allzero",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "malformed",
+      "exit": 1,
+      "expectedPass": false,
+      "result": "pass"
+    },
+    {
+      "case": "trusted",
+      "exit": 0,
+      "expectedPass": true,
+      "result": "pass"
+    }
+  ],
+  "limits": "Local command and actual workflow-script probes; no hosted GitHub Actions run."
+}

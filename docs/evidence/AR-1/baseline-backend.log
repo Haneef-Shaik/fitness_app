@@ -1,0 +1,8 @@
+
+> fitlog@ backend:test /Users/Adya/personals/fitness_app
+> node scripts/backend/verify.mjs && node scripts/backend/verify-gym.mjs && node scripts/backend/verify-freeze-projection.mjs && node scripts/backend/verify-freezes.mjs
+
+Local backend integration passed: adult eligibility, status protection, owner isolation, one active workout, idempotence, stale-revision conflicts, set commit and finish.
+Gym integration passed: tenant isolation, live roles/revocation, retired role rejection, month-end dates, overlap rejection, immutable money, idempotent receipts, disjoint corrections, waiver/credit, consistent account reads, health privacy and 50 concurrent gap-free receipts.
+Freeze projection passed: PRD October/November fixture, optional early-return gap, sold zero/remaining allowance, overlapping freezes, leap/DST calendar dates and started-renewal rejection.
+Freeze integration passed: member/staff requests, permissions, pending isolation, atomic renewal shifts, stale previews, idempotence, overlap/allowance checks, early-return gap, rejection/cancellation, concurrent approvals, attendance eligibility and unchanged finance.

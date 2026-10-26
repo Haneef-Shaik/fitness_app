@@ -14,34 +14,34 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Phase1D close all five independent runner safety findings; pure injected tests only",
-      "sessionId": "ecaa6e45-4fc2-48d2-b847-50054dc990b8",
-      "shortId": "ecaa6e45",
+      "phase": "Fresh independent read-only phase1D replay safety review; pure tests only",
+      "sessionId": "b75d1e73-66d6-488a-a8e0-2d6de77e1416",
+      "shortId": "b75d1e73",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "scripts/backend MB1 replay/identity code/tests and MB1 docs only",
+      "writes": "none; backend pure tests only",
       "database": "No database, Supabase or Docker calls. Candidate migration remains unapplied. Mutation must use a future disposable replay project, never weaken shared55321.",
       "previousReviewerSession": "a102fb68-5d26-4e2b-8889-2c4741ac0831 done",
-      "previousImplementerSession": "00be8cce-a882-4393-9d07-9442525ef316 stopped after final result"
+      "previousImplementerSession": "ecaa6e45-4fc2-48d2-b847-50054dc990b8 stopped after completed result"
     },
     {
       "goal": "QA-9",
-      "phase": "Fresh independent read-only phase2C full candidate review",
-      "sessionId": "08c6473e-33b4-46e0-b12f-fee9863f850d",
-      "shortId": "08c6473e",
+      "phase": "Phase2D lint and transform scope guards plus fourLOW review fixes; Prettier later",
+      "sessionId": "759014a2-859b-4c15-b08b-45d7ed3770ae",
+      "shortId": "759014a2",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "none; exact quality tests and pnpm check allowed",
+      "writes": "scripts/quality, QA9 docs and docs23 only",
       "database": "No database/Supabase/Docker calls.",
       "previousImplementerSession": "b08f16c2-5483-4c08-95ab-738c95661588 stopped after final result",
-      "previousReviewerSession": "74c7436b-a3ba-4301-af55-d6363c6c9c88 done"
+      "previousReviewerSession": "08c6473e-33b4-46e0-b12f-fee9863f850d done: code-only accept with fourLOWs, Bash denied"
     }
   ],
-  "resume": "Collect MB1 phase1D fixes and QA9 fresh phase2C review first. MB1 safety review found MED stop project-ID binding and fourLOW gaps; Codex assigned all five code fixes, no DB authorization. Candidate UNAPPLIED, live27 suite UNRUN, B1/B2open. Codex independently QA9 fullcheck232tests exit0 and47 qualitytests. Routine scanner/input choices accepted; fresh review, Prettier/lintscope/transformconfig and hostedproof remain. Initial floor compare at exact main integration. No goal/status/ledger/integration/external actions. No owneraction now.",
-  "lastReconciledAt": "2026-10-26T09:47:00Z",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T0947Z.md"
+  "resume": "Collect MB1 fresh phase1D safety review and QA9 phase2D first. Codex independently95backend pure and47quality tests pass Node26.7.0; main pnpmcheck185tests pass. QA9 reviewer accepted code phase2C with fourLOWs but executed no commands (compound git-C denied); Codex accepts2B/2C routine design, exact-integration floor proof still required. Next QA9 writer closes fourLOWs plus R8/R11; Prettier/dependencies/hostedproof later, no push. MB1 candidate UNAPPLIED, live27 suite UNRUN, B1/B2open; no DB authorization until freshreview. No goalintegration/status/acceptance/externalactions; no owneraction.",
+  "lastReconciledAt": "2026-10-26T10:47:03Z",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1047Z.md"
 }

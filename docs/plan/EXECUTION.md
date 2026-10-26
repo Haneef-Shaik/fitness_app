@@ -109,17 +109,17 @@ Read [current supervisor state](runs/local-supervision.json) and native session 
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `ecaa6e45-4fc2-48d2-b847-50054dc990b8` | fitlog-mb1 / codex/mb1-identity | Phase1D five runner safety corrections; pure injected tests only |
-| QA-9 | `08c6473e-33b4-46e0-b12f-fee9863f850d` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only full phase2C review |
+| MB-1 | `b75d1e73-66d6-488a-a8e0-2d6de77e1416` | fitlog-mb1 / codex/mb1-identity | Fresh independent read-only phase1D safety review; pure tests only |
+| QA-9 | `759014a2-859b-4c15-b08b-45d7ed3770ae` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2D lint/transform scope guards and fourLOW fixes |
 
 Both use approved local Claude auth and dontAsk/scoped tools, no bypass/overage.
-MB-1 phase1C safety review found MED stop project-ID binding plus fourLOW findings. Codex assigned
-code fixes for all five; no database execution is authorized. Candidate remains unapplied, revised27-check
-live suite unrun, B1/B2open. Prior reviewer a102fb68 done; no overlapping MB1 writer.
-QA-9 phase2C null/input/suppression fixes written; Codex independently passed47quality tests and full
-232-test pnpmcheck on Node26.7.0. Prior writer b08f16c2 stopped; fresh independent review running.
-Prettier/lintscope/transformconfig and hostedCI remain later phases. Neither goal Done/integrated.
-No DB lane/commit/push/deploy/provider action authorized to these workers. No owner action now.
+MB-1 phase1D closes five runner findings in code; Codex independently95/95 pure backend tests pass.
+Prior writer ecaa6e45 stopped before freshreview. Candidate remains unapplied, live27-check suite unrun,
+B1/B2open; no DB operation authorized. Shared local-stack executor residual is named in phase1d.
+QA-9 reviewer08c6473e accepts2C with fourLOWs, code review only: compound shell commands denied,
+no tests executed by reviewer. Codex independently47/47 qualitytests pass and accepts2B/2C routine design;
+initial floor proof remains at exact integration. New phase fixes fourLOWs plus R8/R11 scope gaps.
+Prettier/dependencies/hostedCI later. Neither goal Done/integrated. No owneraction now.
 
 ## Resume order
 
@@ -135,9 +135,9 @@ No DB lane/commit/push/deploy/provider action authorized to these workers. No ow
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 09:47 UTC cycle collected both results and assigned MB-1 phase1D safety fixes
-   and a fresh QA-9 independent phase2C review. No database lane is authorized and no goal is integrated.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T0947Z.md) records actual tests and limits.
+   The 26 October 10:47 UTC cycle collected both results and assigned MB-1 fresh phase1D safety review
+   and QA-9 phase2D lint/transform guards. No database lane is authorized and no goal is integrated.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1047Z.md) records actual tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

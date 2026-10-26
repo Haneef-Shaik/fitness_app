@@ -7,13 +7,13 @@
   "proposal_verdict": "REVISE",
   "summary": {
     "phase2A": "The local guards are correct and the suite passes, 21 of 21. The baseline guard fails open in CI, which already runs pnpm check with CI=1, a shallow checkout and no FITLOG_CONTRACT_BASELINE. It also fails open when git is unavailable even though a baseline is configured. Limitation 4 claims behavioural tests cover the refines that JSON Schema drops; only one refine is tested.",
-    "proposal": "F1–F17 and T1–T4 are all resolved. One new decision is defective: the tombstone register lives inside the database that a restore rolls back (medium). There are three smaller issues in the new decisions (rate windows, the actor key's foreign keys, replay after a role demotion), plus two documentation gaps."
+    "proposal": "F1\u2013F17 and T1\u2013T4 are all resolved. One new decision is defective: the tombstone register lives inside the database that a restore rolls back (medium). There are three smaller issues in the new decisions (rate windows, the actor key's foreign keys, replay after a role demotion), plus two documentation gaps."
   },
   "phase2A_confirmed": [
     "Discovery finds 23 schemas: 22 in models.ts plus paise. calculations.ts and dates.ts export no Zod schema. Duplicate names throw (contract.ts:16-21). Coverage is checked both ways against the index.ts exports (contract.test.ts:60-67)",
     "persistedContracts and the render options match scripts/backend/contracts.ts:6-7 exactly",
     "The current-schema guard compares bytes against <CONTRACT_VERSION>.json. Keys are sorted at every depth, and non-finite values are refused (contract.ts:30-48; contract.test.ts:35-43)",
-    "Manifest guard: strict shape, semver, strictly increasing, ends at CONTRACT_VERSION, every listed file has its SHA-256, no unlisted files. The passing hash test confirms that 0.1.0.json hashes to 74914ca9… as manifest.json records",
+    "Manifest guard: strict shape, semver, strictly increasing, ends at CONTRACT_VERSION, every listed file has its SHA-256, no unlisted files. The passing hash test confirms that 0.1.0.json hashes to 74914ca9\u2026 as manifest.json records",
     "baselineProblems requires the baseline's entries as an ordered prefix and each file's recorded hash. It rejects the forged self-consistent pair (contract.test.ts:91-98)",
     "planSnapshot validates history before checking semver, existence and ordering (snapshot-contract.ts:118-131). writeSnapshot uses wx for both files and an atomic rename. Importing the module does not run main() (invokedDirectly, :167-170)",
     "The client graph from index.ts has no node: or built-in imports. contract.ts imports only zod and local modules",
@@ -26,7 +26,7 @@
       "severity": "medium",
       "file": "packages/domain/src/cli/snapshot-contract.ts",
       "lines": "99-107; also .github/workflows/mobile-ci.yml:19-32",
-      "reason": "The guard fails open in CI. If FITLOG_CONTRACT_BASELINE is unset, or empty (for example a '${{ github.event.pull_request.base.sha }}' expression on a push event), it falls back to HEAD and local main. The existing CI job runs pnpm check with CI=1 on a shallow actions/checkout of the pull request merge ref, where no local main exists. main is skipped with only a diagnostic, and HEAD equals the working tree. A pull request that rewrites a merged snapshot and its manifest hash together, or resolves a parallel-lane version clash by keeping its own file, therefore passes. This contradicts 003 §8 (003:840-847) and T4's fail-closed decision (phase1-dispositions.md:333-339).",
+      "reason": "The guard fails open in CI. If FITLOG_CONTRACT_BASELINE is unset, or empty (for example a '${{ github.event.pull_request.base.sha }}' expression on a push event), it falls back to HEAD and local main. The existing CI job runs pnpm check with CI=1 on a shallow actions/checkout of the pull request merge ref, where no local main exists. main is skipped with only a diagnostic, and HEAD equals the working tree. A pull request that rewrites a merged snapshot and its manifest hash together, or resolves a parallel-lane version clash by keeping its own file, therefore passes. This contradicts 003 \u00a78 (003:840-847) and T4's fail-closed decision (phase1-dispositions.md:333-339).",
       "fix": "In gitBaselines, when env.CI is set (non-empty, not 'false' or '0') and the variable is unset or empty, throw 'FITLOG_CONTRACT_BASELINE must be set in CI to the trusted base commit'. Merge this with PL-1's workflow change, or after it: set actions/checkout fetch-depth to 0, and set FITLOG_CONTRACT_BASELINE to '${{ github.event.pull_request.base.sha || github.event.before }}'. Otherwise every CI run goes red. Add mutation checks that mirror M2.3 and M2.4."
     },
     {
@@ -54,7 +54,7 @@
       "file": "packages/domain/src/contract.test.ts",
       "lines": "84-89",
       "reason": "No test exercises the configured-baseline path (snapshot-contract.ts:103-106). Nothing shows a resolving ref, an unresolvable ref that throws, or an unrelated ref. The suite has only ever run the default HEAD-and-main branch.",
-      "fix": "Add tests. gitBaselines(contractsDir, {FITLOG_CONTRACT_BASELINE: 'refs/heads/ar1-no-such-ref'}) throws /not a commit/. {FITLOG_CONTRACT_BASELINE: 'HEAD'} returns one source labelled HEAD@…. After P2A-1, {CI: 'true'} throws, and so does {CI: 'true', FITLOG_CONTRACT_BASELINE: ''}."
+      "fix": "Add tests. gitBaselines(contractsDir, {FITLOG_CONTRACT_BASELINE: 'refs/heads/ar1-no-such-ref'}) throws /not a commit/. {FITLOG_CONTRACT_BASELINE: 'HEAD'} returns one source labelled HEAD@\u2026. After P2A-1, {CI: 'true'} throws, and so does {CI: 'true', FITLOG_CONTRACT_BASELINE: ''}."
     },
     {
       "id": "P2A-5",
@@ -71,7 +71,7 @@
       "severity": "low",
       "file": "packages/domain/src/cli/snapshot-contract.ts",
       "lines": "127-128 (vs 003:323-325)",
-      "reason": "planSnapshot accepts any higher version. A schema change can therefore ship as a patch bump, but 003 §4.1 says a patch never changes the wire format within its line.",
+      "reason": "planSnapshot accepts any higher version. A schema change can therefore ship as a patch bump, but 003 \u00a74.1 says a patch never changes the wire format within its line.",
       "fix": "If the new version differs from the last one only in PATCH, and its schemas or persisted section differ from the last snapshot, refuse: 'a schema change needs a new compatibility line (MINOR before 1.0.0)'. Add a test."
     },
     {
@@ -98,8 +98,8 @@
       "severity": "medium",
       "file": "docs/architecture/003-architecture-freeze.md",
       "lines": "118-119",
-      "reason": "actors.erased_at is the purge tombstone register, but it sits inside the database whose backups it must override. A backup or point-in-time copy taken before an erasure has erased_at NULL for that user. 'Purge every account with erased_at set' then does nothing for exactly the accounts at risk, and the user is resurrected. This fails PRD §22.3 (PRD.md:1530-1531), AC30 (PRD.md:1797) and MB-7 box 2 (GOALS.md:663: 'restoring a pre-erasure snapshot … and replaying tombstones does not resurrect the user').",
-      "fix": "At erasure step 2, also append the tombstone (actor UUID and erased_at, no personal field) to a register outside every restorable database copy, for example a private ops Storage object or a separate ops project. Keep it at least as long as the longest backup expiry (≤90 days, PRD.md:1530). actors.erased_at stays as the in-database copy. PL-5's restore runbook imports the external register and purges every listed account before serving. MB-7's test replays from the external register. Note the external copy under R-4."
+      "reason": "actors.erased_at is the purge tombstone register, but it sits inside the database whose backups it must override. A backup or point-in-time copy taken before an erasure has erased_at NULL for that user. 'Purge every account with erased_at set' then does nothing for exactly the accounts at risk, and the user is resurrected. This fails PRD \u00a722.3 (PRD.md:1530-1531), AC30 (PRD.md:1797) and MB-7 box 2 (GOALS.md:663: 'restoring a pre-erasure snapshot \u2026 and replaying tombstones does not resurrect the user').",
+      "fix": "At erasure step 2, also append the tombstone (actor UUID and erased_at, no personal field) to a register outside every restorable database copy, for example a private ops Storage object or a separate ops project. Keep it at least as long as the longest backup expiry (\u226490 days, PRD.md:1530). actors.erased_at stays as the in-database copy. PL-5's restore runbook imports the external register and purges every listed account before serving. MB-7's test replays from the external register. Note the external copy under R-4."
     },
     {
       "id": "PR-2",
@@ -107,8 +107,8 @@
       "severity": "low",
       "file": "docs/architecture/003-architecture-freeze.md",
       "lines": "644-655",
-      "reason": "'A rolled-back request does not count.' Every rejected v1 command or read raises PT<status>, which rolls the counter back. So 401, 403, 404, 409 and 422 responses are never counted. PRD §18.1 (PRD.md:1184) limits write requests to 120 a minute and 5,000 a day, and reads to 600 a minute. An authenticated client can send unlimited rejected writes, each of which takes the per-account lock.",
-      "fix": "Choose one and record it:\n(a) v1 definers count in the outer block, run the command in an inner BEGIN…EXCEPTION block, and return the error envelope with response.status set (the mechanism §4.10 already plans for 202), so the count commits.\n(b) State that the database counts committed requests only, name an outer limiter for rejected requests (Edge or platform), and add a §12 verify item.\nEither way, replays still never count."
+      "reason": "'A rolled-back request does not count.' Every rejected v1 command or read raises PT<status>, which rolls the counter back. So 401, 403, 404, 409 and 422 responses are never counted. PRD \u00a718.1 (PRD.md:1184) limits write requests to 120 a minute and 5,000 a day, and reads to 600 a minute. An authenticated client can send unlimited rejected writes, each of which takes the per-account lock.",
+      "fix": "Choose one and record it:\n(a) v1 definers count in the outer block, run the command in an inner BEGIN\u2026EXCEPTION block, and return the error envelope with response.status set (the mechanism \u00a74.10 already plans for 202), so the count commits.\n(b) State that the database counts committed requests only, name an outer limiter for rejected requests (Edge or platform), and add a \u00a712 verify item.\nEither way, replays still never count."
     },
     {
       "id": "PR-3",
@@ -125,8 +125,8 @@
       "severity": "low",
       "file": "docs/architecture/003-architecture-freeze.md",
       "lines": "359-381",
-      "reason": "Per-kind permission (step 7) comes after replay (step 4). A demoted staff member, as opposed to a revoked one, can still replay their own stored outcome for a kind their current role may not issue, and operation_result_v1 (steps 1–2 only) returns it too. Today freeze_action checks per-kind permission before replay (20261019140839_freeze_preview_binding.sql:22, then :24-27), and gym and freeze outcomes still carry balances (checkpoint F-17). The exposure is the same actor's earlier result, so this is acceptable once outcomes are trimmed, but the record does not say so. This does not reopen F1, which concerned revoked scope and is fixed.",
-      "fix": "In §4.3, state that a demoted actor may replay their own outcome, and that this is accepted only because §4.4 trims outcomes to identifiers. G17.api keeps freeze_action's current order until those outcomes are trimmed."
+      "reason": "Per-kind permission (step 7) comes after replay (step 4). A demoted staff member, as opposed to a revoked one, can still replay their own stored outcome for a kind their current role may not issue, and operation_result_v1 (steps 1\u20132 only) returns it too. Today freeze_action checks per-kind permission before replay (20261019140839_freeze_preview_binding.sql:22, then :24-27), and gym and freeze outcomes still carry balances (checkpoint F-17). The exposure is the same actor's earlier result, so this is acceptable once outcomes are trimmed, but the record does not say so. This does not reopen F1, which concerned revoked scope and is fixed.",
+      "fix": "In \u00a74.3, state that a demoted actor may replay their own outcome, and that this is accepted only because \u00a74.4 trims outcomes to identifiers. G17.api keeps freeze_action's current order until those outcomes are trimmed."
     },
     {
       "id": "PR-5",
@@ -134,8 +134,8 @@
       "severity": "low",
       "file": "docs/plan/runs/AR-1/checkpoint.md; docs/architecture/003-architecture-freeze.md; docs/plan/runs/AR-1/phase1-dispositions.md",
       "lines": "checkpoint.md:134-135; 003:840-847; phase1-dispositions.md:338-339",
-      "reason": "The checkpoint only asks the package owner to 'consider' failing closed in CI, which is inconsistent with T4. 003 §8 says pnpm check fails when history differs from a Git baseline and that CI sets the variable. The existing mobile-ci.yml runs pnpm check without it.",
-      "fix": "Record failing closed in CI as a decision (P2A-1). Until PL-1 sets the variable, state in 003 §8 that CI checks no baseline."
+      "reason": "The checkpoint only asks the package owner to 'consider' failing closed in CI, which is inconsistent with T4. 003 \u00a78 says pnpm check fails when history differs from a Git baseline and that CI sets the variable. The existing mobile-ci.yml runs pnpm check without it.",
+      "fix": "Record failing closed in CI as a decision (P2A-1). Until PL-1 sets the variable, state in 003 \u00a78 that CI checks no baseline."
     },
     {
       "id": "PR-6",
@@ -152,25 +152,25 @@
     "privacy_notes": "PASS. Staff-only notes and tags, my_gym_card_v1, removal of register_read's linked-member branch and exclusion from export are recorded. Both leak paths are cited correctly (gym_operations.sql:108; gym_read_models.sql:137)",
     "replay_auth": "PASS for revocation: scope comes before lock and replay, and operation_result_v1 is scoped. Note PR-4 on demotion",
     "cursor_commit_order": "PASS. A per-account counter row is updated in the writing transaction under READ COMMITTED, and its lock is held until commit, so a later commit always gets a higher change_seq than any visible one. The per-link counter on gym_members is consistent with existing FOR UPDATE locks (gym_read_models.sql:24; freeze_preview_binding.sql:19)",
-    "revocable_objects": "PASS. Each bucket's residual is stated. gym-documents and passport grants go through a proxy that rechecks access on every request, deletion purges objects, and the proxy's limits are in §12",
+    "revocable_objects": "PASS. Each bucket's residual is stated. gym-documents and passport grants go through a proxy that rechecks access on every request, deletion purges objects, and the proxy's limits are in \u00a712",
     "rate_windows": "Mostly sound: read counting no longer depends on READ ONLY transactions, the counter table is UNLOGGED, and replays are excluded. Gap: rejected requests are never counted (PR-2)"
   },
   "dispositions": {
-    "F1": "Resolved: 003 §4.3 order is identity, scope, lock, replay, rate, dependencies, permission, revision, validation, write; operation_result_v1 is scoped. See PR-4 for demotion",
-    "F2": "Resolved: the pre-request function never writes; reads are counted only in VOLATILE POST read RPCs; §12 has the access-mode items",
+    "F1": "Resolved: 003 \u00a74.3 order is identity, scope, lock, replay, rate, dependencies, permission, revision, validation, write; operation_result_v1 is scoped. See PR-4 for demotion",
+    "F2": "Resolved: the pre-request function never writes; reads are counted only in VOLATILE POST read RPCs; \u00a712 has the access-mode items",
     "F3": "Resolved: compatibility lines (MAJOR.MINOR in 0.x), a missing header gives 400, health publishes {current, supported}",
     "F4": "Resolved: non-negative, signed-delta and aggregate money kinds, with the fields named",
-    "F5": "Resolved: §4.7 history rule (no row on set.commit, set-level revisions, session fields only on corrections); routed to MB-4 and MB-3",
-    "F6": "Resolved and extended to tags and the gym_account_v1 path (§4.15, §5, §6, §10)",
+    "F5": "Resolved: \u00a74.7 history rule (no row on set.commit, set-level revisions, session fields only on corrections); routed to MB-4 and MB-3",
+    "F6": "Resolved and extended to tags and the gym_account_v1 path (\u00a74.15, \u00a75, \u00a76, \u00a710)",
     "F7": "Resolved: the actor-table mechanism is chosen and checkpoint F-10 corrected. New-decision issues are PR-1 and PR-3",
     "F8": "Resolved: per-account counter row, held until commit; separate per-link feed",
     "F9": "Resolved: per-bucket revocation table, proxy for gym documents, revocable passport grants",
     "F10": "Resolved: G-1 is the only approval; former gates are decisions in the body; R-1 to R-7 are owner-reserved and unclaimed",
     "F11": "Resolved: the regex was checked by hand; it rejects -0, 0.0, 1.50 and 1. and accepts 0, 0.5, -0.5, 1.05 and 0.05",
     "F12": "Resolved: all 'Today' entries corrected",
-    "F13": "Resolved: §4.15 row and §4.16",
-    "F14": "Resolved: §5 retitled; minimum operations added",
-    "F15": "Resolved: §7 reference-content table and import contract",
+    "F13": "Resolved: \u00a74.15 row and \u00a74.16",
+    "F14": "Resolved: \u00a75 retitled; minimum operations added",
+    "F15": "Resolved: \u00a77 reference-content table and import contract",
     "F16": "Resolved: JWT verification is off for exactly the two webhooks and health-v1",
     "F17": "Resolved: the h1 hash excludes the contract version and dependencies; dependencies are a set; operation keys are kept for the account's life; resultPruned; the client calls operation_result_v1 on OPERATION_REUSED",
     "T1": "Resolved: the probe is a table, checked by grep, with file-removal checks and the 'never migration up' rule",
@@ -181,7 +181,7 @@
   "commands": [
     {
       "command": "rtk proxy pnpm --filter @fitlog/domain test",
-      "result": "Exit 0. 'ℹ tests 21', 'ℹ pass 21', 'ℹ fail 0'. Diagnostics: 'HEAD@9f148c13e093: checked', 'main@9f148c13e093: same commit as an earlier baseline', 'HEAD@9f148c13e093: no committed snapshot history to compare (first-baseline limitation)'. tsx printed DEP0205 deprecation warnings"
+      "result": "Exit 0. '\u2139 tests 21', '\u2139 pass 21', '\u2139 fail 0'. Diagnostics: 'HEAD@9f148c13e093: checked', 'main@9f148c13e093: same commit as an earlier baseline', 'HEAD@9f148c13e093: no committed snapshot history to compare (first-baseline limitation)'. tsx printed DEP0205 deprecation warnings"
     },
     {
       "command": "rtk proxy pnpm --filter @fitlog/domain typecheck",
@@ -194,10 +194,10 @@
   ],
   "limitations": [
     "No git commands could run, so restore proofs rely on the git status captured at session start and on file listings",
-    "Mutation checks M1.1–M1.4 were not re-run, because edits were out of scope. They are accepted from phase2A.md plus code reading",
+    "Mutation checks M1.1\u2013M1.4 were not re-run, because edits were out of scope. They are accepted from phase2A.md plus code reading",
     "pnpm check, the mobile typecheck and tests, and the Expo export were not run. Bundling contract.ts under Metro and Hermes is not verified here",
     "CI behaviour is reasoned from mobile-ci.yml and the actions/checkout defaults (depth 1, detached merge ref), not executed",
-    "The PRD was read selectively: §18.1 (1184-1188), §21.2 (1406), §22.3 (1520-1532) and AC30 (1797). Other coverage relies on the phase-1 review",
+    "The PRD was read selectively: \u00a718.1 (1184-1188), \u00a721.2 (1406), \u00a722.3 (1520-1532) and AC30 (1797). Other coverage relies on the phase-1 review",
     "phase1-review.json was read from the main checkout, not this worktree",
     "That Zod drops refines and trim when rendering is inferred from the snapshot's content (for example, timezone renders as {\"type\":\"string\"})"
   ],
@@ -205,7 +205,7 @@
     "Box 1 (open): fix PR-1 to PR-6, then the owner's one dated G-1 approval in the tracker decision log. Pending; not requested here",
     "Box 2 (open): the local half is implemented but needs P2A-1 to P2A-8 (P2A-1 and P2A-2 at minimum). Then the database half: verify-contracts.mjs and M1.5. Then commit the snapshot so the baseline has history, and have PL-1 set FITLOG_CONTRACT_BASELINE",
     "Box 3 (open): replay from empty to head with an empty schema diff, and the structural drift probe. Not started",
-    "Box 4 (open): the shared AC03 fixture with its TypeScript and SQL runners, and M4.1–M4.4. Not started; needs the formula migration",
+    "Box 4 (open): the shared AC03 fixture with its TypeScript and SQL runners, and M4.1\u2013M4.4. Not started; needs the formula migration",
     "Then: pnpm backend:test gates, handoff.md, a short re-review of the changed sections, and the goal verifier. AR-1 is not done"
   ]
 }

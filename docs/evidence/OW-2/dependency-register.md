@@ -1,14 +1,15 @@
 # OW-2 · External launch dependency register
 
-**Date:** 25 Oct 2026 · **Status:** prepared for review, not verified. OW-2 is not Done and is not
-claimed. Its second Done-when box (DEC-15) has no dated owner answer. This file changes no ledger
-result, goal status, tracker entry or product decision. Every DEC row in
-[ACCEPTANCE.md](../../plan/ACCEPTANCE.md) still reads `open`.
+**Date:** 25 Oct 2026 · **Status:** independently verified PASS (attempt 2), integrated on local
+`main` as `b4771d0`; Codex marked OW-2 Done through the status CLI. DEC-15 is answered: on 25 Oct 2026 the owner confirmed a fresh launch with no
+existing users or data redirected (tracker MIG-01). The DEC-15 row in
+[ACCEPTANCE.md](../../plan/ACCEPTANCE.md) reads `n/a`; every other DEC row still reads `open`. This
+register changes no other ledger row.
 
 **Sources read.** [GOALS.md OW-2](../../plan/GOALS.md#ow-2--register-every-external-launch-dependency)
 and the card of every goal named below; [PRD §27](../../PRD.md#27-assumptions-and-external-decisions)
 with §§2, 21.1, 21.4 and 23.1; the external-decision rows of [ACCEPTANCE.md](../../plan/ACCEPTANCE.md);
-the [tracker](../../09-PROJECT-TRACKER.md) decision log; the owner packs
+the [tracker](../../09-PROJECT-TRACKER.md) decision log, including MIG-01 (the owner's DEC-15 answer); the owner packs
 [OW-1](../../plan/owner-packs/OW-1.md) and [OW-2](../../plan/owner-packs/OW-2.md);
 [INBOX](../../plan/INBOX.md); [RESET-BASELINE](../../RESET-BASELINE.md); the architecture records
 [001](../../architecture/001-mobile-foundation.md) and [002](../../architecture/002-connected-member-and-gym.md);
@@ -16,19 +17,21 @@ the [tracker](../../09-PROJECT-TRACKER.md) decision log; the owner packs
 
 ## How to read this register
 
-Three kinds of fact are kept apart. Only the third closes a ledger row.
+Three kinds of fact are kept apart. Only the third can make a ledger row `pass`. An owner-confirmed
+answer can make a row `n/a` only where the PRD allows it; today that is DEC-15 alone.
 
 | Kind | Meaning | Example |
 |---|---|---|
 | **Selected rule** | A product rule selected on 11 Oct 2026 under the owner's delegation (PRD §27.1, PROD-01 to PROD-12). It fixes behaviour. It grants no licence, account or approval. | Receipt tax off until reviewed |
-| **Owner-confirmed** | A choice the owner made directly, with a date in the repo. | TECH-01: Expo + TypeScript, 17 Oct 2026 |
+| **Owner-confirmed** | A choice the owner made directly, with a date in the repo. | TECH-01: Expo + TypeScript, 17 Oct 2026; MIG-01: fresh launch, 25 Oct 2026 |
 | **External proof** | A dated account, contract, licence, registration, qualified review, measurement or release artefact. | None exists for any DEC row today |
 
 - **Writes the row** is the last goal in the row's *Proved by* list. Under the ledger rules it is the
   only goal that sets the result.
-- **Board state** is from `status.json` as read on 25 Oct 2026. OW-1 is `claimed` and is being worked
-  separately. No other goal named here has a started status.
-- No entry records an approval, account, licence or measurement, because none has dated proof.
+- **Board state** is from `status.json` as read on 25 Oct 2026. OW-1 and QA-1 are `done`; OW-2
+  is `done` after acceptance; AR-1 is `claimed`. OW-1 evidence is integrated on `main` (tracker UI-01).
+- No entry records an approval, account, licence or measurement, because none has dated proof. The
+  owner's DEC-15 answer (MIG-01) is a scope answer, not an external approval.
 
 ## 1. Register at a glance
 
@@ -50,10 +53,10 @@ Three kinds of fact are kept apart. Only the third closes a ledger row.
 | 14 | DEC-11 · Calling vendor, counsel, disclosure, recording and consent approvals (P2) | MS-7 | Owner + counsel | G26 → **G26** | Closed until approvals. P2, behind OW-12 | Counsel opinion, vendor contract and consent purpose, or `n/a` citing an OW-12 Fix or Stop memo |
 | 15 | DEC-12 · Minimum OS and native dependency versions recorded | MS-2 | Technical lead | DS-5 → **DS-5** | Android 10 / iOS 16 target selected, feasibility unchecked. Expo SDK 57 pinned | Minimum OS and native dependency versions in the architecture record |
 | 16 | DEC-12 · Reference-device performance and accessibility evidence | MS-5 | Technical lead | QA-3, QA-4 → **QA-4** | Device class selected. No exact device. No native build has run | Measurements on named reference devices (QA-3, QA-4) |
-| 17 | DEC-13 · Member scope holds | MS-3 | Product decision | OW-1, QA-3 → **QA-3** | Scope resolved (PROD-01, PROD-02). OW-1's tracker entry in progress elsewhere | OW-1's dated tracker entry; QA-3 shows no trainer or coaching surface |
+| 17 | DEC-13 · Member scope holds | MS-3 | Product decision | OW-1, QA-3 → **QA-3** | Scope resolved (PROD-01, PROD-02). OW-1 Done; tracker UI-01 integrated | OW-1's dated tracker entry; QA-3 shows no trainer or coaching surface |
 | 18 | DEC-13 · Gym scope holds | MS-6 | Product decision | G23 → **G23** | Scope resolved | AC09 and AC26 evidence on release builds (G23) |
 | 19 | DEC-14 · Estimate formula suitability reviewed before estimates are enabled | MS-5 | Qualified reviewer + owner | SC-5, OW-6 → **OW-6** | Editable estimates selected, behind a flag. Manual targets work. No reviewer named | Qualified review of the formula and its explanation (OW-6) |
-| 20 | DEC-15 · Legacy-user migration, only if existing users are redirected | MS-5 | Owner + technical lead | OW-2 → **OW-2** | "No automatic migration" selected as a rule. **No dated owner answer on whether any existing users will be redirected. Unresolved.** | A dated owner answer, then `n/a · <reason>` or a new migration goal (§3) |
+| 20 | DEC-15 · Legacy-user migration, only if existing users are redirected | MS-5 | Owner + technical lead | OW-2 → **OW-2** | **Answered.** Owner, 25 Oct 2026: "Fresh launch: no existing users or data will be redirected" (tracker MIG-01). Row reads `n/a · no legacy-user cutover …`. No migration or deletion authorised; historical snapshots and volumes preserved | The dated owner answer (MIG-01) is on record. The row is `n/a`, so no migration goal is needed (§2, §3) |
 | 21 | DEC-16 · Font and seed-content rights before the stores | MS-5 | Owner + technical lead | DS-2, CT-1, G14.data, QA-5 → **QA-5** | Three fonts bundled locally with OFL notices (unverified). Exercise seed is a development fixture. No food source | Licence files and in-app licences (DS-2); provenance per record (CT-1); food acquisition record (G14.data); full inventory (QA-5) |
 | 22 | DEC-16 · Barcode database and body-map licences | MS-8 | Owner + technical lead | AP-4, AP-7 → **AP-7** | P2. Candidates only | Body-map source licence and notice (AP-4); barcode database licence and attribution (AP-7) |
 | 23 | DEC-16 · Exercise media licence | MS-9 | Owner + technical lead | OW-14, AP-9 → **AP-9** | Deliberately last (owner, 7 Oct 2026). Nothing bought or accepted | A dated licence copy outside the public repo (OW-14); credits and licences list (AP-9) |
@@ -72,8 +75,8 @@ record, what proof is missing, the next practical action and what stays blocked 
   holds the trademark search or the clearance; DS-6 only records the result (gap G-1).
 - **Selected.** Momentum with the volt lime accent (OW-1 pack, 11 Oct 2026). The owner chose the
   accent on 4 Oct 2026 by a colour-vision test (archived OW-1 pack, Q5). PRD §27: no alternate theme
-  is reopened. OW-1's owner-dated tracker entry is being prepared by another worker and is not relied
-  on here.
+  is reopened. OW-1 is Done; tracker UI-01 records the existing owner-backed direction. This does
+  not supply trademark clearance or approved store assets.
 - **External proof on record.** None. "FitLog" is a working name (OW-2 pack). No store, registry or
   counsel search is recorded. No Momentum icon or store art is approved; docs/22 says both must be
   redrawn in volt lime.
@@ -97,13 +100,13 @@ record, what proof is missing, the next practical action and what stays blocked 
   providers, accounts and commercial decisions remain open". AR-1's card proposes Postgres (Supabase)
   as the system of record; that is not frozen or approved. §4 lists every known preference and
   candidate.
-- **External proof on record.** None. There is no `003-architecture-freeze.md` and no account,
+- **External proof on record.** None. There is no owner-approved `003-architecture-freeze.md` and no provisioned account,
   hosting region, contract or provider data-flow review (OW-2 pack: "Open; no accounts provisioned").
 - **Missing proof.** AR-1 box 1: the record, with the owner's approval in the tracker. The production
   hosting region for the India launch, chosen and recorded. OW-3 box 1 (`accounts.md`: each account,
   its owner and region, no secrets) and box 2 (spend alerts). Provider contracts or terms accepted;
   no Done-when box records these (gap G-3).
-- **Next action.** QA-1 lands; AR-1 proposes providers and the hosting region; the owner approves in
+- **Next action.** QA-1 is Done; AR-1 proposes providers and the hosting region; the owner approves in
   the tracker; OW-3 opens the accounts. Until then the owner can compare the shortlisted providers'
   region lists without signing up.
 - **Blocked until it closes.** OW-3 → PL-2 (also needs PL-1) → PL-3, PL-4, PL-6, AI-1 and G13 → PL-5
@@ -286,10 +289,10 @@ record, what proof is missing, the next practical action and what stays blocked 
 - **Selected.** Resolved scope (PROD-01, PROD-02, PRD §27): supersets in the MVP, health and imports
   in P2, the Gym Join state, and no trainer, private sharing, coaching or PT.
 - **External proof on record.** No external approval is needed. These are verification rows.
-- **Missing proof.** OW-1 box 1 (an owner-dated tracker entry that Momentum is the only UI direction
-  and the trainer UI is retired), in progress elsewhere and not relied on here. QA-3 box 4. G23's
-  AC09 and AC26 evidence.
-- **Next action.** OW-1 completes. No owner decision is open.
+- **Proof on record.** OW-1 is Done; tracker UI-01 records Momentum as the only UI direction and
+  retirement of the trainer UI. This is product scope, not release verification.
+- **Missing proof.** QA-3 box 4 and G23's AC09 and AC26 evidence.
+- **Next action.** QA-3 and G23 verify their respective release surfaces. No owner decision is open.
 - **Blocked until it closes.** Row A: MS-3. Row B: MS-6.
 
 ### DEC-14 · Estimate formula suitability
@@ -306,16 +309,20 @@ record, what proof is missing, the next practical action and what stays blocked 
   is an open question (gap G-7).
 - **Blocked until it closes.** Estimates stay off; OW-6 → QA-5 → MS-5.
 
-### DEC-15 · Legacy-user migration: **remaining owner blocker**
+### DEC-15 · Legacy-user migration: **answered, no cutover**
 
 - **Row and gate.** One row, "Legacy-user migration approved and verified, only if existing users are
   redirected", gate **MS-5**. OW-2 alone; **OW-2 writes it** (OW-2 box 2).
 - **Decides.** The owner and the technical lead, "before any legacy-user cutover" (PRD §27).
 - **Selected rule.** "Fresh build/no automatic old-data migration" (PRD §27 and §21.4, 11 Oct 2026).
-  The rule says the new build does not import old data automatically. It does **not** say whether
-  any actual existing users will be redirected to the new app, which is the question the row turns
-  on.
-- **What the repo shows.** These are facts, and none of them is an owner answer.
+  The rule says the new build does not import old data automatically. On its own it did not say
+  whether any actual existing users would be redirected to the new app, which is the question the
+  row turns on.
+- **Owner answer (owner-confirmed, dated).** On 25 Oct 2026 the owner answered explicitly: "Fresh
+  launch: no existing users or data will be redirected." It is recorded as tracker decision
+  **MIG-01**. It is a scope answer. It is not an account, licence or external approval, and no other
+  approval is inferred from it.
+- **What the repo shows.** These facts are consistent with the answer. They are not the answer.
   - The pre-reset implementation was removed on 11 Oct 2026. Git history retains it, and a local
     snapshot was saved under `/private/tmp/fitlog-before-reset-20261011-195638/` (RESET-BASELINE).
   - Local Supabase database volumes were not deleted (RESET-BASELINE). Historical containers and
@@ -324,15 +331,19 @@ record, what proof is missing, the next practical action and what stays blocked 
     closed test and the first iOS review were "not started" (archived inbox). "None of the three hosts
     has been tried yet" (archived OW-2 pack, Q1). The current inbox asks for platform proof "not a
     claimed legacy deployment".
-  - These suggest there is no public v1 user base. But none is a dated statement by the owner and the
-    technical lead, and none covers testers who ran a pre-reset build or the owner's own pre-reset
-    data.
-- **Current state.** **Unresolved.** This register does not record "no migration".
-- **Missing proof.** A dated owner and technical-lead answer in the tracker decision log. Then either
-  the ledger row reads `n/a · <reason>` (written by OW-2), or a migration goal is added to GOALS.md.
-- **Next action.** The owner answers the questions in §3.
-- **Blocked until it closes.** OW-2 box 2, so OW-2 cannot be Done. On the board that keeps **OW-3,
-  OW-4, OW-5, OW-6, OW-8, DS-6 and MS-0** blocked, because each needs OW-2. MS-5 also waits on the row.
+- **Current state.** **No legacy-user cutover.** The ledger row reads `n/a · no legacy-user cutover;
+  owner confirmed fresh launch with no existing users or data redirected on 2026-10-25 (tracker
+  MIG-01)`. No migration goal is added, because none is needed.
+- **What the answer does not do.** It authorises no deletion and no migration. Git history, the
+  `/private/tmp` reset snapshot, the local Supabase volumes and the historical containers stay as they
+  are. This register did not check that the snapshot or volumes still exist; with no cutover, nothing
+  depends on them.
+- **Not recorded.** A separate technical-lead signature. MIG-01 records the owner's answer only, and
+  none is claimed here.
+- **Next action.** None for DEC-15. The independent verifier passed all three OW-2 boxes and the
+  reviewed evidence is integrated on main.
+- **Blocked until it closes.** Nothing waits on DEC-15 or OW-2 any longer. Successor goals retain
+  their other dependencies and external-proof requirements.
 
 ### DEC-16 · Licences: fonts and seed content (MS-5), barcode and body map (MS-8), media (MS-9)
 
@@ -348,7 +359,7 @@ record, what proof is missing, the next practical action and what stays blocked 
   Exercise media is the very last goal (owner, 7 Oct 2026, OW-14 card).
 - **External proof on record.** None.
   - Fonts: Google Sans Flex, Roboto Condensed and Noto Sans Devanagari are bundled locally with OFL
-    notices (002). This is uncommitted local work. DS-2 has not verified the licence files or the
+    notices (002). These notices are committed on main through QA-1. DS-2 has not verified the licence files or the
     in-app list.
   - Exercises: `supabase/development-catalogue.sql` is a development fixture, not launch content
     (CT-1 card).
@@ -382,11 +393,14 @@ record, what proof is missing, the next practical action and what stays blocked 
   OW-12 decides Fix or Stop.
 - **Blocked until it closes.** Row A: MS-7. Row B: MS-8.
 
-## 3. DEC-15: what the owner must answer
+## 3. DEC-15: the owner's answer
 
-This is a form, not an answer. A blank form does not count as approval (PRD §27).
+**Answer given: A, no cutover.** The owner, 25 Oct 2026: "Fresh launch: no existing users or data
+will be redirected." This is recorded as tracker MIG-01, and the ledger row reads `n/a`. It answers
+questions 2 and 3 below directly. Question 1 is background: with nobody redirected, its answer does
+not change the outcome. The form below is kept as the record of what was asked.
 
-**Questions for the owner (and the technical lead).**
+**Questions put to the owner (and the technical lead).**
 1. Has anyone other than the owner used a pre-reset FitLog build (a Play test track, TestFlight, Expo
    Go, or a shared or hosted backend) and kept data in it?
 2. Will the new store app reach any of those people as an update to an app they already have?
@@ -402,11 +416,13 @@ data, the mapping, the verification and the rollback, and it is gated no later t
 cutover date, whichever is first. The DEC-15 row's *Proved by* then names that goal. OW-2 box 2 is met
 by adding the goal, and the row stays `open` until the new goal passes it.
 
-`/private/tmp` is a temporary location on macOS. If Answer B is possible, confirm that the snapshot
-and the local volumes still exist before deciding. This register did not check them.
+`/private/tmp` is a temporary location on macOS. Answer B was not given, so nothing depends on the
+snapshot or the local volumes. MIG-01 preserves them and authorises no deletion. This register did not
+check that they still exist.
 
-**Owner answer (dated):** ______
-**Technical lead (dated):** ______
+**Owner answer (dated):** 25 Oct 2026, "Fresh launch: no existing users or data will be redirected."
+(tracker MIG-01)
+**Technical lead (dated):** not recorded. No signature is claimed.
 
 ## 4. Known region and provider preferences
 
@@ -436,7 +452,8 @@ What the repo records today. "Candidate" means named in a document but never cho
 
 ## 5. Gaps found for other goals
 
-None of these is fixed here; this run may not edit GOALS.md or ACCEPTANCE.md.
+None of these is fixed here. This run edits no GOALS.md card and no ACCEPTANCE.md row except
+DEC-15's result.
 
 - **G-1 · DEC-01.** No owner-lane card holds the trademark search and clearance. DS-6 box 2 only
   records it. Suggest the owner action be added to OW-1, DS-6 or a new owner card.
@@ -458,8 +475,9 @@ None of these is fixed here; this run may not edit GOALS.md or ACCEPTANCE.md.
 
 ## 6. Check against OW-2's third box
 
-Every "External proof on record" entry above reads "None", or names a candidate or uncommitted local
-work. The dated items cited are product rules (PROD-01 to PROD-12, 11 Oct 2026), the owner's stack
+Every "External proof on record" entry above reads "None", or names a candidate or local
+implementation evidence without release approval. The dated items cited are product rules (PROD-01 to PROD-12, 11 Oct 2026), the owner's stack
 confirmation (TECH-01, 17 Oct 2026), the owner's media-last decision (7 Oct 2026), the owner's accent
-choice (4 Oct 2026) and the owner's audience answer (10 Oct 2026). None of them is an account, a
-licence or an external approval. A verifier should confirm this independently.
+choice (4 Oct 2026), the owner's audience answer (10 Oct 2026) and the owner's DEC-15 fresh-launch
+answer (MIG-01, 25 Oct 2026). None of them is an account, a licence or an external approval. A
+verifier should confirm this independently.

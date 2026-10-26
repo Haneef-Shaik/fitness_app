@@ -6,10 +6,12 @@ Codex coordinates the authenticated local Claude workers. Cloud is a fallback if
 cannot work. Current handoff: [EXECUTION.md](EXECUTION.md). Status on the board remains authoritative;
 prepared evidence is not a completed goal.
 
-- **DEC-15 / OW-2:** confirm whether any existing users or data will be redirected into the rebuild.
-  The [dependency register](../evidence/OW-2/dependency-register.md) is prepared, but no dated answer
-  exists. A fresh launch needs a recorded no-cutover decision; a cutover needs an explicit migration
-  goal. No migration exemption has been recorded.
+- **DEC-15 / OW-2:** answered 25 Oct 2026. The owner confirmed a fresh launch: "no existing users or
+  data will be redirected" (tracker MIG-01). The DEC-15 ledger row reads `n/a`, and no migration goal
+  is needed. Historical snapshots and volumes are preserved; no deletion or migration is authorised.
+  Nothing more is needed from the owner on DEC-15. The
+  [dependency register](../evidence/OW-2/dependency-register.md) independently passed all OW-2 boxes
+  and was integrated on local main (`b4771d0`); OW-2 is Done.
 - The register maps all DEC-01–DEC-17 rows to their goals and gates. External accounts, legal review,
   licensing, device tests and pilot evidence remain open until actual proof is supplied.
 
@@ -279,3 +281,19 @@ OW-2 → OW-5 and OW-9 should start early:
 | Gym pilot | OW-12 | 10 weeks | not started |
 
 </details>
+
+## AR-1 supervision checkpoint — 26 October 2026
+
+Technical decisions and final sign-off are delegated to Codex by the owner on26October2026.
+No personal architecture approval is requested. Codex directs final verification and integration. Architecture review4 and guard
+review independently PASS with no medium/high/critical findings.185 pnpmcheck tests and39 newguard
+tests pass. The actualguardedrunners match8persistedschemas and exactsharedfixturebytes,16sets+2sessions,
+on a separately owned localAPI/database. Deliberatewrongbounds,values,nulls andmissingAC03IDs fail.
+[Guard proof and limits](../evidence/AR-1/guard-coordinator-gates.md).
+
+Localisolated checkpoints:ac71e51 docs,fcc9aed fixtures,e23e9ae guardedtools/retiredSQLdrafts. Claude
+finishes finalLOWdocclarifications, commandorder/commentfixes andall-boxhandoff/ownerpack. Fresh final
+goalverification andintegration remain; Codex records the architecture decision under delegation. AR-1 is notmerged orDone.
+Noexistingdatabase wasreset/migrated; nohostedCI/device/releaseacceptance claimed. Thefullbackend:test
+bundleisnotclaimedgreen:original4suitespassed55321 separately,newSQLguardspassedowned56321/56322.
+DeferredCItestbaseline/fullSHAhardening belongsPL-1; memberaggregates andbodyvectors remainMB-4/MB-6.

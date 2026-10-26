@@ -18,12 +18,12 @@
       "at": "2026-10-25T16:20:33.302Z"
     },
     "OW-2": {
-      "status": "not started",
-      "who": "You",
-      "ref": "",
-      "note": "25 Oct reconciliation: product scope is selected (PROD-01 to PROD-12). Remaining: DEC-01 to DEC-17 states and proofs; each now has a row in docs/plan/ACCEPTANCE.md.",
-      "by": "session:You",
-      "at": "2026-10-25T14:35:15.008Z"
+      "status": "done",
+      "who": "Codex",
+      "ref": "b4771d0",
+      "note": "All three boxes independently PASS on attempt 2; minor stale references corrected. Owner MIG-01 resolves DEC-15 n/a. pnpm check and planner sync checks pass; reviewed evidence fast-forward integrated on local main. Other DEC proofs remain open.",
+      "by": "session:Codex",
+      "at": "2026-10-25T18:33:49.101Z"
     },
     "OW-1": {
       "status": "done",
@@ -56,6 +56,14 @@
       "note": "25 Oct reconciliation: the rebuild has no AI gateway yet; the v1 config.py note no longer applies.",
       "by": "session:S6",
       "at": "2026-10-25T14:35:15.199Z"
+    },
+    "AR-1": {
+      "status": "in review",
+      "who": "Codex",
+      "ref": "12b8a20",
+      "note": "Owner explicitly delegates final decisions26Oct2026; Codex approved ADR003 under AUTH-01/ARCH-01. Complete backend bundle now PASS after sole additive private-function local migration. Both scoped reviews PASS,185check+39guard tests PASS. Fresh independent all-box Claude verifier running; no owner approval wait; integrate only after PASS.",
+      "by": "session:Codex",
+      "at": "2026-10-26T03:43:33.784Z"
     }
   }
 }

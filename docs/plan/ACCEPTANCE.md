@@ -131,7 +131,7 @@ lists what still stands between a gate and its declaration.
 | DEC-13 | — | Member scope holds: supersets MVP, health and imports P2, no trainer or coaching | OW-1, QA-3 | MS-3 | open |
 | DEC-13 | — | Gym scope holds: Join state, no trainer, private sharing or PT | G23 | MS-6 | open |
 | DEC-14 | — | Estimate formula suitability reviewed before estimates are enabled | SC-5, OW-6 | MS-5 | open |
-| DEC-15 | — | Legacy-user migration approved and verified, only if existing users are redirected | OW-2 | MS-5 | open |
+| DEC-15 | — | Legacy-user migration approved and verified, only if existing users are redirected | OW-2 | MS-5 | n/a · no legacy-user cutover; owner confirmed fresh launch with no existing users or data redirected on 2026-10-25 (tracker MIG-01) |
 | DEC-16 | — | Font and seed-content rights before the stores | DS-2, CT-1, G14.data, QA-5 | MS-5 | open |
 | DEC-16 | — | Barcode database and body-map licences | AP-4, AP-7 | MS-8 | open |
 | DEC-16 | — | Exercise media licence | OW-14, AP-9 | MS-9 | open |

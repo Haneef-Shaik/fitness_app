@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Updated | 25 October 2026 |
-| Current baseline | New mobile/theme foundation after the 11 October reset, with connected member and gym work in progress (uncommitted; QA-1 lands it on `main`) |
+| Current baseline | Reviewed mobile/backend foundation on local `main` (QA-1 Done); architecture freeze AR-1 in progress |
 | Requirements | [PRD](PRD.md) |
 | Delivery sequence | [Master plan](23-MASTER-PLAN.md) and [goal cards](plan/GOALS.md) |
 | Goal status | [plan/status.json](plan/status.json), changed only through `scripts/plan/status.mjs` or the board |
@@ -29,7 +29,7 @@ recoverable, but it is not evidence for this rebuild.
 | --- | --- | --- |
 | Product requirements | Complete, consolidated in `docs/PRD.md` | External gate evidence; product rules selected in v2.1 |
 | Design | Relevant Momentum PRD v2.1 journeys updated in Figma and reviewed | Full Hindi/platform variants, real assets and implementation QA |
-| Planning | 114 goal cards (94 retained, 20 added) reconciled with the reset on 25 October; every PRD scenario, budget, decision and deliverable has a ledger row | QA-1, then AR-1; see `status.mjs ready` |
+| Planning | 114 goal cards (94 retained, 20 added) reconciled with the reset on 25 October; every PRD scenario, budget, decision and deliverable has a ledger row | QA-1 Done; AR-1 in progress; see `status.mjs ready` |
 | Application | Initial Expo/TypeScript theme foundation implemented locally | Native builds/device QA; data/API foundation and member flows |
 | Platform | Not started | New environment and deployment decision record |
 | Gym pilot | Not started | Fresh field-validation notes and counsel guidance |
@@ -57,6 +57,7 @@ Record a decision in this format:
 | 2026-10-17 (consolidated 25 Oct) | UI-01 | Momentum is the only UI direction; trainer UI T-01–T-05 is retired. Retain volt lime, dark/light/system, the five-tab member shell and the operational staff shell | Documentary consolidation of the existing owner-backed TECH-01 and PROD-01 decisions, PRD §19 and DEC-01; this records their scope without claiming a new owner approval on 25 Oct | OW-1; [Figma gap register](evidence/OW-1/figma-gaps.md); brand clearance remains DS-6 |
 | 2026-10-25 | PLAN-01 | Reconcile the goal plan with the reset. Keep all 94 IDs and statuses, add 20 goals for unowned PRD work, give every card a checkable contract and every milestone Exit checks, and add the acceptance ledger | The reset left the member backend, contract freeze, food AI, operations and acceptance runs without goals, and milestones had no checkable exit | [docs/23 §4](23-MASTER-PLAN.md#4-the-25-october-reconciliation); every goal |
 | 2026-10-25 | PLAN-02 | `main` is the integration branch once QA-1 lands the reset and the foundation on it | Integrating goals into the pre-reset `main` would mix v1 and the rebuild | [docs/23 §6](23-MASTER-PLAN.md#6-branches-and-integration); QA-1 |
+| 2026-10-25 | MIG-01 | No legacy-user cutover. The owner answered: "Fresh launch: no existing users or data will be redirected." No account, workout or food data is migrated into the rebuild. Historical snapshots and volumes (Git history, the 11 Oct reset snapshot, local Supabase volumes and historical containers) are preserved as they are; this decision authorises no deletion and no migration | Explicit owner answer to DEC-15 on 25 Oct 2026. PRD §27 needs a migration only if actual existing users are redirected. Records the owner's answer only; no technical-lead signature or other external approval is claimed | DEC-15 ([ledger](plan/ACCEPTANCE.md)); PRD §§21.4, 27; [OW-2 register](evidence/OW-2/dependency-register.md); OW-2 |
 | 2026-10-26 | AUTH-01 | The owner delegates final decisions, in their words: "i dont wanted to get involved i wanted you to act as the final decision make and guide the claude". Codex, the coordinating agent, accepts and acts from now on as the explicitly delegated decision-maker for routine product, engineering and vendor-technical choices and for final technical sign-off. The delegation decides; it does not create evidence. Account access, payments, external messages, legal and licence positions, and device proof still need real evidence | The owner does not want to be involved in routine decisions. Recorded so that later approvals name their authority truthfully | Every goal whose box asks for owner approval of a technical record; AR-1 |
 | 2026-10-26 | ARCH-01 | Codex, as the owner's explicitly delegated decision-maker (AUTH-01), approves [architecture record 003](architecture/003-architecture-freeze.md), revision 3 with the final low corrections N-1 to N-5, as the AR-1 freeze, with no exceptions. The owner did not personally review or sign 003. This row does not decide R-1 to R-7 | Independent [proposal review 4](evidence/AR-1/proposal-review4.json) and the independent [guard review](evidence/AR-1/guard-review.json) both PASS. Local gates: 185 tests in `pnpm check`, 39 guard tests, a 15-migration replay with a strict empty diff, 8 persisted schemas matching, and the shared AC03 fixture passing ([evidence](evidence/AR-1/)) | AR-1 box 1 (approval half); DEC-02 (technical part); QA-2 |
 
@@ -97,6 +98,8 @@ Record each completed goal in this format:
 | 2026-10-19 | Connected implementation checkpoint (partial delivery; no goal marked done) | Local Auth/adult onboarding, programme/schedule/logger/history, manual food/body/goals; gym register/plans/membership/freeze/payment/receipt/visit paths; bundled fonts and durable workout/gym outboxes | 10 domain + 27 mobile + 10 planner tests; member/gym/freeze backend integration including concurrent approvals and 50 concurrent gap-free receipts; browser gym-to-receipt fixture; web/iOS/Android exports; DB security advisor and strict function lint | Full remaining feature scope, production integrations/content/legal gates, native device/OS receipt/encryption/accessibility/performance QA and hosted CI remain open; [current record](architecture/002-connected-member-and-gym.md) |
 | 2026-10-25 | OW-1 · Done | Momentum decision and complete Figma-gap register independently verified on attempt2; integrated on main | [handoff](plan/runs/OW-1/handoff.md), [verdict](evidence/OW-1/verdict-attempt-2.json), implementation 7fe8191 | Live Figma drawing, Hindi/iOS implementation and release evidence remain with their goals |
 | 2026-10-25 | QA-1 · Done | Reviewed foundation integrated; clean-main-clone install, all checks, backend suites and both JS exports independently pass on attempt2 | [handoff](plan/runs/QA-1/handoff.md), [verdict](evidence/QA-1/verdict-attempt-2.json), implementation 67e6d1c | AR-1 contract freeze and the remaining platform/design/member/gym/release goals |
+
+| 2026-10-25 | OW-2 · Done | All 25 DEC rows registered; owner MIG-01 resolves DEC-15 as n/a for fresh launch | [handoff](plan/runs/OW-2/handoff.md), [verdict](evidence/OW-2/verdict-attempt-2.json), evidence commit b4771d0; standard gates pass | Other DEC proofs remain open; AR-1 architecture freeze in progress |
 
 <!-- handoff:OW-1:7fe8191 -->
 <details>
@@ -391,3 +394,93 @@ The final structural audit passed for 97 reviewed frames (editable text/componen
 or whole-screen raster fills), and representative dark/light screens passed visual review after repairs.
 Full Hindi screens, full iOS coverage and photographs remain incomplete; prototypes simulate selected
 journeys rather than production behavior. No application implementation or goal completion is claimed.
+
+<!-- handoff:OW-2:b4771d0 -->
+<details>
+<summary>OW-2 integration handoff — 25 October 2026</summary>
+
+# Handoff — OW-2 · Register every external launch dependency        attempt 2 · `codex/ow2-owner-resolution` · base 9f148c1 (session git snapshot; git not run)
+
+> **Integration disposition.** Independent Claude verification passed all three boxes on attempt 2
+> ([verdict](evidence/OW-2/verdict-attempt-2.json)). Codex corrected the minor stale references,
+> passed the standard gates and integrated `b4771d0` on local `main` before marking OW-2 Done.
+> DEC-15 alone is `n/a`; other DEC proof remains open. The submission record follows.
+
+**Outcome claimed.** None. All three Done-when boxes now have evidence, submitted for independent
+verification and then integration on `main`. OW-2 is **not** Done, and Done is not claimed.
+
+Prepared on 25 Oct 2026 by a bounded Claude documentation worker under Codex. This attempt records the
+owner's explicit DEC-15 answer of 25 Oct 2026: "Fresh launch: no existing users or data will be
+redirected." No other external approval is inferred from it.
+
+It wrote only these files:
+- [`docs/evidence/OW-2/dependency-register.md`](evidence/OW-2/dependency-register.md): the
+  DEC-15 state, detail and answer, with the header and §§5–6 brought into line;
+- [ACCEPTANCE.md](plan/ACCEPTANCE.md): the DEC-15 result cell only;
+- [the tracker](09-PROJECT-TRACKER.md): one decision row, MIG-01;
+- [INBOX.md](plan/INBOX.md): the DEC-15 pending action only;
+- this handoff.
+
+It ran no commands and no git, changed no status, contacted no external service, delegated nothing and
+recorded no technical-lead signature.
+
+## Done when
+
+| Box | Evidence submitted | Verifier checks |
+|-----|--------------------|-----------------|
+| `docs/evidence/OW-2/dependency-register.md` gives every DEC row in [ACCEPTANCE.md](plan/ACCEPTANCE.md) its current state and the proof that will close it | Register §1 covers all 25 DEC ledger rows (DEC-01 to DEC-17, every split row) with gate, decider, writer, current state and closing proof. §2 gives each its missing proof, next action and what stays blocked. DEC-15 now cites MIG-01 | §1 against ACCEPTANCE.md rows 115–139, one by one |
+| DEC-15 is answered: no legacy-user cutover (its ledger row set to `n/a · <reason>`), or a migration goal is added to this plan | **Answered: no cutover.** Tracker MIG-01 (2026-10-25) quotes the owner. The ledger row reads `n/a · no legacy-user cutover; owner confirmed fresh launch with no existing users or data redirected on 2026-10-25 (tracker MIG-01)`. No migration goal is needed. MIG-01 preserves historical snapshots and volumes and authorises no deletion or migration. Register §2 DEC-15 and §3 | The quote matches the owner's answer; the row is well-formed; nothing claims deletion, migration or other approval |
+| No entry claims an approval, account or licence without dated proof | Register §6: every "External proof on record" reads None, a candidate, or local implementation evidence without release approval. The dated owner items, MIG-01 included, are choices, not accounts, licences or external approvals. §4 keeps selected rules, owner-confirmed choices and candidates apart | Independently, entry by entry |
+
+## Acceptance evidence
+
+| Ledger row | Run (build or environment, date) | Result | Evidence | Row written here? |
+|------------|----------------------------------|--------|----------|-------------------|
+| DEC-15 (MS-5) | None. Documentation only, 25 Oct 2026 | `n/a · no legacy-user cutover; owner confirmed fresh launch with no existing users or data redirected on 2026-10-25 (tracker MIG-01)` | Tracker MIG-01; register §2 DEC-15 and §3 | Yes. OW-2 is the only prover, so it writes the row |
+
+The other 24 DEC rows are written by other goals and still read `open`. DEC-02 names OW-2 as a
+prover, but OW-3 writes it.
+
+## Gates
+
+| Gate | Command | Result |
+|------|---------|--------|
+| Plan check | `node scripts/plan/build.mjs --check` | PASS within coordinator `pnpm check`: 114 goals, 230 needs, 94 ledger rows; generated board and plan match GOALS.md |
+| Standard gates | `pnpm check` | PASS, coordinator run 25 Oct 2026: TypeScript, lint/design, 126 mobile + 10 domain + 22 planner tests and artifact/ledger validation |
+
+## For the verifier
+
+- **Ledger process.** ACCEPTANCE.md says a result changes only on a goal branch through `/run-goal`
+  and `goal-verifier`, and never by hand on `main`. The coordinator moved this candidate to `codex/ow2-owner-resolution` before
+  integration. Independent verification is required before merging to `main`.
+- **Technical lead.** PRD §27 names the owner and the technical lead. MIG-01 records the owner's
+  answer only. Whether that is enough for `n/a` is for the verifier or the owner to rule on.
+- **Coordinator refresh.** Codex refreshed the register's board-state and DEC-01/DEC-13
+  references after this worker completed: OW-1 and QA-1 are Done, UI-01 is integrated, OW-2 and
+  AR-1 are claimed. External approval and release proof remain open.
+- **Snapshot and volumes.** Not checked to exist. MIG-01 preserves them, and with no cutover nothing
+  depends on them.
+
+## Traps hit
+
+- **"No automatic migration" is not "no cutover".** The PRD rule covers import behaviour. Only the
+  owner's 25 Oct answer settles whether real users are redirected.
+- **Archived packs look like defaults.** The 10 Oct provider and region recommendations were never
+  answered. They are recorded as candidates, not preferences.
+- **Q7 is not a region choice.** "our target udience is India/US and Europe all" is audience intent
+  (PRD §27).
+
+## Found for other goals
+
+Gaps G-1 to G-8 are unchanged (register §5). None was fixed here.
+
+## Still external (not OW-2 blockers)
+
+Other DEC rows retain their specified external proof or release verification: accounts and region,
+counsel, accounting review, DLT and Meta, store billing, the AI vendor, devices, licences, pilot field
+work and scope checks. Long-lead work that can
+start now: OW-9 field work, the DEC-01 name search and clearance, and DEC-04 counsel. DLT and Meta
+verification (OW-5) can start once OW-2 is Done. The DEC-09 photo policy (the owner's call: a nightly
+object copy or an explicitly accepted gap) is needed by PL-5 before MS-1.
+
+</details>

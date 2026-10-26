@@ -7,6 +7,17 @@ the older choice of Claude as the top-level coordinator in ORCHESTRATOR.md. It a
 implementation and coordination; it does not supply missing accounts, legal approvals,
 device results, field studies or provider credentials.
 
+## Decision authority — owner delegation, 26 October 2026
+
+The owner explicitly instructed: "i dont wanted to get involved i wanted you to act as the final
+decision make and guide the claude". Codex is the final decision-maker for routine product and
+engineering choices and technical acceptance, and directs Claude's implementation and independent
+verification. This supersedes earlier requests for the owner to personally approve AR-1/G-1.
+Record decisions as Codex acting under this explicit delegation; never claim a personal owner
+review or signature. Codex approves ADR003 after the independent proposal and guard passes.
+Independent goal verification, actual gates and integration remain required. Do not ask the owner
+again for routine technical sign-off. External evidence must still be real.
+
 ## Responsibilities and completion
 
 Codex selects dependency-ready work, assigns a bounded goal to Claude, reviews the resulting
@@ -29,12 +40,13 @@ These are observations from this session, not completed goal claims:
   is now on local `main`; implementation commit `67e6d1c` contains the reviewed foundation. Unrelated
   marketing artifacts, review screenshots, error.log and ignored environments were preserved.
 - 114 goals, 230 dependencies, 94 acceptance-ledger rows. OW-1 and QA-1 are Done after independent
-  passes on attempt 2 and integration. OW-2's dependency register is prepared but DEC-15 awaits the
-  owner. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
+  passes on attempt 2 and integration. OW-2's dependency register records the owner's fresh-launch
+  decision (MIG-01); all three boxes independently passed and `b4771d0` is integrated on main.
+  OW-2 is Done. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
   respect SP0 before contract-dependent feature work.
 - `pnpm check` passed before this handoff: TypeScript, lint/design rules, 10 domain tests,
-  27 mobile tests, 21 planner tests and contract/ledger validation. New planner sync tests
-  are additional checks. This is not backend, native-device or release acceptance evidence.
+  126 mobile tests, 22 planner tests and contract/ledger validation on the reviewed foundation.
+  This is not native-device or release acceptance evidence.
 - Claude Code is installed and its login is confirmed with normal macOS keychain access.
   Sandboxed commands report no login because they cannot access that keychain. Launch the
   bounded local Claude worker through the approved execution tool; do not copy credentials.
@@ -55,9 +67,72 @@ These are observations from this session, not completed goal claims:
 - ORCHESTRATOR.md O2–O5 remain unimplemented: `status.mjs next --slots 1` is unsupported;
   there is no working continuous scheduler, recovery ledger, runner or kill-drill evidence.
   Do not represent the existing agent prompts as an operating unattended service.
-- Hourly local supervision was proposed, but automatic approval review rejected creating it because
-  recurring resource use and project edits require explicit scheduling authorization. The owner was
-  asked through the chat; no automation exists unless a later approval and successful creation say so.
+- The owner explicitly approved hourly local supervision on 25 October. The thread heartbeat
+  `fitlog-coordinate-local-claude-delivery` is ACTIVE and resumes this chat hourly for bounded
+  Codex-coordinated local Claude work. This is distinct from the unimplemented O2–O5 Claude runner.
+  The owner also confirmed a fresh launch with no existing users or data redirected; DEC-15 is
+  recorded as not applicable through completed OW-2.
+
+## Active workers and verified checkpoint — 26 October 2026
+
+AR-1 remains claimed, isolated and unmerged. Three new branch checkpoints are local:
+`ac71e51` architectureR2 corrections, `fcc9aed` sharedfixtures/privateformula SQL/evidence,
+`e23e9ae` guardedrunners/wiring and retirement of5obsoleteSQLdraft/generatorfiles.
+No existing migration changed; no main integration or push occurred.
+
+Both independent reviews PASS with no medium/high/critical finding:
+[proposal review4](../evidence/AR-1/proposal-review4.json),
+[guard review](../evidence/AR-1/guard-review.json). Proposal review explicitly permits its final5LOW
+corrections without another rereview. The code review's actual-run conditions are fulfilled by
+[real runner output](../evidence/AR-1/real-runners.log) and
+[mutation probes](../evidence/AR-1/real-runner-probes.json).
+[Coordinator disposition](../evidence/AR-1/guard-coordinator-gates.md).
+
+Primary `pnpm check` passes185 tests (37domain/126mobile/22planner) after runnerwiring and SQL
+hardening. All39 new backend guard tests pass independently. Direct sourceguard passes15migrations,
+14unchanged+1new,2configuredseeds,no straySQL; actualCI missing/blank,zero andmissingref probes fail.
+Two reported freezeprivilege uncertainties were checked on ownedreplayDB: freeze_projection
+execute=false for authenticated/anon; freeze_action=true authenticated,false anon; no newmigrationneeded.
+
+Both actual newguardrunners PASS using realCLIstatus/Docker/psql on ownedproject
+`/tmp/fitlog-ar1-replay-20261026`, API56321/DB56322. All8persisted schemas match version0.1.0 and
+manifesthash. ExactsharedfixturebytesSHA256bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877
+pass16sets+2sessions. Snapshotbound, expectede1RM, null→zero andmissingAC03ID mutations each fail;
+normalinputreruns pass, originalsuntouched. The hardenedSQLscript itself is now executed, not predicted.
+Earlier full15migrationsempty-to-head, strictpublic/private/storageemptydiff, structuraldriftprobe,
+SQLlint and original4backendregression/isolation suites remain recorded:
+[replay verification](../evidence/AR-1/replay-verification.md).
+
+Owned replay initially had onlyDB, so runners correctlyrefused noAPI_URL. Coordinator stopped ONLY
+thatownedproject with volume preservation and restarted it with localgateway/REST. Realrunners then
+passed. Existing55321stack was not stopped/reset/migrated. Fullsingle-command backend:test has NOT
+run against55321 because branchformula migration is intentionallyunapplied there: original4suites
+passed separately there, newguards/SQL on ownedfullymigrated56321/56322. Record split honestly.
+No hostedCI, device or release acceptance is claimed. Preserve all unrelated files/environments.
+
+Current nativeClaude workers (dontAsk; file tools and scoped exact tests only, no DB/git actions):
+
+| Phase | Session | Owned writes |
+|---|---|---|
+| Final5LOW proposal corrections and current-state addenda | `87b38618-923e-4ecc-8c27-1757ca90bd2d` | ADR003/checkpoint/testplan/revision3/phase2Acorrections + low-dispositions; no handoff or ownerpack |
+| Immediate guard review L2 and comment precision | `abdad183-e9c7-4bf1-98c4-fd28b48b08c2` | backend:test order only, two modulecomments, phase2Cwording + finaldispositions; no behavior/schema changes |
+| Final all-box handoff and approval pack | `dcfa5571-82c0-4522-b26c-c01cafaef293` | new runs/AR-1/handoff.md and owner-packs/AR-1.md only |
+
+Completed reviewers were headless tool15735/log`/tmp/fitlog-ar1-proposal-review4.jsonl` and
+73881/log`/tmp/fitlog-ar1-guard-review.jsonl`. No reviewer remains running. Fixturehardening e0bf2068
+completed and stopped. Finalcode L1CItestbaselinehandling andL4fullSHAenforcement are assignedPL-1;
+MB-4/MB-6/othernamed implementation follow-ups remain explicit.
+
+Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
+Read [supervisor state](runs/AR-1/supervisor.json) and reconcile3workers before dispatch. Collectfinal
+narrowcorrections, verify commandorder/diff, synchronize durableevidence/currenttruth and commit
+handoff. The owner explicitly delegated final decisions to Codex on26October2026 (authority above).
+Codex approved ADR003 in tracker ARCH-01 under AUTH-01; no personal owner signature is claimed.
+Candidate12b8a20 is submitted to the fresh independent goal-verifier, tool4901, log
+`/tmp/fitlog-ar1-verdict-attempt-1.jsonl`. All earlier workers stopped. The complete bundled backend
+gate now passes on55321 after only the additive3privatefunctionmigration, with no reset/userrowchanges.
+Integrate only after final verifier PASS; do not request routine technical approval from the owner.
+Acceptance rows remain open where AR-1 is not the last prover.
 
 ## Resume order
 
@@ -68,14 +143,17 @@ These are observations from this session, not completed goal claims:
    and verify Claude installation/authentication there. Local credentials are not automatically
    cloud credentials. Establish the repository revision and transfer reviewed foundation commits
    before dispatching work against that checkout.
-3. Reconcile OW-1 against the existing dated Momentum decision and documented Figma gaps.
-   Prepare OW-2's dependency register from known evidence, leaving actual external approvals
-   unresolved. OW-9 requires real field work. Do not invent owner approval or completion.
-4. Review/adopt the foundation through QA-1, retain all unrelated local changes, run the full
-   card gates, and integrate the reviewed baseline on `main` before creating feature worktrees.
+3. OW-1, QA-1 and OW-2 are complete and integrated on main. OW-2's DEC-15 answer is MIG-01;
+   all other external approvals remain unresolved.
+   OW-9 requires real field work. Do not invent owner approval or completion.
+4. Inspect the AR-1 worker above and review its bounded phase output. Continue executable contract,
+   replay and shared-fixture work in that worktree after review. Codex records final architecture
+   approval under AUTH-01/ARCH-01, as explicitly delegated by the owner; independent final verification
+   and integration are still required before AR-1 Done. Preserve unrelated local changes.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
-   Manual Codex coordination can precede the automated scheduler. Before enabling unattended
-   execution, implement and verify O2–O5, including interruption recovery and explicit limits.
+   The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
+   running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified
+   before claiming the older Claude runner's unattended execution or crash-recovery guarantees.
 6. Continue through all milestone gates. Accounts, licensed assets, physical release-device
    evidence, legal review and real pilot durations remain external dependencies until proved.
 

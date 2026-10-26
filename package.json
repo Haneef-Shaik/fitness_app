@@ -15,7 +15,7 @@
     "test": "pnpm --filter @fitlog/domain test && pnpm --filter @fitlog/mobile test:ci && pnpm plan:test",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm plan:build --check",
     "backend:env": "node scripts/backend/environment.mjs",
-    "backend:test": "node scripts/backend/verify.mjs && node scripts/backend/verify-gym.mjs && node scripts/backend/verify-freeze-projection.mjs && node scripts/backend/verify-freezes.mjs",
+    "backend:test": "node scripts/backend/verify.mjs && node scripts/backend/verify-gym.mjs && node scripts/backend/verify-freeze-projection.mjs && node scripts/backend/verify-freezes.mjs && node --test scripts/backend/*.test.mjs && node scripts/backend/check-sql-sources.mjs && node scripts/backend/verify-contracts.mjs && node scripts/backend/verify-fixtures.mjs",
     "plan:build": "node scripts/plan/build.mjs",
     "plan:board": "node scripts/plan/serve.mjs",
     "plan:status": "node scripts/plan/status.mjs",

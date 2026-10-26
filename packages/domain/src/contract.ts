@@ -20,7 +20,7 @@ function exportedSchemas(modules: readonly object[]): Schemas {
   return Object.freeze(Object.fromEntries(entries.sort(byKey)));
 }
 export const contractSchemas = exportedSchemas([models, calculations, dates, finance]);
-/** What Postgres validates in private.contracts, built exactly as scripts/backend/contracts.ts:6 builds it. */
+/** What Postgres validates in private.contracts: the eight schemas supabase/migrations/20261017164336_validated_contracts.sql:5-13 loads. */
 export const persistedContracts: Schemas = Object.freeze({
   exercise: models.exerciseSchema, food: models.foodSchema, nutrients: models.nutrientsSchema, days: z.array(models.planDaySchema),
   instances: z.array(models.sessionInstanceSchema), set: models.performedSetSchema, measurements: models.bodyEntrySchema.shape.measurements, goal: models.goalSchema,

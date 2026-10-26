@@ -109,21 +109,19 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `19eea0f3-49fd-4754-a30d-158907def66e` | fitlog-mb1 / codex/mb1-identity | Continued independent read-only phase1E safety review after sleep |
-| QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Active Unicode guard corrections and R16 |
+| MB-1 | `6ff89e71-a366-4b00-8fd7-e20b307bfd54` | fitlog-mb1 / codex/mb1-identity | Reviewed disposable migration-list / before snapshot / RED continuation |
+| QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Unicode guard corrections and R16, mutations in progress |
 
-MB1reviewer805fad54 was idle after a computer-sleep API error, with NO final verdict. Codex stopped
-its process before resuming. Passing saved option flags made native Claude create copy19eea0f3;
-registry confirms only the copy active in MB1. It retains the independent read-only review scope.
-Codex independently reran104pure backend tests successfully. Candidate remains unapplied and
-27-check live suite unrun; B1/B2open. No live runner, replay continuation, sharedapply or teardown
-authorized. Collect the final safety verdict before deciding on any database step.
+Independent MB1review19eea0f3 DONE:104/104puretests, currentcandidatebytes accepted,
+threeLOWfindings, noCritical/High/Medium. Codex AUTH-01 accepts disposable-only continuation on
+existing replay. Any refusal STOP; no candidate/sharedapply/stop/teardown authorized.
+Before sharedapply MB1 must fix configport/config.json target binding and immediate preapply checks
+test-first, then obtain fresh independent review. No live RED result claimed at dispatch.
 
-QA9original31abe500 remains actively editing and testing its bounded phase2F. No duplicate worker
-was dispatched and no partial candidate was accepted. Fresh independent review follows completion;
-Prettier remains a separate nextphase, exact initial floor proof belongs at mainintegration, and
-hostednegativeCI requires specifically authorized external action. Neither goal is Done or integrated.
-No owner action needed.
+QA9writer remains active:77qualitytests GREEN reported, scratch mutations still running.
+Collect finished checkpoint before fresh independent review; no duplicate writer or candidate gate.
+Prettier separate nextphase; exactinitialfloor proof at mainintegration and specifically authorized
+hostednegativeCI remain open. Neither goal is Done or integrated. No owner action needed.
 
 ## Resume order
 
@@ -139,11 +137,9 @@ No owner action needed.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 16:33 UTC cycle confirmed the same MB1review and QA9Unicode/R16 workers
-   active with recent tool progress; MB1 native sleep continuation is19eea0f3 (old805fad54
-   interrupted by computer sleep). Main185tests and MB1pure104tests independently pass
-   on Node22.23.1. No duplicate dispatch or DB continuation authorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1633Z.md) records tests and limits.
+   The 26 October16:39UTC cycle accepted MB1disposable-only review and dispatched continuation;
+   QA9originalwriter remains active. Sharedapply still requires technical fixes and fresh review.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1639Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

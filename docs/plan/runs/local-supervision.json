@@ -14,19 +14,19 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Continued independent read-only phase1E safety review after computer sleep",
-      "sessionId": "19eea0f3-49fd-4754-a30d-158907def66e",
-      "shortId": "19eea0f3",
+      "phase": "Reviewed disposable-only continuation: migration list, before snapshot and RED",
+      "sessionId": "6ff89e71-a366-4b00-8fd7-e20b307bfd54",
+      "shortId": "6ff89e71",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "None: read/test only",
-      "database": "NO live DB/CLI/Docker/runner actions; replay continuation awaits fresh safety review.",
-      "previousReviewerSession": "805fad54 stopped after computer sleep interrupted response; NO final verdict. Resuming with saved option flags created copy19eea0f3, only copy active.",
+      "writes": "MB1 docs/evidence only; no code/config/SQL changes",
+      "database": "Only existing disposable56421/56422 migrations list, read-only snapshot before, suite red; no shared apply/candidate/stop/teardown.",
+      "previousReviewerSession": "19eea0f3 done: no critical/high/medium; three LOWs;104/104 puretests; Codex accepted disposable-only readiness.",
       "previousImplementerSession": "e26c3f2e stopped after F5/F3/F4 pure fixes; Codex104/104 backend pure tests pass",
-      "lastObservedAt": "2026-10-26T16:34:08.955854+00:00",
-      "observation": "Native authenticated registry busy under replacement session19eea0f3 PID42171; structured transcript continues read-only review. Old805fad54 absent from registry."
+      "lastObservedAt": "2026-10-26T16:39:23.315208+00:00",
+      "observation": "Authenticated registry busy PID77772. Shared config-port/config.json binding and immediate preapply checks remain MB1 prerequisites before shared authorization."
     },
     {
       "goal": "QA-9",
@@ -41,11 +41,11 @@
       "database": "No database/Supabase/Docker calls.",
       "previousImplementerSession": "f188b650 done:73 quality tests, type suppression guard and no-watchman correction; uncommitted",
       "previousReviewerSession": "ad123579 done: no commands ran; two LOW Unicode bypasses independently reproduced by Codex",
-      "lastObservedAt": "2026-10-26T16:33:34.222965+00:00",
-      "observation": "Native authenticated registry busy; recent structured transcript tool events confirm ongoing progress. No restart or new worker."
+      "lastObservedAt": "2026-10-26T16:39:23.315208+00:00",
+      "observation": "Original31abe500 busy PID40800.77 quality tests GREEN reported then scratch mutations in progress; no finished phase/checkpoint yet."
     }
   ],
-  "resume": "Reconcile actual native registry first. MB1 reviewer19eea0f3 continues sleep-interrupted805fad54; old process stopped before resume copied session. No final safety verdict yet; no live runner/replay/sharedapply/teardown authorized. Codex104/104 pure backend tests and main185tests pass. QA9 original31abe500 still actively writes/tests phase2F; do not launch another writer or independently test a changing candidate. Collect final checkpoint before fresh independent review. Prettier separate nextphase, exactfloor proof at mainintegration, hostednegativeCI specificexternal authorization remain open. OW1/OW2/QA1/AR1 Done. No owner action.",
-  "lastReconciledAt": "2026-10-26T16:35:16.021098+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1635Z.md"
+  "resume": "Reconcile6ff89e71 and31abe500 first. MB1 independent phase1E final collected /tmp/fitlog-19eea0f3-final.md:threeLOWs,noCritical/High/Medium. Codex accepted only disposable migrations/snapshot-before/RED; any refusal STOP preserve locks/envfiles.0or2withheld non-table notice lines accepted ONLY with exact manifest summary. No candidate/shared/stop/teardown. Before sharedapply fix config-port/config.json binding and fresh immediate preapply guards test-first + independent review. QA9writer actively runs scratch mutations, no reviewer yet; collect finished checkpoint before new phase. Main185tests/build/sync pass. No owner action; no goalDone/integration/externalaction.",
+  "lastReconciledAt": "2026-10-26T16:39:23.315208+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1639Z.md"
 }

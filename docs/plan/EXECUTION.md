@@ -71,22 +71,28 @@ CI-mode negative/positive baseline and literal workflow-script probes pass. Host
 Low nonblocking F1 (weight-only/body-fat-only acceptance vectors) is assigned to MB-6.
 [Checkpoint disposition](../evidence/AR-1/phase2A-acceptance.md).
 
-Current disjoint workers:
+Proposal PR-1..6 revision2 is checkpointed on the isolated goal branch at `3040ccf`; the completed
+docs worker is stopped. Durable review copies were independently parsed and matched to canonical
+records. Focused independent proposal review3 is running: tool session89597,
+`/tmp/fitlog-ar1-proposal-review3.jsonl`. It checks restore tombstones, rejected-request counting
+(including lock/subtransaction races), actor identity, replay policy and truthful evidence.
 
-- `71d2d674-9d77-46b2-b4e6-512a5d4a5f70` (`71d2d674`): phase2B new shared AC03 fixture,
-  real TypeScript calculator tests, private SQL formula migration and rollback-only SQL test file.
-  No database, API/model/index/package edits or git. The coordinator generated the new empty
-  migration through Supabase CLI after reading current official guidance. SQL is not yet executed.
-- `f2178f5b-1447-483a-9941-99da5753436b` (`f2178f5b`): proposal PR-1..6 corrections only.
-  A one-time canonical evidence read was approved after auto-review rejected a persistent grant.
-  Redundant manual JSON-copy checking was interrupted; resumed with the same saved permissions and
-  verified local evidence. No broad permission or bypass mode. No owner approval claimed.
+Fixture continuation: `7caf2e6b-6b7a-4fca-9eb5-448e1f3fdb6e` (`7caf2e6b`), same phase2B files.
+The old71d2d674 worker stalled at another unlisted read-only `rtk ls`. It was stopped; the resumed
+worker now uses `dontAsk`: unlisted commands are denied automatically, not approved, while file
+reads/edits and exact scoped test commands remain explicitly allowed. It must use file tools and
+report any tests it cannot run. No broad shell grant or bypass mode is enabled.
+
+No SQL fixture is executed yet. Read-only preparation confirmed the local PostgreSQL image is
+`public.ecr.aws/supabase/postgres:17.11.0.004` and inspected the installed `db diff --help`.
+No database was created, reset, upgraded or migrated. Future SQL/replay must use a disposable
+isolated test database and preserve all historical/user data.
 
 Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
-Read [supervisor state](runs/AR-1/supervisor.json) before dispatch. SQL execution must use a disposable
-isolated test database, with serialized replay/diff. Never reset historical/user data. Persisted-contract
-comparison, fixture SQL execution, all migrations replay/schema diff, proposal re-review, one owner
-approval and final all-box verification/integration still remain before AR-1 Done.
+Read [supervisor state](runs/AR-1/supervisor.json) first. Collect proposal review3 and the fixture
+output, verify each, then run persisted-contract comparison and full migration replay/diff in
+isolation. One owner approval of the completed ADR and final all-box verification/integration
+remain required before AR-1 Done.
 
 ## Resume order
 

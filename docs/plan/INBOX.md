@@ -284,11 +284,12 @@ OW-2 → OW-5 and OW-9 should start early:
 
 ## AR-1 supervision checkpoint — 26 October 2026
 
-No owner action yet. Contract checkpoint22c5386 independently passed targeted review; coordinator179
-tests/typechecks and CI baseline negative/positive probes pass. It remains isolated and unmerged.
-One low coverage follow-up (weight-only/body-fat-only body entries) belongs to MB-6.
+No owner action yet. Contract checkpoint22c5386 passed independent scoped review and coordinator179
+checks/CI baseline probes. Proposal revision2 is checkpointed3040ccf and under focused independent
+review. The fixture worker has resumed under a policy that denies unlisted commands automatically;
+its source/test result is still pending. None of this goal is merged or declared Done.
 
-Claude phase2B now prepares the shared AC03 TypeScript/SQL fixture and append-only formula migration;
-SQL has not run. A separate worker finishes proposal PR-1..6. Disposable DB fixture execution,
-persisted-contract checks and full replay/diff remain due. The completed reviewed ADR still needs
-one dated owner approval. No hosted CI, native-device or release acceptance is claimed.
+SQL fixture execution, persisted-contract comparison and isolated migration replay/diff remain due.
+No database was reset or migrated. The completed reviewed ADR needs one dated owner approval.
+Known follow-ups remain assigned: MB-4 no-eligible-session aggregate volume, MB-6 additional body-entry
+acceptance vectors. No hosted CI, native-device or release acceptance is claimed.

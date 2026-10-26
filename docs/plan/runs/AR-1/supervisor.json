@@ -1,27 +1,28 @@
 {
   "goal": "AR-1",
-  "phase": "2B shared fixture plus proposal corrections",
+  "phase": "proposal review3 and fixture2B implementation",
   "state": "working",
   "executor": "local Claude Code",
-  "sessionId": "71d2d674-9d77-46b2-b4e6-512a5d4a5f70",
-  "shortId": "71d2d674",
+  "sessionId": "7caf2e6b-6b7a-4fca-9eb5-448e1f3fdb6e",
+  "shortId": "7caf2e6b",
   "worktree": "/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app",
   "branch": "codex/ar1-contract-freeze",
   "base": "9f148c1",
   "startedDate": "2026-10-25",
-  "resume": "Reconcile both workers. Review2B result and proposal PR corrections, independently verify each. SQL must run in a coordinator-approved disposable isolated DB; no existing database resets. Remaining persisted-contract comparison, source guards, empty-head replay/schema diff, concrete ADR owner approval, final all-box verifier and integration. Code22c5386 remains isolated.",
+  "resume": "Collect proposal reviewer89597/log, save verdict and fix only concrete defects. Reconcile fixture worker7caf2e6b, inspect actual output, execute tests if its shell denied and independently verify. Then use a disposable isolated database for SQL fixture, persisted-contract checks and full empty-head replay/schema diff. No existing/user/historical DB resets. Final ADR approval and all-box verifier/integration still required.",
   "heartbeat": "fitlog-coordinate-local-claude-delivery",
-  "launchNotes": "Directory-read approval auto-review rejected; specific read was approved one time. Proposal worker later attempted unnecessary copy character checks and was stopped/resumed with same saved permissions and instruction to use semantically verified local JSON copy. Staging copy removed after exact JSON comparison. No broad grant or bypass. Supabase migration CLI created only the new empty formula migration; phase2B does not execute SQL. Fixture worker71d2d674 requested a read-only rtk ls of exactly the goal checkout and relevant source folders; coordinator inspected via attach58149 and approved one time. No persistent shell grant.",
-  "phase1": "F1-F17/T1-T4 all resolved per review2; new proposal PR-1 medium and PR-2..PR-6 lower corrections assigned.",
+  "launchNotes": "Old fixture71d2d674 stalled at a second unlisted directory listing; stopped and resumed as7caf2e6b under stricter dontAsk policy, with explicit file tools/edits and exact test commands. All unlisted shell commands now fail instead of prompting; no broadened permissions or bypass. Docs writerf2178f5b completed and stopped before proposal review. Confirmed current local Postgres image public.ecr.aws/supabase/postgres:17.11.0.004 via credential-free inspect; db diff help read. No DB created/reset/applied.",
+  "phase1": "PR-1..6 proposal revision2 complete and checkpointed3040ccf; independent focused review3 running. Original reviewer JSON copies compare equal by parsed data. Owner approval pending.",
   "phase1ReviewLog": "/tmp/fitlog-ar1-phase1-review.jsonl",
   "phase1ReviewExecSession": null,
   "phase1ReviewVerdict": "docs/evidence/AR-1/phase1-review.json",
   "workers": [
     {
-      "phase": "2B shared AC03 fixture and formula definitions",
-      "sessionId": "71d2d674-9d77-46b2-b4e6-512a5d4a5f70",
-      "shortId": "71d2d674",
+      "phase": "2B shared fixture continuation",
+      "sessionId": "7caf2e6b-6b7a-4fca-9eb5-448e1f3fdb6e",
+      "shortId": "7caf2e6b",
       "state": "working",
+      "permissionMode": "dontAsk; unlisted commands are denied, not auto-approved",
       "allowedWrites": [
         "packages/domain/fixtures/ac03-training.v1.json",
         "packages/domain/src/fixtures.test.ts",
@@ -30,22 +31,19 @@
         "scripts/backend/sql/training-fixtures.sql",
         "docs/plan/runs/AR-1/phase2B.md"
       ],
-      "scope": "Only new fixture/formula files and TS checks, no DB execution, package/index/model changes or git. Actual calculators must be tested; no alternative reducer to hide known MB-4 aggregate gap."
-    },
-    {
-      "phase": "PR-1..6 proposal corrections",
-      "sessionId": "f2178f5b-1447-483a-9941-99da5753436b",
-      "shortId": "f2178f5b",
-      "state": "working",
-      "scope": "Previously allowed proposal/evidence docs only; code files excluded."
+      "scope": "Original phase2B only; no DB/Docker/Supabase/git/model/index/package/snapshot changes. Exact test commands explicitly allowed; report any denied execution honestly."
     }
   ],
-  "candidate": "22c5386",
+  "candidate": "3040ccf",
   "checkpointReviewLog": "/tmp/fitlog-ar1-checkpoint-review2.jsonl",
   "checkpointReviewExecSession": null,
   "phase2A": "Intermediate checkpoint22c5386 independently PASS by code reading with primary179 tests/typechecks and CI probes fulfilling conditions. Low F1 vectors assignedMB-6. Not merged or AR-1 Done.",
   "checkpointReviewVerdict": "docs/evidence/AR-1/checkpoint-review2.json",
   "contractReview3Log": "/tmp/fitlog-ar1-p2a-review3.jsonl",
   "contractReview3ExecSession": null,
-  "contractReview3Verdict": "docs/evidence/AR-1/p2a-review3.json"
+  "contractReview3Verdict": "docs/evidence/AR-1/p2a-review3.json",
+  "contractCandidate": "22c5386",
+  "proposalCandidate": "3040ccf",
+  "proposalReview3Log": "/tmp/fitlog-ar1-proposal-review3.jsonl",
+  "proposalReview3ExecSession": 89597
 }

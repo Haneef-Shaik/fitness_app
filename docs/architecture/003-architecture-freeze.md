@@ -51,8 +51,9 @@ keep what their authors saw. This addendum supersedes them.
   the snapshot, and the fixture runs exactly 16 set vectors and 2 session vectors. Missing AC03 IDs, a
   mutant bound and changed expectations each fail, and the originals then pass. All 15 migrations
   replay from empty to head with a strict empty schema diff and a clean lint. The original four backend
-  suites pass separately on the 55321 stack. The bundled `pnpm backend:test` has **not** run, because
-  the new migration is not applied on 55321. Evidence:
+  suites pass separately on the 55321 stack. The full bundled `pnpm backend:test` now passes on55321 after the sole additive private-formula
+  migration; the fresh independent goal-verifier re-ran it successfully
+  ([verdict](../evidence/AR-1/verdict-attempt-1.json)). Earlier split-target statements are historical. Evidence:
   [`guard-coordinator-gates.md`](../evidence/AR-1/guard-coordinator-gates.md),
   [`replay-verification.md`](../evidence/AR-1/replay-verification.md),
   [`real-runner-probes.json`](../evidence/AR-1/real-runner-probes.json).

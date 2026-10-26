@@ -1,0 +1,55 @@
+{
+  "goal": "AR-1",
+  "attempt": 1,
+  "verdict": "pass",
+  "boxes": [
+    {
+      "box": "`docs/architecture/003-architecture-freeze.md` covers every PRD \u00a721.1 component and \u00a721.3 rule, and the owner's or an explicitly delegated decision-maker's approval is in the tracker decision log",
+      "met": true,
+      "evidence": "Coverage: 003 \u00a73.1\u2013\u00a73.11 (lines 105\u2013477) cover all 11 components in PRD.md:1350\u20131352 (mobile clients, the versioned API, the relational store, private object storage, worker and jobs, scheduler, identity, subscription, AI gateway, messaging, monitoring). The \u00a721.1 constraints are covered: no client secrets (\u00a73.1, \u00a76); owner and composite keys, one active workout, receipt uniqueness and settled-finance grants (\u00a73.3:283\u2013291); derived tables rebuildable (:144); one access predicate shared by RLS and signed objects (\u00a73.4:319). For \u00a721.3, \u00a74.1\u2013\u00a74.16 plus the rule table \u00a74.15 (950\u2013970) cover /v1, owner from identity, both envelopes, cursor 50/100, mutation keys, base revision and If-Match, commit before success, status codes, PRO_REQUIRED, 202 with job ID, signed webhooks, decimal and minor-unit money, shared fixtures and instance-derived semantics. \u00a75 (992\u20131011) maps every domain row. Approval: docs/09-PROJECT-TRACKER.md has row AUTH-01 (the owner's delegation, quoted) and row ARCH-01 (Codex approves 003 rev 3 + N-1..N-5 as the explicitly delegated decision-maker, no exceptions, and says the owner did not sign personally). This box wording comes from `status.mjs show AR-1`. Both reviews PASS with no critical, high or medium finding: proposal-review4.json and guard-review.json. Low findings are disposed in proposal-final-low-dispositions.md (N-1 checked against 003:296\u2013300) and guard-final-dispositions.md (L2/L3/N1/N2 fixed; L1/L4 routed to PL-1 with exact actions)"
+    },
+    {
+      "box": "`packages/domain` exports a contract version, and a test fails when a schema changes without a version bump (seen to fail once)",
+      "met": true,
+      "evidence": "packages/domain/src/contract.ts:8 `export const CONTRACT_VERSION = '0.1.0'`, re-exported at src/index.ts:5. contract.test.ts:67\u201375 asserts the current snapshot bytes equal contracts/<CONTRACT_VERSION>.json and otherwise fails with 'Contract schemas changed without a version bump'. Tests 12 and 19 cover the root export and refuse a PATCH-only bump. In my `rtk proxy pnpm check`, domain reported `# tests 37 # pass 37 # fail 0`, including 'current schemas equal the snapshot for CONTRACT_VERSION' and 'HEAD@12b8a2014354: checked'. Seen to fail: phase2A.md mutation table M1.1 (models.ts max(100)\u2192max(101) gave 20 pass, 1 fail with that message; restored to 21/21), plus M1.2\u2013M1.4. The database half is M1.5 in real-runner-probes.json and test 28 of the backend unit suite"
+    },
+    {
+      "box": "All migrations replay from empty to head, and a schema diff against the replay is empty (command and result in the handoff)",
+      "met": true,
+      "evidence": "handoff.md:128\u2013142 gives the exact commands (`supabase --workdir /tmp/fitlog-ar1-replay-20261026 db start` / `db diff --local --schema public,private,storage --strict-coverage` / `db lint`) and their results. replay-start.log shows 15 'Applying migration' lines from member_core to training_formula_v1, both seeds, then started. replay-final-diff.log reads 'No schema changes found' with {\"diff\":\"\",\"dropStatements\":[]}. Structural drift probe: replay-drift-probe.json has diff 'DROP TABLE \"public\".\"ar1_drift_probe\"' and expectedDriftDetected true. Inputs are hashed in replayed-migrations.json (15 SHA-256) and the image digest in postgres-image-digests.json (sha256:b15d8621\u2026). My backend:test run printed 'SQL sources verified: 15 migrations (14 unchanged since main@9f148c13e093, 1 new)'. The replay is a local scratch project, not CI; CI replay is PL-1's"
+    },
+    {
+      "box": "One shared fixture vector (AC03 volume and e1RM) runs in both the TypeScript tests and a SQL test, from one file",
+      "met": true,
+      "evidence": "Single file: packages/domain/fixtures/ac03-training.v1.json. TypeScript: fixtures.test.ts:11 reads it, and tests 32\u201334 call the real setVolume, epley and sessionSummary. My pnpm check printed 'fixture sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877'. SQL: scripts/backend/sql/training-fixtures.sql has no expected values and rolls back. verify-fixtures.mjs passes the exact bytes and checks the hash notice. My `rtk proxy pnpm backend:test` (exit 0) printed 'training.v1 SQL check passed for packages/domain/fixtures/ac03-training.v1.json (sha256 bc0672b5\u20261877, received unchanged): training.v1: 16 set vectors and 2 session vectors passed in SQL; \u2026 in supabase_db_fitlog_rebuild_20261017 at http://127.0.0.1:55321'. Mutants fail in both languages: ts-mutations.json, real-runner-probes.json"
+    }
+  ],
+  "ledger": [
+    {
+      "row": "DEC-02@MS-1",
+      "ok": true,
+      "note": "Provers are AR-1, OW-2 and OW-3, so AR-1 is not the last prover. docs/plan/ACCEPTANCE.md is unchanged in main...HEAD and the row stays 'open'"
+    },
+    {
+      "row": "PD-02@MS-6",
+      "ok": true,
+      "note": "Provers are AR-1, PL-10, QA-12 and G23, so AR-1 is not the last prover. ACCEPTANCE.md is unchanged and the row stays 'open'"
+    }
+  ],
+  "gates": {
+    "check": "pass",
+    "backend": "pass",
+    "export": "n/a",
+    "journeys": "n/a"
+  },
+  "rules": {
+    "scope": "ok \u2014 the five retired files (supabase/contracts.sql, contract-validation.sql, gym-freezes.sql, gym-read-models.sql, scripts/backend/contracts.ts) are explained by 003 \u00a77 and the phase2C comparison, and the lane S2 notice is recorded. The CI change only adds the trusted contract baseline. There are no apps/mobile changes (git diff --stat main...HEAD -- apps/mobile is empty)",
+    "quality_bars": "ok \u2014 no .skip, .only, xit or eslint-disable in packages/domain/src or scripts/backend. No coverage thresholds are touched. The only migration change is the one new additive file 20261025234317_training_formula_v1.sql, with 14 base migrations unchanged per check-sql-sources",
+    "secrets": "ok \u2014 the only key-like strings are fake test values ('sb_secret_fixture-must-never-print') used to assert nothing is printed. local-stack.mjs never echoes status output",
+    "strings": "ok \u2014 no UI code changed",
+    "invariants": "ok \u2014 the migration adds three immutable security-invoker private functions with execute revoked from public, anon and authenticated (the SQL check asserts this). There is no table, grant or staff-access change",
+    "status_files": "ok \u2014 status.json and activity.json are unchanged. GOALS.md changes only box 1's wording to allow approval by an explicitly delegated decision-maker (authorised by AUTH-01). No box is ticked"
+  },
+  "problems": [],
+  "retry_guidance": "None required. Non-blocking: when integrating, update the lines that still say the bundled `pnpm backend:test` has not run (handoff.md 'CURRENT' bullet at line 32 and its header head `e23e9ae`, and 003 'Current state' line 25), and carry L1/L4 and the CI replay/diff into PL-1 as already routed."
+}

@@ -1,4 +1,4 @@
-# Handoff — AR-1 · Freeze the architecture and the versioned data contract        attempt 1 · `codex/ar1-contract-freeze` · `e23e9ae`
+# Handoff — AR-1 · Freeze the architecture and the versioned data contract        attempt 1 · `codex/ar1-contract-freeze` · verified candidate `12b8a20`
 
 ## Coordinator gate update — 26 October 2026
 
@@ -29,10 +29,10 @@ as written and are historical.
   approval". Its technical checks are unchanged.
 - **Boxes 2–4.** Evidence as below: 185 tests in `pnpm check`, 39 guard tests, a 15-migration replay
   with a strict empty diff, 8 persisted schemas matching, and the shared AC03 fixture passing.
-- **Not Done, not integrated.** The bundled `pnpm backend:test` has not run; the coordinator runs it
-  after applying the additive private formula migration to the existing local test stack, and no
-  outcome is assumed here. A fresh independent verifier then checks all four boxes, and the branch is
-  integrated locally only after that PASS. No status, acceptance or ledger entry has changed.
+- **Final verification PASS; integration pending.** The fresh goal-verifier passed all4boxes and
+  independently re-ran frozen install,185-test pnpmcheck and the full8-step backend:test on55321.
+  [Verdict](../../../evidence/AR-1/verdict-attempt-1.json). The bundled gate limitation is closed.
+  No goal status or acceptance result has changed on this branch; integration/bookkeeping follows.
 
 | Field | Value |
 |---|---|

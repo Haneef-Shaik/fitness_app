@@ -14,38 +14,38 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Phase1F pure-code ban classifier and shared-target/preapply guard corrections",
-      "sessionId": "5c18730f-c93d-486f-853f-7c9728d81489",
-      "shortId": "5c18730f",
+      "phase": "Fresh independent read-only phase1F safety review",
+      "sessionId": "bbe2fbba-ef38-4ea9-a882-b5700a6116c7",
+      "shortId": "bbe2fbba",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "scripts/backend and MB1 docs/evidence only; no SQL/contracts/dependencies",
+      "writes": "NONE: read/test only",
       "database": "NONE: no runner/DB/CLI/Docker/network/replay file/sharedapply/stop/teardown authorized.",
       "previousReviewerSession": "19eea0f3 done: no critical/high/medium; three LOWs;104/104 puretests; Codex accepted disposable-only readiness.",
-      "previousImplementerSession": "6ff89e71 stopped after completed disposable attempt3; migrations and before passed; suite red STOP user_banned, no accepted RED.",
-      "lastObservedAt": "2026-10-26T17:04:26.465977+00:00",
-      "observation": "Authenticated registry busy PID54851. Fix review19eea0f3 findings1/2 and F6 test-first, independent review before further DB. Banned must not imply session ended; M2 failclosed pending nonvacuous proof."
+      "previousImplementerSession": "5c18730f stopped after complete phase1F; Codex independently112/112 puretests passed on Node22.23.1.",
+      "lastObservedAt": "2026-10-26T17:33:36.480703+00:00",
+      "observation": "Authenticated registry busy PID90277. Review current bytes, config binding/late guards/banned classifier/M2 failclosed. No DBcontinuation authorized; sharedapply blocked pending nonvacuous M2. B1/B2 open."
     },
     {
       "goal": "QA-9",
-      "phase": "Fresh independent read-only review of complete QA9 phase2F candidate",
-      "sessionId": "68f44e38-7c4c-43ce-bdbb-bc9203468b1a",
-      "shortId": "68f44e38",
+      "phase": "Phase2G pure-code corrections for all three phase2F review lows",
+      "sessionId": "41abab03-da38-402e-9cb0-c0483d9b9af3",
+      "shortId": "41abab03",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "NONE: read/test only",
+      "writes": "scripts/quality and QA9 records/docs23 only; no configs/packages/deps/floor/CI",
       "database": "NONE",
       "previousImplementerSession": "31abe500 stopped after completed phase2F;77quality/262full tests reported; Codex independently77/77qualitypass.",
-      "previousReviewerSession": "ad123579 done: no commands ran; two LOW Unicode bypasses independently reproduced by Codex",
-      "lastObservedAt": "2026-10-26T17:04:26.465977+00:00",
-      "observation": "Authenticated registry busy PID54844; review all tracked/untracked changes, compiler/ESLint Unicode behavior and R16. Prettier separate nextphase; floorintegration and hostedproof open."
+      "previousReviewerSession": "68f44e38 stopped after source-only review: no critical/high/medium;3lows. Bash denied, no commands run.",
+      "lastObservedAt": "2026-10-26T17:33:36.480703+00:00",
+      "observation": "Authenticated registry busy PID90284. Test-first declaration filenames with linebreaks, UTF16 BOM refusal, JSsource refusal. Fresh independent review before separatePrettier. No DB."
     }
   ],
-  "resume": "Reconcile ALL active Codex automation chats then actual native registry before dispatch. Collect5c18730f pure phase1F and68f44e38 QA9review first. Retired31abe500/6ff89e71 stopped. MB1 disposable attempt3 stopped on403user_banned after27checks/exactfiveprofilefailures; no acceptedRED, candidateabsent, replayrunning. No DBauthorization. Newcode requires freshindependent review before bounded retry. B1/B2open. QA9Codex77qualitytests pass; awaitreview then separatePrettier, exactintegrationfloor, specificallyauthorizedhostedproof. No goalDone/status/ledger/integration/externalaction; noowneraction.",
-  "lastReconciledAt": "2026-10-26T17:04:26.465977+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1705Z.md"
+  "resume": "Reconcile ALL active Codex automation chats then nativeClaude registry. Collect bbe2fbba safetyreview and41abab03 phase2G first. Retired5c18730f/68f44e38 stopped. Codex112/112 purebackendtests pass. MB1 noacceptedRED; noDB/runner/replay/sharedapply/teardown authorized. New banned classification distinct from ended; M2failclosed until separately reviewed nonvacuous plan. QA9review sourceonly,3lows assigned phase2G; noindependentfullcandidateclaim. Freshreview then separatePrettier, exactflooratintegration, explicitlyauthorizedhostedproof remain. NeithergoalDone/integrated. Noowneraction.",
+  "lastReconciledAt": "2026-10-26T17:33:36.480703+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1733Z.md"
 }

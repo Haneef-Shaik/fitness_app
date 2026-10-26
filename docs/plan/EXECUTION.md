@@ -109,21 +109,21 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `5c18730f-c93d-486f-853f-7c9728d81489` | fitlog-mb1 / codex/mb1-identity | Pure phase1F: ban classification, config-port/config.json binding, immediate preapply guards |
-| QA-9 | `68f44e38-7c4c-43ce-bdbb-bc9203468b1a` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only phase2F review |
+| MB-1 | `bbe2fbba-ef38-4ea9-a882-b5700a6116c7` | fitlog-mb1 / codex/mb1-identity | Fresh independent read-only phase1F safety review |
+| QA-9 | `41abab03-da38-402e-9cb0-c0483d9b9af3` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2G: test-first fixes for three review lows |
 
-Prior workers31abe500 and6ff89e71 stopped after complete final reports. Disposable MB1 attempt3
-passed migration-list and before snapshot, then stopped at suite red:27checks/exactfive profile failures,
-but403user_banned was unrecognized. No accepted RED, candidate absent, replay left running.
-Codex assigned F6 plus review19eea0f3 findings1/2 to pure-code phase1F; banned response must not
-imply ended session or silently count a vacuous M2 as proof. No database/runner/sharedapply/teardown
-authorized. Fresh independent safety review required before further database execution. B1/B2 open.
+Prior workers5c18730f and68f44e38 stopped after complete final reports. MB1phase1F fixes are
+written; Codex independently112/112 puretests passed on Node22.23.1. The new banned class does
+not imply ended session. M2 failsclosed; sharedapply remains blocked pending separately reviewed
+nonvacuous M2 proof. No acceptedRED or database/runner/replay/sharedapply/teardown authorization.
+Current reviewer assesses disposable-only readiness separately from sharedapply. B1/B2 remain open.
 
-QA9phase2F writer reports77qualitytests and262fullchecks; Codex independently77/77qualitytests pass.
-New independent reviewer checks entire candidate. Prettier remains a separate nextphase; exactinitialfloor
-proof at integration and specificallyauthorized hostednegativeCI remain open. Neither goal Done/integrated.
-No owner action needed. Reconcile ALL active automation chats before dispatch, following the recorded
-16:40UTC overlap; preserve retired2500bef1 and the uncommitted overlap checkpoint as history.
+QA9phase2F source-only review found no critical/high/medium issue, but3lows: declaration filenames
+with linebreaks bypass refusal, UTF16 decoder mismatch, JSsource escapes quality scope. All3 assigned
+phase2G under AUTH01. Reviewer ran no commands (Bash denied); no independent fullcandidatepass
+claimed. Freshreview then separatePrettier; exactflooratintegration and explicitlyauthorized hostedCI
+proof remain open. Neither goal Done/integrated. No owner action needed. Reconcile ALL active
+coordinators before dispatch; preserve retired2500bef1 and overlap checkpoint as history.
 
 ## Resume order
 
@@ -139,9 +139,9 @@ No owner action needed. Reconcile ALL active automation chats before dispatch, f
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October17:05UTC cycle collected disposable STOP and completed QA9phase2F, then dispatched
-   pure MB1phase1F and fresh QA9review only. No DBcontinuation authorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1705Z.md) records tests and limits.
+   The 26 October17:33UTC cycle collected phase1F and QA9review, independently passed112puretests,
+   then dispatched MB1safetyreview and QA9phase2G corrections. No DBcontinuation authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1733Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

@@ -3,18 +3,19 @@
 | Field | Value |
 |---|---|
 | For | AR-1 phase 2: the database half of box 2, the SQL guards, and boxes 3 and 4. Lane S8 Member backend |
-| Written | 26 October 2026 in phase 1, and revised the same day after the independent review (T1–T4, F10, F12; [dispositions](phase1-dispositions.md)). Revision 2 (PR-5 and the routed checks of PR-1 and PR-2; [proposal-revision2.md](proposal-revision2.md)) changed only §2's CI policy and §7. **The author of this plan has run nothing.** Phase 2A's runs are in [phase2A.md](phase2A.md) |
-| Base | Branch `codex/ar1-contract-freeze` at `9f148c1`, plus phase 2A's uncommitted files and [003](../../../architecture/003-architecture-freeze.md) |
+| Written | 26 October 2026 in phase 1, and revised the same day after the independent review (T1–T4, F10, F12; [dispositions](phase1-dispositions.md)). Revision 2 (PR-5 and the routed checks of PR-1 and PR-2; [proposal-revision2.md](proposal-revision2.md)) changed only §2's CI policy and §7. Revision 3 ([proposal-revision3.md](proposal-revision3.md)) changed only the state lines and §7. **The author of this plan has run nothing.** Phase 2A's runs are in [phase2A.md](phase2A.md) and phase 2B's in [phase2B.md](phase2B.md) |
+| Base | Branch `codex/ar1-contract-freeze`, written at `9f148c1`. Phase 2A's snapshot is committed in `07757a5` and its corrections in `22c5386`; neither is merged. [003](../../../architecture/003-architecture-freeze.md) governs |
 | Approval | None needed to run this plan. Box 1 needs the owner's one approval, G-1 |
 
 ## Phase status
 
 | Part | State | Record |
 |---|---|---|
-| §1 steps 1–3 and M1.1–M1.4 (box 2, local half) | Done by phase 2A, uncommitted; not verified by this plan's author | [phase2A.md](phase2A.md). Where it differs from §1, phase2A.md governs |
+| §1 steps 1–3 and M1.1–M1.4 (box 2, local half) | Done by phase 2A, committed (`07757a5`, `22c5386`), independently code-read, not merged, hosted CI unproved; not verified by this plan's author | [phase2A.md](phase2A.md). Where it differs from §1, phase2A.md governs |
 | §1 step 4 and M1.5 (box 2, database half) | Not started | §1 |
 | §2 SQL-source and migration guards | Not started | §2 |
-| §3 box 3 and §4 box 4 | Not started | §3, §4 |
+| §3 box 3 | Not started | §3 |
+| §4 box 4 | In progress, not done: phase 2B drafted the files, untracked; the SQL has never run and `verify-fixtures.mjs` does not exist | §4; [phase2B.md](phase2B.md) |
 
 ## Ground rules
 
@@ -152,8 +153,8 @@ That last check is computed as follows. It runs git through `execFileSync` with 
 - CI sets phase 2A's `FITLOG_CONTRACT_BASELINE` to the same commit, so both guards judge against one
   trusted base.
 - **Both guards fail closed in CI (decision, 003 §8, revision 2).** The contract guard's half is the
-  `packages/domain` owner's candidate `22c5386`, implemented and tested locally, with independent
-  verification pending. No hosted CI run proves it yet, so this plan does not count it as evidence.
+  `packages/domain` owner's correction, committed in `22c5386` and independently code-read, but not
+  merged. No hosted CI run proves it yet, so this plan does not count it as evidence.
 
 ### The four SQL files (QA-1 F-8h; 003 §7, former G-9)
 
@@ -491,10 +492,14 @@ Also record:
 - Changing `sessionSummary`'s volume for sessions with no eligible set (MB-4, checkpoint F-20).
 - Changing phase 2A's baseline variable, its default or its CI behaviour. That belongs to the
   `packages/domain` owner. Failing closed in CI is a decision (003 §8), and the owner's correction is
-  candidate `22c5386`, not verified here.
-- The checks that 003 §12 routes elsewhere in revision 2:
-  - rejected requests are counted and replays are not (MB-1; PR-2);
-  - tombstones survive a restore, and a failed register append stops erasure (MB-7, PL-5; PR-1).
+  committed in `22c5386`, not merged, and not verified here.
+- The checks that 003 §12 routes elsewhere in revisions 2 and 3:
+  - rejected requests are counted and replays are not, with the 121st-request rule, the replay
+    `pg_locks` check and the concurrency sub-check (MB-1; PR-2, R2-4);
+  - tombstones survive a restore, a failed register append stops erasure, register retention covers
+    the `erased_at` commit, the restored project stays quiet until checked, and an erased account
+    cannot onboard again (MB-7, PL-5; PR-1, R2-1 to R2-3);
+  - `operation_result_v1` returns only the §4.4 projection (G17.api; R2-5).
 
   They need code that AR-1 does not build.
 - Any change to `status.json`, the GOALS.md boxes or ACCEPTANCE.md. AR-1 is an early prover of PD-02,

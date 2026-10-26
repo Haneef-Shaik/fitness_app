@@ -2,11 +2,35 @@
 
 | Field | Value |
 |---|---|
-| Phase | 1 of AR-1 (the architecture record, this checkpoint and the next-phase test plan), plus revision 1 after the independent phase-1 review and revision 2 after checkpoint review 2 (proposal findings PR-1 to PR-6) |
+| Phase | 1 of AR-1 (the architecture record, this checkpoint and the next-phase test plan), plus revision 1 after the independent phase-1 review, revision 2 after checkpoint review 2 (proposal findings PR-1 to PR-6) and revision 3 after the proposal re-review (low findings R2-1 to R2-8) |
 | Date | 26 October 2026 |
-| Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`, read at `9f148c1` plus phase 2A's uncommitted files |
+| Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`. Code is cited as read at `9f148c1`. On this branch, not merged: phase 2A's snapshot (`07757a5`), its corrections (`22c5386`), and revision 2 with the durable review copies (`3040ccf`). Revision 3's edits are uncommitted |
 | Lane | S8 Member backend |
-| **AR-1 status** | **Not complete.** Box 1 is drafted and revised, and waits for the owner's one approval (G-1). Box 2's local half is recorded by phase 2A; its database half has not started. Boxes 3 and 4 have not started |
+| **AR-1 status** | **Not complete.** Box 1 is drafted and revised, and waits for the owner's one approval (G-1). Box 2's local half is recorded by phase 2A; its database half has not started. Box 3 has not started. Box 4's files are drafted by phase 2B, and its SQL has never run |
+
+## Revision 3 (26 October 2026)
+
+**Input.** The proposal re-review, held in the main checkout at
+`/Users/Adya/personals/fitness_app/docs/evidence/AR-1/proposal-review3.json` and not on this branch.
+Its verdict is REVISE: PR-1 to PR-6 resolved, no medium or higher defect, and eight low findings,
+R2-1 to R2-8.
+
+**What it did.**
+- Checked each finding's cited lines in 003, the run files and the migrations, by reading only.
+- Accepted all eight and rejected none. R2-4 takes the lock-free replay fast path with a second locked
+  lookup. Each decision, the residual tests and their owners are in
+  [proposal-revision3.md](proposal-revision3.md).
+- PR-1 to PR-6, F1–F17 and T1–T4 stay resolved; none is reopened. No architecture was added beyond the
+  findings.
+- **Wrote:** [`003`](../../../architecture/003-architecture-freeze.md) (header, §3.3, §4.3, §4.6, §4.12,
+  §8, §9, §11 R-4, §12, §13); this checkpoint; [`test-plan.md`](test-plan.md);
+  [`proposal-revision2.md`](proposal-revision2.md) and [`phase1-dispositions.md`](phase1-dispositions.md)
+  (revision 3 state notes only); the review link in [`phase2A-corrections.md`](phase2A-corrections.md)'s
+  header; and `proposal-revision3.md`, new.
+
+**Did not:** run any command or use git; edit source, SQL, migrations, `status.json`, plan data, GOALS.md
+boxes or ACCEPTANCE.md; copy the review into this branch; touch Docker, a database or credentials; take
+any external action or delegate.
 
 ## Revision 2 (26 October 2026)
 
@@ -105,10 +129,10 @@ recorded runs where noted.
 
 | Box | State | Evidence or gap |
 |---|---|---|
-| 003 covers every §21.1 component and §21.3 rule, and the owner's approval is in the tracker | **Drafted, revised twice; approval PENDING** | Revision 2 corrected PR-1 to PR-6; a short re-review of the changed sections has not run. 003 §3 covers all 11 components. §4, §4.15 and §4.16 cover every §21.3 rule, including the two the review found missing: exercise semantics and no staff health API. §5 maps all 16 domain rows with the PRD's minimum operations. No tracker entry exists, and only the owner can add it (G-1) |
-| `packages/domain` exports a contract version; a test fails on an unversioned schema change, seen once | **In progress, not verified here** | At `9f148c1` nothing exported a version. Phase 2A (uncommitted) adds `CONTRACT_VERSION = '0.1.0'` through `packages/domain/src/index.ts:5` and records M1.1 failing once, then passing ([phase2A.md](phase2A.md)). The P2A-1 to P2A-8 corrections are committed as candidate `22c5386`. The coordinator reports 179 tests and the CI-baseline probes passing locally; independent verification is pending, and no hosted CI run proves it. Remaining: that verification, the database half (`verify-contracts.mjs`, M1.5), committing the snapshot so the baseline guard has history, and the goal verifier's own check |
+| 003 covers every §21.1 component and §21.3 rule, and the owner's approval is in the tracker | **Drafted, revised three times; approval PENDING** | Revision 2 corrected PR-1 to PR-6, and the re-review found them resolved. Revision 3 corrected its eight low findings (R2-1 to R2-8); a re-check of the revision-3 lines has not run. 003 §3 covers all 11 components. §4, §4.15 and §4.16 cover every §21.3 rule, including the two the review found missing: exercise semantics and no staff health API. §5 maps all 16 domain rows with the PRD's minimum operations. No tracker entry exists, and only the owner can add it (G-1) |
+| `packages/domain` exports a contract version; a test fails on an unversioned schema change, seen once | **In progress, not verified here** | At `9f148c1` nothing exported a version. Phase 2A adds `CONTRACT_VERSION = '0.1.0'` through `packages/domain/src/index.ts:5` and records M1.1 failing once, then passing ([phase2A.md](phase2A.md)). Its snapshot is committed in `07757a5` and the P2A-1 to P2A-8 corrections in `22c5386`. The coordinator reports 179 tests and the CI-baseline probes passing locally, and an independent code reading of the corrections passed (`p2a-review3.json`, main checkout). Not merged, and no hosted CI run proves it. Remaining: merging, so that the trusted base carries the snapshot history; the database half (`verify-contracts.mjs`, M1.5); and the goal verifier's own check |
 | Migrations replay from empty to head; schema diff against the replay is empty | Not started | 002 says a shadow replay of 14 migrations once showed no changes. That is a historical claim, not evidence for this box. Plan: test-plan §3 |
-| One shared AC03 vector runs in TypeScript and SQL from one file | Not started | AC03 values are inline in `packages/domain/src/calculations.test.ts:15-22`; no SQL function computes volume or e1RM. Plan: test-plan §4 |
+| One shared AC03 vector runs in TypeScript and SQL from one file | **In progress, not done** | Phase 2B drafted the fixture, its TypeScript test, `encoding.ts`, the `20261025234317_training_formula_v1.sql` body and the SQL check, all untracked ([phase2B.md](phase2B.md)). Its record shows the TypeScript side passing; the SQL has never run, and the runner `verify-fixtures.mjs` does not exist. Not verified here. Plan: test-plan §4 |
 
 ## Findings
 
@@ -120,7 +144,7 @@ new in revision 1.
 
 | # | Finding | Evidence | 003 | Owner |
 |---|---|---|---|---|
-| F-1 | At `9f148c1` no contract version was exported, and the "versioned Zod contracts" in 002 had no version anywhere. Phase 2A now adds 0.1.0 (uncommitted) | `packages/domain/src/index.ts` at `9f148c1` (lines 1-4); [phase2A.md](phase2A.md) | §8 | AR-1 |
+| F-1 | At `9f148c1` no contract version was exported, and the "versioned Zod contracts" in 002 had no version anywhere. Phase 2A now adds 0.1.0, committed in `07757a5`, not merged | `packages/domain/src/index.ts` at `9f148c1` (lines 1-4); [phase2A.md](phase2A.md) | §8 | AR-1 |
 | F-2 | The JSON Schema generator writes `supabase/contracts.sql`, which nothing executes; the database validates against the copy inside a 17 October migration. Three more draft SQL files sit outside `migrations/` (QA-1 F-8h) | `scripts/backend/contracts.ts:8`; `20261017164336_validated_contracts.sql:3-13` | §7 | AR-1 |
 | F-3 | No success or error envelope and no request ID. SQLSTATEs are mixed: `22023` covers both shape (400) and field rules (422); "Workout not found" raises `42501` (403) where the PRD wants 404. A revoked session gives `42501` in member and gym commands and `22023` in freeze commands, never 401. Already mapped: gym commands' `P0002` to `PT404`, and freezes' `40001` to `PT409`. Not pinned by any test: what member and gym commands' `40001`, `42501` and `22023` become over HTTP | `20261019122347_function_lint_cleanup.sql:77`; `20261017161031_member_core.sql:24-31`; `20261019140839_freeze_preview_binding.sql:16`; `20261019120824_gym_api_errors.sql:6`; `20261019140429_gym_freezes.sql:158,170` | §4.4, §4.5 | MB-1, G16.api |
 | F-4 | Request hashes are `md5` with different scopes: member commands hash `{entity, kind, base, payload}`; gym and freeze commands hash the whole command, ID included. No contract version is part of either, and 003 now keeps it out (§4.6) | `20261017161225_member_operations.sql:20`; `20261019121035_gym_read_models.sql:5`; `20261019140839_freeze_preview_binding.sql:14` | §4.6 | MB-3, G16.api |
@@ -153,11 +177,12 @@ new in revision 1.
      them and record that lane S2 was notified. Then run M2.1–M2.4, including the fail-closed checks
      on `FITLOG_BASE_REF`;
    - box 4: the AC03 fixture file with the no-eligible-volume vector, `encoding.ts`, the formula
-     migration, and the TypeScript and SQL runners (M4.1–M4.4);
+     migration, and the TypeScript and SQL runners (M4.1–M4.4). Phase 2B drafted the files; the SQL
+     runner, a first SQL run and most of M4.1–M4.4 remain ([phase2B.md](phase2B.md));
    - box 3: the replay and diff commands with the structural drift probe;
    - the standard gates.
 3. **Handoff** at `docs/plan/runs/AR-1/handoff.md`, mapping each box to its evidence (test-plan §6),
-   then a short re-review of the sections revisions 1 and 2 changed. Then the goal verifier. AR-1 is
+   then a short re-check of the lines revision 3 changed. Then the goal verifier. AR-1 is
    Done only after verification and integration (docs/23 §8).
 4. **Requests to other lanes**, to go in the handoff:
    - **S2:** notice that phase 2 deletes `gym-read-models.sql` and `gym-freezes.sql` after the
@@ -166,18 +191,27 @@ new in revision 1.
      `FITLOG_BASE_REF` from the CI event, never from files in the change, and use the same commit as
      `FITLOG_CONTRACT_BASELINE` (test-plan §2);
    - **`packages/domain` owner:** failing closed in CI is now a **decision** (003 §8), not a request
-     to consider. The correction (P2A-1 to P2A-8) is candidate `22c5386`: implemented and tested
-     locally, with independent verification pending. This worktree's `mobile-ci.yml` now sets the
-     trusted baseline (`:19-44`). The correction still needs
-     a hosted CI run that passes with the trusted base and fails without it. Also add the
+     to consider. The correction (P2A-1 to P2A-8) is committed in `22c5386` and independently
+     code-read, but not merged. This worktree's `mobile-ci.yml` now sets the trusted baseline
+     (`:19-44`). The correction still needs a merge, so that the trusted base carries the snapshot
+     history, and a hosted CI run that passes with the trusted base and fails without it. Also add the
      `.gitattributes` rule from phase2A.md limitation 3;
    - **MB-1:** confirm the §12 items in 003 that need a running PostgREST, including the
-     rejected-request counting check (PR-2);
+     rejected-request counting check (PR-2) with revision 3's 121st-request rule, the replay
+     `pg_locks` check and the concurrency sub-check (R2-4). Build the lock-free replay fast path with
+     its second locked lookup, and count the minute window before the day window (003 §4.3, §4.12);
    - **MB-7 and PL-5:** build and prove the external tombstone register, its fail-closed append and
      the restore import and purge (003 §3.3, §12; PR-1). Also create the actor row in onboarding's
-     transaction (PR-3). The store's account, vendor and retention stay owner-reserved (R-2, R-3, R-4);
-   - **G17.api:** keep `freeze_action`'s per-kind check before replay, and trim gym and freeze outcomes
-     with the replay projection (003 §4.3; PR-4);
+     transaction (PR-3). Revision 3 adds: erasure step 1 also sets `deletion_pending` and bans the auth
+     user, and an erased actor cannot onboard again (R2-1); register retention is anchored to the later
+     of the append and the `erased_at` commit (R2-2); the runbook keeps the restored project quiet
+     until the check passes, imports a cutover delta, and purges object copies by tombstoned prefix
+     (R2-3); support and system actor rows, and an erasure job that refuses them (R2-7). The store's
+     account, vendor and retention stay owner-reserved (R-2, R-3, R-4), and object copies are R-7;
+   - **G17.api:** keep `freeze_action`'s per-kind check before both replay lookups, and trim gym and
+     freeze outcomes with the replay projection (003 §4.3; PR-4). Whichever goal first ships
+     `operation_result_v1` for gym scope returns only the §4.4 projection, and tests that a demoted
+     manager gets only identifiers and status for a freeze approve stored before the trim (R2-5);
    - **OW-2:** write the dated DEC-15 entry for the owner-confirmed fresh launch.
 
 ## Approval
@@ -189,7 +223,8 @@ new in revision 1.
 The earlier gates G-2 and G-4 to G-10 are now engineering decisions in 003's body (003 §11). G-3, the
 region, is owner-reserved item R-1. OW-3 still opens every account, and nothing has been provisioned.
 Revision 2 adds no gate. The tombstone store's account, vendor and retention fall under the existing
-R-2, R-3 and R-4.
+R-2, R-3 and R-4. Revision 3 adds none either: the register's retention bound is R-4, and whether
+object copies exist is R-7.
 
 ## Resume
 

@@ -16,6 +16,10 @@
 - The P2A-1 to P2A-8 code fixes are committed as candidate `22c5386`. The coordinator reports 179
   passing tests and passing negative and positive CI-baseline probes. That is local evidence: no hosted
   CI run, no independent verification yet, and no acceptance.
+- **Revision 3 update.** Since this was written, an independent code reading of the corrections has
+  passed, and this revision with its review copies has been committed in `3040ccf`. All of it is on
+  this branch only: not merged, hosted CI unproved, not accepted
+  ([proposal-revision3.md](proposal-revision3.md), R2-6).
 
 ## Dispositions
 
@@ -145,6 +149,11 @@
   returns only identifiers and status. A demoted actor's `freeze_action` approve replay is refused with
   403 until freeze outcomes are trimmed. A revoked actor gets 404 from both definers and from
   `operation_result_v1`. Not built.
+- **Revision 3 (R2-5).** The interim rule ordered checks inside definers only, so
+  `operation_result_v1` could have returned an untrimmed freeze projection to a demoted manager. 003
+  §4.3 now has it return only the §4.4 projection from its first release, and 003 §12 adds the test: a
+  demoted manager asks for a freeze approve stored before the trim and gets only identifiers and
+  status. Not built.
 
 ### PR-5 · low · Failing closed in CI was only a request to "consider"
 - **Verified.**
@@ -164,7 +173,8 @@
   - The correction is candidate `22c5386`, implemented and tested locally (as the coordinator
     reports).
   - Independent code verification is pending, and no hosted CI run has shown it passing with the trusted
-    base or failing without it.
+    base or failing without it. (Revision 3: the independent code reading has since passed, and
+    `22c5386` is committed but not merged. Hosted CI is still unproved.)
   - 003 §8 says that, until then, CI is not proven to check any contract baseline, and that before the
     candidate it checked none.
 - **Changed.** 003 §8; checkpoint "Remaining AR-1 work" and box 2; phase1-dispositions T4 note;
@@ -181,6 +191,8 @@
 - **Decision.**
   - Both reviews are kept on this branch: [`docs/evidence/AR-1/phase1-review.json`](../../../evidence/AR-1/phase1-review.json)
     and [`docs/evidence/AR-1/checkpoint-review2.json`](../../../evidence/AR-1/checkpoint-review2.json).
+    (Revision 3: they were uncommitted when this was written. They are committed in `3040ccf`, on
+    this branch only, not merged.)
   - The phase-1 copy came from this worktree's staging copy. The coordinator verified that it is
     semantically identical and removed the staging duplicate. The review-2 copy came from the `/tmp`
     input.
@@ -223,5 +235,6 @@ The short re-review should check these:
 - No AR-1 box is complete, and **AR-1 is not complete**. No goal status, board, ledger or tracker entry
   was changed.
 - Candidate `22c5386` is described from the coordinator's report: implemented and tested locally. It is
-  not hosted-CI proof, not independently verified and not accepted.
+  not hosted-CI proof, not independently verified and not accepted. (Revision 3: an independent code
+  reading has since passed. It is still not merged, not hosted-CI proof and not accepted.)
 - Nothing in this revision was executed. "Verified" means checked by reading the cited file and line.

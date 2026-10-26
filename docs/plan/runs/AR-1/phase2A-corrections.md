@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Scope | Only the phase 2A findings P2A-1 to P2A-8 of the second checkpoint review (`/tmp/fitlog-ar1-checkpoint-review2.json`, phase 2A verdict REVISE). The proposal findings PR-1 to PR-6 belong to the docs-only worker and are not touched here |
+| Scope | Only the phase 2A findings P2A-1 to P2A-8 of the second checkpoint review ([`docs/evidence/AR-1/checkpoint-review2.json`](../../../evidence/AR-1/checkpoint-review2.json), first read at `/tmp/fitlog-ar1-checkpoint-review2.json`; phase 2A verdict REVISE). The proposal findings PR-1 to PR-6 belong to the docs-only worker and are not touched here |
 | Date | 26 October 2026 |
 | Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`, on top of `07757a5` (which committed `contracts/0.1.0.json` and `manifest.json`). Everything below is uncommitted |
 | Runtime | Node v26.7.0, Zod 4.6.7, TypeScript 6.0.3 (unchanged) |

@@ -352,6 +352,8 @@
   fails closed in CI. The correction (P2A-1 to P2A-8) is candidate `22c5386`, implemented and tested
   locally. Independent verification is pending, and no hosted CI run proves it. Details are in
   [proposal-revision2.md](proposal-revision2.md).
+- **Revision 3 note (R2-6).** `22c5386` is now committed and independently code-read, but not merged,
+  and hosted CI is still unproved ([proposal-revision3.md](proposal-revision3.md)).
 
 ## Checkpoint findings as first written
 

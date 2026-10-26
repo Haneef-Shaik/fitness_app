@@ -109,17 +109,19 @@ Read [current supervisor state](runs/local-supervision.json) and native session 
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `00be8cce-a882-4393-9d07-9442525ef316` | fitlog-mb1 / codex/mb1-identity | Phase 1C guarded replay preparation and cleanup race fixes; pure tests, no DB calls |
-| QA-9 | `74c7436b-a3ba-4301-af55-d6363c6c9c88` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent phase 2B quality review; read-only, no DB operations |
+| MB-1 | `a102fb68-5d26-4e2b-8889-2c4741ac0831` | fitlog-mb1 / codex/mb1-identity | Fresh independent phase 1C replay safety review; read-only and pure injected tests |
+| QA-9 | `b08f16c2-5483-4c08-95ab-738c95661588` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2C null JSON and coverage-ignore guard remediation |
 
 Both use approved local Claude auth and dontAsk with scoped tools, no bypass or overage.
-The completed MB-1 review closed prior remediation findings but found a high unsafe replay-command
-fallback and a medium raw-output secret risk. Phase 1C must fix all six review findings with pure
-injected tests before any DB authorization. The candidate remains unapplied and B1/B2 remain open.
-QA-9 phase 2B is written; Codex independently passed all35 quality tests. A fresh independent review
-is running before any commit/integration. Prettier/lint scope and hosted CI remain later phases.
-Neither may change main/status/ledger, apply migrations, commit, push, deploy or contact providers.
-Codex directs independent reviews and serialized integration. No owner action now.
+MB-1 phase 1C guarded replay preparation is written; Codex independently passed 83 pure backend tests.
+The fresh reviewer must check every safety fix before any database authorization. Candidate migration
+remains unapplied; the revised 27-check integration suite is unrun; B1/B2 remain open. Prior implementer
+00be8cce is stopped after its final result; no overlapping MB-1 writer.
+QA-9 independent 74c7436b review found a MED null-thresholds-file bypass (independently reproduced
+by Codex in scratch Git fixture) and LOW source coverage-suppression gap. New phase 2C fixes both.
+No thresholds/package/CI/dependency changes are authorized this phase. Prettier/lint scope and hosted
+CI remain later phases. Neither goal is Done/integrated. No DB lane, commit/push/deploy/provider action
+is authorized. No owner action now.
 
 ## Resume order
 
@@ -135,9 +137,9 @@ Codex directs independent reviews and serialized integration. No owner action no
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 07:44 UTC cycle collected both prior results and assigned the guarded MB-1
-   preparation and independent QA-9 review. No database lane is authorized and no goal is integrated.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T0744Z.md) records actual tests and limits.
+   The 26 October 08:48 UTC cycle collected both results and assigned fresh MB-1 safety review
+   and QA-9 phase 2C remediation. No database lane is authorized and no goal is integrated.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T0848Z.md) records actual tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

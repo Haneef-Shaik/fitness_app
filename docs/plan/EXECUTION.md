@@ -109,21 +109,21 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `bbe2fbba-ef38-4ea9-a882-b5700a6116c7` | fitlog-mb1 / codex/mb1-identity | Fresh independent read-only phase1F safety review |
-| QA-9 | `41abab03-da38-402e-9cb0-c0483d9b9af3` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2G: test-first fixes for three review lows |
+| MB-1 | `c5b052c9-0720-42fc-9be7-8ed6498e4e4f` | fitlog-mb1 / codex/mb1-identity | Reviewed isolated RED only, phase2-2-red-2 |
+| QA-9 | `908f412f-5536-4da2-84f7-743b8d1ec933` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only phase2G review |
 
-Prior workers5c18730f and68f44e38 stopped after complete final reports. MB1phase1F fixes are
-written; Codex independently112/112 puretests passed on Node22.23.1. The new banned class does
-not imply ended session. M2 failsclosed; sharedapply remains blocked pending separately reviewed
-nonvacuous M2 proof. No acceptedRED or database/runner/replay/sharedapply/teardown authorization.
-Current reviewer assesses disposable-only readiness separately from sharedapply. B1/B2 remain open.
+Prior bbe2fbba and41abab03 stopped after complete final reports. MB1 phase1F review independently
+passed112puretests, no critical/high/medium and fourLOWs. Codex accepts one disposableRED only:
+exact five HTTP200 profile failures and banned class. Preserve existing before/migrations evidence;
+no candidate/mutations/sharedapply/stop/teardown. FourLOWs assigned MB1 before sharedapply:
+pinned input staging/postapply proof/attempt state, endedM2failclosed with nonvacuous banned kill,
+exact failure detail checks, immutable before snapshot. B1/B2 remain open; no acceptedRED at dispatch.
 
-QA9phase2F source-only review found no critical/high/medium issue, but3lows: declaration filenames
-with linebreaks bypass refusal, UTF16 decoder mismatch, JSsource escapes quality scope. All3 assigned
-phase2G under AUTH01. Reviewer ran no commands (Bash denied); no independent fullcandidatepass
-claimed. Freshreview then separatePrettier; exactflooratintegration and explicitlyauthorized hostedCI
-proof remain open. Neither goal Done/integrated. No owner action needed. Reconcile ALL active
-coordinators before dispatch; preserve retired2500bef1 and overlap checkpoint as history.
+QA9 phase2G fixes all three prior lows. Codex accepts byte-reader and domain JS refusal choices;
+R17 outside-src limitations remain named, CI wiring belongs PL1. Codex independently passed the full264test pnpmcheck on Node22.23.1;
+the latest checkpoint records the proof. Fresh review precedes separatePrettier;
+exact integration floor and specifically authorized hostedCI proof remain open. Neither goalDone or
+integrated. No owner action. Reconcile ALL active coordinators before dispatch.
 
 ## Resume order
 
@@ -139,9 +139,9 @@ coordinators before dispatch; preserve retired2500bef1 and overlap checkpoint as
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October17:33UTC cycle collected phase1F and QA9review, independently passed112puretests,
-   then dispatched MB1safetyreview and QA9phase2G corrections. No DBcontinuation authorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1733Z.md) records tests and limits.
+   The 26 October18:05UTC cycle collected phase1F review and phase2G, assigned reviewed disposable
+   RED and freshQA9review. No sharedapply authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1805Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

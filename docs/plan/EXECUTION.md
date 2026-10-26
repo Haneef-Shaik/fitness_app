@@ -109,13 +109,15 @@ Read [current supervisor state](runs/local-supervision.json) and native session 
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `e838e80b-1670-48ed-bf89-b6815e56226c` | fitlog-mb1 / codex/mb1-identity | Independent read-only security review of phase-1 candidate; no DB calls or schema application |
-| QA-9 | `77705594-faf1-4a19-9bcc-f8c0e671885f` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase 2: measured coverage floors, ratchet guards and local mutation checks; no DB operations |
+| MB-1 | `458f4976-58c5-402a-b9b2-68540f9a852f` | fitlog-mb1 / codex/mb1-identity | Phase 1B: independent-review remediation in identity tests/docs; no DB calls or schema application |
+| QA-9 | `e007aa24-8efa-49bd-b29e-1f3750fa0f1c` | fitlog-qa9 / codex/qa9-quality-ratchets | Independent read-only phase-2 code/test review; no DB operations |
 
 Bothuse approvedlocalClaude auth and dontAsk with scopedfiletools/exactcommands; no broadpermissions,
-bypass, credentialswitch oroverage. The MB-1 implementer finished phase 1 with RED evidence and an
-unapplied policy candidate; its current reviewer is read-only. QA-9 is database-free. Neitherworker mayeditmain/status/ledger,applymigration,push,deploy orcontact
-providers. Codex makes routine choices and directs independentreviews and serialintegration.
+bypass, credentialswitch oroverage. The MB-1 security review found no critical/high defect in the candidate, but identified incomplete
+whole-box proof and test-hardening findings. Claude now remediates those findings without DB calls.
+The QA-9 implementer stopped after its reviewable phase-2 checkpoint; a fresh independent reviewer
+owns its read/test lane. Neither may change main/status/ledger, apply migrations, commit, push,
+deploy or contact providers. Codex directs independent reviews and serial integration.
 AR-1worktree isarchived andownedreplayproject cleaned; existingdevelopmentDB remainshealthy.
 
 ## Resume order
@@ -132,10 +134,10 @@ AR-1worktree isarchived andownedreplayproject cleaned; existingdevelopmentDB rem
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 04:40 UTC cycle accepted their phase-1 checkpoints for further work, launched
-   independent MB-1 security review and QA-9 ratchet implementation, and checked the local RLS
-   ownership precondition. No MB-1 migration has been applied by this cycle. Details and scope:
-   [supervision checkpoint](runs/supervision-2026-10-26T0440Z.md). Preserve unrelated local changes.
+   The 26 October 05:40 UTC cycle collected the completed MB-1 security review, confirmed its linked
+   gym-policy finding from source, launched bounded test/docs remediation and a fresh QA-9 review,
+   and independently passed main's pnpm check (185 tests) plus planner sync. No migration applied.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T0540Z.md) records actual scope and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

@@ -14,34 +14,34 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Fresh independent phase1C replay safety review; read-only, pure injected tests only",
-      "sessionId": "a102fb68-5d26-4e2b-8889-2c4741ac0831",
-      "shortId": "a102fb68",
+      "phase": "Phase1D close all five independent runner safety findings; pure injected tests only",
+      "sessionId": "ecaa6e45-4fc2-48d2-b847-50054dc990b8",
+      "shortId": "ecaa6e45",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "none; backend pure tests/syntax only",
+      "writes": "scripts/backend MB1 replay/identity code/tests and MB1 docs only",
       "database": "No database, Supabase or Docker calls. Candidate migration remains unapplied. Mutation must use a future disposable replay project, never weaken shared55321.",
-      "previousReviewerSession": "39fe1fb5-1e43-43f5-9f19-f8885a8a4cff done",
+      "previousReviewerSession": "a102fb68-5d26-4e2b-8889-2c4741ac0831 done",
       "previousImplementerSession": "00be8cce-a882-4393-9d07-9442525ef316 stopped after final result"
     },
     {
       "goal": "QA-9",
-      "phase": "Phase2C null JSON fail-closed and coverage-ignore guard remediation",
-      "sessionId": "b08f16c2-5483-4c08-95ab-738c95661588",
-      "shortId": "b08f16c2",
+      "phase": "Fresh independent read-only phase2C full candidate review",
+      "sessionId": "08c6473e-33b4-46e0-b12f-fee9863f850d",
+      "shortId": "08c6473e",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "scripts/quality and QA9 evidence/checkpoint/docs23 only",
+      "writes": "none; exact quality tests and pnpm check allowed",
       "database": "No database/Supabase/Docker calls.",
-      "previousImplementerSession": "073b3610-efc0-4dfa-9219-10a89676fca8 done",
+      "previousImplementerSession": "b08f16c2-5483-4c08-95ab-738c95661588 stopped after final result",
       "previousReviewerSession": "74c7436b-a3ba-4301-af55-d6363c6c9c88 done"
     }
   ],
-  "resume": "Collect QA9 phase2C remediation and MB1 independent phase1C safety review first. Codex independently reproduced null thresholds guard bypass (problems[] before/after null) in isolated scratch Git fixture. Independent QA9 review otherwise accepts phase2B but found MED null-file bypass and LOW source suppression gap; new writer fixes both without threshold or package changes. MB1 guarded runner preparation written; Codex independently83/83 pure backend tests pass, but real27check suite UNRUN and candidate UNAPPLIED. No DB lane authorized; review before actual replay. B1/B2open. QA9 fresh verification, Prettier/lintscope and hosted proof remain; exact floor compare at main integration. No goal integration/status/ledger edits. No owneraction now.",
-  "lastReconciledAt": "2026-10-26T08:48:38Z",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T0848Z.md"
+  "resume": "Collect MB1 phase1D fixes and QA9 fresh phase2C review first. MB1 safety review found MED stop project-ID binding and fourLOW gaps; Codex assigned all five code fixes, no DB authorization. Candidate UNAPPLIED, live27 suite UNRUN, B1/B2open. Codex independently QA9 fullcheck232tests exit0 and47 qualitytests. Routine scanner/input choices accepted; fresh review, Prettier/lintscope/transformconfig and hostedproof remain. Initial floor compare at exact main integration. No goal/status/ledger/integration/external actions. No owneraction now.",
+  "lastReconciledAt": "2026-10-26T09:47:00Z",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T0947Z.md"
 }

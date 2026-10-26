@@ -7,6 +7,17 @@ the older choice of Claude as the top-level coordinator in ORCHESTRATOR.md. It a
 implementation and coordination; it does not supply missing accounts, legal approvals,
 device results, field studies or provider credentials.
 
+## Decision authority — owner delegation, 26 October 2026
+
+The owner explicitly instructed: "i dont wanted to get involved i wanted you to act as the final
+decision make and guide the claude". Codex is the final decision-maker for routine product and
+engineering choices and technical acceptance, and directs Claude's implementation and independent
+verification. This supersedes earlier requests for the owner to personally approve AR-1/G-1.
+Record decisions as Codex acting under this explicit delegation; never claim a personal owner
+review or signature. Codex approves ADR003 after the independent proposal and guard passes.
+Independent goal verification, actual gates and integration remain required. Do not ask the owner
+again for routine technical sign-off. External evidence must still be real.
+
 ## Responsibilities and completion
 
 Codex selects dependency-ready work, assigns a bounded goal to Claude, reviews the resulting
@@ -115,9 +126,13 @@ MB-4/MB-6/othernamed implementation follow-ups remain explicit.
 Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
 Read [supervisor state](runs/AR-1/supervisor.json) and reconcile3workers before dispatch. Collectfinal
 narrowcorrections, verify commandorder/diff, synchronize durableevidence/currenttruth and commit
-handoff. Run fresh all-box goalverifier, then ask ONE ownerapproval of completedADR G-1 with exact
-reviewablepack. No owner action requested yet; no approval invented. Integrate onlyafterfinalpass
-andactualapproval. Acceptance rows remain open whereAR-1 is notthelastprover.
+handoff. The owner explicitly delegated final decisions to Codex on26October2026 (authority above).
+Codex approved ADR003 in tracker ARCH-01 under AUTH-01; no personal owner signature is claimed.
+Candidate12b8a20 is submitted to the fresh independent goal-verifier, tool4901, log
+`/tmp/fitlog-ar1-verdict-attempt-1.jsonl`. All earlier workers stopped. The complete bundled backend
+gate now passes on55321 after only the additive3privatefunctionmigration, with no reset/userrowchanges.
+Integrate only after final verifier PASS; do not request routine technical approval from the owner.
+Acceptance rows remain open where AR-1 is not the last prover.
 
 ## Resume order
 
@@ -132,8 +147,9 @@ andactualapproval. Acceptance rows remain open whereAR-1 is notthelastprover.
    all other external approvals remain unresolved.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. Inspect the AR-1 worker above and review its bounded phase output. Continue executable contract,
-   replay and shared-fixture work in that worktree after review; obtain specific owner approval of
-   the concrete ADR before declaring AR-1 Done. Preserve unrelated local changes.
+   replay and shared-fixture work in that worktree after review. Codex records final architecture
+   approval under AUTH-01/ARCH-01, as explicitly delegated by the owner; independent final verification
+   and integration are still required before AR-1 Done. Preserve unrelated local changes.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

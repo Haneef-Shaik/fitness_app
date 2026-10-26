@@ -317,5 +317,17 @@
     "by": "session:Codex",
     "at": "2026-10-26T02:45:48.137Z",
     "id": "a-1792982748137-90zgn8"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "claimed",
+    "to": "in review",
+    "who": "Codex",
+    "ref": "12b8a20",
+    "note": "Owner explicitly delegates final decisions26Oct2026; Codex approved ADR003 under AUTH-01/ARCH-01. Complete backend bundle now PASS after sole additive private-function local migration. Both scoped reviews PASS,185check+39guard tests PASS. Fresh independent all-box Claude verifier running; no owner approval wait; integrate only after PASS.",
+    "by": "session:Codex",
+    "at": "2026-10-26T03:43:33.784Z",
+    "id": "a-1792986213784-z30wmo"
   }
 ]

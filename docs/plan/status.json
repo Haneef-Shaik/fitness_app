@@ -58,12 +58,12 @@
       "at": "2026-10-25T14:35:15.199Z"
     },
     "AR-1": {
-      "status": "claimed",
+      "status": "in review",
       "who": "Codex",
-      "ref": "e23e9ae",
-      "note": "Architecture review4 and guard review independently PASS; 185 pnpmcheck plus39 guard tests pass. Actual guardrunners and drift/null/AC03 mutation probes pass on ownedreplaystack. Isolated checkpoints ac71e51/fcc9aed/e23e9ae. Final low docs/order fixes, handoff, final verifier and oneownerADRapproval remain; unmerged.",
+      "ref": "12b8a20",
+      "note": "Owner explicitly delegates final decisions26Oct2026; Codex approved ADR003 under AUTH-01/ARCH-01. Complete backend bundle now PASS after sole additive private-function local migration. Both scoped reviews PASS,185check+39guard tests PASS. Fresh independent all-box Claude verifier running; no owner approval wait; integrate only after PASS.",
       "by": "session:Codex",
-      "at": "2026-10-26T02:45:48.137Z"
+      "at": "2026-10-26T03:43:33.784Z"
     }
   }
 }

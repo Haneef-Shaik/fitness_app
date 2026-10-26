@@ -284,7 +284,8 @@ OW-2 → OW-5 and OW-9 should start early:
 
 ## AR-1 supervision checkpoint — 26 October 2026
 
-No owner action yet; the concrete approval pack is being finalized. Architecture review4 and guard
+Technical decisions and final sign-off are delegated to Codex by the owner on26October2026.
+No personal architecture approval is requested. Codex directs final verification and integration. Architecture review4 and guard
 review independently PASS with no medium/high/critical findings.185 pnpmcheck tests and39 newguard
 tests pass. The actualguardedrunners match8persistedschemas and exactsharedfixturebytes,16sets+2sessions,
 on a separately owned localAPI/database. Deliberatewrongbounds,values,nulls andmissingAC03IDs fail.
@@ -292,7 +293,7 @@ on a separately owned localAPI/database. Deliberatewrongbounds,values,nulls andm
 
 Localisolated checkpoints:ac71e51 docs,fcc9aed fixtures,e23e9ae guardedtools/retiredSQLdrafts. Claude
 finishes finalLOWdocclarifications, commandorder/commentfixes andall-boxhandoff/ownerpack. Fresh final
-goalverification, onecompletedADRownerapproval andintegration remain. AR-1 is notmerged orDone.
+goalverification andintegration remain; Codex records the architecture decision under delegation. AR-1 is notmerged orDone.
 Noexistingdatabase wasreset/migrated; nohostedCI/device/releaseacceptance claimed. Thefullbackend:test
 bundleisnotclaimedgreen:original4suitespassed55321 separately,newSQLguardspassedowned56321/56322.
 DeferredCItestbaseline/fullSHAhardening belongsPL-1; memberaggregates andbodyvectors remainMB-4/MB-6.

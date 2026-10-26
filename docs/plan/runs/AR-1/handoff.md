@@ -1,5 +1,13 @@
 # Handoff — AR-1 · Freeze the architecture and the versioned data contract        attempt 1 · `codex/ar1-contract-freeze` · verified candidate `12b8a20`
 
+## Integration disposition — 26 October 2026
+
+**AR-1 Done.** Codex integrated73e3f63 onlocalmain after independent goal-verifier attempt1PASS,
+all4boxes met, and allintegrationgatespass (frozeninstall,185-testcheck,completebackendbundle,
+Android+iOSJSexports). AUTH-01/ARCH-01 record delegatedauthority andapproval. The statustool marked
+AR-1Done onlyafterintegration. Noacceptanceledgerrowchanged. Earlier notDone/pending/unrun states
+below are historical, superseded by this disposition.
+
 ## Coordinator gate update — 26 October 2026
 
 After the delegated architecture decision, the coordinator applied only the sole pending additive

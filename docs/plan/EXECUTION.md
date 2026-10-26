@@ -42,7 +42,7 @@ These are observations from this session, not completed goal claims:
 - 114 goals, 230 dependencies, 94 acceptance-ledger rows. OW-1 and QA-1 are Done after independent
   passes on attempt 2 and integration. OW-2's dependency register records the owner's fresh-launch
   decision (MIG-01); all three boxes independently passed and `b4771d0` is integrated on main.
-  OW-2 is Done. OW-9 requires field work. Next ready technical goals include AR-1, QA-9, PL-1 and DS-1–DS-3;
+  OW-2 is Done. OW-9 requires field work. AR-1 is also Done (26October). Next ready technical goals include MB-1, QA-9, PL-1 and DS-1–DS-3;
   respect SP0 before contract-dependent feature work.
 - `pnpm check` passed before this handoff: TypeScript, lint/design rules, 10 domain tests,
   126 mobile tests, 22 planner tests and contract/ledger validation on the reviewed foundation.
@@ -73,66 +73,34 @@ These are observations from this session, not completed goal claims:
   The owner also confirmed a fresh launch with no existing users or data redirected; DEC-15 is
   recorded as not applicable through completed OW-2.
 
-## Active workers and verified checkpoint — 26 October 2026
+## Completed AR-1 — 26 October 2026
 
-AR-1 remains claimed, isolated and unmerged. Three new branch checkpoints are local:
-`ac71e51` architectureR2 corrections, `fcc9aed` sharedfixtures/privateformula SQL/evidence,
-`e23e9ae` guardedrunners/wiring and retirement of5obsoleteSQLdraft/generatorfiles.
-No existing migration changed; no main integration or push occurred.
+AR-1 is Done and integrated on local main at73e3f63 after independent goal-verifier attempt1PASS
+([verdict](../evidence/AR-1/verdict-attempt-1.json)). AUTH-01 records the owner's explicit delegation;
+ARCH-01 is Codex's final approval under that authority, not a personal owner review. No further
+human architecture approval is needed or requested.
 
-Both independent reviews PASS with no medium/high/critical finding:
-[proposal review4](../evidence/AR-1/proposal-review4.json),
-[guard review](../evidence/AR-1/guard-review.json). Proposal review explicitly permits its final5LOW
-corrections without another rereview. The code review's actual-run conditions are fulfilled by
-[real runner output](../evidence/AR-1/real-runners.log) and
-[mutation probes](../evidence/AR-1/real-runner-probes.json).
-[Coordinator disposition](../evidence/AR-1/guard-coordinator-gates.md).
+All4boxes passed. Contract0.1.0 and immutable snapshot guards, sharedAC03TypeScript/SQLfixture,
+15-migrationempty-headreplay and strictemptyschemadiff are integrated. The complete backend bundle
+passes on standardlocal55321 (39guardtests,sourceguard,4integration/isolation suites,8persistedschemas,
+exactsharedfixture16sets+2sessions). Integration also passed frozeninstall,185-testpnpmcheck and
+bothAndroid/iOSJavaScript/Hermesexports. [Integrationproof](../evidence/AR-1/integration-gates.md).
+No native/release/hostedCI acceptance is inferred.
 
-Primary `pnpm check` passes185 tests (37domain/126mobile/22planner) after runnerwiring and SQL
-hardening. All39 new backend guard tests pass independently. Direct sourceguard passes15migrations,
-14unchanged+1new,2configuredseeds,no straySQL; actualCI missing/blank,zero andmissingref probes fail.
-Two reported freezeprivilege uncertainties were checked on ownedreplayDB: freeze_projection
-execute=false for authenticated/anon; freeze_action=true authenticated,false anon; no newmigrationneeded.
+Integration preserved checkpoint history by merging currentmain into the goal branch then advancing
+main fast-forwardonly. Onlytwocoordinationconflicts were resolved: MIG-01/AUTH-01/ARCH-01 allkept;
+reviewJSON dataequal,canonicalformatkept. All23unrelateduntrackedfiles remain untouched, withzero
+incomingpathcollisions. Existinglocaldevelopmentdata was preserved; onlythe reviewed3privatefunction
+migration wasapplied, noreset/table/userrowchanges. Cleanupmust target onlyownedreplayproject
+fitlog_ar1_replay_20261026 and managedAR1worktree, neverhistorical/userprojects.
 
-Both actual newguardrunners PASS using realCLIstatus/Docker/psql on ownedproject
-`/tmp/fitlog-ar1-replay-20261026`, API56321/DB56322. All8persisted schemas match version0.1.0 and
-manifesthash. ExactsharedfixturebytesSHA256bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877
-pass16sets+2sessions. Snapshotbound, expectede1RM, null→zero andmissingAC03ID mutations each fail;
-normalinputreruns pass, originalsuntouched. The hardenedSQLscript itself is now executed, not predicted.
-Earlier full15migrationsempty-to-head, strictpublic/private/storageemptydiff, structuraldriftprobe,
-SQLlint and original4backendregression/isolation suites remain recorded:
-[replay verification](../evidence/AR-1/replay-verification.md).
-
-Owned replay initially had onlyDB, so runners correctlyrefused noAPI_URL. Coordinator stopped ONLY
-thatownedproject with volume preservation and restarted it with localgateway/REST. Realrunners then
-passed. Existing55321stack was not stopped/reset/migrated. Fullsingle-command backend:test has NOT
-run against55321 because branchformula migration is intentionallyunapplied there: original4suites
-passed separately there, newguards/SQL on ownedfullymigrated56321/56322. Record split honestly.
-No hostedCI, device or release acceptance is claimed. Preserve all unrelated files/environments.
-
-Current nativeClaude workers (dontAsk; file tools and scoped exact tests only, no DB/git actions):
-
-| Phase | Session | Owned writes |
-|---|---|---|
-| Final5LOW proposal corrections and current-state addenda | `87b38618-923e-4ecc-8c27-1757ca90bd2d` | ADR003/checkpoint/testplan/revision3/phase2Acorrections + low-dispositions; no handoff or ownerpack |
-| Immediate guard review L2 and comment precision | `abdad183-e9c7-4bf1-98c4-fd28b48b08c2` | backend:test order only, two modulecomments, phase2Cwording + finaldispositions; no behavior/schema changes |
-| Final all-box handoff and approval pack | `dcfa5571-82c0-4522-b26c-c01cafaef293` | new runs/AR-1/handoff.md and owner-packs/AR-1.md only |
-
-Completed reviewers were headless tool15735/log`/tmp/fitlog-ar1-proposal-review4.jsonl` and
-73881/log`/tmp/fitlog-ar1-guard-review.jsonl`. No reviewer remains running. Fixturehardening e0bf2068
-completed and stopped. Finalcode L1CItestbaselinehandling andL4fullSHAenforcement are assignedPL-1;
-MB-4/MB-6/othernamed implementation follow-ups remain explicit.
-
-Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
-Read [supervisor state](runs/AR-1/supervisor.json) and reconcile3workers before dispatch. Collectfinal
-narrowcorrections, verify commandorder/diff, synchronize durableevidence/currenttruth and commit
-handoff. The owner explicitly delegated final decisions to Codex on26October2026 (authority above).
-Codex approved ADR003 in tracker ARCH-01 under AUTH-01; no personal owner signature is claimed.
-Candidate12b8a20 is submitted to the fresh independent goal-verifier, tool4901, log
-`/tmp/fitlog-ar1-verdict-attempt-1.jsonl`. All earlier workers stopped. The complete bundled backend
-gate now passes on55321 after only the additive3privatefunctionmigration, with no reset/userrowchanges.
-Integrate only after final verifier PASS; do not request routine technical approval from the owner.
-Acceptance rows remain open where AR-1 is not the last prover.
+AllAR1writersstopped; finalverifier4901completed. Reconcilecurrent readiness and attachedworktrees
+before starting nextClaudephase. Prioritize memberidentity/API foundation MB-1 and qualityratchets
+QA-9 in separateworktreesfromgreenmain; serialize sharedDB work. Delegateddecisionauthority above
+applies to routine product/engineering choices, so choose and guide without asking the owner.
+Onlyactualexternalaccess/actions/evidence require escalation when indispensable. Acceptanceledger
+rows unchanged because AR-1 is not theirlastprover. Follow-upCI items L1/L4 belongPL-1; member
+aggregate/identity/privacy work retains named owners in the AR1handoff.
 
 ## Resume order
 

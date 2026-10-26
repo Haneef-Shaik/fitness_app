@@ -1,7 +1,7 @@
 {
   "goal": "AR-1",
-  "phase": "delegated architecture approved; independent all-box verification running",
-  "state": "in review",
+  "phase": "integrated and Done",
+  "state": "complete",
   "executor": "local Claude Code",
   "sessionId": null,
   "shortId": null,
@@ -9,23 +9,15 @@
   "branch": "codex/ar1-contract-freeze",
   "base": "9f148c1",
   "startedDate": "2026-10-25",
-  "resume": "Collect freshgoal-verifier tool4901/log /tmp/fitlog-ar1-verdict-attempt-1.jsonl before newdispatch. Candidate12b8a20; all3sourcewritersstopped. Userdelegatedfinaldecisions; AUTH-01/ARCH-01approvedADR003 onbranch, noownerwait. Completebundledbackend:testPASSON55321 aftersoleadditiveprivateformulamigration(noreset/userrows). OnverifierPASSintegrateserially preservingunrelatedrootfilesandcanonicalstatus/evidence; allgates/exportrequiredthenstatusDone. OnfailassignexactfixesClaude. No push/deploy/provideractions.",
+  "resume": "AR-1completeandDoneonmain73e3f63. Do notrestart. Ownerdelegateddecisionauthority AUTH-01/ARCH-01 persists. Selectdependency-readygoals and newisolatedClaudephases fromgreenmain. CleanupmaytargetonlymanagedAR1worktreeandownedreplayproject; neverexisting/historicaldata.",
   "heartbeat": "fitlog-coordinate-local-claude-delivery",
   "launchNotes": "Stopped87b38618,abdad183,dcfa5571 beforefinalcandidatecommit12b8a20. Delegationdocsdone, sourceguardorderchecked; onlycommentchangesotherwise. Solependingmigrationappliedlocal55321 reviewed3pureprivatefunctions; fullbackendbundleexit0. Automationpromptupdatedtosaveexplicitdelegation,preservingschedule/model/target. FreshClaude--agentgoal-verifier(readonly/exacttests)running; nootherDBworker.",
   "phase1": "ArchitectureapprovedbyCodexasexplicitlydelegateddecisionmaker26Oct2026, AUTH-01/ARCH-01. Allindependentproposalfindingsresolved; noG1ownerwait.",
   "phase1ReviewLog": "/tmp/fitlog-ar1-phase1-review.jsonl",
   "phase1ReviewExecSession": null,
   "phase1ReviewVerdict": "docs/evidence/AR-1/phase1-review.json",
-  "workers": [
-    {
-      "phase": "independent final goal verification,attempt1",
-      "toolExecSession": 4901,
-      "log": "/tmp/fitlog-ar1-verdict-attempt-1.jsonl",
-      "state": "working",
-      "scope": "Read-only goal-verifier agent; exact frozeninstall/check/backend tests permitted; no source/status/DBschema/gitmutations."
-    }
-  ],
-  "candidate": "12b8a20",
+  "workers": [],
+  "candidate": "73e3f63",
   "checkpointReviewLog": "/tmp/fitlog-ar1-checkpoint-review2.jsonl",
   "checkpointReviewExecSession": null,
   "phase2A": "Intermediate checkpoint22c5386 independently PASS by code reading with primary179 tests/typechecks and CI probes fulfilling conditions. Low F1 vectors assignedMB-6. Not merged or AR-1 Done.",
@@ -61,6 +53,9 @@
   "runnerEvidence": "docs/evidence/AR-1/guard-coordinator-gates.md",
   "decisionAuthority": "Ownerexplicitdelegation26Oct2026; Codexfinalproduct/engineeringdecisionmaker, AUTH-01/ARCH-01 recordedonbranch. G1APPROVEDbyCodexunderdelegation, notpersonalownerreview. Do notrequestroutineapprovalagain.",
   "goalVerifierLog": "/tmp/fitlog-ar1-verdict-attempt-1.jsonl",
-  "goalVerifierExecSession": 4901,
-  "bundledBackendEvidence": "docs/evidence/AR-1/bundled-backend-gate.md"
+  "goalVerifierExecSession": null,
+  "bundledBackendEvidence": "docs/evidence/AR-1/bundled-backend-gate.md",
+  "goalVerifierVerdict": "docs/evidence/AR-1/verdict-attempt-1.json",
+  "integratedCommit": "73e3f63",
+  "integrationEvidence": "docs/evidence/AR-1/integration-gates.md"
 }

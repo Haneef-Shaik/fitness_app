@@ -329,5 +329,17 @@
     "by": "session:Codex",
     "at": "2026-10-26T03:43:33.784Z",
     "id": "a-1792986213784-z30wmo"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "in review",
+    "to": "done",
+    "who": "Codex",
+    "ref": "73e3f63",
+    "note": "Independent goal-verifier attempt1 PASS all4boxes; AUTH-01/ARCH-01 explicitly delegated approval. Integrated locally by fast-forward after frozeninstall,185-testcheck,completebackend39tests+4suites/schema/fixtures,and bothplatformJSexports passed. No acceptance/release/hostedCI claim.",
+    "by": "session:Codex",
+    "at": "2026-10-26T03:49:26.192Z",
+    "id": "a-1792986566192-i439qt"
   }
 ]

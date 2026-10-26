@@ -9,6 +9,14 @@
 | PRD | §§21.1–21.4, 22.1, 22.3, 26.1 (M0), 26.2; DEC-02 (technical part) |
 | Relation | [001](001-mobile-foundation.md) is historical. [002](002-connected-member-and-gym.md) records the 17–19 October implementation. This record sets the target that implementation converges on. Neither earlier record is edited |
 
+## Integration outcome — 26 October 2026
+
+This architecture is approved by Codex under explicit owner delegation AUTH-01/ARCH-01 and integrated
+onlocalmain73e3f63. AR-1 isDone after independent all-boxverification and fullintegrationgates.
+[Finalverdict](../evidence/AR-1/verdict-attempt-1.json),
+[integrationproof](../evidence/AR-1/integration-gates.md).
+The dated drafting-state notes below are historical; no personal ownerapproval is awaited.
+
 ## Current state — G-1 approved by delegation, 26 October 2026 (read this first)
 
 - **G-1 is approved.** Codex, acting as the owner's explicitly delegated decision-maker, approved this

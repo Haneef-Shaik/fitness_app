@@ -14,32 +14,34 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "1B: remediate independent security review before any DB application",
-      "sessionId": "458f4976-58c5-402a-b9b2-68540f9a852f",
-      "shortId": "458f4976",
+      "phase": "1B independent remediation and replay-plan safety review; no database calls",
+      "sessionId": "39fe1fb5-1e43-43f5-9f19-f8885a8a4cff",
+      "shortId": "39fe1fb5",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "identity test/helper and MB-1 evidence/checkpoint only; no commit",
+      "writes": "none: fresh read-only security reviewer; exact syntax/unit tests and optional pnpm check",
       "database": "No database, Supabase or Docker calls. Candidate migration remains unapplied. Mutation must use a future disposable replay project, never weaken shared55321.",
-      "previousReviewerSession": "e838e80b-1670-48ed-bf89-b6815e56226c"
+      "previousReviewerSession": "e838e80b-1670-48ed-bf89-b6815e56226c",
+      "previousImplementerSession": "458f4976-58c5-402a-b9b2-68540f9a852f done"
     },
     {
       "goal": "QA-9",
-      "phase": "2 independent code and test review of uncommitted coverage ratchet",
-      "sessionId": "e007aa24-8efa-49bd-b29e-1f3750fa0f1c",
-      "shortId": "e007aa24",
+      "phase": "2B: fix independent high coverage-scope bypass and medium baseline/wiring findings",
+      "sessionId": "073b3610-efc0-4dfa-9219-10a89676fca8",
+      "shortId": "073b3610",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "none: read-only reviewer; tests may write ignored coverage and scratch fixtures",
+      "writes": "scripts/quality; QA9 evidence/checkpoint; docs23 section9; exact root check guard prepend; no commit",
       "database": "No database/Supabase/Docker calls.",
-      "previousImplementerSession": "77705594-faf1-4a19-9bcc-f8c0e671885f stopped after checkpoint"
+      "previousImplementerSession": "77705594 stopped; phase2 reviewed and changes required",
+      "previousReviewerSession": "e007aa24-8efa-49bd-b29e-1f3750fa0f1c done"
     }
   ],
-  "resume": "Collect fresh QA9 independent review and MB1 review-remediation checkpoint; reconcile native registry before any next phase. No DB application authorized in these assignments. MB1 box3 stays open: linked gym reads need G16.api guard work and published401 envelope remains required. Apply only reviewed candidate after stronger live preconditions, serialize DB lane, mutate only disposable replay. QA9 exact reporter accepted in principle; do not commit/integrate until review passes; add touched-file formatting and separate root guard in later phase. HostedCI negative proof still requires specific push authorization. Do not ask routine owner approval or repeat completed AR1/OW goals.",
-  "lastReconciledAt": "2026-10-26T05:40:00Z",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T0540Z.md"
+  "resume": "Collect MB1 independent phase1B review and QA9 phase2B remediation first. Native registry has one QA9 writer and one MB1 read-only reviewer. QA9 independent review found high scope bypass plus medium baseline/wiring defects; no commit/integration before fixes and fresh review. Initial floor must be checked at exact main integration, not merely first branch commit. MB1 status/key-redaction unit8/8 pass independently; integration still unrun, candidate unapplied, B1 linked gym policies and B2 401 envelope open. No DB lane authorized this cycle. Prettier and hosted CI remain later; no routine owner approval needed. Preserve AUTH01, no AR1 restart or recovery claims.",
+  "lastReconciledAt": "2026-10-26T06:48:00Z",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T0648Z.md"
 }

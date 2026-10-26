@@ -14,7 +14,7 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Fresh independent read-only phase1E safety review",
+      "phase": "Continued independent read-only phase1E safety review after computer sleep",
       "sessionId": "19eea0f3-49fd-4754-a30d-158907def66e",
       "shortId": "19eea0f3",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
@@ -23,7 +23,7 @@
       "state": "working",
       "writes": "None: read/test only",
       "database": "NO live DB/CLI/Docker/runner actions; replay continuation awaits fresh safety review.",
-      "previousReviewerSession": "805fad54 interrupted by computer sleep at15:47:57UTC; native continuation19eea0f3 now busy with same review",
+      "previousReviewerSession": "805fad54 stopped after computer sleep interrupted response; NO final verdict. Resuming with saved option flags created copy19eea0f3, only copy active.",
       "previousImplementerSession": "e26c3f2e stopped after F5/F3/F4 pure fixes; Codex104/104 backend pure tests pass",
       "lastObservedAt": "2026-10-26T16:34:08.955854+00:00",
       "observation": "Native authenticated registry busy under replacement session19eea0f3 PID42171; structured transcript continues read-only review. Old805fad54 absent from registry."
@@ -45,7 +45,7 @@
       "observation": "Native authenticated registry busy; recent structured transcript tool events confirm ongoing progress. No restart or new worker."
     }
   ],
-  "resume": "Native sleep continuation MB1 reviewer19eea0f3 and existing QA9 writer independently confirmed busy in authenticated native registry and recent structured transcript tool events. Preserve sessions19eea0f3 MB1 read-only safety review and31abe500 QA9 Unicode/R16 implementation; no duplicate dispatch. Collect final verdict/checkpoint before extending either lane. Main pnpm check passes185tests on Node22.23.1; MB1 pure backend104tests pass, no live DB operation. Candidate remains unapplied; live27suite unrun. OW1/OW2/QA1/AR1 Done. No goal integration/status/acceptance or external action this cycle; no owner action.",
-  "lastReconciledAt": "2026-10-26T16:34:08.955854+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1633Z.md"
+  "resume": "Reconcile actual native registry first. MB1 reviewer19eea0f3 continues sleep-interrupted805fad54; old process stopped before resume copied session. No final safety verdict yet; no live runner/replay/sharedapply/teardown authorized. Codex104/104 pure backend tests and main185tests pass. QA9 original31abe500 still actively writes/tests phase2F; do not launch another writer or independently test a changing candidate. Collect final checkpoint before fresh independent review. Prettier separate nextphase, exactfloor proof at mainintegration, hostednegativeCI specificexternal authorization remain open. OW1/OW2/QA1/AR1 Done. No owner action.",
+  "lastReconciledAt": "2026-10-26T16:35:16.021098+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1635Z.md"
 }

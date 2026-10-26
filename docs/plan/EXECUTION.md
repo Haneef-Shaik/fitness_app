@@ -109,23 +109,21 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `19eea0f3-49fd-4754-a30d-158907def66e` | fitlog-mb1 / codex/mb1-identity | Independent read-only phase1E safety review |
-| QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Unicode guard corrections and R16 |
+| MB-1 | `19eea0f3-49fd-4754-a30d-158907def66e` | fitlog-mb1 / codex/mb1-identity | Continued independent read-only phase1E safety review after sleep |
+| QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Active Unicode guard corrections and R16 |
 
-MB1writer e26c3f2e completed F5 migration-evidence grammar/verdict, F3 DB55322/env binding,
-and F4 candidate byte pin. Codex independently passed104pure backend tests; no DB operation.
-Stopped idle writer before fresh reviewer. Migration fixtures derive from installed2.121.0 source,
-not captured live rows. Candidate remains unapplied and live27-check suite unrun; B1/B2open.
-Reviewer must inspect current candidate bytes rather than infer prior review from a new hash.
-Existing replay stays untouched; no live continuation, sharedapply or teardown authorized here.
+MB1reviewer805fad54 was idle after a computer-sleep API error, with NO final verdict. Codex stopped
+its process before resuming. Passing saved option flags made native Claude create copy19eea0f3;
+registry confirms only the copy active in MB1. It retains the independent read-only review scope.
+Codex independently reran104pure backend tests successfully. Candidate remains unapplied and
+27-check live suite unrun; B1/B2open. No live runner, replay continuation, sharedapply or teardown
+authorized. Collect the final safety verdict before deciding on any database step.
 
-QA9review ad123579 ran NO commands (permission denied). It found two LOW bypasses:
-Kelvin-sign nocheck and U+2028/U+2029 ESLint comment boundaries. Codex independently reproduced
-both as problems[] in scratch. New writer fixes them test-first and closes R16 narrowly by
-refusing declaration files under the two src roots, preserving generated expo-env.d.ts elsewhere.
-Writes only quality scripts and QA9 docs/docs23. Prettier is a separate next phase. Exact initial
-floor proof at mainintegration and specifically authorized hostednegativeCI remain open.
-Neither goal is Done or integrated. No owner action needed.
+QA9original31abe500 remains actively editing and testing its bounded phase2F. No duplicate worker
+was dispatched and no partial candidate was accepted. Fresh independent review follows completion;
+Prettier remains a separate nextphase, exact initial floor proof belongs at mainintegration, and
+hostednegativeCI requires specifically authorized external action. Neither goal is Done or integrated.
+No owner action needed.
 
 ## Resume order
 

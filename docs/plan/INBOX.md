@@ -284,12 +284,14 @@ OW-2 → OW-5 and OW-9 should start early:
 
 ## AR-1 supervision checkpoint — 26 October 2026
 
-No owner action yet. Contract checkpoint22c5386 passed independent scoped review and coordinator179
-checks/CI baseline probes. Proposal revision2 is checkpointed3040ccf and under focused independent
-review. The fixture worker has resumed under a policy that denies unlisted commands automatically;
-its source/test result is still pending. None of this goal is merged or declared Done.
+No owner action yet. Contract22c5386 and fixture2B independently PASS as intermediate checkpoints.
+Primary185 tests pass. All15 migrations replay into a separate owned local Supabase DB, strict
+public/private/storage schema diff is empty, structural drift is detected,8 persisted schemas match
+the snapshot, and the SQL fixture passes16sets+2sessions. Existing4 backend suites pass separately.
+[Reproducible evidence](../evidence/AR-1/replay-verification.md).
 
-SQL fixture execution, persisted-contract comparison and isolated migration replay/diff remain due.
-No database was reset or migrated. The completed reviewed ADR needs one dated owner approval.
-Known follow-ups remain assigned: MB-4 no-eligible-session aggregate volume, MB-6 additional body-entry
-acceptance vectors. No hosted CI, native-device or release acceptance is claimed.
+Three disjoint Claude workers finish the8 LOW architecture doc corrections, repeatable guard/runner
+commands, and small fixture-review hardening. Final independent review, completed ADR approval and
+integration remain due. None of AR-1 is merged or Done. Known follow-ups stay assigned MB-4
+(no-eligible-session aggregate) and MB-6 (additional body-entry vectors). No existing/user/historical
+database was reset; no hosted CI, native-device or release acceptance is claimed.

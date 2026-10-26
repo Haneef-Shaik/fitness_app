@@ -1,0 +1,51 @@
+[
+  {
+    "probe": "bad-expected",
+    "exit": 3,
+    "expected": "fail",
+    "pass": true,
+    "tail": "BEGIN\nSET\n fixture_loaded \n----------------\n t\n(1 row)\n\nNOTICE:  training.v1 fixture text sha256 417c6be61eb3f16e4a7746e7580b3c8cb76325dd1287d932ee4566d7f935b873\nERROR:  training.v1 fixture failed in SQL: ac03-working-80x8 e1rmKg: expected 101.333334, got 101.333333\nCONTEXT:  PL/pgSQL function inline_code_block line 77 at RAISE\n"
+  },
+  {
+    "probe": "null-is-not-zero",
+    "exit": 3,
+    "expected": "fail",
+    "pass": true,
+    "tail": "BEGIN\nSET\n fixture_loaded \n----------------\n t\n(1 row)\n\nNOTICE:  training.v1 fixture text sha256 3ba64e0a357c0f58e6bd3f447626d29cc0d036e07b792b722740a1477dd65a08\nERROR:  training.v1 fixture failed in SQL: ac03-warmup-40x10 volumeKgReps: expected 0, got null\nCONTEXT:  PL/pgSQL function inline_code_block line 77 at RAISE\n"
+  },
+  {
+    "probe": "bad-formula",
+    "exit": 3,
+    "expected": "fail",
+    "pass": true,
+    "tail": "BEGIN\nCREATE FUNCTION\nREVOKE\nSET\n fixture_loaded \n----------------\n t\n(1 row)\n\nNOTICE:  training.v1 fixture text sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877\nERROR:  training.v1 fixture failed in SQL: ac03-working-80x8 e1rmKg: expected 101.333333, got 98.064516; failure-70x6 e1rmKg: expected 84, got 81.290323; drop-60x12 e1rmKg: expected 84, got 81.290323; per-hand-30x8 e1rmKg: expected 38, got 36.774194; per-hand-12.5x10 e1rmKg: expected 16.666667, got 16.129032; reps-1-lower-bound e1rmKg: expected 103.333333, got 100; reps-30-upper-bound e1rmKg: expected 100, got 96.774194\nCONTEXT:  PL/pgSQL function inline_code_block line 77 at RAISE\n"
+  },
+  {
+    "probe": "restored",
+    "exit": 0,
+    "expected": "pass",
+    "pass": true,
+    "tail": "BEGIN\nSET\n fixture_loaded \n----------------\n t\n(1 row)\n\nDO\nROLLBACK\nNOTICE:  training.v1 fixture text sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877\nNOTICE:  training.v1: 16 set vectors and 2 session vectors passed in SQL; 1 pending MB-4 session vectors not asserted\n"
+  },
+  {
+    "probe": "missing-fixture",
+    "exit": 3,
+    "expected": "fail",
+    "pass": true,
+    "tail": "ERROR:  Pass the fixture text: psql -v fixture=\"$(cat packages/domain/fixtures/ac03-training.v1.json)\"\nCONTEXT:  PL/pgSQL function inline_code_block line 1 at RAISE\n"
+  },
+  {
+    "probe": "public-grant",
+    "exit": 3,
+    "expected": "fail",
+    "pass": true,
+    "tail": "BEGIN\nGRANT\nSET\n fixture_loaded \n----------------\n t\n(1 row)\n\nNOTICE:  training.v1 fixture text sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877\nERROR:  training.v1 fixture failed in SQL: private.epley_e1rm_v1(text,text,text,integer,numeric,boolean) is executable by public; private.epley_e1rm_v1(text,text,text,integer,numeric,boolean) is executable by anon; private.epley_e1rm_v1(text,text,text,integer,numeric,boolean) is executable by authenticated\nCONTEXT:  PL/pgSQL function inline_code_block line 77 at RAISE\n"
+  },
+  {
+    "probe": "after-grant-rollback",
+    "exit": 0,
+    "expected": "pass",
+    "pass": true,
+    "tail": "BEGIN\nSET\n fixture_loaded \n----------------\n t\n(1 row)\n\nDO\nROLLBACK\nNOTICE:  training.v1 fixture text sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877\nNOTICE:  training.v1: 16 set vectors and 2 session vectors passed in SQL; 1 pending MB-4 session vectors not asserted\n"
+  }
+]

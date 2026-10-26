@@ -62,37 +62,50 @@ These are observations from this session, not completed goal claims:
   The owner also confirmed a fresh launch with no existing users or data redirected; DEC-15 is
   recorded as not applicable through completed OW-2.
 
-## Active worker
+## Active workers and verified checkpoint — 26 October 2026
 
-AR-1 phase2A contract corrections are accepted as intermediate checkpoint `22c5386`, still isolated
-and unmerged. Independent [review3](../evidence/AR-1/p2a-review3.json) PASS is based on code reading,
-conditional on tests/typecheck; coordinator `pnpm check` (179 tests) fulfills those conditions.
-CI-mode negative/positive baseline and literal workflow-script probes pass. Hosted CI is unproved.
-Low nonblocking F1 (weight-only/body-fat-only acceptance vectors) is assigned to MB-6.
-[Checkpoint disposition](../evidence/AR-1/phase2A-acceptance.md).
+AR-1 remains claimed, isolated and unmerged at candidate `3040ccf`. Contract corrections22c5386
+independently PASS by code reading, with coordinator179 tests and CI-baseline probes fulfilling
+conditions. Hosted CI remains unproved; low F1 additional body-entry vectors belongs to MB-6.
 
-Proposal PR-1..6 revision2 is checkpointed on the isolated goal branch at `3040ccf`; the completed
-docs worker is stopped. Durable review copies were independently parsed and matched to canonical
-records. Focused independent proposal review3 is running: tool session89597,
-`/tmp/fitlog-ar1-proposal-review3.jsonl`. It checks restore tombstones, rejected-request counting
-(including lock/subtransaction races), actor identity, replay policy and truthful evidence.
+Phase2B fixture independently PASSed as an intermediate checkpoint:
+[review](../evidence/AR-1/fixture-review.json). Primary `pnpm check` passes185 tests (37domain,
+126mobile,22planner). Real PostgreSQL17.11 passes16 set and2 AC03 session vectors from the exact
+same JSON bytes as TypeScript. Wrong expected value, wrong SQL formula, null-to-zero, missing input
+and PUBLIC execute-grant mutations fail; normal reruns pass. Scratch TypeScript formula and
+null-to-zero mutations also fail specifically, with original files untouched and scratch restored.
+[SQL evidence](../evidence/AR-1/fixture-sql-gates.md), [replay verification](../evidence/AR-1/replay-verification.md).
 
-Fixture continuation: `7caf2e6b-6b7a-4fca-9eb5-448e1f3fdb6e` (`7caf2e6b`), same phase2B files.
-The old71d2d674 worker stalled at another unlisted read-only `rtk ls`. It was stopped; the resumed
-worker now uses `dontAsk`: unlisted commands are denied automatically, not approved, while file
-reads/edits and exact scoped test commands remain explicitly allowed. It must use file tools and
-report any tests it cannot run. No broad shell grant or bypass mode is enabled.
+All15 migrations replay from empty on a NEW owned Supabase project
+`/tmp/fitlog-ar1-replay-20261026` / `fitlog_ar1_replay_20261026`, DB56322. Genuine vendor auth/storage
+bootstrap used; no existing data copied/reset/applied. Final public/private/storage diff with
+strict coverage is empty; structural scratch probe is detected and removed. Lint is clean;
+all8 persisted contracts exactly equal snapshot0.1.0. The shared SQL fixture passes on this full
+replay too. Original4 backend regression/isolation suites separately pass on existing55321 stack.
+The no-network tmpfs formula-only container was removed; owned full-replay DB remains for runner
+checks. Preserve all other projects/volumes. Evidence includes commands, hashes and honest harness
+corrections; these results still need final independent goal verification.
 
-No SQL fixture is executed yet. Read-only preparation confirmed the local PostgreSQL image is
-`public.ecr.aws/supabase/postgres:17.11.0.004` and inspected the installed `db diff --help`.
-No database was created, reset, upgraded or migrated. Future SQL/replay must use a disposable
-isolated test database and preserve all historical/user data.
+Proposal review3 resolves PR1..6;8 LOW R2 documentary findings remain, no medium/high issue:
+[verdict](../evidence/AR-1/proposal-review3.json). Current disjoint native Claude workers (dontAsk;
+file tools/exact tests only, unlisted commands denied, no bypass):
+
+| Phase | Session | Owned writes |
+|---|---|---|
+| Eight low proposal corrections | `87b38618-923e-4ecc-8c27-1757ca90bd2d` | ADR003, checkpoint/test-plan/revision/disposition docs; phase2A-corrections durable-link header |
+| 2C guarded backend tools | `abdad183-e9c7-4bf1-98c4-fd28b48b08c2` | verify-contracts/verify-fixtures/check-sql-sources + helper/tests, root backend:test script, phase2C record; compare then retire only4 obsolete SQL drafts and their unused generator |
+| Fixture review hardening | `e0bf2068-ce50-45aa-9a31-f2fb1928a8b5` | training-fixtures.sql AC03-ID check and phase2B addendum/precision corrections only |
+
+The prior fixture worker7caf2e6b completed and was stopped. e0bf2068 is its copied continuation.
+All workers share only the isolated goal worktree, own disjoint files and may not access databases.
+Fixture reviewer tool52974 completed; verdict is durable. No owner action yet: finish concrete work,
+independently verify corrections, then ask once for completed ADR G-1 approval.
 
 Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
-Read [supervisor state](runs/AR-1/supervisor.json) first. Collect proposal review3 and the fixture
-output, verify each, then run persisted-contract comparison and full migration replay/diff in
-isolation. One owner approval of the completed ADR and final all-box verification/integration
-remain required before AR-1 Done.
+Read [supervisor state](runs/AR-1/supervisor.json) before dispatch. Collect existing workers first,
+run hardened SQL/guard tools on owned replay stack (default old55321 must not receive unapplied
+fixture migration), record checkpoint commits, assemble all-box handoff and independently verify.
+Integrate only after final pass and actual owner approval. No acceptance row changed.
 
 ## Resume order
 

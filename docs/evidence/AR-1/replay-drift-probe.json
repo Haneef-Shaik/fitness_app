@@ -1,0 +1,19 @@
+{
+  "expectedDriftDetected": true,
+  "probeRemoved": true,
+  "result": {
+    "diff": "DROP TABLE \"public\".\"ar1_drift_probe\";\n",
+    "file": null,
+    "files": [],
+    "schemas": [
+      "public",
+      "private"
+    ],
+    "engine": "pg-delta",
+    "dropStatements": [
+      "DROP TABLE \"public\".\"ar1_drift_probe\""
+    ],
+    "message": "Diff complete."
+  },
+  "harnessCorrection": "Normal-mode CLI returned diff in JSON stdout and did not create --output file; initial harness wrongly required file. Actual diff contained DROP TABLE probe. No product correction required."
+}

@@ -1,0 +1,106 @@
+{
+  "review": "AR-1 proposal revision 2: PR-1 to PR-6 only (checkpoint-review2.json)",
+  "date": "2026-10-26",
+  "basis": "Read only: proposal-revision2.md; the changed sections of 003 (\u00a73.3, \u00a74.3, \u00a74.5, \u00a74.12, \u00a78, \u00a79, \u00a711, \u00a712, \u00a713); the revision-2 parts of checkpoint.md, test-plan.md and phase1-dispositions.md; the cited migrations; mobile-ci.yml; PRD \u00a718.1, \u00a722.3 and AC30; GOALS.md:346, 663 and 1134. The coordinator's evidence for 22c5386 is accepted as provided: an independent P2A code reading passed, and the coordinator ran 179 tests and the CI probes",
+  "verdict": "REVISE",
+  "verdict_reason": "All six findings are resolved as the review raised them, and no medium or higher defect remains. The new text has 8 low defects, all fixable in the docs. R2-1 to R2-3 leave gaps in the 'no resurrection' guarantee, and R2-6 leaves stale implemented/pending states. A short revision 3 and a targeted re-check of those lines should come before G-1 is requested",
+  "dispositions": {
+    "PR-1": "Resolved. The register is outside every database rollback domain (003:133-139, 159-164). The narrowing is correct: same-project Storage lists objects through storage.objects, and a separate ops database has its own restores. The append is confirmed before step 3 (122-123, 140-142). A failed append stops erasure, alerts and retries, and is idempotent on the actor UUID. Entries are kept until backups expire (145-147). Restore goes to an isolated project and purges before serving (150-154; \u00a79 1015-1018; \u00a712 1087). The cited GOALS and PRD lines match. Remaining gaps: R2-1, R2-2, R2-3",
+    "PR-2": "Resolved. Identity is checked in the outer block; the inner BEGIN\u2026EXCEPTION block raises errors and the outer block returns the envelope with response.status, so the count commits and the command's writes do not (431-435, 490-497, 739-747). 401 is not counted, a 429 is counted, and replays never count (420-421, 750-751), which matches PRD:1184-1185. Leaving 57014 uncounted is correct, because WHEN OTHERS excludes QUERY_CANCELED. Whether PostgREST commits a 4xx response.status is correctly left to \u00a712:1086. Lock lifetime is safe but not stated (R2-4)",
+    "PR-3": "Resolved. There is no FK from actors to auth.users or profiles (101-103). The actor row is inserted before the profile in one transaction (104-106), at the profile insert in validated_contracts.sql:83. The backfill runs before the FKs are added (110-111). Member and gym writers are gated by member_active (member_core.sql:24-31; gym_read_models.sql:8; freeze_preview_binding.sql:16). Remaining gaps: R2-1, R2-7",
+    "PR-4": "Resolved. The policy is safe once outcomes are trimmed to an allowlist that also covers old rows (447-451). The interim rule for definers is right, and every citation checks out: replay at gym_read_models.sql:15 comes before the kind checks at 42, 47, 62, 84 and 97; balances are stored at 60, 95 and 117; in freeze_preview_binding.sql the kind check at :22 comes before replay at :24-27, and the projection is at :70. Remaining gap: operation_result_v1 (R2-5)",
+    "PR-5": "Resolved. 003 \u00a78 states the fail-closed CI rule as a decision (959-965) and says CI is not yet proven (973-975). mobile-ci.yml:19-44 matches the description: the base comes from the event, fetch-depth is 0, and empty, all-zero or malformed values are refused. Some state wording is now stale (R2-6)",
+    "PR-6": "Resolved for the four revision files: 003:6, checkpoint:13-15 and 45-47, and phase1-dispositions:5-6 all use docs/evidence/AR-1/*, and both files exist. Remaining gaps: R2-6 (the copies are uncommitted) and R2-8"
+  },
+  "findings": [
+    {
+      "id": "R2-1",
+      "pr": "PR-1/PR-3",
+      "severity": "low",
+      "file": "docs/architecture/003-architecture-freeze.md",
+      "lines": "104-105, 121, 140-143",
+      "defect": "Step 1 only revokes sessions and staff roles, so the user can sign in again with their password. After step 5 deletes the profile, and before step 6 succeeds (it may retry), complete_onboarding creates a new active profile: it checks only the auth state and whether a profile exists (validated_contracts.sql:74-83). Its actor insert, 'on conflict do nothing', silently accepts the erased actor row. Uploads made in that window escape step 3. While step 2 fails closed, 'stays revoked by step 1' holds only if step 1 also blocks access, and 003 does not say it does",
+      "fix": "Step 1 also sets profiles.status='deletion_pending' and bans the auth user. member_active and complete_onboarding already refuse both (member_core.sql:27-28; validated_contracts.sql:74, 80). complete_onboarding refuses when actors.erased_at is set, instead of doing nothing on conflict. member_active requires erased_at to be null. Add an MB-7 test: a sign-in between steps 5 and 6 cannot complete onboarding"
+    },
+    {
+      "id": "R2-2",
+      "pr": "PR-1",
+      "severity": "low",
+      "file": "docs/architecture/003-architecture-freeze.md",
+      "lines": "145-147, 161-162; 1087 item (3)",
+      "defect": "The external copy has to cover every backup taken before erased_at commits. The entry's retention date, however, is fixed when the entry is written, at append time. Backups taken between the confirmed append and the erased_at commit are covered by neither copy for their last (commit \u2212 append) of life. That window grows when step 2 retries after the append but before the database update",
+      "fix": "Anchor retention to the later of the append and the erased_at commit. For example, write retention = append time + longest backup expiry + 30-day erasure deadline, or extend the lock once erased_at commits (compliance-mode retention can be extended but not shortened). State this in \u00a73.3 and in \u00a712 (3)"
+    },
+    {
+      "id": "R2-3",
+      "pr": "PR-1",
+      "severity": "low",
+      "file": "docs/architecture/003-architecture-freeze.md",
+      "lines": "150-154; 1015-1018; 1087 item (4)",
+      "defect": "The restore gate only keeps clients out. (a) The restored copy still has its pg_cron jobs, job rows and pg_net wakeups, which can process or message erased accounts before the purge. (b) The register is imported once, so tombstones the source appends before cutover are missed. (c) The check covers rows, 'object references' and auth users. An object-copy restore (R-7; PRD:1531-1532 says database backups do not include objects) can bring back bytes under a tombstoned <owner id>/ prefix (003:204) that have no database reference",
+      "fix": "In the runbook, disable cron, pg_net, worker and messaging credentials in the restored project until the check passes. Re-import the register delta just before cutover, or stop the source's erasure worker first. Apply import and purge to every object-copy restore, and check that no object remains under any tombstoned prefix. Add these to \u00a712 (4) and PL-5"
+    },
+    {
+      "id": "R2-4",
+      "pr": "PR-2",
+      "severity": "low",
+      "file": "docs/architecture/003-architecture-freeze.md",
+      "lines": "418-422, 750-756, 763-765, 1086",
+      "defect": "(a) Replays are never counted, which is correct, but each still takes the per-account or per-gym advisory lock (step 3 comes before step 4). Unlimited lock-taking requests therefore remain, which was PR-2's concern. The stated residual (755-762) covers only requests that never reach the definer. (b) Lock lifetime is not stated. In PostgreSQL, an error that escapes the inner exception block releases the advisory and row locks taken inside it, so after a caught error the outer count runs with no lock held. That is safe: the count is an atomic upsert on its own row, the inner writes are already rolled back, and on success the subtransaction's locks pass to the parent until commit, so the F8 feed order holds. But rejected requests do not serialise, and nothing tests concurrency. (c) \u00a712 test (1) expects the 121st request to return 429, but a scope 404 (step 2) or an OPERATION_REUSED 409 (step 4) is returned before the rate check (step 5)",
+      "fix": "(a) Add a lock-free replay fast path after the scope check. On a committed operation key, return the stored outcome uncounted and take no lock. On a miss, take the lock and look up again. Alternatively, record replays as an uncounted, lock-taking residual that PL-9 watches. (b) State the lock lifetime in \u00a74.12, and upsert the windows in a fixed order (minute, then day). Add a \u00a712 sub-check: N concurrent rejected commands leave the window at exactly N, and no advisory lock is held after a caught error. (c) The 121st request must pass scope and replay, so use a 403, a revision 409 or a 422"
+    },
+    {
+      "id": "R2-5",
+      "pr": "PR-4",
+      "severity": "low",
+      "file": "docs/architecture/003-architecture-freeze.md; docs/plan/runs/AR-1/proposal-revision2.md",
+      "lines": "003:440-441, 446-452; proposal-revision2.md:143-147",
+      "defect": "The interim rule constrains only the order of checks inside definers. operation_result_v1 runs steps 1\u20132 only. If it ships before G17.api trims freeze outcomes, a demoted manager can fetch a freeze approve result with its projection (freeze_preview_binding.sql:70), which freeze_action itself refuses with 403 (:22). No test covers this",
+      "fix": "State that operation_result_v1 returns only the \u00a74.4 allowlist projection from its first release, whatever state the definer's trim is in. Add a test: a demoted manager calls operation_result_v1 for a freeze approve stored before the trim and gets only identifiers and status"
+    },
+    {
+      "id": "R2-6",
+      "pr": "PR-5/PR-6 (truthful state)",
+      "severity": "low",
+      "file": "003; checkpoint.md; test-plan.md; proposal-revision2.md; phase1-dispositions.md",
+      "lines": "003:8, 945, 967-969, 973; checkpoint.md:7, 109, 123, 169-170; test-plan.md:7, 14, 155-156; proposal-revision2.md:16-18, 166, 182, 225; phase1-dispositions.md:353",
+      "defect": "003:945 says phase 2A's files 'are uncommitted', next to 'committed as candidate 22c5386' at :967. phase2A.md:166 and 205 record the snapshot as committed in 07757a5, and the session-start git status shows no uncommitted packages/domain file. Checkpoint box 2 (:109) still lists 'committing the snapshot' as remaining work; what actually remains is merging it so the trusted base carries it. 'Independent verification pending' is now stale, given the provided P2A code-reading pass. proposal-revision2.md:182 says the reviews are 'kept on this branch', but docs/evidence/AR-1/ and all revision-2 docs are untracked or modified, not committed",
+      "fix": "Change the wording to: committed (07757a5 snapshot; 22c5386 corrections), independently code-read, not merged, hosted CI unproved. Replace the box-2 item with 'merge so the trusted base has snapshot history'. Mark the review copies and revision 2 as uncommitted until they are committed"
+    },
+    {
+      "id": "R2-7",
+      "pr": "PR-3",
+      "severity": "low",
+      "file": "docs/architecture/003-architecture-freeze.md",
+      "lines": "112-114 vs 106-109",
+      "defect": "Future support and job-audit actors reference private.actors, but the creation-order argument covers only member and gym definers. Support operators and system jobs have no onboarding, so no path creates their actor rows. Their first audited write would fail the FK",
+      "fix": "Define the path: an actor row is created in the transaction that provisions the support principal; system jobs use a seeded system actor (or a null actor plus the job ID); neither can be erased through the member path"
+    },
+    {
+      "id": "R2-8",
+      "pr": "PR-6",
+      "severity": "low",
+      "file": "docs/plan/runs/AR-1/phase2A-corrections.md",
+      "lines": "5",
+      "defect": "This file still cites review 2 only at /tmp/fitlog-ar1-checkpoint-review2.json. It belongs to the packages/domain owner, outside the docs-only scope, but it is the one AR-1 run file without the durable link",
+      "fix": "Cite docs/evidence/AR-1/checkpoint-review2.json and keep /tmp as provenance"
+    }
+  ],
+  "residual_owner_goals": [
+    "Owner: the dated G-1 approval of the completed 003 is PENDING and was not requested here. R-2, R-3 and R-4 (the register's account, vendor and UUID retention) and R-7 (object backups, which decide whether R2-3(c) applies) remain owner-reserved",
+    "MB-7: the actors table and backfill; erasure with a confirmed register append; the pre-erasure restore test with its skip-import mutation; the failed-append test; refusing re-onboarding (R2-1); the actor-row creation test",
+    "PL-5 and PL-2: the runbook's import, purge and check before serving, with restore-side quiescing and a delta import (R2-3); the AC30 drill; the store's immutability and retention checks",
+    "MB-1: the \u00a712:1086 counting tests, including that PostgREST commits a 4xx response.status, plus the concurrency sub-check (R2-4)",
+    "G17.api: trim gym and freeze outcomes with an allowlist projection; keep freeze_action's order until then; demotion and operation_result_v1 tests (R2-5)",
+    "packages/domain owner and PL-1: a hosted CI run that passes with the event base and fails without it; FITLOG_BASE_REF on the same commit; the .gitattributes rule",
+    "AR-1: box 2 database half, boxes 3 and 4, handoff, a re-check of the revision-3 lines, then the goal verifier. AR-1 is not complete"
+  ],
+  "limitations": [
+    "Nothing was executed. The lock release on an escaping PL/pgSQL error, WHEN OTHERS excluding 57014, and PostgREST commit behaviour come from PostgreSQL and PostgREST documentation, not from a test",
+    "The coordinator's 22c5386 evidence was accepted as provided and not re-verified. Hosted CI remains unproved",
+    "The review copies were not diffed against their originals or against the main checkout's phase1-review.json (merge add/add)",
+    "F1\u2013F17, T1\u2013T4 and P2A-1 to P2A-8 were not re-reviewed. Other 003 sections (\u00a73.4, \u00a74.4, \u00a74.6) were read only for context",
+    "The session-start git status shows an untracked supabase/migrations/20261025234317_training_formula_v1.sql. It was not reviewed, and no revision-2 doc mentions it. If it is box-4 work, the checkpoint's box 4 'Not started' may be stale",
+    "This is an architecture proposal review, not database execution or final AR-1 acceptance"
+  ]
+}

@@ -1,0 +1,11 @@
+BEGIN
+SET
+ fixture_loaded 
+----------------
+ t
+(1 row)
+
+DO
+ROLLBACK
+NOTICE:  training.v1 fixture text sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877
+NOTICE:  training.v1: 16 set vectors and 2 session vectors passed in SQL; 1 pending MB-4 session vectors not asserted

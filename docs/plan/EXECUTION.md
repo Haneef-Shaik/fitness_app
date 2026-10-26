@@ -109,7 +109,7 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `805fad54-ff01-4c22-b81f-d6a7faa651fa` | fitlog-mb1 / codex/mb1-identity | Independent read-only phase1E safety review |
+| MB-1 | `19eea0f3-49fd-4754-a30d-158907def66e` | fitlog-mb1 / codex/mb1-identity | Independent read-only phase1E safety review |
 | QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Unicode guard corrections and R16 |
 
 MB1writer e26c3f2e completed F5 migration-evidence grammar/verdict, F3 DB55322/env binding,
@@ -141,9 +141,11 @@ Neither goal is Done or integrated. No owner action needed.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 14:19 UTC cycle collected results, stopped the idle MB1writer, verified main,
-   and dispatched fresh MB1review plus QA9Unicode/R16 fixes. No DB continuation authorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1419Z.md) records tests and limits.
+   The 26 October 16:33 UTC cycle confirmed the same MB1review and QA9Unicode/R16 workers
+   active with recent tool progress; MB1 native sleep continuation is19eea0f3 (old805fad54
+   interrupted by computer sleep). Main185tests and MB1pure104tests independently pass
+   on Node22.23.1. No duplicate dispatch or DB continuation authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1633Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

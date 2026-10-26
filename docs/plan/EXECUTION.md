@@ -109,19 +109,21 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `6ff89e71-a366-4b00-8fd7-e20b307bfd54` | fitlog-mb1 / codex/mb1-identity | Reviewed disposable migration-list / before snapshot / RED continuation |
-| QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Unicode guard corrections and R16, mutations in progress |
+| MB-1 | `5c18730f-c93d-486f-853f-7c9728d81489` | fitlog-mb1 / codex/mb1-identity | Pure phase1F: ban classification, config-port/config.json binding, immediate preapply guards |
+| QA-9 | `68f44e38-7c4c-43ce-bdbb-bc9203468b1a` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only phase2F review |
 
-Independent MB1review19eea0f3 DONE:104/104puretests, currentcandidatebytes accepted,
-threeLOWfindings, noCritical/High/Medium. Codex AUTH-01 accepts disposable-only continuation on
-existing replay. Any refusal STOP; no candidate/sharedapply/stop/teardown authorized.
-Before sharedapply MB1 must fix configport/config.json target binding and immediate preapply checks
-test-first, then obtain fresh independent review. No live RED result claimed at dispatch.
+Prior workers31abe500 and6ff89e71 stopped after complete final reports. Disposable MB1 attempt3
+passed migration-list and before snapshot, then stopped at suite red:27checks/exactfive profile failures,
+but403user_banned was unrecognized. No accepted RED, candidate absent, replay left running.
+Codex assigned F6 plus review19eea0f3 findings1/2 to pure-code phase1F; banned response must not
+imply ended session or silently count a vacuous M2 as proof. No database/runner/sharedapply/teardown
+authorized. Fresh independent safety review required before further database execution. B1/B2 open.
 
-QA9writer remains active:77qualitytests GREEN reported, scratch mutations still running.
-Collect finished checkpoint before fresh independent review; no duplicate writer or candidate gate.
-Prettier separate nextphase; exactinitialfloor proof at mainintegration and specifically authorized
-hostednegativeCI remain open. Neither goal is Done or integrated. No owner action needed.
+QA9phase2F writer reports77qualitytests and262fullchecks; Codex independently77/77qualitytests pass.
+New independent reviewer checks entire candidate. Prettier remains a separate nextphase; exactinitialfloor
+proof at integration and specificallyauthorized hostednegativeCI remain open. Neither goal Done/integrated.
+No owner action needed. Reconcile ALL active automation chats before dispatch, following the recorded
+16:40UTC overlap; preserve retired2500bef1 and the uncommitted overlap checkpoint as history.
 
 ## Resume order
 
@@ -137,9 +139,9 @@ hostednegativeCI remain open. Neither goal is Done or integrated. No owner actio
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October16:39UTC cycle accepted MB1disposable-only review and dispatched continuation;
-   QA9originalwriter remains active. Sharedapply still requires technical fixes and fresh review.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1639Z.md) records tests and limits.
+   The 26 October17:05UTC cycle collected disposable STOP and completed QA9phase2F, then dispatched
+   pure MB1phase1F and fresh QA9review only. No DBcontinuation authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1705Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

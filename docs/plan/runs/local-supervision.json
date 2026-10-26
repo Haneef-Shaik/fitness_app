@@ -14,38 +14,38 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Reviewed disposable-only continuation: migration list, before snapshot and RED",
-      "sessionId": "6ff89e71-a366-4b00-8fd7-e20b307bfd54",
-      "shortId": "6ff89e71",
+      "phase": "Phase1F pure-code ban classifier and shared-target/preapply guard corrections",
+      "sessionId": "5c18730f-c93d-486f-853f-7c9728d81489",
+      "shortId": "5c18730f",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "MB1 docs/evidence only; no code/config/SQL changes",
-      "database": "Only existing disposable56421/56422 migrations list, read-only snapshot before, suite red; no shared apply/candidate/stop/teardown.",
+      "writes": "scripts/backend and MB1 docs/evidence only; no SQL/contracts/dependencies",
+      "database": "NONE: no runner/DB/CLI/Docker/network/replay file/sharedapply/stop/teardown authorized.",
       "previousReviewerSession": "19eea0f3 done: no critical/high/medium; three LOWs;104/104 puretests; Codex accepted disposable-only readiness.",
-      "previousImplementerSession": "e26c3f2e stopped after F5/F3/F4 pure fixes; Codex104/104 backend pure tests pass",
-      "lastObservedAt": "2026-10-26T16:39:23.315208+00:00",
-      "observation": "Authenticated registry busy PID77772. Shared config-port/config.json binding and immediate preapply checks remain MB1 prerequisites before shared authorization."
+      "previousImplementerSession": "6ff89e71 stopped after completed disposable attempt3; migrations and before passed; suite red STOP user_banned, no accepted RED.",
+      "lastObservedAt": "2026-10-26T17:04:26.465977+00:00",
+      "observation": "Authenticated registry busy PID54851. Fix review19eea0f3 findings1/2 and F6 test-first, independent review before further DB. Banned must not imply session ended; M2 failclosed pending nonvacuous proof."
     },
     {
       "goal": "QA-9",
-      "phase": "Phase2F Unicode bypass corrections and narrow R16 declaration guard",
-      "sessionId": "31abe500-6824-4515-9158-2b163727e7f6",
-      "shortId": "31abe500",
+      "phase": "Fresh independent read-only review of complete QA9 phase2F candidate",
+      "sessionId": "68f44e38-7c4c-43ce-bdbb-bc9203468b1a",
+      "shortId": "68f44e38",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "scripts/quality and QA9 docs/docs23 only; no packages/dependencies/config/source/CI",
-      "database": "No database/Supabase/Docker calls.",
-      "previousImplementerSession": "f188b650 done:73 quality tests, type suppression guard and no-watchman correction; uncommitted",
+      "writes": "NONE: read/test only",
+      "database": "NONE",
+      "previousImplementerSession": "31abe500 stopped after completed phase2F;77quality/262full tests reported; Codex independently77/77qualitypass.",
       "previousReviewerSession": "ad123579 done: no commands ran; two LOW Unicode bypasses independently reproduced by Codex",
-      "lastObservedAt": "2026-10-26T16:39:23.315208+00:00",
-      "observation": "Original31abe500 busy PID40800.77 quality tests GREEN reported then scratch mutations in progress; no finished phase/checkpoint yet."
+      "lastObservedAt": "2026-10-26T17:04:26.465977+00:00",
+      "observation": "Authenticated registry busy PID54844; review all tracked/untracked changes, compiler/ESLint Unicode behavior and R16. Prettier separate nextphase; floorintegration and hostedproof open."
     }
   ],
-  "resume": "Reconcile6ff89e71 and31abe500 first. MB1 independent phase1E final collected /tmp/fitlog-19eea0f3-final.md:threeLOWs,noCritical/High/Medium. Codex accepted only disposable migrations/snapshot-before/RED; any refusal STOP preserve locks/envfiles.0or2withheld non-table notice lines accepted ONLY with exact manifest summary. No candidate/shared/stop/teardown. Before sharedapply fix config-port/config.json binding and fresh immediate preapply guards test-first + independent review. QA9writer actively runs scratch mutations, no reviewer yet; collect finished checkpoint before new phase. Main185tests/build/sync pass. No owner action; no goalDone/integration/externalaction.",
-  "lastReconciledAt": "2026-10-26T16:39:23.315208+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1639Z.md"
+  "resume": "Reconcile ALL active Codex automation chats then actual native registry before dispatch. Collect5c18730f pure phase1F and68f44e38 QA9review first. Retired31abe500/6ff89e71 stopped. MB1 disposable attempt3 stopped on403user_banned after27checks/exactfiveprofilefailures; no acceptedRED, candidateabsent, replayrunning. No DBauthorization. Newcode requires freshindependent review before bounded retry. B1/B2open. QA9Codex77qualitytests pass; awaitreview then separatePrettier, exactintegrationfloor, specificallyauthorizedhostedproof. No goalDone/status/ledger/integration/externalaction; noowneraction.",
+  "lastReconciledAt": "2026-10-26T17:04:26.465977+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1705Z.md"
 }

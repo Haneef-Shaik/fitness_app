@@ -305,5 +305,17 @@
     "by": "session:Codex",
     "at": "2026-10-26T01:50:53.832Z",
     "id": "a-1792979453832-r0o4ro"
+  },
+  {
+    "kind": "update",
+    "goal": "AR-1",
+    "from": "claimed",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "e23e9ae",
+    "note": "Architecture review4 and guard review independently PASS; 185 pnpmcheck plus39 guard tests pass. Actual guardrunners and drift/null/AC03 mutation probes pass on ownedreplaystack. Isolated checkpoints ac71e51/fcc9aed/e23e9ae. Final low docs/order fixes, handoff, final verifier and oneownerADRapproval remain; unmerged.",
+    "by": "session:Codex",
+    "at": "2026-10-26T02:45:48.137Z",
+    "id": "a-1792982748137-90zgn8"
   }
 ]

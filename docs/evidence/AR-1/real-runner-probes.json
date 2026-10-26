@@ -1,0 +1,57 @@
+{
+  "scratch": "/var/folders/0s/4k0smcx56zl9hdj404qnz2s80000gp/T/fitlog-ar1-real-runner-probes-nli9dirb",
+  "originalSnapshotSha256": "74914ca920f1f9c97957e74ea8b1bf5eea62dfbd26f7c5c80ba9cf91cdcc88e4",
+  "originalFixtureSha256": "bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877",
+  "originalFilesUntouched": true,
+  "probes": [
+    {
+      "probe": "M1.5-snapshot-bound",
+      "exit": 1,
+      "expected": "fail",
+      "pass": true,
+      "output": "verify-contracts failed:\n- /var/folders/0s/4k0smcx56zl9hdj404qnz2s80000gp/T/fitlog-ar1-real-runner-probes-nli9dirb/snapshot-mutant.json has sha256 0663a558ecaab4155238628e517f080a6f819e56b21434c11dea764073a3f7d7, but packages/domain/contracts/manifest.json records 74914ca920f1f9c97957e74ea8b1bf5eea62dfbd26f7c5c80ba9cf91cdcc88e4 for 0.1.0\n- persisted.set differs at /properties/distanceMetres/anyOf/0/maximum: database 1000000, snapshot 1000001\n"
+    },
+    {
+      "probe": "missing-ac03-session",
+      "exit": 1,
+      "expected": "fail",
+      "pass": true,
+      "output": "verify-fixtures failed:\n- psql exited 3:\npsql:<stdin>:110: NOTICE:  training.v1 fixture text sha256 1b8e962d21884e12dcf2f3bd73f7fa5b677fa2f534dee8e3f0f97e7197987d4d\npsql:<stdin>:110: ERROR:  training.v1 fixture failed in SQL: session vector ac03-session is missing\nCONTEXT:  PL/pgSQL function inline_code_block line 90 at RAISE\n"
+    },
+    {
+      "probe": "missing-ac03-set",
+      "exit": 1,
+      "expected": "fail",
+      "pass": true,
+      "output": "verify-fixtures failed:\n- psql exited 3:\npsql:<stdin>:110: NOTICE:  training.v1 fixture text sha256 1b0bf7f35adf84e1b53ec8177a1657886cad8b9a566541c92d3f3ee773f7cd9b\npsql:<stdin>:110: ERROR:  training.v1 fixture failed in SQL: set vector ac03-working-80x8 is missing; ac03-session: malformed session vector; ac03-session-with-deleted-set: malformed session vector\nCONTEXT:  PL/pgSQL function inline_code_block line 90 at RAISE\n"
+    },
+    {
+      "probe": "M4.3-wrong-expected",
+      "exit": 1,
+      "expected": "fail",
+      "pass": true,
+      "output": "verify-fixtures failed:\n- psql exited 3:\npsql:<stdin>:110: NOTICE:  training.v1 fixture text sha256 624878ee8998e706a2068c7c59d6929c3a29484ce6811bc8c62a636c7f80bfc8\npsql:<stdin>:110: ERROR:  training.v1 fixture failed in SQL: ac03-working-80x8 e1rmKg: expected 101.333334, got 101.333333\nCONTEXT:  PL/pgSQL function inline_code_block line 90 at RAISE\n"
+    },
+    {
+      "probe": "M4.4-null-is-zero",
+      "exit": 1,
+      "expected": "fail",
+      "pass": true,
+      "output": "verify-fixtures failed:\n- psql exited 3:\npsql:<stdin>:110: NOTICE:  training.v1 fixture text sha256 56a394bc3c3b7caaccac6944d3dd2a0316464ba3966e9271809d33afec799f65\npsql:<stdin>:110: ERROR:  training.v1 fixture failed in SQL: bodyweight-no-load-12 volumeKgReps: expected 0, got null\nCONTEXT:  PL/pgSQL function inline_code_block line 90 at RAISE\n"
+    },
+    {
+      "probe": "restored-contracts",
+      "exit": 0,
+      "expected": "pass",
+      "pass": true,
+      "output": "private.contracts matches the persisted section of contract 0.1.0 (packages/domain/contracts/0.1.0.json, sha256 74914ca920f1f9c97957e74ea8b1bf5eea62dfbd26f7c5c80ba9cf91cdcc88e4, as manifest.json records): 8 schemas (days, exercise, food, goal, instances, measurements, nutrients, set) in supabase_db_fitlog_ar1_replay_20261026 at http://127.0.0.1:56321\n"
+    },
+    {
+      "probe": "restored-fixtures",
+      "exit": 0,
+      "expected": "pass",
+      "pass": true,
+      "output": "training.v1 SQL check passed for packages/domain/fixtures/ac03-training.v1.json (sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877, received unchanged): training.v1: 16 set vectors and 2 session vectors passed in SQL; 1 pending MB-4 session vectors not asserted [scripts/backend/sql/training-fixtures.sql in supabase_db_fitlog_ar1_replay_20261026 at http://127.0.0.1:56321]\n"
+    }
+  ]
+}

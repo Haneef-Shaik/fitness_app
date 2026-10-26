@@ -60,10 +60,10 @@
     "AR-1": {
       "status": "claimed",
       "who": "Codex",
-      "ref": "3040ccf",
-      "note": "Shared fixture independently PASS checkpoint; primary185 tests,15 migrations empty-head replay,strict empty schema diff,8 persisted schemas match,4 existing backend suites pass. Three disjoint Claude workers finish low docs, guarded runners and SQL test hardening. Unmerged; final verifier and owner ADR approval pending.",
+      "ref": "e23e9ae",
+      "note": "Architecture review4 and guard review independently PASS; 185 pnpmcheck plus39 guard tests pass. Actual guardrunners and drift/null/AC03 mutation probes pass on ownedreplaystack. Isolated checkpoints ac71e51/fcc9aed/e23e9ae. Final low docs/order fixes, handoff, final verifier and oneownerADRapproval remain; unmerged.",
       "by": "session:Codex",
-      "at": "2026-10-26T01:50:53.832Z"
+      "at": "2026-10-26T02:45:48.137Z"
     }
   }
 }

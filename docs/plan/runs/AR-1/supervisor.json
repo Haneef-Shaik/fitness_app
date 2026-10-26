@@ -1,45 +1,45 @@
 {
   "goal": "AR-1",
-  "phase": "verified shared fixture and isolated full replay; guarded runner/doc corrections",
+  "phase": "both independent reviews PASS; final narrow corrections and handoff preparation",
   "state": "working",
   "executor": "local Claude Code",
-  "sessionId": "abdad183-e9c7-4bf1-98c4-fd28b48b08c2",
-  "shortId": "abdad183",
+  "sessionId": "dcfa5571-82c0-4522-b26c-c01cafaef293",
+  "shortId": "dcfa5571",
   "worktree": "/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app",
   "branch": "codex/ar1-contract-freeze",
   "base": "9f148c1",
   "startedDate": "2026-10-25",
-  "resume": "Reconcile3nativeworkers before new dispatch. Collect87b38618 docs,abdad183 guardedtools,e0bf2068 SQLhardening. Verify exactscopes and independentreviewfindings; testnewrunners against ownedreplayproject56322 without touching55321 migration state. Primary fullreplay/strictdiff8schemas+185tests+4baselinesuites proved. Fix remaining findings, checkpointcommit, all-boxhandoff+independentgoalverifier, then one completedADRownerG1approval and integration. No Done or acceptance claim yet.",
+  "resume": "Reconcile87b38618 finalLOWdocs,abdad183 L2order/commentfixes,dcfa5571 handoff/ownerpack before newdispatch. BothreviewsPASS no medium/high/critical; recordsdurable. Verify finaldiff/order, collectandcommitremainingevidence/handoff, freshall-boxgoalverifier thenONEreviewableownerG1approvalrequest. NoDoneuntilactualapproval+integration. Preserveexisting55321stack; newrealguardrunnersPASSowned56321/56322. Fullbackendbundleunrun; separate4baseline+39guard+newrunners actualresults explicit.",
   "heartbeat": "fitlog-coordinate-local-claude-delivery",
-  "launchNotes": "Previousfixture7caf2e6b completed/stopped. Current3workers use dontAsk with explicitly scoped tools, noDB/Docker/Supabase/gitmutations. e0bf2068 is resumedcopy after flags; no broadapprovalgrant. Existing55321 untouched by migrations. Formula-onlylabelledcontainer removed. Independentfixture reviewer52974 complete and saved.",
-  "phase1": "PR1..6 resolved by review3;8LOWR2 corrections running87b38618. Ownerapprovalpending.",
+  "launchNotes": "Old3workersreconciled/stopped. ActualrunnersrefusedDBonly noAPI_URL; restartedONLYownedreplayproject preservingvolume withgateway/REST, thenactualrunnerspass. Deletedonly5authorizedobsoletefiles aftercomparison.39tests+185pnpmcheck pass. independentreviewscompletePASS. Current3nativeworkers disjointdocs/minimalwiring/handofffiles, dontAsk no bypass/DB/git. L1/L4CI hardening deferredPL1.",
+  "phase1": "Proposalreview4PASS resolvesallR2;5LOWsentences/links/stateaddenda assigned87b38618; review explicitlyrequires no further rereview. G1pending.",
   "phase1ReviewLog": "/tmp/fitlog-ar1-phase1-review.jsonl",
   "phase1ReviewExecSession": null,
   "phase1ReviewVerdict": "docs/evidence/AR-1/phase1-review.json",
   "workers": [
     {
-      "phase": "proposal R2 low corrections",
+      "phase": "final5LOWproposalcorrections",
       "sessionId": "87b38618-923e-4ecc-8c27-1757ca90bd2d",
       "shortId": "87b38618",
       "state": "working",
-      "scope": "ADR003/checkpoint/testplan/revision/disposition docs, phase2Acorrectionslinkheader; no source/DB/git"
+      "scope": "ADR003/checkpoint/testplan/revision3/phase2Acorrections+newlowdispositions; no handoff/ownerpack/source/DB/git"
     },
     {
-      "phase": "2C guarded backend tools",
+      "phase": "guardfinalL2order/comments",
       "sessionId": "abdad183-e9c7-4bf1-98c4-fd28b48b08c2",
       "shortId": "abdad183",
       "state": "working",
-      "scope": "newbackend3guardrunners/helpertests, rootbackend:testonly, phase2Crecord; comparethenretire4obsoleteSQLdrafts+unusedgenerator; noDB/git/migrationchanges"
+      "scope": "rootbackend:test orderonly, check-sql-sources and verify-fixtures commentsonly, phase2Cwordprecision,newguarddispositions; no behavior/DB/git"
     },
     {
-      "phase": "2B fixture final hardening",
-      "sessionId": "e0bf2068-ce50-45aa-9a31-f2fb1928a8b5",
-      "shortId": "e0bf2068",
+      "phase": "allboxhandoff/approvalpack",
+      "sessionId": "dcfa5571-82c0-4522-b26c-c01cafaef293",
+      "shortId": "dcfa5571",
       "state": "working",
-      "scope": "training-fixtures.sql AC03IDguard and phase2Baddendum/precisionwording only; no DB/git/domain/fixture/migrationchange"
+      "scope": "runs/AR-1/handoff.md andowner-packs/AR-1.md only; no other files/DB/git"
     }
   ],
-  "candidate": "3040ccf",
+  "candidate": "e23e9ae",
   "checkpointReviewLog": "/tmp/fitlog-ar1-checkpoint-review2.jsonl",
   "checkpointReviewExecSession": null,
   "phase2A": "Intermediate checkpoint22c5386 independently PASS by code reading with primary179 tests/typechecks and CI probes fulfilling conditions. Low F1 vectors assignedMB-6. Not merged or AR-1 Done.",
@@ -48,7 +48,7 @@
   "contractReview3ExecSession": null,
   "contractReview3Verdict": "docs/evidence/AR-1/p2a-review3.json",
   "contractCandidate": "22c5386",
-  "proposalCandidate": "3040ccf",
+  "proposalCandidate": "ac71e51",
   "proposalReview3Log": "/tmp/fitlog-ar1-proposal-review3.jsonl",
   "proposalReview3ExecSession": null,
   "proposalReview3Verdict": "docs/evidence/AR-1/proposal-review3.json",
@@ -59,9 +59,18 @@
     "path": "/tmp/fitlog-ar1-replay-20261026",
     "container": "supabase_db_fitlog_ar1_replay_20261026",
     "dbPort": 56322,
-    "state": "running; preserve for runner checks; remove only this owned project afterward",
+    "state": "running DB/gateway/REST, API56321/DB56322; realrunnerspass; preserve for finalgoalverifier, cleanup only ownedprojectlater",
     "migrations": 15,
     "strictSchemaDiff": "empty",
     "persistedContracts": 8
-  }
+  },
+  "fixtureCandidate": "fcc9aed",
+  "guardCandidate": "e23e9ae",
+  "proposalReview4Verdict": "docs/evidence/AR-1/proposal-review4.json",
+  "proposalReview4Log": "/tmp/fitlog-ar1-proposal-review4.jsonl",
+  "proposalReview4ExecSession": null,
+  "guardReviewVerdict": "docs/evidence/AR-1/guard-review.json",
+  "guardReviewLog": "/tmp/fitlog-ar1-guard-review.jsonl",
+  "guardReviewExecSession": null,
+  "runnerEvidence": "docs/evidence/AR-1/guard-coordinator-gates.md"
 }

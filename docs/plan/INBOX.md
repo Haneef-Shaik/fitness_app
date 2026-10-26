@@ -284,14 +284,15 @@ OW-2 → OW-5 and OW-9 should start early:
 
 ## AR-1 supervision checkpoint — 26 October 2026
 
-No owner action yet. Contract22c5386 and fixture2B independently PASS as intermediate checkpoints.
-Primary185 tests pass. All15 migrations replay into a separate owned local Supabase DB, strict
-public/private/storage schema diff is empty, structural drift is detected,8 persisted schemas match
-the snapshot, and the SQL fixture passes16sets+2sessions. Existing4 backend suites pass separately.
-[Reproducible evidence](../evidence/AR-1/replay-verification.md).
+No owner action yet; the concrete approval pack is being finalized. Architecture review4 and guard
+review independently PASS with no medium/high/critical findings.185 pnpmcheck tests and39 newguard
+tests pass. The actualguardedrunners match8persistedschemas and exactsharedfixturebytes,16sets+2sessions,
+on a separately owned localAPI/database. Deliberatewrongbounds,values,nulls andmissingAC03IDs fail.
+[Guard proof and limits](../evidence/AR-1/guard-coordinator-gates.md).
 
-Three disjoint Claude workers finish the8 LOW architecture doc corrections, repeatable guard/runner
-commands, and small fixture-review hardening. Final independent review, completed ADR approval and
-integration remain due. None of AR-1 is merged or Done. Known follow-ups stay assigned MB-4
-(no-eligible-session aggregate) and MB-6 (additional body-entry vectors). No existing/user/historical
-database was reset; no hosted CI, native-device or release acceptance is claimed.
+Localisolated checkpoints:ac71e51 docs,fcc9aed fixtures,e23e9ae guardedtools/retiredSQLdrafts. Claude
+finishes finalLOWdocclarifications, commandorder/commentfixes andall-boxhandoff/ownerpack. Fresh final
+goalverification, onecompletedADRownerapproval andintegration remain. AR-1 is notmerged orDone.
+Noexistingdatabase wasreset/migrated; nohostedCI/device/releaseacceptance claimed. Thefullbackend:test
+bundleisnotclaimedgreen:original4suitespassed55321 separately,newSQLguardspassedowned56321/56322.
+DeferredCItestbaseline/fullSHAhardening belongsPL-1; memberaggregates andbodyvectors remainMB-4/MB-6.

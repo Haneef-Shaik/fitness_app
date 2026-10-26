@@ -64,48 +64,60 @@ These are observations from this session, not completed goal claims:
 
 ## Active workers and verified checkpoint — 26 October 2026
 
-AR-1 remains claimed, isolated and unmerged at candidate `3040ccf`. Contract corrections22c5386
-independently PASS by code reading, with coordinator179 tests and CI-baseline probes fulfilling
-conditions. Hosted CI remains unproved; low F1 additional body-entry vectors belongs to MB-6.
+AR-1 remains claimed, isolated and unmerged. Three new branch checkpoints are local:
+`ac71e51` architectureR2 corrections, `fcc9aed` sharedfixtures/privateformula SQL/evidence,
+`e23e9ae` guardedrunners/wiring and retirement of5obsoleteSQLdraft/generatorfiles.
+No existing migration changed; no main integration or push occurred.
 
-Phase2B fixture independently PASSed as an intermediate checkpoint:
-[review](../evidence/AR-1/fixture-review.json). Primary `pnpm check` passes185 tests (37domain,
-126mobile,22planner). Real PostgreSQL17.11 passes16 set and2 AC03 session vectors from the exact
-same JSON bytes as TypeScript. Wrong expected value, wrong SQL formula, null-to-zero, missing input
-and PUBLIC execute-grant mutations fail; normal reruns pass. Scratch TypeScript formula and
-null-to-zero mutations also fail specifically, with original files untouched and scratch restored.
-[SQL evidence](../evidence/AR-1/fixture-sql-gates.md), [replay verification](../evidence/AR-1/replay-verification.md).
+Both independent reviews PASS with no medium/high/critical finding:
+[proposal review4](../evidence/AR-1/proposal-review4.json),
+[guard review](../evidence/AR-1/guard-review.json). Proposal review explicitly permits its final5LOW
+corrections without another rereview. The code review's actual-run conditions are fulfilled by
+[real runner output](../evidence/AR-1/real-runners.log) and
+[mutation probes](../evidence/AR-1/real-runner-probes.json).
+[Coordinator disposition](../evidence/AR-1/guard-coordinator-gates.md).
 
-All15 migrations replay from empty on a NEW owned Supabase project
-`/tmp/fitlog-ar1-replay-20261026` / `fitlog_ar1_replay_20261026`, DB56322. Genuine vendor auth/storage
-bootstrap used; no existing data copied/reset/applied. Final public/private/storage diff with
-strict coverage is empty; structural scratch probe is detected and removed. Lint is clean;
-all8 persisted contracts exactly equal snapshot0.1.0. The shared SQL fixture passes on this full
-replay too. Original4 backend regression/isolation suites separately pass on existing55321 stack.
-The no-network tmpfs formula-only container was removed; owned full-replay DB remains for runner
-checks. Preserve all other projects/volumes. Evidence includes commands, hashes and honest harness
-corrections; these results still need final independent goal verification.
+Primary `pnpm check` passes185 tests (37domain/126mobile/22planner) after runnerwiring and SQL
+hardening. All39 new backend guard tests pass independently. Direct sourceguard passes15migrations,
+14unchanged+1new,2configuredseeds,no straySQL; actualCI missing/blank,zero andmissingref probes fail.
+Two reported freezeprivilege uncertainties were checked on ownedreplayDB: freeze_projection
+execute=false for authenticated/anon; freeze_action=true authenticated,false anon; no newmigrationneeded.
 
-Proposal review3 resolves PR1..6;8 LOW R2 documentary findings remain, no medium/high issue:
-[verdict](../evidence/AR-1/proposal-review3.json). Current disjoint native Claude workers (dontAsk;
-file tools/exact tests only, unlisted commands denied, no bypass):
+Both actual newguardrunners PASS using realCLIstatus/Docker/psql on ownedproject
+`/tmp/fitlog-ar1-replay-20261026`, API56321/DB56322. All8persisted schemas match version0.1.0 and
+manifesthash. ExactsharedfixturebytesSHA256bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877
+pass16sets+2sessions. Snapshotbound, expectede1RM, null→zero andmissingAC03ID mutations each fail;
+normalinputreruns pass, originalsuntouched. The hardenedSQLscript itself is now executed, not predicted.
+Earlier full15migrationsempty-to-head, strictpublic/private/storageemptydiff, structuraldriftprobe,
+SQLlint and original4backendregression/isolation suites remain recorded:
+[replay verification](../evidence/AR-1/replay-verification.md).
+
+Owned replay initially had onlyDB, so runners correctlyrefused noAPI_URL. Coordinator stopped ONLY
+thatownedproject with volume preservation and restarted it with localgateway/REST. Realrunners then
+passed. Existing55321stack was not stopped/reset/migrated. Fullsingle-command backend:test has NOT
+run against55321 because branchformula migration is intentionallyunapplied there: original4suites
+passed separately there, newguards/SQL on ownedfullymigrated56321/56322. Record split honestly.
+No hostedCI, device or release acceptance is claimed. Preserve all unrelated files/environments.
+
+Current nativeClaude workers (dontAsk; file tools and scoped exact tests only, no DB/git actions):
 
 | Phase | Session | Owned writes |
 |---|---|---|
-| Eight low proposal corrections | `87b38618-923e-4ecc-8c27-1757ca90bd2d` | ADR003, checkpoint/test-plan/revision/disposition docs; phase2A-corrections durable-link header |
-| 2C guarded backend tools | `abdad183-e9c7-4bf1-98c4-fd28b48b08c2` | verify-contracts/verify-fixtures/check-sql-sources + helper/tests, root backend:test script, phase2C record; compare then retire only4 obsolete SQL drafts and their unused generator |
-| Fixture review hardening | `e0bf2068-ce50-45aa-9a31-f2fb1928a8b5` | training-fixtures.sql AC03-ID check and phase2B addendum/precision corrections only |
+| Final5LOW proposal corrections and current-state addenda | `87b38618-923e-4ecc-8c27-1757ca90bd2d` | ADR003/checkpoint/testplan/revision3/phase2Acorrections + low-dispositions; no handoff or ownerpack |
+| Immediate guard review L2 and comment precision | `abdad183-e9c7-4bf1-98c4-fd28b48b08c2` | backend:test order only, two modulecomments, phase2Cwording + finaldispositions; no behavior/schema changes |
+| Final all-box handoff and approval pack | `dcfa5571-82c0-4522-b26c-c01cafaef293` | new runs/AR-1/handoff.md and owner-packs/AR-1.md only |
 
-The prior fixture worker7caf2e6b completed and was stopped. e0bf2068 is its copied continuation.
-All workers share only the isolated goal worktree, own disjoint files and may not access databases.
-Fixture reviewer tool52974 completed; verdict is durable. No owner action yet: finish concrete work,
-independently verify corrections, then ask once for completed ADR G-1 approval.
+Completed reviewers were headless tool15735/log`/tmp/fitlog-ar1-proposal-review4.jsonl` and
+73881/log`/tmp/fitlog-ar1-guard-review.jsonl`. No reviewer remains running. Fixturehardening e0bf2068
+completed and stopped. Finalcode L1CItestbaselinehandling andL4fullSHAenforcement are assignedPL-1;
+MB-4/MB-6/othernamed implementation follow-ups remain explicit.
 
 Checkout: `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, `codex/ar1-contract-freeze`.
-Read [supervisor state](runs/AR-1/supervisor.json) before dispatch. Collect existing workers first,
-run hardened SQL/guard tools on owned replay stack (default old55321 must not receive unapplied
-fixture migration), record checkpoint commits, assemble all-box handoff and independently verify.
-Integrate only after final pass and actual owner approval. No acceptance row changed.
+Read [supervisor state](runs/AR-1/supervisor.json) and reconcile3workers before dispatch. Collectfinal
+narrowcorrections, verify commandorder/diff, synchronize durableevidence/currenttruth and commit
+handoff. Run fresh all-box goalverifier, then ask ONE ownerapproval of completedADR G-1 with exact
+reviewablepack. No owner action requested yet; no approval invented. Integrate onlyafterfinalpass
+andactualapproval. Acceptance rows remain open whereAR-1 is notthelastprover.
 
 ## Resume order
 

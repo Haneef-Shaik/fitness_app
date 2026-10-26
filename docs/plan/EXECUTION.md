@@ -109,21 +109,22 @@ Two bounded phases run in isolated worktrees from green main2a95726. Read
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `c5b052c9-0720-42fc-9be7-8ed6498e4e4f` | fitlog-mb1 / codex/mb1-identity | Reviewed isolated RED only, phase2-2-red-2 |
-| QA-9 | `908f412f-5536-4da2-84f7-743b8d1ec933` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only phase2G review |
+| MB-1 | `ed3d665c-13c2-44d8-b120-7eb1b8c9c91a` | fitlog-mb1 / codex/mb1-identity | Pure-code phase1G: four safety lows and nonvacuous M2 |
+| QA-9 | `287f647f-b235-44cd-9804-676b8e566c57` | fitlog-qa9 / codex/qa9-quality-ratchets | Separate touched-file Prettier phase and R17 records correction |
 
-Prior bbe2fbba and41abab03 stopped after complete final reports. MB1 phase1F review independently
-passed112puretests, no critical/high/medium and fourLOWs. Codex accepts one disposableRED only:
-exact five HTTP200 profile failures and banned class. Preserve existing before/migrations evidence;
-no candidate/mutations/sharedapply/stop/teardown. FourLOWs assigned MB1 before sharedapply:
-pinned input staging/postapply proof/attempt state, endedM2failclosed with nonvacuous banned kill,
-exact failure detail checks, immutable before snapshot. B1/B2 remain open; no acceptedRED at dispatch.
+Prior c5b052c9 and908f412f stopped after completed final reports. MB1 accepted disposable RED
+phase2-2-red-2:27 checks, exact five profile failures each HTTP200 one row, banned reference,
+runnerexit0. Codex read the actual39line evidence; this is no GREEN or goal completion.
+Candidate absent, sharedapply unauthorized, B1/B2 open. Phase1G has NO actual database/runner/CLI/
+network/Docker/Supabase/replay-directory operations. Fix all four bbe2fbba lows testfirst, then fresh
+independent safety review before any actual runner phase.
 
-QA9 phase2G fixes all three prior lows. Codex accepts byte-reader and domain JS refusal choices;
-R17 outside-src limitations remain named, CI wiring belongs PL1. Codex independently passed the full264test pnpmcheck on Node22.23.1;
-the latest checkpoint records the proof. Fresh review precedes separatePrettier;
-exact integration floor and specifically authorized hostedCI proof remain open. Neither goalDone or
-integrated. No owner action. Reconcile ALL active coordinators before dispatch.
+QA9 independent phase2G reviewer passed79quality/264fulltests on Node22.23.1; no code correctness
+findings, one LOW R17 owner documentation correction. Codex accepts phase2G and authorizes
+separate touched-file formatting with exact prettier3.6.2 devDependency/lockfile and coherent gate
+wiring. R17 remainder belongs PL1 for CI wiring only. No threshold/floor changes authorized.
+Fresh independent review follows formatting; exact floor at main integration and explicitly
+approved hosted lint-negativeCI remain open. Neither goalDone/integrated. No owner action.
 
 ## Resume order
 
@@ -139,9 +140,9 @@ integrated. No owner action. Reconcile ALL active coordinators before dispatch.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October18:05UTC cycle collected phase1F review and phase2G, assigned reviewed disposable
-   RED and freshQA9review. No sharedapply authorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1805Z.md) records tests and limits.
+   The 26 October18:35UTC cycle accepted disposable RED and independentQA9review, then assigned
+   database-free MB1phase1G and touched-file formatting. No sharedapply authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1835Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

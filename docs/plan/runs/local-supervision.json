@@ -14,38 +14,38 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Reviewed disposable RED only under phase1F safety review",
-      "sessionId": "c5b052c9-0720-42fc-9be7-8ed6498e4e4f",
-      "shortId": "c5b052c9",
+      "phase": "Phase1G pure-code replay hardening; four review lows and nonvacuous M2",
+      "sessionId": "ed3d665c-13c2-44d8-b120-7eb1b8c9c91a",
+      "shortId": "ed3d665c",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "MB1 docs/evidence only; exact runner red invocation may write owned replay state",
-      "database": "ONLY existing disposable suite red phase2-2-red-2. No migrations/snapshot/prepare/start/candidate/mutation/shared command/stop/teardown.",
+      "writes": "Replay helpers/tests and MB1 docs only",
+      "database": "NONE: no actual runner/CLI/DB/network/Docker/Supabase/replay-directory operations",
       "previousReviewerSession": "bbe2fbba stopped after completed independent review:112puretests, no critical/high/medium, fourLOWs assigned MB1 before sharedapply.",
-      "previousImplementerSession": "5c18730f stopped after complete phase1F; Codex independently112/112 puretests passed on Node22.23.1.",
-      "lastObservedAt": "2026-10-26T18:03:42.051483+00:00",
-      "observation": "Native registry busy PID13651. Accept only exact five HTTP200 profile failures with banned classification and runnerexit0; rehash CLI before/after; first refusal stops. Sharedapply blocked. No RED outcome claimed at dispatch."
+      "previousImplementerSession": "c5b052c9 STOPPED after accepted disposable RED phase2-2-red-2; no candidate/GREEN",
+      "lastObservedAt": "2026-10-26T18:34:27.184739+00:00",
+      "observation": "Native registry busy PID27517. Complete four bbe2fbba lows test-first. Fresh independent safety review required before any actual runner/database phase; sharedapply unauthorized. B1/B2 open."
     },
     {
       "goal": "QA-9",
-      "phase": "Fresh independent read-only phase2G verification",
-      "sessionId": "908f412f-5536-4da2-84f7-743b8d1ec933",
-      "shortId": "908f412f",
+      "phase": "Separate touched-file Prettier phase and R17 record correction",
+      "sessionId": "287f647f-b235-44cd-9804-676b8e566c57",
+      "shortId": "287f647f",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "NONE read/test only",
+      "writes": "Quality formatting helper/tests/config, root package and lockfile, matching gate-wiring pins, QA9 docs",
       "database": "NONE",
       "previousImplementerSession": "41abab03 stopped after completed phase2G: three lows fixed,79quality/264full tests reported.",
-      "previousReviewerSession": "68f44e38 stopped/source-only; phase2G fixes pending freshreview.",
-      "lastObservedAt": "2026-10-26T18:03:42.051483+00:00",
-      "observation": "Native registry busy PID13639. Codex independent fullcandidate pnpmcheck exit0 on Node22.23.1:264tests(37domain79quality126mobile22planner), types/lint/contracts/planpass. Floor unanchored. Freshreview then separatePrettier; exactintegrationfloor/hostedproof open."
+      "previousReviewerSession": "908f412f STOPPED after independent79quality/264fulltests PASS; no correctness defects, LOW R17 owner records fix",
+      "lastObservedAt": "2026-10-26T18:34:27.184739+00:00",
+      "observation": "Native registry busy PID27529. Exact prettier3.6.2 devDependency authorized; touched files only. Correct R17 owner to PL1 CI wiring only. No thresholds/floor changes; fresh review after phase. Hosted negativeCI remains unproved."
     }
   ],
-  "resume": "Reconcile ALL active coordinators then native registry. Collect c5b052c9 disposableRED and908f412f QA9review before any extension. Retiredbbe2fbba/41abab03 stopped. MB1 fourLOWs assigned before sharedapply: pinned staging+postproof+attempt state; endedM2failclosed/nonvacuous banned kill; exact failure details; immutablebefore. No sharedapply authorized. QA9 Codex independently264tests/fullcandidatecheck pass in currentcheckpoint; separatePrettier next only after review, exactfloor at integration and explicitlyauthorizedhostedproof remain. NeithergoalDone/integrated. Noowneraction.",
-  "lastReconciledAt": "2026-10-26T18:03:42.051483+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1805Z.md"
+  "resume": "Reconcile ALL active coordinators then native registry. Collect ed3d665c phase1G and287f647f formatting checkpoint before extending. Retired c5b052c9/908f412f STOPPED. MB1 accepted disposable RED only; candidate absent/no GREEN. All actual runner/database phases require fresh independent review and bounded authorization; sharedapply blocked, B1/B2 open. QA9 independent264tests/no code defects; formatting now in progress. Exact floor at integration and specifically authorized hostedCI proof remain. NeithergoalDone/integrated. Noowneraction.",
+  "lastReconciledAt": "2026-10-26T18:34:27.184739+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1835Z.md"
 }

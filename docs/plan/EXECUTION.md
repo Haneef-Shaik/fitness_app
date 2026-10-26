@@ -109,18 +109,24 @@ Read [current supervisor state](runs/local-supervision.json) and native session 
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `6a5b517e-e539-4e4f-8a84-58024afff373` | fitlog-mb1 / codex/mb1-identity | Disposable-only phase2 §§0–2 startup/RED checkpoint |
-| QA-9 | `a8b4f2bc-5888-4bb5-a451-b3c62bb41ad7` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only phase2D scope review |
+| MB-1 | `ba065077-532e-4677-8c3e-944182a95551` | fitlog-mb1 / codex/mb1-identity | Disposable-only phase2 §§0–2 retry after Docker restoration |
+| QA-9 | `f188b650-7af9-4794-abd2-1e1cb95078c6` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2E low-finding corrections and TypeScript suppression guard |
 
 Both use approved local Claude auth and dontAsk/scoped tools, no bypass/overage.
-MB-1 reviewer b75d1e73 accepts disposable-only execution: no critical, high or medium findings, four low findings.
-Codex authorizes only §§0–2 with exact CLI 2.121.0/help, a tool timeout above the internal timeout, no SIGKILL,
-and a stop at the first refusal. No candidate migration, shared write, stop or teardown is authorized.
-Shared database port/environment-file binding and candidate byte pinning remain MB-1 requirements before that stage.
-QA-9 phase 2D is written and uncommitted. Codex independently passed 65 quality tests and the full 250-test
-`pnpm check` on Node 26.7.0; the writer reports a pinned 22.23.1 pass. Fresh independent review is running.
-Prettier/R14/R9 remain for a later phase; the initial floor needs proof at exact integration, and hosted proof
-requires specific push authorization. Neither goal is Done or integrated.
+MB-1 attempt6a5b517e stopped at §0 because Docker was down; no runner command or database change occurred.
+Codex stopped that idle worker, started Docker Desktop with its supported `start --detach`, and independently
+confirmed the restored existing stack at exact loopback55321 with `select 1`. Existing containers restarted
+under Docker's configured policies; no data reset, migration or explicit existing-project start occurred.
+New MB-1 worker may retry ONLY §§0–2 on literal /tmp/fitlog-mb1-replay-20261026, using background Bash runner
+jobs so the tool does not terminate the runner before its internal timeout. First refusal stops the phase.
+No candidate migration, shared write, stop or teardown is authorized. F3/F4 remain before shared-stage approval.
+QA-9 reviewer a8b4f2bc accepts2D with four LOWs, no Critical/High/Medium. Codex independently reproduced all
+four missed eslint-disable forms in scratch and passed full pinnedNode22.23.1 `pnpm check` (250 tests).
+New QA-9 worker fixes those LOWs, adds --no-watchman to mobile test:ci and its pin, closes R14, corrects trust
+and hosted-test planning. R9 belongs QA-10; Prettier remains a separate next phase. No source/dependency/CI/
+lockfile changes are authorized, apart from the exact mobile test:ci script. Fresh independent review is
+required after this phase; initial-floor proof stays at exact integration. Hosted proof requires specific
+external authorization. Neither goal is Done or integrated.
 
 ## Resume order
 
@@ -136,9 +142,10 @@ requires specific push authorization. Neither goal is Done or integrated.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 11:52 UTC cycle collected both results, independently passed QA-9 full checks and MB-1 pure tests,
-   authorized MB-1 disposable-only §§0–2, and assigned a fresh QA-9 phase 2D review. Shared database writes remain unauthorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1152Z.md) records actual tests and limits.
+   The 26 October 12:54 UTC cycle collected both results, restored local Docker, verified read-only55321,
+   passed pinned QA-9 checks and MB-1 pure tests, then assigned bounded MB-1 retry and QA-9 phase2E.
+   Shared database writes remain unauthorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1254Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

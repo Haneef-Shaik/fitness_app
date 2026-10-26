@@ -14,9 +14,9 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Phase2 \u00a7\u00a70\u20132 disposable-only preparation/startup/RED checkpoint",
-      "sessionId": "6a5b517e-e539-4e4f-8a84-58024afff373",
-      "shortId": "6a5b517e",
+      "phase": "Phase2 \u00a7\u00a70\u20132 disposable-only RED retry after local Docker restoration",
+      "sessionId": "ba065077-532e-4677-8c3e-944182a95551",
+      "shortId": "ba065077",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
@@ -24,24 +24,24 @@
       "writes": "MB1 evidence and checkpoint only; no source/test/config changes",
       "database": "Only reviewed runner prepare/verify-cli/start/migrations/snapshot-before/suite-red on /tmp/fitlog-mb1-replay-20261026. NO candidate add/migrate, shared operation, stop or teardown. First refusal stops phase.",
       "previousReviewerSession": "b75d1e73 done: accepts disposable-only, no Critical/High/Medium; four LOWs bounded/assigned MB1 before shared authorization",
-      "previousImplementerSession": "ecaa6e45 stopped"
+      "previousImplementerSession": "6a5b517e stopped at \u00a70: Docker unavailable; no runner ran"
     },
     {
       "goal": "QA-9",
-      "phase": "Fresh independent read-only phase2D scope review",
-      "sessionId": "a8b4f2bc-5888-4bb5-a451-b3c62bb41ad7",
-      "shortId": "a8b4f2bc",
+      "phase": "Phase2E four LOW corrections and R14 TypeScript suppression guard",
+      "sessionId": "f188b650-7af9-4794-abd2-1e1cb95078c6",
+      "shortId": "f188b650",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "none; quality tests and pnpm check only",
+      "writes": "scripts/quality, QA9 docs/docs23 \u00a79; mobile package test:ci --no-watchman only",
       "database": "No database/Supabase/Docker calls.",
-      "previousImplementerSession": "759014a2 done/idle; no overlap",
-      "previousReviewerSession": "08c6473e done: code-only2C acceptance; fresh2Dreview pending"
+      "previousImplementerSession": "759014a2 done",
+      "previousReviewerSession": "a8b4f2bc done: accepts2D, no Critical/High/Medium, four LOW findings"
     }
   ],
-  "resume": "Collect exact MB1 RED checkpoint and QA9 fresh2Dreview first. Codex independently65quality tests, fullQA9pnpmcheck250tests,95backendpuretests pass Node26.7.0. Worker759014a2 reports pinned22.23.1 check250tests; Codex confirms runtime exists, has not independently run pinned check thiscycle. MB1disposableonly \u00a7\u00a70\u20132 authorized per b75d1e73 acceptance; do not extend on refusal. FourLOWs namedMB1 before sharedphase; no shared DBwrite or teardown authorized. QA9Prettier/R14/R9 remain boundednextphase, exactfloorcompare at integration; hostedproof requires specificpush. No goalintegration/status/acceptance/externalactions; no owneraction.",
-  "lastReconciledAt": "2026-10-26T11:52:00.229572+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1152Z.md"
+  "resume": "Collect exact workers/checkpoints first. MB1 retry only disposable \u00a7\u00a70\u20132 after Codex restored Docker and verified existing55321 read-only. No shared writes/candidate/stop/teardown. QA9 fresh review accepts2D; independently pinned22.23.1 check250tests and95MB1pure pass. Fourlintdirective bypasses reproduced scratch; phase2E fixes LOWs andR14, --no-watchman script only. R9 assignedQA10; Prettier separate; exactinitialfloor at integration; hostedproof specifically authorizedexternalact. No status/acceptance/integration/releaseclaim. Noowneraction.",
+  "lastReconciledAt": "2026-10-26T12:54:25Z",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1254Z.md"
 }

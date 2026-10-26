@@ -14,34 +14,34 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Fresh independent read-only phase1D replay safety review; pure tests only",
-      "sessionId": "b75d1e73-66d6-488a-a8e0-2d6de77e1416",
-      "shortId": "b75d1e73",
+      "phase": "Phase2 \u00a7\u00a70\u20132 disposable-only preparation/startup/RED checkpoint",
+      "sessionId": "6a5b517e-e539-4e4f-8a84-58024afff373",
+      "shortId": "6a5b517e",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "none; backend pure tests only",
-      "database": "No database, Supabase or Docker calls. Candidate migration remains unapplied. Mutation must use a future disposable replay project, never weaken shared55321.",
-      "previousReviewerSession": "a102fb68-5d26-4e2b-8889-2c4741ac0831 done",
-      "previousImplementerSession": "ecaa6e45-4fc2-48d2-b847-50054dc990b8 stopped after completed result"
+      "writes": "MB1 evidence and checkpoint only; no source/test/config changes",
+      "database": "Only reviewed runner prepare/verify-cli/start/migrations/snapshot-before/suite-red on /tmp/fitlog-mb1-replay-20261026. NO candidate add/migrate, shared operation, stop or teardown. First refusal stops phase.",
+      "previousReviewerSession": "b75d1e73 done: accepts disposable-only, no Critical/High/Medium; four LOWs bounded/assigned MB1 before shared authorization",
+      "previousImplementerSession": "ecaa6e45 stopped"
     },
     {
       "goal": "QA-9",
-      "phase": "Phase2D lint and transform scope guards plus fourLOW review fixes; Prettier later",
-      "sessionId": "759014a2-859b-4c15-b08b-45d7ed3770ae",
-      "shortId": "759014a2",
+      "phase": "Fresh independent read-only phase2D scope review",
+      "sessionId": "a8b4f2bc-5888-4bb5-a451-b3c62bb41ad7",
+      "shortId": "a8b4f2bc",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "scripts/quality, QA9 docs and docs23 only",
+      "writes": "none; quality tests and pnpm check only",
       "database": "No database/Supabase/Docker calls.",
-      "previousImplementerSession": "b08f16c2-5483-4c08-95ab-738c95661588 stopped after final result",
-      "previousReviewerSession": "08c6473e-33b4-46e0-b12f-fee9863f850d done: code-only accept with fourLOWs, Bash denied"
+      "previousImplementerSession": "759014a2 done/idle; no overlap",
+      "previousReviewerSession": "08c6473e done: code-only2C acceptance; fresh2Dreview pending"
     }
   ],
-  "resume": "Collect MB1 fresh phase1D safety review and QA9 phase2D first. Codex independently95backend pure and47quality tests pass Node26.7.0; main pnpmcheck185tests pass. QA9 reviewer accepted code phase2C with fourLOWs but executed no commands (compound git-C denied); Codex accepts2B/2C routine design, exact-integration floor proof still required. Next QA9 writer closes fourLOWs plus R8/R11; Prettier/dependencies/hostedproof later, no push. MB1 candidate UNAPPLIED, live27 suite UNRUN, B1/B2open; no DB authorization until freshreview. No goalintegration/status/acceptance/externalactions; no owneraction.",
-  "lastReconciledAt": "2026-10-26T10:47:03Z",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1047Z.md"
+  "resume": "Collect exact MB1 RED checkpoint and QA9 fresh2Dreview first. Codex independently65quality tests, fullQA9pnpmcheck250tests,95backendpuretests pass Node26.7.0. Worker759014a2 reports pinned22.23.1 check250tests; Codex confirms runtime exists, has not independently run pinned check thiscycle. MB1disposableonly \u00a7\u00a70\u20132 authorized per b75d1e73 acceptance; do not extend on refusal. FourLOWs namedMB1 before sharedphase; no shared DBwrite or teardown authorized. QA9Prettier/R14/R9 remain boundednextphase, exactfloorcompare at integration; hostedproof requires specificpush. No goalintegration/status/acceptance/externalactions; no owneraction.",
+  "lastReconciledAt": "2026-10-26T11:52:00.229572+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1152Z.md"
 }

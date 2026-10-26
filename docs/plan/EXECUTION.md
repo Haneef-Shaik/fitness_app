@@ -109,17 +109,18 @@ Read [current supervisor state](runs/local-supervision.json) and native session 
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `b75d1e73-66d6-488a-a8e0-2d6de77e1416` | fitlog-mb1 / codex/mb1-identity | Fresh independent read-only phase1D safety review; pure tests only |
-| QA-9 | `759014a2-859b-4c15-b08b-45d7ed3770ae` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2D lint/transform scope guards and fourLOW fixes |
+| MB-1 | `6a5b517e-e539-4e4f-8a84-58024afff373` | fitlog-mb1 / codex/mb1-identity | Disposable-only phase2 §§0–2 startup/RED checkpoint |
+| QA-9 | `a8b4f2bc-5888-4bb5-a451-b3c62bb41ad7` | fitlog-qa9 / codex/qa9-quality-ratchets | Fresh independent read-only phase2D scope review |
 
 Both use approved local Claude auth and dontAsk/scoped tools, no bypass/overage.
-MB-1 phase1D closes five runner findings in code; Codex independently95/95 pure backend tests pass.
-Prior writer ecaa6e45 stopped before freshreview. Candidate remains unapplied, live27-check suite unrun,
-B1/B2open; no DB operation authorized. Shared local-stack executor residual is named in phase1d.
-QA-9 reviewer08c6473e accepts2C with fourLOWs, code review only: compound shell commands denied,
-no tests executed by reviewer. Codex independently47/47 qualitytests pass and accepts2B/2C routine design;
-initial floor proof remains at exact integration. New phase fixes fourLOWs plus R8/R11 scope gaps.
-Prettier/dependencies/hostedCI later. Neither goal Done/integrated. No owneraction now.
+MB-1 reviewer b75d1e73 accepts disposable-only execution: no critical, high or medium findings, four low findings.
+Codex authorizes only §§0–2 with exact CLI 2.121.0/help, a tool timeout above the internal timeout, no SIGKILL,
+and a stop at the first refusal. No candidate migration, shared write, stop or teardown is authorized.
+Shared database port/environment-file binding and candidate byte pinning remain MB-1 requirements before that stage.
+QA-9 phase 2D is written and uncommitted. Codex independently passed 65 quality tests and the full 250-test
+`pnpm check` on Node 26.7.0; the writer reports a pinned 22.23.1 pass. Fresh independent review is running.
+Prettier/R14/R9 remain for a later phase; the initial floor needs proof at exact integration, and hosted proof
+requires specific push authorization. Neither goal is Done or integrated.
 
 ## Resume order
 
@@ -135,9 +136,9 @@ Prettier/dependencies/hostedCI later. Neither goal Done/integrated. No owneracti
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 10:47 UTC cycle collected both results and assigned MB-1 fresh phase1D safety review
-   and QA-9 phase2D lint/transform guards. No database lane is authorized and no goal is integrated.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1047Z.md) records actual tests and limits.
+   The 26 October 11:52 UTC cycle collected both results, independently passed QA-9 full checks and MB-1 pure tests,
+   authorized MB-1 disposable-only §§0–2, and assigned a fresh QA-9 phase 2D review. Shared database writes remain unauthorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1152Z.md) records actual tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

@@ -14,28 +14,32 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "1: live-session authorization regression and reviewed migration candidate",
-      "sessionId": "3622698e-dfb8-4e10-a1db-05a13d27c693",
-      "shortId": "3622698e",
+      "phase": "1 independent security review before local migration application",
+      "sessionId": "e838e80b-1670-48ed-bf89-b6815e56226c",
+      "shortId": "e838e80b",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "newidentityintegrationtest,CLI-createdappend-onlycandidate migration,MB-1checkpoint/evidence only",
-      "database": "Onlydisposableownfixtureusers onlocal55321 forREDregression. No migrationup/reset/Dockerpsql; coordinatorreview/applyrequired."
+      "writes": "none: independent read-only security review",
+      "database": "No DB calls; Codex independently checked ownership read-only: postgres/f/postgres/t. Migration remains unapplied.",
+      "previousImplementerSession": "3622698e-dfb8-4e10-a1db-05a13d27c693"
     },
     {
       "goal": "QA-9",
-      "phase": "1: full-source mobile/domain coverage measurement and exposed-RPC test inventory",
-      "sessionId": "1597099e-5bb1-481d-9c52-e4883b164e32",
-      "shortId": "1597099e",
+      "phase": "2: local coverage ratchet implementation and mutation checks",
+      "sessionId": "77705594-faf1-4a19-9bcc-f8c0e671885f",
+      "shortId": "77705594",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "minimalcoverageconfig/scripts andQA-9baseline/inventory/checkpoint only",
-      "database": "NoDB/Supabase/Docker/backendtestcalls; read-onlyRPCsourceinventory."
+      "writes": "coverage config, mobile/domain package scripts, scripts/quality, docs23 and QA9 evidence/checkpoint; no commits",
+      "database": "NoDB/Supabase/Docker/backendtestcalls; read-onlyRPCsourceinventory.",
+      "previousSession": "1597099e-5bb1-481d-9c52-e4883b164e32 stopped after resume created copy"
     }
   ],
-  "resume": "Reconcile bothnativeClaude sessions beforedispatch. MB1shouldstopwithspecificRED andappend-onlycandidate readyforcoordinatorreview; applysharedDBchangesonlyaftersecurityreview andserializewithtests. QA9mustreportactualfull-sourcecoverage/RPCinventory beforethresholdratchets. Preservebaselinequality, independentrevieweverycheckpoint, noDoneuntilallboxes/gatesandlocalintegration. Do notresumecompletedAR1 oraskownerapprovalforroutineengineering."
+  "resume": "Reconcile both native sessions and latest checkpoint before dispatch. Collect MB1 independent security review before local-only serialized migration application; RLS ownership precondition passed read-only. QA9 phase2 implements measured floors and mutation tests; Prettier and hosted negative CI proof still pending, no push authorized. No whole-goal integration or Done until every box independently passes. Never resume completed AR1 or request routine owner sign-off.",
+  "lastReconciledAt": "2026-10-26T04:40:43Z",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T0440Z.md"
 }

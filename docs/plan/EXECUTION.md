@@ -104,30 +104,28 @@ aggregate/identity/privacy work retains named owners in the AR1handoff.
 
 ## Current Claude execution — 26 October 2026
 
-Two bounded phases run in isolated worktrees from greenmain2a95726. Read
+Two bounded phases run in isolated worktrees from green main2a95726. Read
 [current supervisor state](runs/local-supervision.json) and actual native registry before dispatch.
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `e26c3f2e-9352-4e9a-937f-4c8df73239b4` | fitlog-mb1 / codex/mb1-identity | Pure runner corrections F5, F3 and F4 |
-| QA-9 | `ad123579-5ce7-4580-9f0a-15446140e87a` | fitlog-qa9 / codex/qa9-quality-ratchets | Independent read-only phase2E review |
+| MB-1 | `805fad54-ff01-4c22-b81f-d6a7faa651fa` | fitlog-mb1 / codex/mb1-identity | Independent read-only phase1E safety review |
+| QA-9 | `31abe500-6824-4515-9158-2b163727e7f6` | fitlog-qa9 / codex/qa9-quality-ratchets | Unicode guard corrections and R16 |
 
-MB1 workerba065077 started only the owned disposable replay with15committed migrations,
-then stopped at §1.4: migration-list evidence retained no rows despite CLIexit0. Codex stopped
-that idle worker and chose test-first correction before replay continuation. Replay remains running;
-no snapshot, RED, candidate apply or shared write occurred. New worker may edit only replay runner/tests
-and MB1docs: correct fail-closed migration evidence, bind shared API/DB/envfiles and pin reviewed
-candidate bytes. No DB/CLI/Docker/network/suite/stop/teardown operation is authorized in this phase.
-Fresh independent safety review is required before resuming on the existing replay.
+MB1writer e26c3f2e completed F5 migration-evidence grammar/verdict, F3 DB55322/env binding,
+and F4 candidate byte pin. Codex independently passed104pure backend tests; no DB operation.
+Stopped idle writer before fresh reviewer. Migration fixtures derive from installed2.121.0 source,
+not captured live rows. Candidate remains unapplied and live27-check suite unrun; B1/B2open.
+Reviewer must inspect current candidate bytes rather than infer prior review from a new hash.
+Existing replay stays untouched; no live continuation, sharedapply or teardown authorized here.
 
-QA9writerf188b650 completed2E, uncommitted: four LOW corrections, type suppression scan and
-no-watchman pin; reports73qualitytests. Codex independently passed73/73 and main185tests.
-PinnedNode22.23.1 full QA9check passed independently:258tests, types/lint/design/contracts/planner.
-New reviewer reads all tracked/untracked candidate files and tests, no edits or database operations.
-Codex accepts conservative wholetext suppression scanning and three distinct reason words as routine
-policy choices subject to independent correctness review. Prettier remains a separate phase; R9
-belongsQA10, R16 needs named QA9 disposition. Exact initial-floor proof is at mainintegration.
-HostednegativeCI needs specifically authorized external action. Neither goal is Done/integrated.
+QA9review ad123579 ran NO commands (permission denied). It found two LOW bypasses:
+Kelvin-sign nocheck and U+2028/U+2029 ESLint comment boundaries. Codex independently reproduced
+both as problems[] in scratch. New writer fixes them test-first and closes R16 narrowly by
+refusing declaration files under the two src roots, preserving generated expo-env.d.ts elsewhere.
+Writes only quality scripts and QA9 docs/docs23. Prettier is a separate next phase. Exact initial
+floor proof at mainintegration and specifically authorized hostednegativeCI remain open.
+Neither goal is Done or integrated. No owner action needed.
 
 ## Resume order
 
@@ -143,9 +141,9 @@ HostednegativeCI needs specifically authorized external action. Neither goal is 
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 13:49 UTC cycle collected both results, stopped idle MB1worker, verified main,
-   and dispatched bounded pure MB1corrections plus independent QA9review. No DB continuation authorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1349Z.md) records tests and limits.
+   The 26 October 14:19 UTC cycle collected results, stopped the idle MB1writer, verified main,
+   and dispatched fresh MB1review plus QA9Unicode/R16 fixes. No DB continuation authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1419Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

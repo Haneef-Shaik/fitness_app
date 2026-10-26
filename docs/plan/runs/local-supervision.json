@@ -14,34 +14,34 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "Phase1E pure fixes F5 migration evidence, F3 shared DB/env binding and F4 candidate pin",
-      "sessionId": "e26c3f2e-9352-4e9a-937f-4c8df73239b4",
-      "shortId": "e26c3f2e",
+      "phase": "Fresh independent read-only phase1E safety review",
+      "sessionId": "805fad54-ff01-4c22-b81f-d6a7faa651fa",
+      "shortId": "805fad54",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
       "state": "working",
-      "writes": "scripts/backend/mb1-replay*.mjs and tests plus MB1 docs only",
-      "database": "NO database/CLI/Docker/network/suite/stop/teardown operations. Existing replay left running, RED unrun.",
+      "writes": "None: read/test only",
+      "database": "NO live DB/CLI/Docker/runner actions; replay continuation awaits fresh safety review.",
       "previousReviewerSession": "b75d1e73 done: accepts disposable-only, no Critical/High/Medium; four LOWs bounded/assigned MB1 before shared authorization",
-      "previousImplementerSession": "ba065077 stopped after start+migrations: output kept no migration rows; no snapshot or RED"
+      "previousImplementerSession": "e26c3f2e stopped after F5/F3/F4 pure fixes; Codex104/104 backend pure tests pass"
     },
     {
       "goal": "QA-9",
-      "phase": "Fresh independent read-only phase2E review",
-      "sessionId": "ad123579-5ce7-4580-9f0a-15446140e87a",
-      "shortId": "ad123579",
+      "phase": "Phase2F Unicode bypass corrections and narrow R16 declaration guard",
+      "sessionId": "31abe500-6824-4515-9158-2b163727e7f6",
+      "shortId": "31abe500",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
       "branch": "codex/qa9-quality-ratchets",
       "base": "2a95726",
       "state": "working",
-      "writes": "None: read/test only",
+      "writes": "scripts/quality and QA9 docs/docs23 only; no packages/dependencies/config/source/CI",
       "database": "No database/Supabase/Docker calls.",
       "previousImplementerSession": "f188b650 done:73 quality tests, type suppression guard and no-watchman correction; uncommitted",
-      "previousReviewerSession": "a8b4f2bc accepts2D with four LOWs, corrected by2E subject fresh review"
+      "previousReviewerSession": "ad123579 done: no commands ran; two LOW Unicode bypasses independently reproduced by Codex"
     }
   ],
-  "resume": "Collect exact workers first. MB1 stopped at migration evidence gap, existing owned replay running, RED and candidate UNRUN. Codex chose test-first F5 fix plus F3/F4 pure hardening; NO DB operation authorized until fresh safety review. QA9 phase2E independent reviewer active; Codex73quality tests pass, pinned22.23.1 fullcheck258tests exit0. Prettier separate next phase; exactfloor proof at mainintegration; hostednegativeCI needs specific external authorization. OW1/OW2/QA1/AR1 remainDone. Noowneraction.",
-  "lastReconciledAt": "2026-10-26T13:49:35Z",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1349Z.md"
+  "resume": "Collect exact workers first. MB1 phase1E pure104tests pass independently; source-derived migration grammar not live-confirmed, candidate remains unapplied and27-check suite unrun. Fresh805fad54 safety review required before migrations/snapshot-before/RED on SAME replay; no sharedapply or teardown authorized. QA9 two Unicode bypasses independently reproduced,31abe500 fixes test-first plus narrowR16 guard. Fresh review before integration, Prettier remains separate next phase, exactfloor anchoring and hostednegativeCI proof open. No external action authorized. OW1/OW2/QA1/AR1 Done; no owner action.",
+  "lastReconciledAt": "2026-10-26T14:19:15.072323+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-10-26T1419Z.md"
 }

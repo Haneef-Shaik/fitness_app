@@ -104,29 +104,30 @@ aggregate/identity/privacy work retains named owners in the AR1handoff.
 
 ## Current Claude execution — 26 October 2026
 
-Two bounded phases are running from greenmain2a95726 in separate managed worktrees.
-Read [current supervisor state](runs/local-supervision.json) and native session status before dispatch.
+Two bounded phases run in isolated worktrees from greenmain2a95726. Read
+[current supervisor state](runs/local-supervision.json) and actual native registry before dispatch.
 
 | Goal | Claude session | Worktree / branch | Bounded phase |
 |---|---|---|---|
-| MB-1 | `ba065077-532e-4677-8c3e-944182a95551` | fitlog-mb1 / codex/mb1-identity | Disposable-only phase2 §§0–2 retry after Docker restoration |
-| QA-9 | `f188b650-7af9-4794-abd2-1e1cb95078c6` | fitlog-qa9 / codex/qa9-quality-ratchets | Phase2E low-finding corrections and TypeScript suppression guard |
+| MB-1 | `e26c3f2e-9352-4e9a-937f-4c8df73239b4` | fitlog-mb1 / codex/mb1-identity | Pure runner corrections F5, F3 and F4 |
+| QA-9 | `ad123579-5ce7-4580-9f0a-15446140e87a` | fitlog-qa9 / codex/qa9-quality-ratchets | Independent read-only phase2E review |
 
-Both use approved local Claude auth and dontAsk/scoped tools, no bypass/overage.
-MB-1 attempt6a5b517e stopped at §0 because Docker was down; no runner command or database change occurred.
-Codex stopped that idle worker, started Docker Desktop with its supported `start --detach`, and independently
-confirmed the restored existing stack at exact loopback55321 with `select 1`. Existing containers restarted
-under Docker's configured policies; no data reset, migration or explicit existing-project start occurred.
-New MB-1 worker may retry ONLY §§0–2 on literal /tmp/fitlog-mb1-replay-20261026, using background Bash runner
-jobs so the tool does not terminate the runner before its internal timeout. First refusal stops the phase.
-No candidate migration, shared write, stop or teardown is authorized. F3/F4 remain before shared-stage approval.
-QA-9 reviewer a8b4f2bc accepts2D with four LOWs, no Critical/High/Medium. Codex independently reproduced all
-four missed eslint-disable forms in scratch and passed full pinnedNode22.23.1 `pnpm check` (250 tests).
-New QA-9 worker fixes those LOWs, adds --no-watchman to mobile test:ci and its pin, closes R14, corrects trust
-and hosted-test planning. R9 belongs QA-10; Prettier remains a separate next phase. No source/dependency/CI/
-lockfile changes are authorized, apart from the exact mobile test:ci script. Fresh independent review is
-required after this phase; initial-floor proof stays at exact integration. Hosted proof requires specific
-external authorization. Neither goal is Done or integrated.
+MB1 workerba065077 started only the owned disposable replay with15committed migrations,
+then stopped at §1.4: migration-list evidence retained no rows despite CLIexit0. Codex stopped
+that idle worker and chose test-first correction before replay continuation. Replay remains running;
+no snapshot, RED, candidate apply or shared write occurred. New worker may edit only replay runner/tests
+and MB1docs: correct fail-closed migration evidence, bind shared API/DB/envfiles and pin reviewed
+candidate bytes. No DB/CLI/Docker/network/suite/stop/teardown operation is authorized in this phase.
+Fresh independent safety review is required before resuming on the existing replay.
+
+QA9writerf188b650 completed2E, uncommitted: four LOW corrections, type suppression scan and
+no-watchman pin; reports73qualitytests. Codex independently passed73/73 and main185tests.
+PinnedNode22.23.1 full QA9check passed independently:258tests, types/lint/design/contracts/planner.
+New reviewer reads all tracked/untracked candidate files and tests, no edits or database operations.
+Codex accepts conservative wholetext suppression scanning and three distinct reason words as routine
+policy choices subject to independent correctness review. Prettier remains a separate phase; R9
+belongsQA10, R16 needs named QA9 disposition. Exact initial-floor proof is at mainintegration.
+HostednegativeCI needs specifically authorized external action. Neither goal is Done/integrated.
 
 ## Resume order
 
@@ -142,10 +143,9 @@ external authorization. Neither goal is Done or integrated.
    OW-9 requires real field work. Do not invent owner approval or completion.
 4. AR-1 is Done; do not resume its retired workers. Reconcile the latest native Claude registry and
    `runs/local-supervision.json`, then continue MB-1 and QA-9 from their worktree checkpoints.
-   The 26 October 12:54 UTC cycle collected both results, restored local Docker, verified read-only55321,
-   passed pinned QA-9 checks and MB-1 pure tests, then assigned bounded MB-1 retry and QA-9 phase2E.
-   Shared database writes remain unauthorized.
-   [Latest supervision checkpoint](runs/supervision-2026-10-26T1254Z.md) records tests and limits.
+   The 26 October 13:49 UTC cycle collected both results, stopped idle MB1worker, verified main,
+   and dispatched bounded pure MB1corrections plus independent QA9review. No DB continuation authorized.
+   [Latest supervision checkpoint](runs/supervision-2026-10-26T1349Z.md) records tests and limits.
 5. Execute dependency-ready goals through implement → independent verify → integrate → status.
    The approved hourly heartbeat provides bounded Codex supervision between chat turns. Reconcile
    running workers and checkpoints before dispatch. O2–O5 must still be implemented and verified

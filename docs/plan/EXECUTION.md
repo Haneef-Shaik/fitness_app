@@ -102,6 +102,22 @@ Onlyactualexternalaccess/actions/evidence require escalation when indispensable.
 rows unchanged because AR-1 is not theirlastprover. Follow-upCI items L1/L4 belongPL-1; member
 aggregate/identity/privacy work retains named owners in the AR1handoff.
 
+## Current Claude execution — 26 October 2026
+
+Two bounded phases are running from greenmain2a95726 in separate managed worktrees.
+Read [current supervisor state](runs/local-supervision.json) and native session status before dispatch.
+
+| Goal | Claude session | Worktree / branch | Bounded phase |
+|---|---|---|---|
+| MB-1 | `3622698e-dfb8-4e10-a1db-05a13d27c693` | fitlog-mb1 / codex/mb1-identity | Live-session/profile authorization: actualREDregression and append-only candidate fix; no DBschema application until coordinator review |
+| QA-9 | `1597099e-5bb1-481d-9c52-e4883b164e32` | fitlog-qa9 / codex/qa9-quality-ratchets | Measure allmobile/domain sourcecoverage and map every exposedRPC to tests before ratchets; noDB operations |
+
+Bothuse approvedlocalClaude auth and dontAsk with scopedfiletools/exactcommands; no broadpermissions,
+bypass, credentialswitch oroverage. MB-1 alone may make disposable localfixture users for itsREDtests;
+QA-9 is database-free. Neitherworker mayeditmain/status/ledger,applymigration,push,deploy orcontact
+providers. Codex makes routine choices and directs independentreviews and serialintegration.
+AR-1worktree isarchived andownedreplayproject cleaned; existingdevelopmentDB remainshealthy.
+
 ## Resume order
 
 1. Use the authenticated local Claude worker, with Codex assigning and checking bounded tasks.

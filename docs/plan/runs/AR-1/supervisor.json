@@ -37,7 +37,7 @@
     "path": "/tmp/fitlog-ar1-replay-20261026",
     "container": "supabase_db_fitlog_ar1_replay_20261026",
     "dbPort": 56322,
-    "state": "running DB/gateway/REST, API56321/DB56322; realrunnerspass; preserve for finalgoalverifier, cleanup only ownedprojectlater",
+    "state": "Cleanup complete: onlyownedprojectfitlog_ar1_replay_20261026 stopped with--no-backup afterconfirmed0authusers; existing55321healthy.",
     "migrations": 15,
     "strictSchemaDiff": "empty",
     "persistedContracts": 8
@@ -57,5 +57,6 @@
   "bundledBackendEvidence": "docs/evidence/AR-1/bundled-backend-gate.md",
   "goalVerifierVerdict": "docs/evidence/AR-1/verdict-attempt-1.json",
   "integratedCommit": "73e3f63",
-  "integrationEvidence": "docs/evidence/AR-1/integration-gates.md"
+  "integrationEvidence": "docs/evidence/AR-1/integration-gates.md",
+  "managedWorktreeState": "archived recoverably after fully merged; do notresumeunless recoveringreference"
 }

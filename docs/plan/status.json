@@ -64,6 +64,22 @@
       "note": "Independent goal-verifier attempt1 PASS all4boxes; AUTH-01/ARCH-01 explicitly delegated approval. Integrated locally by fast-forward after frozeninstall,185-testcheck,completebackend39tests+4suites/schema/fixtures,and bothplatformJSexports passed. No acceptance/release/hostedCI claim.",
       "by": "session:Codex",
       "at": "2026-10-26T03:49:26.192Z"
+    },
+    "MB-1": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/mb1-identity",
+      "note": "Delegated orchestration: phase1 identity/session authorization audit, regression tests and append-only candidate fix. Isolated fitlog-mb1 worktree from green main2a95726. Claude executes; coordinator serializes any shared DB migration and independently verifies.",
+      "by": "session:Codex",
+      "at": "2026-10-26T03:54:23.324Z"
+    },
+    "QA-9": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/qa9-quality-ratchets",
+      "note": "Phase1 measure full mobile/domain coverage and map exposed RPCs to tests; isolated fitlog-qa9 from green main2a95726. No DB/schema/provider actions; actual baselines before ratchet implementation; hostedCI evidence remains to prove.",
+      "by": "session:Codex",
+      "at": "2026-10-26T03:54:23.454Z"
     }
   }
 }

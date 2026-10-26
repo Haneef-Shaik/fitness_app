@@ -1,0 +1,41 @@
+{
+  "mode": "bounded Codex-coordinated local Claude supervision",
+  "recoveryGuarantees": false,
+  "heartbeat": "fitlog-coordinate-local-claude-delivery",
+  "decisionAuthority": "AUTH-01: owner explicitly delegated final product/engineering decisions to Codex on2026-10-26; routine technical sign-off requires no owner involvement. External proofs remain actual requirements.",
+  "completedMostRecently": {
+    "goal": "AR-1",
+    "integratedCommit": "73e3f63",
+    "bookkeepingCommit": "2a95726",
+    "verdict": "docs/evidence/AR-1/verdict-attempt-1.json",
+    "worktree": "archived, recoverable",
+    "ownedReplay": "stopped/deleted onlyfitlog_ar1_replay_20261026 after0authusers; existing55321healthy"
+  },
+  "workers": [
+    {
+      "goal": "MB-1",
+      "phase": "1: live-session authorization regression and reviewed migration candidate",
+      "sessionId": "3622698e-dfb8-4e10-a1db-05a13d27c693",
+      "shortId": "3622698e",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
+      "branch": "codex/mb1-identity",
+      "base": "2a95726",
+      "state": "working",
+      "writes": "newidentityintegrationtest,CLI-createdappend-onlycandidate migration,MB-1checkpoint/evidence only",
+      "database": "Onlydisposableownfixtureusers onlocal55321 forREDregression. No migrationup/reset/Dockerpsql; coordinatorreview/applyrequired."
+    },
+    {
+      "goal": "QA-9",
+      "phase": "1: full-source mobile/domain coverage measurement and exposed-RPC test inventory",
+      "sessionId": "1597099e-5bb1-481d-9c52-e4883b164e32",
+      "shortId": "1597099e",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa9/fitness_app",
+      "branch": "codex/qa9-quality-ratchets",
+      "base": "2a95726",
+      "state": "working",
+      "writes": "minimalcoverageconfig/scripts andQA-9baseline/inventory/checkpoint only",
+      "database": "NoDB/Supabase/Docker/backendtestcalls; read-onlyRPCsourceinventory."
+    }
+  ],
+  "resume": "Reconcile bothnativeClaude sessions beforedispatch. MB1shouldstopwithspecificRED andappend-onlycandidate readyforcoordinatorreview; applysharedDBchangesonlyaftersecurityreview andserializewithtests. QA9mustreportactualfull-sourcecoverage/RPCinventory beforethresholdratchets. Preservebaselinequality, independentrevieweverycheckpoint, noDoneuntilallboxes/gatesandlocalintegration. Do notresumecompletedAR1 oraskownerapprovalforroutineengineering."
+}

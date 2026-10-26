@@ -341,5 +341,29 @@
     "by": "session:Codex",
     "at": "2026-10-26T03:49:26.192Z",
     "id": "a-1792986566192-i439qt"
+  },
+  {
+    "kind": "update",
+    "goal": "MB-1",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/mb1-identity",
+    "note": "Delegated orchestration: phase1 identity/session authorization audit, regression tests and append-only candidate fix. Isolated fitlog-mb1 worktree from green main2a95726. Claude executes; coordinator serializes any shared DB migration and independently verifies.",
+    "by": "session:Codex",
+    "at": "2026-10-26T03:54:23.324Z",
+    "id": "a-1792986863324-yikkiz"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-9",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/qa9-quality-ratchets",
+    "note": "Phase1 measure full mobile/domain coverage and map exposed RPCs to tests; isolated fitlog-qa9 from green main2a95726. No DB/schema/provider actions; actual baselines before ratchet implementation; hostedCI evidence remains to prove.",
+    "by": "session:Codex",
+    "at": "2026-10-26T03:54:23.454Z",
+    "id": "a-1792986863454-dthrtq"
   }
 ]

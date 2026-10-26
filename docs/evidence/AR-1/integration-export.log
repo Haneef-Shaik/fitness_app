@@ -1,0 +1,42 @@
+Using src/app as the root directory for Expo Router.
+Expo Autolinking module resolution enabled
+Starting Metro Bundler
+
+| (node:34709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+iOS Bundled 7934ms node_modules/expo-router/entry.js (1461 modules)
+Android Bundled 14743ms node_modules/expo-router/entry.js (1691 modules)
+
+› Assets (40):
+../../node_modules/@expo-google-fonts/google-sans-flex/400Regular/GoogleSansFlex_400Regular.ttf (132KB)
+../../node_modules/@expo-google-fonts/google-sans-flex/600SemiBold/GoogleSansFlex_600SemiBold.ttf (133KB)
+../../node_modules/@expo-google-fonts/google-sans-flex/700Bold/GoogleSansFlex_700Bold.ttf (133KB)
+../../node_modules/@expo-google-fonts/material-symbols/400Regular/MaterialSymbols_400Regular.ttf (971KB)
+../../node_modules/@expo-google-fonts/noto-sans-devanagari/400Regular/NotoSansDevanagari_400Regular.ttf (221KB)
+../../node_modules/@expo-google-fonts/noto-sans-devanagari/700Bold/NotoSansDevanagari_700Bold.ttf (222KB)
+../../node_modules/@expo-google-fonts/roboto-condensed/700Bold/RobotoCondensed_700Bold.ttf (146KB)
+../../node_modules/expo-router/assets/arrow_down.png (9.5KB)
+../../node_modules/expo-router/assets/arrow_right.xml (307B)
+../../node_modules/expo-router/assets/checkmark.xml (312B)
+../../node_modules/expo-router/assets/error.png (469B)
+../../node_modules/expo-router/assets/file.png (138B)
+../../node_modules/expo-router/assets/forward.png (188B)
+../../node_modules/expo-router/assets/pkg.png (364B)
+../../node_modules/expo-router/assets/react-navigation/elements/back-icon-mask.png (653B)
+../../node_modules/expo-router/assets/react-navigation/elements/back-icon.png (8 variations | 359B)
+../../node_modules/expo-router/assets/react-navigation/elements/clear-icon.png (4 variations | 425B)
+../../node_modules/expo-router/assets/react-navigation/elements/close-icon.png (4 variations | 235B)
+../../node_modules/expo-router/assets/react-navigation/elements/search-icon.png (7 variations | 592B)
+../../node_modules/expo-router/assets/sitemap.png (465B)
+../../node_modules/expo-router/assets/unmatched.png (4.8KB)
+
+› ios bundles (1):
+_expo/static/js/ios/entry-da6fb34959063309d69f1cd38a684cb2.hbc (4.5MB)
+
+› android bundles (1):
+_expo/static/js/android/entry-7a6fabfabdc5d614f0f837dcf7833941.hbc (4.8MB)
+
+› Files (1):
+metadata.json (4.1KB)
+
+Exported: .expo/export-native

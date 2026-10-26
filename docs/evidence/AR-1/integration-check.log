@@ -1,0 +1,439 @@
+
+> fitlog@ check /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> pnpm typecheck && pnpm lint && pnpm test && pnpm plan:build --check
+
+
+> fitlog@ typecheck /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> pnpm --filter @fitlog/domain typecheck && pnpm --filter @fitlog/mobile typecheck
+
+
+> @fitlog/domain@0.1.0 typecheck /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app/packages/domain
+> tsc --noEmit && tsc -p tsconfig.client.json --noEmit
+
+
+> @fitlog/mobile@0.1.0 typecheck /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app/apps/mobile
+> tsc --noEmit
+
+
+> fitlog@ lint /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> pnpm --filter @fitlog/mobile lint
+
+
+> @fitlog/mobile@0.1.0 lint /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app/apps/mobile
+> eslint . --max-warnings=0 && node scripts/test-design-rules.cjs
+
+Design rules verified: raw visual values fail; semantic tokens pass.
+
+> fitlog@ test /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> pnpm --filter @fitlog/domain test && pnpm --filter @fitlog/mobile test:ci && pnpm plan:test
+
+
+> @fitlog/domain@0.1.0 test /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app/packages/domain
+> node --import tsx --test src/*.test.ts
+
+TAP version 13
+# Subtest: PRD training fixture excludes warmups and does not round intermediate e1RM
+ok 1 - PRD training fixture excludes warmups and does not round intermediate e1RM
+  ---
+  duration_ms: 1.639583
+  type: 'test'
+  ...
+# Subtest: explicit pauses are removed but background time is counted
+ok 2 - explicit pauses are removed but background time is counted
+  ---
+  duration_ms: 0.132542
+  type: 'test'
+  ...
+# Subtest: occurrences require an explicit eligible link and exclude future pending days from adherence
+ok 3 - occurrences require an explicit eligible link and exclude future pending days from adherence
+  ---
+  duration_ms: 12.513417
+  type: 'test'
+  ...
+# Subtest: food portions preserve unknowns and cannot infer liquid density
+ok 4 - food portions preserve unknowns and cannot infer liquid density
+  ---
+  duration_ms: 0.649292
+  type: 'test'
+  ...
+# Subtest: goal progress handles loss, equal targets and baseline-only strength
+ok 5 - goal progress handles loss, equal targets and baseline-only strength
+  ---
+  duration_ms: 0.214125
+  type: 'test'
+  ...
+# Subtest: month-end membership and plate calculator fixtures
+ok 6 - month-end membership and plate calculator fixtures
+  ---
+  duration_ms: 0.181458
+  type: 'test'
+  ...
+# Subtest: invalid domain inputs cannot enter storage
+ok 7 - invalid domain inputs cannot enter storage
+  ---
+  duration_ms: 6.793666
+  type: 'test'
+  ...
+# Subtest: contract version is semver
+ok 8 - contract version is semver
+  ---
+  duration_ms: 0.779833
+  type: 'test'
+  ...
+# Subtest: current schemas equal the snapshot for CONTRACT_VERSION
+ok 9 - current schemas equal the snapshot for CONTRACT_VERSION
+  ---
+  duration_ms: 15.512875
+  type: 'test'
+  ...
+# Subtest: every committed snapshot matches its manifest hash
+ok 10 - every committed snapshot matches its manifest hash
+  ---
+  duration_ms: 2.636291
+  type: 'test'
+  ...
+# Subtest: manifest versions strictly increase and end at CONTRACT_VERSION
+ok 11 - manifest versions strictly increase and end at CONTRACT_VERSION
+  ---
+  duration_ms: 0.274041
+  type: 'test'
+  ...
+# Subtest: the package root exports CONTRACT_VERSION
+ok 12 - the package root exports CONTRACT_VERSION
+  ---
+  duration_ms: 8.715709
+  type: 'test'
+  ...
+# Subtest: the contract covers every Zod schema the package root exports, plus the persisted eight
+ok 13 - the contract covers every Zod schema the package root exports, plus the persisted eight
+  ---
+  duration_ms: 0.823208
+  type: 'test'
+  ...
+# Subtest: the client entrypoint imports no Node built-ins
+ok 14 - the client entrypoint imports no Node built-ins
+  ---
+  duration_ms: 0.793708
+  type: 'test'
+  ...
+# Subtest: committed snapshot history is unchanged against each available Git baseline
+ok 15 - committed snapshot history is unchanged against each available Git baseline
+  ---
+  duration_ms: 126.117375
+  type: 'test'
+  ...
+# HEAD@d624eceacc27: checked
+# main@acd816cfe7b0: checked
+# main@acd816cfe7b0: no committed snapshot history to compare (first-baseline limitation)
+# Subtest: a snapshot and manifest rewritten together are rejected against a baseline
+ok 16 - a snapshot and manifest rewritten together are rejected against a baseline
+  ---
+  duration_ms: 1.9525
+  type: 'test'
+  ...
+# Subtest: the snapshot command refuses an existing version before planning any write
+ok 17 - the snapshot command refuses an existing version before planning any write
+  ---
+  duration_ms: 7.47825
+  type: 'test'
+  ...
+# Subtest: the snapshot command validates existing history before planning a new version
+ok 18 - the snapshot command validates existing history before planning a new version
+  ---
+  duration_ms: 2.545291
+  type: 'test'
+  ...
+# Subtest: a schema change cannot ship as a PATCH bump within its compatibility line
+ok 19 - a schema change cannot ship as a PATCH bump within its compatibility line
+  ---
+  duration_ms: 8.300625
+  type: 'test'
+  ...
+# Subtest: the snapshot command writes a snapshot that verifies, and a second write changes nothing
+ok 20 - the snapshot command writes a snapshot that verifies, and a second write changes nothing
+  ---
+  duration_ms: 9.675167
+  type: 'test'
+  ...
+# Subtest: a failed write removes only the files that run created
+ok 21 - a failed write removes only the files that run created
+  ---
+  duration_ms: 8.765583
+  type: 'test'
+  ...
+# Subtest: CI refuses to check history without a trusted baseline
+ok 22 - CI refuses to check history without a trusted baseline
+  ---
+  duration_ms: 281.576334
+  type: 'test'
+  ...
+# Subtest: a configured baseline that is not a commit is refused
+ok 23 - a configured baseline that is not a commit is refused
+  ---
+  duration_ms: 53.71975
+  type: 'test'
+  ...
+# Subtest: a configured baseline replaces HEAD and main, and an absent file is not a failure
+ok 24 - a configured baseline replaces HEAD and main, and an absent file is not a failure
+  ---
+  duration_ms: 223.381708
+  type: 'test'
+  ...
+# Subtest: a configured baseline fails closed outside a Git work tree; a local run without one only notes it
+ok 25 - a configured baseline fails closed outside a Git work tree; a local run without one only notes it
+  ---
+  duration_ms: 41.741542
+  type: 'test'
+  ...
+# Subtest: a configured baseline fails closed when Git cannot answer, and never reads a failure as an absent file
+ok 26 - a configured baseline fails closed when Git cannot answer, and never reads a failure as an absent file
+  ---
+  duration_ms: 160.011
+  type: 'test'
+  ...
+# Subtest: rules JSON Schema cannot express hold at their accept and reject boundaries
+ok 27 - rules JSON Schema cannot express hold at their accept and reject boundaries
+  ---
+  duration_ms: 19.593458
+  type: 'test'
+  ...
+# Subtest: the refines and transforms the snapshot drops are exactly the ones the vectors cover
+ok 28 - the refines and transforms the snapshot drops are exactly the ones the vectors cover
+  ---
+  duration_ms: 2.083167
+  type: 'test'
+  ...
+# Subtest: backdated diary records retain their selected local date in India and DST zones
+ok 29 - backdated diary records retain their selected local date in India and DST zones
+  ---
+  duration_ms: 15.489083
+  type: 'test'
+  ...
+# Subtest: paise input never rounds a binary floating point currency value
+ok 30 - paise input never rounds a binary floating point currency value
+  ---
+  duration_ms: 1.033709
+  type: 'test'
+  ...
+# Subtest: PRD finance fixtures keep charges, collections, allocations and credit separate
+ok 31 - PRD finance fixtures keep charges, collections, allocations and credit separate
+  ---
+  duration_ms: 1.184917
+  type: 'test'
+  ...
+# Subtest: training.v1 set vectors match setVolume and epley
+ok 32 - training.v1 set vectors match setVolume and epley
+  ---
+  duration_ms: 3.120375
+  type: 'test'
+  ...
+# Subtest: training.v1 session vectors match sessionSummary (AC03)
+ok 33 - training.v1 session vectors match sessionSummary (AC03)
+  ---
+  duration_ms: 15.866458
+  type: 'test'
+  ...
+# Subtest: training.v1 fixture covers the PRD 8.2 cases with explicit nulls
+ok 34 - training.v1 fixture covers the PRD 8.2 cases with explicit nulls
+  ---
+  duration_ms: 0.690833
+  type: 'test'
+  ...
+# fixture sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877
+# pending MB-4: no-eligible-session expects session volume null and is not asserted against sessionSummary
+# Subtest: formatDecimal trims zeros, keeps integers and never returns negative zero
+ok 35 - formatDecimal trims zeros, keeps integers and never returns negative zero
+  ---
+  duration_ms: 0.342209
+  type: 'test'
+  ...
+# Subtest: formatDecimal refuses non-finite values and invalid scales
+ok 36 - formatDecimal refuses non-finite values and invalid scales
+  ---
+  duration_ms: 0.317125
+  type: 'test'
+  ...
+# Subtest: formatDecimal rounds the binary double, not the decimal (known limit, 003 §4.13)
+ok 37 - formatDecimal rounds the binary double, not the decimal (known limit, 003 §4.13)
+  ---
+  duration_ms: 0.062542
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1219.302125
+
+> @fitlog/mobile@0.1.0 test:ci /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app/apps/mobile
+> jest --runInBand --ci
+
+PASS src/ui/__tests__/appearance.test.tsx
+PASS src/data/__tests__/gym-outbox.test.ts
+PASS src/data/__tests__/member-store.test.ts
+PASS src/lib/__tests__/auth-callback.test.ts
+PASS src/theme/__tests__/theme.test.ts
+PASS src/theme/__tests__/preference-store.test.ts
+PASS src/lib/i18n/__tests__/catalog.test.ts
+
+Test Suites: 7 passed, 7 total
+Tests:       126 passed, 126 total
+Snapshots:   0 total
+Time:        1.343 s, estimated 2 s
+Ran all test suites.
+
+> fitlog@ plan:test /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> node --test scripts/plan/lib.test.mjs
+
+TAP version 13
+# Subtest: generated plan and board drift is rejected without executing embedded JavaScript
+ok 1 - generated plan and board drift is rejected without executing embedded JavaScript
+  ---
+  duration_ms: 1.8975
+  type: 'test'
+  ...
+# Subtest: parses goals, fields, wrapped needs and anchors
+ok 2 - parses goals, fields, wrapped needs and anchors
+  ---
+  duration_ms: 2.530125
+  type: 'test'
+  ...
+# Subtest: malformed cards fail loudly instead of losing data
+ok 3 - malformed cards fail loudly instead of losing data
+  ---
+  duration_ms: 1.211333
+  type: 'test'
+  ...
+# Subtest: rejects unknown needs and cycles
+ok 4 - rejects unknown needs and cycles
+  ---
+  duration_ms: 0.202833
+  type: 'test'
+  ...
+# Subtest: ready and blocked are derived from needs
+ok 5 - ready and blocked are derived from needs
+  ---
+  duration_ms: 33.224584
+  type: 'test'
+  ...
+# Subtest: claiming a blocked goal needs force, from any earlier status
+ok 6 - claiming a blocked goal needs force, from any earlier status
+  ---
+  duration_ms: 42.837875
+  type: 'test'
+  ...
+# Subtest: writes keep earlier fields and record the true previous status in the feed
+ok 7 - writes keep earlier fields and record the true previous status in the feed
+  ---
+  duration_ms: 48.561625
+  type: 'test'
+  ...
+# Subtest: status words and aliases normalise; junk and prototype keys are refused
+ok 8 - status words and aliases normalise; junk and prototype keys are refused
+  ---
+  duration_ms: 0.179416
+  type: 'test'
+  ...
+# Subtest: rejects unknown goals and non-text fields
+ok 9 - rejects unknown goals and non-text fields
+  ---
+  duration_ms: 9.170834
+  type: 'test'
+  ...
+# Subtest: a damaged status file shape still loads as empty goals
+ok 10 - a damaged status file shape still loads as empty goals
+  ---
+  duration_ms: 26.212334
+  type: 'test'
+  ...
+# Subtest: concurrent writers from separate processes lose nothing
+ok 11 - concurrent writers from separate processes lose nothing
+  ---
+  duration_ms: 331.299834
+  type: 'test'
+  ...
+# Subtest: Done-when and Exit-check boxes belong to their card; prose and code boxes do not
+ok 12 - Done-when and Exit-check boxes belong to their card; prose and code boxes do not
+  ---
+  duration_ms: 0.793958
+  type: 'test'
+  ...
+# Subtest: every goal must carry a contract
+ok 13 - every goal must carry a contract
+  ---
+  duration_ms: 0.246166
+  type: 'test'
+  ...
+# Subtest: ancestors follow needs transitively
+ok 14 - ancestors follow needs transitively
+  ---
+  duration_ms: 0.132
+  type: 'test'
+  ...
+# Subtest: the ledger parses rows and their proving goals
+ok 15 - the ledger parses rows and their proving goals
+  ---
+  duration_ms: 0.248208
+  type: 'test'
+  ...
+# Subtest: the PRD's acceptance and decision ids are read from their tables
+ok 16 - the PRD's acceptance and decision ids are read from their tables
+  ---
+  duration_ms: 0.161583
+  type: 'test'
+  ...
+# Subtest: a complete ledger passes the coverage check
+ok 17 - a complete ledger passes the coverage check
+  ---
+  duration_ms: 0.471541
+  type: 'test'
+  ...
+# Subtest: the coverage check names every gap
+ok 18 - the coverage check names every gap
+  ---
+  duration_ms: 0.6485
+  type: 'test'
+  ...
+# Subtest: a gate must actually wait on a goal that proves the row
+ok 19 - a gate must actually wait on a goal that proves the row
+  ---
+  duration_ms: 0.116625
+  type: 'test'
+  ...
+# Subtest: Done is refused while a need is open, unless overridden with a reason
+ok 20 - Done is refused while a need is open, unless overridden with a reason
+  ---
+  duration_ms: 26.156459
+  type: 'test'
+  ...
+# Subtest: a milestone is declared only when its needs are Done and its ledger rows pass
+ok 21 - a milestone is declared only when its needs are Done and its ledger rows pass
+  ---
+  duration_ms: 58.097083
+  type: 'test'
+  ...
+# Subtest: the gate report says whether a milestone can be declared and why not
+ok 22 - the gate report says whether a milestone can be declared and why not
+  ---
+  duration_ms: 9.508291
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 666.991958
+
+> fitlog@ plan:build /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> node scripts/plan/build.mjs --check
+
+GOALS.md: 114 goals, 230 needs, 10 lanes; ACCEPTANCE.md: 94 ledger rows, every PRD scenario and decision covered
+plan.json and board.html match GOALS.md

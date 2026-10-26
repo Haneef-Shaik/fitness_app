@@ -7,7 +7,32 @@
 | Base | Branch `codex/ar1-contract-freeze`, written at `9f148c1`. Phase 2A's snapshot is committed in `07757a5` and its corrections in `22c5386`; neither is merged. [003](../../../architecture/003-architecture-freeze.md) governs |
 | Approval | None needed to run this plan. Box 1 needs the owner's one approval, G-1 |
 
+## Current state — dated addendum, 26 October 2026 (read this first)
+
+Reported by the coordinator and not independently verified, except where a review is named. The phase
+status table below is historical (as of revision 3); this addendum supersedes it.
+
+- **Commits on `codex/ar1-contract-freeze`, not merged:** `ac71e51` (revision 3), `fcc9aed` (box-4
+  fixture files: §4), and `e23e9ae` (§2's `check-sql-sources.mjs`, the runner wiring of §5, and the
+  retirement of the four SQL files plus `scripts/backend/contracts.ts`; comparison table in
+  [phase2C.md](phase2C.md)), after `07757a5`, `22c5386` and `3040ccf`.
+- **Runs:** `pnpm check` passes with 185 tests, and the 39 new backend unit tests pass. `verify-contracts.mjs`
+  and `verify-fixtures.mjs` pass against an owned local replay stack (API 56321, DB 56322): all 8
+  persisted schemas match, and the fixture runs exactly 16 set vectors and 2 session vectors. Missing
+  AC03 IDs, a mutant bound and changed expectations each fail, and the originals then pass. All 15
+  migrations replay from empty to head with a strict empty schema diff and a clean lint (§3). The
+  original four suites pass separately on 55321. The bundled `pnpm backend:test` of §5 has **not** run,
+  because the new migration is not applied on 55321. Evidence:
+  [`guard-coordinator-gates.md`](../../../evidence/AR-1/guard-coordinator-gates.md),
+  [`replay-verification.md`](../../../evidence/AR-1/replay-verification.md),
+  [`real-runner-probes.json`](../../../evidence/AR-1/real-runner-probes.json).
+- **Still open:** the independent guard review; the bundled `backend:test`; merge and a hosted CI run
+  (§2); the lane S2 notice at handoff; the owner's G-1 approval (PENDING); the final goal verifier and
+  integration. No box is claimed done, and AR-1 is neither complete nor accepted.
+
 ## Phase status
+
+*Historical, as of revision 3. See the dated addendum above.*
 
 | Part | State | Record |
 |---|---|---|

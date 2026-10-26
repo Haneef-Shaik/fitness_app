@@ -131,8 +131,8 @@ shows this.
    with `-At -c`.
 3. It checks that both sides hold exactly the eight names `days, exercise, food, goal, instances,
    measurements, nutrients, set`.
-4. It deep-compares each schema. Object key order is ignored and array order is kept. Every difference is
-   reported, for example
+4. It deep-compares each schema. Object key order is ignored and array order is kept. It reports the first
+   difference within each schema, plus every missing or extra name, for example
    `persisted.set differs at /properties/reps/anyOf/0/maximum: database 1001, snapshot 1000`.
 
 For a mutant snapshot both the hash problem and the value difference are listed, so M1.5 shows that the
@@ -141,8 +141,9 @@ database comparison itself catches the bound.
 ### `verify-fixtures.mjs [training-fixtures.sql]`
 
 1. The target, as above.
-2. It reads `packages/domain/fixtures/ac03-training.v1.json` as bytes. It refuses invalid UTF-8 (a BOM is
-   kept), a NUL byte, or text that is not JSON, all before psql runs.
+2. It reads `packages/domain/fixtures/ac03-training.v1.json` as bytes. It refuses invalid UTF-8, a NUL byte,
+   or text that is not JSON, all before psql runs. The decoder keeps a leading BOM, so JSON.parse then
+   refuses such a file as not JSON.
 3. It runs psql with `-q -v fixture=<the exact file text> -f -`. The SQL file's bytes go on stdin, with
    `ON_ERROR_STOP=1`.
 4. It passes only if:
@@ -418,6 +419,9 @@ This session confirmed the deletions with Glob before editing. `supabase/*.sql` 
 | `package.json` | `backend:test` = the existing four suites `&& node --test scripts/backend/*.test.mjs && node scripts/backend/check-sql-sources.mjs && node scripts/backend/verify-contracts.mjs && node scripts/backend/verify-fixtures.mjs`. This closes residuals 2 and 5 |
 | `packages/domain/src/contract.ts:23` | Doc comment only. It now names the eight schemas that `supabase/migrations/20261017164336_validated_contracts.sql:5-13` loads, instead of the deleted generator. No code changed. This closes residual 4 |
 | `docs/plan/runs/AR-1/phase2C.md` | This addendum |
+
+**Superseded order (guard review L2):** the database-free steps now run first. See
+[guard-final-dispositions.md](guard-final-dispositions.md).
 
 ### Commands and results
 

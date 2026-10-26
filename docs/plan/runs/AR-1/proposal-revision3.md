@@ -2,19 +2,42 @@
 
 | Field | Value |
 |---|---|
-| Review | The re-review of proposal revision 2, held in the main checkout at `/Users/Adya/personals/fitness_app/docs/evidence/AR-1/proposal-review3.json`. It is **not on this branch**, because copying it was outside this revision's allowed writes. Verdict **REVISE**: PR-1 to PR-6 resolved, no medium or higher defect, and eight low findings, R2-1 to R2-8 |
+| Review | The re-review of proposal revision 2, [`docs/evidence/AR-1/proposal-review3.json`](../../../evidence/AR-1/proposal-review3.json). Provenance: first read in the main checkout at `/Users/Adya/personals/fitness_app/docs/evidence/AR-1/proposal-review3.json`. *Historical:* when this revision was written it was not on this branch, because copying it was outside this revision's allowed writes; it has since been copied. Verdict **REVISE**: PR-1 to PR-6 resolved, no medium or higher defect, and eight low findings, R2-1 to R2-8 |
 | Scope | R2-1 to R2-8 only, with no new architecture beyond what each finding needs. PR-1 to PR-6, F1–F17, T1–T4 and P2A-1 to P2A-8 are not reopened |
 | Revision | Revision 3, 26 October 2026, in worktree `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app` (branch `codex/ar1-contract-freeze`). Its edits are **uncommitted** |
 | Files changed | [`003`](../../../architecture/003-architecture-freeze.md); [`checkpoint.md`](checkpoint.md); [`test-plan.md`](test-plan.md); [`proposal-revision2.md`](proposal-revision2.md) and [`phase1-dispositions.md`](phase1-dispositions.md) (state notes only); the review link in [`phase2A-corrections.md`](phase2A-corrections.md)'s header; this new file. Nothing else |
 | Method | The reviewer's statements were treated as claims, and each was checked against the current lines of 003, the run files and the cited migrations, by reading only. No command, git, Docker, database, source, SQL, status, plan data or credential change; no external action; no delegation |
 | Result | **All eight accepted. None rejected.** One approval only, G-1, still **PENDING**. AR-1 is **not** complete |
 
+## Current state — dated addendum, 26 October 2026 (read this first)
+
+Reported by the coordinator and not independently verified, except where a review is named. The
+"uncommitted", "not on this branch" and box-4 lines below are historical; this addendum supersedes them.
+
+- This revision is committed in `ac71e51`, the box-4 fixture files in `fcc9aed`, and the SQL-source
+  guard, runner wiring and the retirement of five files in `e23e9ae`. Nothing is merged.
+- [`proposal-review4.json`](../../../evidence/AR-1/proposal-review4.json) independently **passed** this
+  revision: all of R2-1 to R2-8 resolved, no medium, high or critical defect, and five low findings
+  (N-1 to N-5), applied in [proposal-final-low-dispositions.md](proposal-final-low-dispositions.md). It
+  asks for no further re-review.
+- The canonical evidence is now on the branch, including
+  [`p2a-review3.json`](../../../evidence/AR-1/p2a-review3.json) and `proposal-review3.json`.
+- The SQL has since run: all 15 migrations replay with a strict empty diff, 8 persisted schemas match,
+  and the fixture's 16 set and 2 session vectors pass on an owned replay stack (API 56321, DB 56322).
+  `pnpm check` passes 185 tests and the 39 new backend unit tests pass. The bundled `backend:test` has
+  not run. Details and evidence links are in the [checkpoint addendum](checkpoint.md).
+- Still open: the guard review, merge and hosted CI, the S2 notice, the owner's G-1 approval
+  (PENDING), the final goal verifier and integration. No box is claimed done; AR-1 is not complete.
+
 ## State this revision records (R2-6)
+
+*Historical, as of revision 3.*
 
 - Phase 2A's snapshot is committed in `07757a5` and its corrections (P2A-1 to P2A-8) in `22c5386`.
   Revision 2 and the durable review copies are committed in `3040ccf`. All three commits are on this
   branch only, **not merged**.
-- An independent code reading of the corrections passed (`p2a-review3.json`, main checkout). It ran
+- An independent code reading of the corrections passed
+  ([`p2a-review3.json`](../../../evidence/AR-1/p2a-review3.json), first read in the main checkout). It ran
   no command; the coordinator's local run of 179 tests and the CI-baseline probes is the executed
   evidence. **No hosted CI run** has shown the baseline guard passing or failing.
 - Box 4's fixture, TypeScript test, `encoding.ts`, migration body and SQL check now exist from phase 2B,

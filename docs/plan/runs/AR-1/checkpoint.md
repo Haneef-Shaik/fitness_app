@@ -4,14 +4,75 @@
 |---|---|
 | Phase | 1 of AR-1 (the architecture record, this checkpoint and the next-phase test plan), plus revision 1 after the independent phase-1 review, revision 2 after checkpoint review 2 (proposal findings PR-1 to PR-6) and revision 3 after the proposal re-review (low findings R2-1 to R2-8) |
 | Date | 26 October 2026 |
-| Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`. Code is cited as read at `9f148c1`. On this branch, not merged: phase 2A's snapshot (`07757a5`), its corrections (`22c5386`), and revision 2 with the durable review copies (`3040ccf`). Revision 3's edits are uncommitted |
+| Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`. Code is cited as read at `9f148c1`. *Historical, as of revision 3; current state in the addendum below.* On this branch, not merged: phase 2A's snapshot (`07757a5`), its corrections (`22c5386`), and revision 2 with the durable review copies (`3040ccf`). Revision 3's edits are uncommitted |
 | Lane | S8 Member backend |
-| **AR-1 status** | **Not complete.** Box 1 is drafted and revised, and waits for the owner's one approval (G-1). Box 2's local half is recorded by phase 2A; its database half has not started. Box 3 has not started. Box 4's files are drafted by phase 2B, and its SQL has never run |
+| **AR-1 status** | **Not complete.** G-1 is approved by delegation (ARCH-01, 26 October 2026); see the current-state section below. *Historical, as of revision 3:* Box 1 is drafted and revised, and waits for the owner's one approval (G-1). Box 2's local half is recorded by phase 2A; its database half has not started. Box 3 has not started. Box 4's files are drafted by phase 2B, and its SQL has never run |
+
+## Current state — G-1 approved by delegation, 26 October 2026 (read this first)
+
+- **G-1 is approved.** Codex, acting as the owner's explicitly delegated decision-maker, approved 003
+  (revision 3 with N-1 to N-5) with no exceptions:
+  [tracker row ARCH-01](../../../09-PROJECT-TRACKER.md#decision-log). AUTH-01 records the owner's
+  delegation in their own words. The owner did not personally review or sign 003.
+- **Basis.** [Proposal review 4](../../../evidence/AR-1/proposal-review4.json) and the
+  [guard review](../../../evidence/AR-1/guard-review.json), both independent, both PASS. Local gates:
+  185 tests in `pnpm check`, 39 guard tests, a 15-migration replay with a strict empty diff, 8
+  persisted schemas matching, and the shared AC03 fixture passing.
+- **Box 1.** GOALS.md now reads "the owner's or an explicitly delegated decision-maker's approval"; its
+  technical checks are unchanged. The approval half is in the tracker.
+- **Not Done.** The bundled `pnpm backend:test` has not run; the coordinator runs it after applying the
+  additive private formula migration to the existing local test stack, and no outcome is assumed here.
+  A fresh independent verifier then checks all four boxes, and the branch is integrated locally only
+  after that PASS. No status, acceptance or ledger entry is changed. R-1 to R-7 are not decided by
+  ARCH-01; account access, payments, external messages, legal and licence positions and device proof
+  still need real evidence (AUTH-01).
+- **Records.** [Handoff](handoff.md) (CURRENT section) and the
+  [owner pack](../../owner-packs/AR-1.md), now a delegated-decision record.
+
+## Earlier addendum, 26 October 2026 (historical)
+
+*Written before G-1 and before the guard review's verdict; its "still open" line is superseded above.*
+
+Reported by the coordinator and not independently verified, except where a review is named. The
+sections below are historical reports and keep the state their authors saw; this addendum supersedes
+their status lines, including the box table.
+
+- **Commits on `codex/ar1-contract-freeze`, not merged:** `07757a5` (contract snapshot), `22c5386` (P2A
+  corrections), `3040ccf` (revision 2 and review copies), `ac71e51` (revision 3), `fcc9aed` (box-4
+  fixture files), and `e23e9ae` (SQL-source guard, runner wiring, and the retirement of five files:
+  `supabase/contracts.sql`, `contract-validation.sql`, `gym-read-models.sql`, `gym-freezes.sql` and
+  `scripts/backend/contracts.ts`; comparison table in [phase2C.md](phase2C.md)). The final low
+  corrections ([proposal-final-low-dispositions.md](proposal-final-low-dispositions.md)) are
+  uncommitted.
+- **Evidence on the branch:** the canonical review and evidence files are copied into
+  `docs/evidence/AR-1/`, including [`p2a-review3.json`](../../../evidence/AR-1/p2a-review3.json),
+  [`proposal-review3.json`](../../../evidence/AR-1/proposal-review3.json) and
+  [`proposal-review4.json`](../../../evidence/AR-1/proposal-review4.json). The existing
+  `checkpoint-review2.json` parses to the same JSON as the canonical copy; only formatting differs.
+- **Runs:** `pnpm check` passes with 185 tests, and the 39 new backend unit tests pass. The new guarded
+  runners pass against an owned local replay stack (API 56321, DB 56322): all 8 persisted schemas match
+  the snapshot, and the fixture runs exactly 16 set vectors and 2 session vectors. Missing AC03 IDs, a
+  mutant bound and changed expectations each fail, and the originals then pass. All 15 migrations
+  replay from empty to head with a strict empty schema diff and a clean lint. The original four backend
+  suites pass separately on the 55321 stack. The bundled `pnpm backend:test` has **not** run, because
+  the new migration is not applied on 55321. Evidence:
+  [`guard-coordinator-gates.md`](../../../evidence/AR-1/guard-coordinator-gates.md),
+  [`replay-verification.md`](../../../evidence/AR-1/replay-verification.md),
+  [`real-runner-probes.json`](../../../evidence/AR-1/real-runner-probes.json).
+- **Reviews:** proposal review 4 independently passed revision 3, with five low findings (N-1 to N-5)
+  applied in the final low corrections and no further re-review requested. The independent review of
+  the guards is still running.
+- **Still open:** the owner's G-1 approval (PENDING); the guard review; merge and a hosted CI run; the
+  lane S2 notice at handoff (003 §7); the final goal verifier and integration. No box is claimed done,
+  and AR-1 is neither complete nor accepted.
 
 ## Revision 3 (26 October 2026)
 
-**Input.** The proposal re-review, held in the main checkout at
-`/Users/Adya/personals/fitness_app/docs/evidence/AR-1/proposal-review3.json` and not on this branch.
+**Input.** The proposal re-review,
+[`docs/evidence/AR-1/proposal-review3.json`](../../../evidence/AR-1/proposal-review3.json). It was first
+read in the main checkout at
+`/Users/Adya/personals/fitness_app/docs/evidence/AR-1/proposal-review3.json`; when revision 3 was written
+it was not yet on this branch (historical).
 Its verdict is REVISE: PR-1 to PR-6 resolved, no medium or higher defect, and eight low findings,
 R2-1 to R2-8.
 
@@ -127,10 +188,13 @@ recorded runs where noted.
 
 ## Done-when boxes
 
+*Historical, as of revision 3. The dated addendum at the top records the later state; no box is
+claimed done.*
+
 | Box | State | Evidence or gap |
 |---|---|---|
 | 003 covers every §21.1 component and §21.3 rule, and the owner's approval is in the tracker | **Drafted, revised three times; approval PENDING** | Revision 2 corrected PR-1 to PR-6, and the re-review found them resolved. Revision 3 corrected its eight low findings (R2-1 to R2-8); a re-check of the revision-3 lines has not run. 003 §3 covers all 11 components. §4, §4.15 and §4.16 cover every §21.3 rule, including the two the review found missing: exercise semantics and no staff health API. §5 maps all 16 domain rows with the PRD's minimum operations. No tracker entry exists, and only the owner can add it (G-1) |
-| `packages/domain` exports a contract version; a test fails on an unversioned schema change, seen once | **In progress, not verified here** | At `9f148c1` nothing exported a version. Phase 2A adds `CONTRACT_VERSION = '0.1.0'` through `packages/domain/src/index.ts:5` and records M1.1 failing once, then passing ([phase2A.md](phase2A.md)). Its snapshot is committed in `07757a5` and the P2A-1 to P2A-8 corrections in `22c5386`. The coordinator reports 179 tests and the CI-baseline probes passing locally, and an independent code reading of the corrections passed (`p2a-review3.json`, main checkout). Not merged, and no hosted CI run proves it. Remaining: merging, so that the trusted base carries the snapshot history; the database half (`verify-contracts.mjs`, M1.5); and the goal verifier's own check |
+| `packages/domain` exports a contract version; a test fails on an unversioned schema change, seen once | **In progress, not verified here** | At `9f148c1` nothing exported a version. Phase 2A adds `CONTRACT_VERSION = '0.1.0'` through `packages/domain/src/index.ts:5` and records M1.1 failing once, then passing ([phase2A.md](phase2A.md)). Its snapshot is committed in `07757a5` and the P2A-1 to P2A-8 corrections in `22c5386`. The coordinator reports 179 tests and the CI-baseline probes passing locally, and an independent code reading of the corrections passed ([`p2a-review3.json`](../../../evidence/AR-1/p2a-review3.json), first read in the main checkout). Not merged, and no hosted CI run proves it. Remaining: merging, so that the trusted base carries the snapshot history; the database half (`verify-contracts.mjs`, M1.5); and the goal verifier's own check |
 | Migrations replay from empty to head; schema diff against the replay is empty | Not started | 002 says a shadow replay of 14 migrations once showed no changes. That is a historical claim, not evidence for this box. Plan: test-plan §3 |
 | One shared AC03 vector runs in TypeScript and SQL from one file | **In progress, not done** | Phase 2B drafted the fixture, its TypeScript test, `encoding.ts`, the `20261025234317_training_formula_v1.sql` body and the SQL check, all untracked ([phase2B.md](phase2B.md)). Its record shows the TypeScript side passing; the SQL has never run, and the runner `verify-fixtures.mjs` does not exist. Not verified here. Plan: test-plan §4 |
 
@@ -168,7 +232,9 @@ new in revision 1.
 ## Remaining AR-1 work
 
 1. **Owner: one dated approval (G-1)** of the completed 003 in the tracker decision log, or approval
-   with stated exceptions. Nothing else in AR-1 needs the owner. The owner-reserved items R-1 to R-7
+   with stated exceptions. **Done 26 October 2026 by delegation (ARCH-01, under AUTH-01); the rest of
+   this list is historical where it conflicts with the current-state section.** Nothing else in AR-1
+   needs the owner. The owner-reserved items R-1 to R-7
    (003 §11) stay with their own goals and are not part of AR-1.
 2. **Phase 2** (test-plan §§0–5), in order. It does not wait for G-1:
    - preflight;
@@ -206,8 +272,13 @@ new in revision 1.
      user, and an erased actor cannot onboard again (R2-1); register retention is anchored to the later
      of the append and the `erased_at` commit (R2-2); the runbook keeps the restored project quiet
      until the check passes, imports a cutover delta, and purges object copies by tombstoned prefix
-     (R2-3); support and system actor rows, and an erasure job that refuses them (R2-7). The store's
-     account, vendor and retention stay owner-reserved (R-2, R-3, R-4), and object copies are R-7;
+     (R2-3); support and system actor rows, and an erasure job that refuses them (R2-7). The final low
+     corrections add: drop `gym_freezes_decided_by_fkey` when `decided_by` moves to the actor key, and
+     test step 5 with a manager who decided a freeze (N-1); carry pending erasure requests across a
+     restore cutover, or record and reconcile the lost in-RPO ones (N-2, PL-5 drill); start step 3
+     only after the upload-URL lifetime and delete by `<owner id>/` prefix, with a test that no object
+     remains (N-3) (003 §3.3, §12 (6)–(8)). The store's account, vendor and retention stay
+     owner-reserved (R-2, R-3, R-4), and object copies are R-7;
    - **G17.api:** keep `freeze_action`'s per-kind check before both replay lookups, and trim gym and
      freeze outcomes with the replay projection (003 §4.3; PR-4). Whichever goal first ships
      `operation_result_v1` for gym scope returns only the §4.4 projection, and tests that a demoted
@@ -218,7 +289,7 @@ new in revision 1.
 
 | Gate | Decision asked of the owner | State |
 |---|---|---|
-| G-1 | Approve 003 as a dated tracker decision-log entry, or approve it with stated exceptions | **PENDING** |
+| G-1 | Approve 003 as a dated tracker decision-log entry, or approve it with stated exceptions | **Approved by delegation, 26 October 2026, no exceptions**: [ARCH-01](../../../09-PROJECT-TRACKER.md#decision-log), by Codex as the owner's explicitly delegated decision-maker (AUTH-01). Not a personal owner review. *Historical: PENDING until then* |
 
 The earlier gates G-2 and G-4 to G-10 are now engineering decisions in 003's body (003 §11). G-3, the
 region, is owner-reserved item R-1. OW-3 still opens every account, and nothing has been provisioned.

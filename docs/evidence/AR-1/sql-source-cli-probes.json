@@ -1,0 +1,26 @@
+[
+  {
+    "probe": "CI-missing",
+    "exit": 1,
+    "output": "check-sql-sources failed: FITLOG_BASE_REF must be set in CI to the trusted base commit (it is unset)\n",
+    "pass": true
+  },
+  {
+    "probe": "CI-blank",
+    "exit": 1,
+    "output": "check-sql-sources failed: FITLOG_BASE_REF must be set in CI to the trusted base commit (it is blank)\n",
+    "pass": true
+  },
+  {
+    "probe": "zero",
+    "exit": 1,
+    "output": "check-sql-sources failed: FITLOG_BASE_REF=0000000000000000000000000000000000000000 is the all-zero SHA, which names no commit\n",
+    "pass": true
+  },
+  {
+    "probe": "unresolvable",
+    "exit": 1,
+    "output": "check-sql-sources failed: Cannot resolve base refs/heads/ar1-no-such-ref: fetch it (PL-1) or set FITLOG_BASE_REF (exit 1)\n",
+    "pass": true
+  }
+]

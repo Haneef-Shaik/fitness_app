@@ -162,10 +162,12 @@ function requireTopLevel(git, root) {
 }
 
 /**
- * Every migration the merge base holds must still be in the working tree, byte for byte, as a regular file under the
- * same name. Each one is checked directly (the directory listing, lstat, and git hash-object on the file), so neither
- * rename detection, path filtering of diff output, nor an assume-unchanged flag can hide a change. git diff against the
- * base, with renames off, adds what only the index shows: a mode change, or a migration removed from the index.
+ * Every migration the merge base holds must still be in the working tree as the same Git blob, as a regular file under
+ * the same name. Each one is checked directly (the directory listing, lstat, and git hash-object on the file), so neither
+ * rename detection, path filtering of diff output, nor an assume-unchanged flag can hide a change. hash-object applies
+ * the path's clean filters and line-ending conversion: it proves the blob Git would store, not identical working bytes.
+ * git diff against the base, with renames off, adds what only the index shows: a mode change, or a migration removed
+ * from the index.
  */
 function baseProblems(git, root, base, label, entries) {
   const present = new Set(readdirSync(join(root, MIGRATIONS)));

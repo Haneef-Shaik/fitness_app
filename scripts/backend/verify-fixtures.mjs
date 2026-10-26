@@ -14,7 +14,10 @@ const HASH_NOTICE = /NOTICE:\s+training\.v1 fixture text sha256 ([0-9a-f]{64})/;
 const PASS_NOTICE = /NOTICE:\s+(training\.v1: \d+ set vectors and \d+ session vectors passed in SQL[^\n]*)/;
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
-/** The file text psql receives. It must decode as UTF-8 (a BOM kept), hold no NUL, which argv cannot carry, and parse as JSON. */
+/**
+ * The file text psql receives. It must decode as UTF-8, hold no NUL (which argv cannot carry), and parse as JSON. The
+ * decoder keeps a leading BOM instead of stripping it, so JSON.parse then refuses such a file as not JSON.
+ */
 function fixtureText(bytes, label) {
   let text;
   try { text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes); } catch { throw new Error(`${label} is not valid UTF-8, so it cannot reach psql unchanged`); }

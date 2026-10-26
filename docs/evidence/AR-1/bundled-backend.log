@@ -1,0 +1,255 @@
+
+> fitlog@ backend:test /Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app
+> node --test scripts/backend/*.test.mjs && node scripts/backend/check-sql-sources.mjs && node scripts/backend/verify.mjs && node scripts/backend/verify-gym.mjs && node scripts/backend/verify-freeze-projection.mjs && node scripts/backend/verify-freezes.mjs && node scripts/backend/verify-contracts.mjs && node scripts/backend/verify-fixtures.mjs
+
+TAP version 13
+# Subtest: a clean branch passes, and a new migration that sorts last is accepted
+ok 1 - a clean branch passes, and a new migration that sorts last is accepted
+  ---
+  duration_ms: 263.930083
+  type: 'test'
+  ...
+# Subtest: an uncommitted edit to a base migration fails (M2.2 shape), and the restored file passes
+ok 2 - an uncommitted edit to a base migration fails (M2.2 shape), and the restored file passes
+  ---
+  duration_ms: 268.32025
+  type: 'test'
+  ...
+# Subtest: an edit that git diff cannot see (assume-unchanged) still fails
+ok 3 - an edit that git diff cannot see (assume-unchanged) still fails
+  ---
+  duration_ms: 205.105333
+  type: 'test'
+  ...
+# Subtest: committed edits, deletions and renames of base migrations fail
+ok 4 - committed edits, deletions and renames of base migrations fail
+  ---
+  duration_ms: 898.9125
+  type: 'test'
+  ...
+# Subtest: a rename out of supabase/migrations fails, although a path filter on git diff output would miss it
+ok 5 - a rename out of supabase/migrations fails, although a path filter on git diff output would miss it
+  ---
+  duration_ms: 235.622208
+  type: 'test'
+  ...
+# Subtest: a base migration replaced by a symbolic link to identical text is retyped and fails
+ok 6 - a base migration replaced by a symbolic link to identical text is retyped and fails
+  ---
+  duration_ms: 167.107584
+  type: 'test'
+  ...
+# Subtest: a base migration removed from the index but left on disk fails
+ok 7 - a base migration removed from the index but left on disk fails
+  ---
+  duration_ms: 229.685916
+  type: 'test'
+  ...
+# Subtest: a stray SQL file fails (M2.1 shape), and a symbolic link is reported, never followed
+ok 8 - a stray SQL file fails (M2.1 shape), and a symbolic link is reported, never followed
+  ---
+  duration_ms: 293.956791
+  type: 'test'
+  ...
+# Subtest: a seed is allowed only while config.toml lists it, and a listed seed must exist
+ok 9 - a seed is allowed only while config.toml lists it, and a listed seed must exist
+  ---
+  duration_ms: 279.023958
+  type: 'test'
+  ...
+# Subtest: migration names must match the pattern, sit directly in migrations/, and not repeat a timestamp
+ok 10 - migration names must match the pattern, sit directly in migrations/, and not repeat a timestamp
+  ---
+  duration_ms: 200.491209
+  type: 'test'
+  ...
+# Subtest: a new migration must sort after every migration on the base
+ok 11 - a new migration must sort after every migration on the base
+  ---
+  duration_ms: 194.803917
+  type: 'test'
+  ...
+# Subtest: CI requires FITLOG_BASE_REF, and a blank or all-zero value is refused (M2.4 shape)
+ok 12 - CI requires FITLOG_BASE_REF, and a blank or all-zero value is refused (M2.4 shape)
+  ---
+  duration_ms: 458.9255
+  type: 'test'
+  ...
+# Subtest: a base that is not a commit sharing history with HEAD fails closed (M2.3 shape)
+ok 13 - a base that is not a commit sharing history with HEAD fails closed (M2.3 shape)
+  ---
+  duration_ms: 237.536166
+  type: 'test'
+  ...
+# Subtest: a shallow clone that lacks the base fails closed instead of passing
+ok 14 - a shallow clone that lacks the base fails closed instead of passing
+  ---
+  duration_ms: 235.48775
+  type: 'test'
+  ...
+# Subtest: outside a Git work tree, below its top, or without a git binary, the check fails closed
+ok 15 - outside a Git work tree, below its top, or without a git binary, the check fails closed
+  ---
+  duration_ms: 113.077167
+  type: 'test'
+  ...
+# Subtest: the seed allowlist is read from [db.seed] sql_paths and refuses what it cannot vouch for
+ok 16 - the seed allowlist is read from [db.seed] sql_paths and refuses what it cannot vouch for
+  ---
+  duration_ms: 0.877542
+  type: 'test'
+  ...
+# Subtest: the command exits 1 naming each problem, and 0 with one summary line on a clean tree
+ok 17 - the command exits 1 naming each problem, and 0 with one summary line on a clean tree
+  ---
+  duration_ms: 399.222792
+  type: 'test'
+  ...
+# Subtest: this repository passes: only migrations and the configured seeds are SQL, and no base migration changed
+ok 18 - this repository passes: only migrations and the configured seeds are SQL, and no base migration changed
+  ---
+  duration_ms: 304.941083
+  type: 'test'
+  ...
+# Subtest: the target is the project config.toml names, reached through argument arrays
+ok 19 - the target is the project config.toml names, reached through argument arrays
+  ---
+  duration_ms: 4.178833
+  type: 'test'
+  ...
+# Subtest: any other API URL is refused before the database is touched, and no key is printed
+ok 20 - any other API URL is refused before the database is touched, and no key is printed
+  ---
+  duration_ms: 1.835625
+  type: 'test'
+  ...
+# Subtest: a failed or unreadable supabase status is refused without echoing it
+ok 21 - a failed or unreadable supabase status is refused without echoing it
+  ---
+  duration_ms: 1.74725
+  type: 'test'
+  ...
+# Subtest: an injected target must be a loopback API URL
+ok 22 - an injected target must be a loopback API URL
+  ---
+  duration_ms: 2.606417
+  type: 'test'
+  ...
+# Subtest: config.toml must name exactly one valid top-level project_id
+ok 23 - config.toml must name exactly one valid top-level project_id
+  ---
+  duration_ms: 0.630333
+  type: 'test'
+  ...
+# Subtest: the default runner passes each argument and stdin unchanged, with no shell
+ok 24 - the default runner passes each argument and stdin unchanged, with no shell
+  ---
+  duration_ms: 42.094875
+  type: 'test'
+  ...
+# Subtest: private.contracts equal to the persisted section passes, whatever the key order
+ok 25 - private.contracts equal to the persisted section passes, whatever the key order
+  ---
+  duration_ms: 4.730042
+  type: 'test'
+  ...
+# Subtest: a changed bound is named by contract and JSON pointer
+ok 26 - a changed bound is named by contract and JSON pointer
+  ---
+  duration_ms: 3.313083
+  type: 'test'
+  ...
+# Subtest: a missing or an extra row fails, and so does a type or array-length change
+ok 27 - a missing or an extra row fails, and so does a type or array-length change
+  ---
+  duration_ms: 2.914333
+  type: 'test'
+  ...
+# Subtest: M1.5 shape: a mutant snapshot fails on its manifest hash and on the changed bound, and the committed file is untouched
+ok 28 - M1.5 shape: a mutant snapshot fails on its manifest hash and on the changed bound, and the committed file is untouched
+  ---
+  duration_ms: 5.3185
+  type: 'test'
+  ...
+# Subtest: a snapshot for a version the manifest does not end at is refused
+ok 29 - a snapshot for a version the manifest does not end at is refused
+  ---
+  duration_ms: 3.632083
+  type: 'test'
+  ...
+# Subtest: a psql failure or output that is not one JSON object fails, and no key appears
+ok 30 - a psql failure or output that is not one JSON object fails, and no key appears
+  ---
+  duration_ms: 4.098708
+  type: 'test'
+  ...
+# Subtest: the command takes at most one snapshot path and prints one line
+ok 31 - the command takes at most one snapshot path and prints one line
+  ---
+  duration_ms: 2.377291
+  type: 'test'
+  ...
+# Subtest: the defaults are the shared fixture and the rollback-only SQL check
+ok 32 - the defaults are the shared fixture and the rollback-only SQL check
+  ---
+  duration_ms: 0.59675
+  type: 'test'
+  ...
+# Subtest: the fixture reaches psql byte for byte as one argument, with the SQL on stdin and ON_ERROR_STOP
+ok 33 - the fixture reaches psql byte for byte as one argument, with the SQL on stdin and ON_ERROR_STOP
+  ---
+  duration_ms: 4.162959
+  type: 'test'
+  ...
+# Subtest: psql reporting another fixture hash fails: the bytes changed on the way
+ok 34 - psql reporting another fixture hash fails: the bytes changed on the way
+  ---
+  duration_ms: 2.786167
+  type: 'test'
+  ...
+# Subtest: a psql run without both notices fails, even when it exits 0
+ok 35 - a psql run without both notices fails, even when it exits 0
+  ---
+  duration_ms: 2.2615
+  type: 'test'
+  ...
+# Subtest: M4.2 shape: a failing SQL check is reported with its psql error
+ok 36 - M4.2 shape: a failing SQL check is reported with its psql error
+  ---
+  duration_ms: 1.746417
+  type: 'test'
+  ...
+# Subtest: a fixture that is not JSON, or cannot pass through an argument unchanged, stops before psql
+ok 37 - a fixture that is not JSON, or cannot pass through an argument unchanged, stops before psql
+  ---
+  duration_ms: 4.399125
+  type: 'test'
+  ...
+# Subtest: any other API URL is refused before the fixture is sent
+ok 38 - any other API URL is refused before the fixture is sent
+  ---
+  duration_ms: 1.096208
+  type: 'test'
+  ...
+# Subtest: the optional argument replaces the SQL file, more arguments are refused, and no key is printed
+ok 39 - the optional argument replaces the SQL file, more arguments are refused, and no key is printed
+  ---
+  duration_ms: 2.157709
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5062.011209
+SQL sources verified: 15 migrations (14 unchanged since main@9f148c13e093, 1 new); configured seeds supabase/seed.sql, supabase/development-catalogue.sql; no other SQL under supabase/
+Local backend integration passed: adult eligibility, status protection, owner isolation, one active workout, idempotence, stale-revision conflicts, set commit and finish.
+Gym integration passed: tenant isolation, live roles/revocation, retired role rejection, month-end dates, overlap rejection, immutable money, idempotent receipts, disjoint corrections, waiver/credit, consistent account reads, health privacy and 50 concurrent gap-free receipts.
+Freeze projection passed: PRD October/November fixture, optional early-return gap, sold zero/remaining allowance, overlapping freezes, leap/DST calendar dates and started-renewal rejection.
+Freeze integration passed: member/staff requests, permissions, pending isolation, atomic renewal shifts, stale previews, idempotence, overlap/allowance checks, early-return gap, rejection/cancellation, concurrent approvals, attendance eligibility and unchanged finance.
+private.contracts matches the persisted section of contract 0.1.0 (packages/domain/contracts/0.1.0.json, sha256 74914ca920f1f9c97957e74ea8b1bf5eea62dfbd26f7c5c80ba9cf91cdcc88e4, as manifest.json records): 8 schemas (days, exercise, food, goal, instances, measurements, nutrients, set) in supabase_db_fitlog_rebuild_20261017 at http://127.0.0.1:55321
+training.v1 SQL check passed for packages/domain/fixtures/ac03-training.v1.json (sha256 bc0672b5d26aa93b1e9be41219a0b20db1997913a37d6a9a0b2aac01ed1e1877, received unchanged): training.v1: 16 set vectors and 2 session vectors passed in SQL; 1 pending MB-4 session vectors not asserted [scripts/backend/sql/training-fixtures.sql in supabase_db_fitlog_rebuild_20261017 at http://127.0.0.1:55321]

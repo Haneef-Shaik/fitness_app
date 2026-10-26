@@ -1,0 +1,16 @@
+{
+  "database": "supabase_db_fitlog_ar1_replay_20261026",
+  "snapshot": "packages/domain/contracts/0.1.0.json",
+  "names": [
+    "days",
+    "exercise",
+    "food",
+    "goal",
+    "instances",
+    "measurements",
+    "nutrients",
+    "set"
+  ],
+  "count": 8,
+  "equal": true
+}

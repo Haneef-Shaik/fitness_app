@@ -47,3 +47,22 @@ run on the fully migrated owned56321/56322stack. This split is explicit; no bund
 
 Independent proposal review4 and guard review are running; AR-1 remains unmerged and requires final
 all-box verification and ownerG1approval. No acceptance result changed.
+
+## Independent review disposition
+
+[Guard review](guard-review.json) PASS: no critical/high/medium finding. Actual runner result
+conditions are fulfilled by real-runners.log and real-runner-probes.json. Architecture
+[review4](proposal-review4.json) independently PASS too; all8R2findings resolved. It permits five
+remaining low doc corrections without another rereview; the docs worker is applying them.
+
+Guard L2 command-order correction is assigned back to its wiring owner now: database-free39tests
+and source guard move before the4live DBsuites, so a missing stack cannot hide source problems.
+L3/N1/N2 are comment/wording corrections only. L1 (backend real-tree unit test must honor trusted
+CI baseline instead of forcinglocalmain) and L4 (enforce fullSHA for FITLOG_BASE_REF in CI or its
+workflowstep) are assigned PL-1; they do not block this local architecture checkpoint. HostedCI
+is unproved and not claimed. SourceCLI actual negative probes now pass too:
+[sql-source-cli-probes.json](sql-source-cli-probes.json), CI missing/blank,zero andmissingref each exit1.
+
+Source/doc checkpoints are committed only in the isolated branch: ac71e51 architectureR2,
+fcc9aedsharedfixture, e23e9aeguards/runnerwiring and retiredsources. Further narrow corrections,
+handoff and final goalverifier remain; ownerG1approval and integration are still pending.

@@ -1,0 +1,64 @@
+{
+  "verdict": "PASS",
+  "scope": "scripts/backend/{check-sql-sources,local-stack,verify-contracts,verify-fixtures}.mjs, the 3 *.test.mjs files, package.json:18 backend:test; test-plan \u00a71 step 4, \u00a72, \u00a74 Runner",
+  "summary": "No critical, high or medium findings. Every guard asked about fails closed. Trusted base: CI needs FITLOG_BASE_REF; blank, all-zero and option-like values are refused; the base must be a commit that shares history with HEAD; --no-replace-objects; Git location variables are dropped. Append-only migrations: each base migration is checked directly (exact name in the directory listing, lstat, git hash-object against the base blob), plus git diff --no-renames for index-only changes. Names, repeated timestamps and new-sorts-last are enforced; symbolic links are refused, never followed. The seed reader refuses globs, escapes, misplaced keys, paths outside supabase/ and missing seeds. Local target: argument arrays only, no env or flag override, an exact loopback API_URL, a validated project_id that names the container, and status output never echoed. Fixture: exact file bytes in one argument, refused before psql if invalid UTF-8, holding a NUL, or not JSON; passing needs exit 0, a matching sha256 notice and the pass notice. Contracts: exactly the 8 names on both sides and a recursive compare that ignores key order and keeps array order; private.contracts.name is the primary key, so no duplicate row can hide. No key reaches any output path.",
+  "findings": [
+    {
+      "id": "L1",
+      "severity": "low",
+      "path": "scripts/backend/check-sql-sources.test.mjs:248-253",
+      "issue": "Test 18 removes CI and FITLOG_BASE_REF, so it always judges against a local `main`. A GitHub Actions checkout has no local main (only origin/main), so this database-free suite will fail there whatever base CI supplies. Locally it can also judge against a different base than the direct check-sql-sources.mjs run in backend:test. It can only fail wrongly, never pass wrongly.",
+      "action": "Pass FITLOG_BASE_REF and CI through unchanged, or drop test 18 because backend:test already runs the command directly. Can wait until PL-1 wires CI."
+    },
+    {
+      "id": "L2",
+      "severity": "low",
+      "path": "package.json:18",
+      "issue": "The database-free steps (node --test scripts/backend/*.test.mjs, check-sql-sources.mjs) run only after the four live-stack suites pass, and pnpm check runs neither. A migration-guard failure therefore never shows without a running stack.",
+      "action": "Wiring owner, now: move `node --test scripts/backend/*.test.mjs && node scripts/backend/check-sql-sources.mjs` to the start of backend:test. Adding them to `check` stays the owner's call (residual 5)."
+    },
+    {
+      "id": "L3",
+      "severity": "low",
+      "path": "scripts/backend/check-sql-sources.mjs:165,179",
+      "issue": "`git hash-object -- <path>` applies the path's clean filters and line-ending conversion. It proves 'the same blob Git would store', not 'byte for byte' as the comment says. A change could add a .gitattributes rule (eol=crlf or ident) so that checkout writes bytes that differ from the base, while hash-object and the diff check both still see no change. The repo has no .gitattributes today; the only possible effect is line endings or ident expansion on fresh replays.",
+      "action": "Optional: use `hash-object --no-filters` (no false positives on macOS or Linux today), or change the comment to say 'same blob'."
+    },
+    {
+      "id": "L4",
+      "severity": "low",
+      "path": "scripts/backend/check-sql-sources.mjs:136-147",
+      "issue": "In CI any ref name is accepted, and git resolves a short name to a tag before a branch. The sibling FITLOG_CONTRACT_BASELINE must be a full SHA (mobile-ci.yml:41).",
+      "action": "Hardening: in CI, accept only a full 40- or 64-hex object ID, either in baseRef or in the PL-1 workflow step."
+    },
+    {
+      "id": "N1",
+      "severity": "nit",
+      "path": "scripts/backend/verify-fixtures.mjs:17,22",
+      "issue": "The comment says a BOM is kept, but JSON.parse rejects a file that starts with a BOM. Such a fixture is refused as 'not JSON'. It fails closed.",
+      "action": "Reword the comment."
+    },
+    {
+      "id": "N2",
+      "severity": "nit",
+      "path": "docs/plan/runs/AR-1/phase2C.md:134",
+      "issue": "It says 'Every difference is reported'. The code reports the first difference within each schema, plus every missing or extra name.",
+      "action": "Docs worker: reword."
+    }
+  ],
+  "conditions": [
+    "Before `pnpm backend:test` counts as green on 55321, apply the formula migration there with `migration up --local` and no reset. Until then verify-fixtures.mjs is expected to fail there.",
+    "The real runs of verify-contracts.mjs and verify-fixtures.mjs on the coordinator's own stack, including M1.5 and M4.2\u2013M4.4, need their recorded result lines: snapshot and fixture sha256, container and API URL. This review cannot stand in for them.",
+    "The four modules are approved as read. Review package.json:18 again if the wiring changes beyond the line described here.",
+    "Approving the tools does not approve AR-1 or any goal. Box 1 still needs the owner's G-1."
+  ],
+  "limits": [
+    "Read-only review. The replay, the strict schema diff, the 8-schema match, the privilege results and the byte-identity of contracts.sql were reported to me, not verified by me.",
+    "Docker context and DOCKER_HOST: proportionate as stated. The existing verify-freeze-projection.mjs:12 and seed-development.mjs:34 already run docker exec with no status check, so the new tools are stricter than what exists.",
+    "The guard judges the working tree, plus the index through git diff. A committed edit that is hidden by reverting the working file passes locally; a fresh CI checkout catches it.",
+    "The directory walk includes ignored content (supabase/.temp) and refuses any symbolic link and any non-migration file in migrations/ (for example .DS_Store). Wrong failures are possible; wrong passes are not. Future supabase/functions node_modules symlinks would need a rule.",
+    "The fixture travels as one argument. Inside the container, Linux limits one argument to 128 KiB; if MB-4 grows the fixture past that, the run fails closed with an exec error.",
+    "The local default base is the local `main`, which may be stale. CI trust depends on PL-1 setting CI and FITLOG_BASE_REF.",
+    "private.contracts.schema is `json`. When a key repeats, JSON.parse keeps the last value, as jsonb and serde_json do. Numbers are compared at double precision; that is enough for schema bounds."
+  ]
+}

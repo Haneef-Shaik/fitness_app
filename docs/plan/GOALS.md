@@ -191,7 +191,7 @@ Version the contract package. Add one fixture-vector runner shared by the TypeSc
 Write the SP3 rule: a contract merges before the screens that use it.
 
 **Done when.**
-- [ ] `docs/architecture/003-architecture-freeze.md` covers every PRD §21.1 component and §21.3 rule, and the owner's approval is in the tracker decision log
+- [ ] `docs/architecture/003-architecture-freeze.md` covers every PRD §21.1 component and §21.3 rule, and the owner's or an explicitly delegated decision-maker's approval is in the tracker decision log
 - [ ] `packages/domain` exports a contract version, and a test fails when a schema changes without a version bump (seen to fail once)
 - [ ] All migrations replay from empty to head, and a schema diff against the replay is empty (command and result in the handoff)
 - [ ] One shared fixture vector (AC03 volume and e1RM) runs in both the TypeScript tests and a SQL test, from one file

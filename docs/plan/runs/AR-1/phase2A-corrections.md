@@ -4,9 +4,23 @@
 |---|---|
 | Scope | Only the phase 2A findings P2A-1 to P2A-8 of the second checkpoint review ([`docs/evidence/AR-1/checkpoint-review2.json`](../../../evidence/AR-1/checkpoint-review2.json), first read at `/tmp/fitlog-ar1-checkpoint-review2.json`; phase 2A verdict REVISE). The proposal findings PR-1 to PR-6 belong to the docs-only worker and are not touched here |
 | Date | 26 October 2026 |
-| Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`, on top of `07757a5` (which committed `contracts/0.1.0.json` and `manifest.json`). Everything below is uncommitted |
+| Worktree | `/Users/Adya/.codex/worktrees/fitlog-ar1/fitness_app`, branch `codex/ar1-contract-freeze`, on top of `07757a5` (which committed `contracts/0.1.0.json` and `manifest.json`). *Historical:* "everything below is uncommitted" was true when this was written; see the addendum below |
 | Runtime | Node v26.7.0, Zod 4.6.7, TypeScript 6.0.3 (unchanged) |
 | **AR-1 status** | **Not complete.** The owner's G-1 approval of 003 is still pending. Boxes 2–4 stay open (see the end of this file) |
+
+## Current state — dated addendum, 26 October 2026 (read this first)
+
+Reported by the coordinator and not independently verified, except where a review is named. The record
+below is historical and keeps the state its author saw.
+
+- These corrections are committed in `22c5386`, on `codex/ar1-contract-freeze`, not merged. Later
+  commits on the branch: `3040ccf`, `ac71e51`, `fcc9aed` and `e23e9ae`.
+- An independent code reading of P2A-1 to P2A-8 passed:
+  [`docs/evidence/AR-1/p2a-review3.json`](../../../evidence/AR-1/p2a-review3.json), now on this branch.
+- `pnpm check` passes with 185 tests. No hosted CI run has yet shown the contract-baseline guard
+  passing with the trusted base or failing without it.
+- The owner's G-1 approval is still PENDING, the final goal verifier and integration remain, and no box
+  is claimed done. Current AR-1 state: the [checkpoint addendum](checkpoint.md).
 
 ## Rules this pass kept, and where it slipped
 

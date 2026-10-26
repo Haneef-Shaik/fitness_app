@@ -2,19 +2,74 @@
 
 | Field | Value |
 |---|---|
-| Status | **Proposal. Owner approval PENDING.** One approval only: G-1 (§11). Nothing here is frozen until the owner's dated entry is in the [tracker decision log](../09-PROJECT-TRACKER.md) |
-| Goal | AR-1. Phase 1 wrote this record, the [checkpoint](../plan/runs/AR-1/checkpoint.md) and the [next-phase test plan](../plan/runs/AR-1/test-plan.md). Revision 1 answers the independent phase-1 review ([review](../evidence/AR-1/phase1-review.json); [dispositions](../plan/runs/AR-1/phase1-dispositions.md)). Revision 2 answers proposal findings PR-1 to PR-6 of the second checkpoint review ([review](../evidence/AR-1/checkpoint-review2.json); [dispositions](../plan/runs/AR-1/proposal-revision2.md)). Revision 3 answers the eight low findings R2-1 to R2-8 of the proposal re-review ([dispositions](../plan/runs/AR-1/proposal-revision3.md)). Phase 2A is in progress ([phase2A.md](../plan/runs/AR-1/phase2A.md)). AR-1 is **not** complete |
-| Date | 26 October 2026 (draft and revisions 1–3) |
+| Status | **Approved by delegation on 26 October 2026 (G-1).** Codex, acting as the owner's explicitly delegated decision-maker, approved this record as the AR-1 freeze in [tracker row ARCH-01](../09-PROJECT-TRACKER.md#decision-log). The delegation is recorded as AUTH-01. The owner did not personally review or sign it. AR-1 is not Done. *Historical: until then this row read "Proposal. Owner approval PENDING."* |
+| Goal | AR-1. Phase 1 wrote this record, the [checkpoint](../plan/runs/AR-1/checkpoint.md) and the [next-phase test plan](../plan/runs/AR-1/test-plan.md). Revision 1 answers the independent phase-1 review ([review](../evidence/AR-1/phase1-review.json); [dispositions](../plan/runs/AR-1/phase1-dispositions.md)). Revision 2 answers proposal findings PR-1 to PR-6 of the second checkpoint review ([review](../evidence/AR-1/checkpoint-review2.json); [dispositions](../plan/runs/AR-1/proposal-revision2.md)). Revision 3 answers the eight low findings R2-1 to R2-8 of the proposal re-review ([review](../evidence/AR-1/proposal-review3.json); [dispositions](../plan/runs/AR-1/proposal-revision3.md)). Proposal review 4 passed revision 3; its five low findings N-1 to N-5 are applied ([review](../evidence/AR-1/proposal-review4.json); [dispositions](../plan/runs/AR-1/proposal-final-low-dispositions.md)). Phase 2A is in progress ([phase2A.md](../plan/runs/AR-1/phase2A.md)). AR-1 is **not** complete |
+| Date | 26 October 2026 (draft, revisions 1–3 and the final low corrections) |
 | Read at | Branch `codex/ar1-contract-freeze`. Code is cited as read at `9f148c1` (QA-1 accepted on local `main`); no cited migration has changed since. Phase 2A's snapshot is committed in `07757a5` and its corrections in `22c5386`, on this branch only: not merged |
 | PRD | §§21.1–21.4, 22.1, 22.3, 26.1 (M0), 26.2; DEC-02 (technical part) |
 | Relation | [001](001-mobile-foundation.md) is historical. [002](002-connected-member-and-gym.md) records the 17–19 October implementation. This record sets the target that implementation converges on. Neither earlier record is edited |
+
+## Current state — G-1 approved by delegation, 26 October 2026 (read this first)
+
+- **G-1 is approved.** Codex, acting as the owner's explicitly delegated decision-maker, approved this
+  record (revision 3 with the final low corrections N-1 to N-5) with no exceptions:
+  [tracker row ARCH-01](../09-PROJECT-TRACKER.md#decision-log). AUTH-01 records the owner's delegation
+  in their own words. The owner did not personally review or sign this record.
+- **Basis.** Independent [proposal review 4](../evidence/AR-1/proposal-review4.json) and the independent
+  [guard review](../evidence/AR-1/guard-review.json) both PASS. Local gates: 185 tests in `pnpm check`,
+  39 guard tests, a 15-migration replay with a strict empty diff, 8 persisted schemas matching, and the
+  shared AC03 fixture passing.
+- **Not decided by G-1.** R-1 to R-7 (§11). Under AUTH-01, routine technical and vendor-technical
+  choices now belong to Codex, but account access, payments, external messages, legal and licence
+  positions and device proof still need real evidence. None is claimed.
+- **Not Done.** The bundled `pnpm backend:test` has not run; the coordinator runs it after applying the
+  additive private formula migration to the existing local test stack, and no outcome is assumed here.
+  A fresh independent verifier must then pass all four AR-1 boxes, and only after that PASS is the
+  branch integrated locally. No goal status, acceptance row or ledger entry is changed.
+
+## Earlier addendum, 26 October 2026 (historical)
+
+*Written before G-1 and before the guard review's verdict; its "still open" line is superseded above.*
+
+Reported by the coordinator and not independently verified, except where a review is named. Status
+lines further down (for example §7's "four other files" and §8's "not built yet") are historical: they
+keep what their authors saw. This addendum supersedes them.
+
+- **Commits on `codex/ar1-contract-freeze`, not merged:** `07757a5` (contract snapshot), `22c5386` (P2A
+  corrections), `3040ccf` (revision 2 and review copies), `ac71e51` (revision 3), `fcc9aed` (box-4
+  fixture files), and `e23e9ae` (SQL-source guard, runner wiring, and the retirement of five files:
+  `supabase/contracts.sql`, `contract-validation.sql`, `gym-read-models.sql`, `gym-freezes.sql` and
+  `scripts/backend/contracts.ts`; comparison table in [phase2C.md](../plan/runs/AR-1/phase2C.md)). The
+  final low corrections are uncommitted.
+- **Evidence on the branch:** the canonical review and evidence files are copied into
+  `docs/evidence/AR-1/`, including [`p2a-review3.json`](../evidence/AR-1/p2a-review3.json),
+  [`proposal-review3.json`](../evidence/AR-1/proposal-review3.json) and
+  [`proposal-review4.json`](../evidence/AR-1/proposal-review4.json). The existing
+  `checkpoint-review2.json` parses to the same JSON as the canonical copy; only formatting differs.
+- **Runs:** `pnpm check` passes with 185 tests, and the 39 new backend unit tests pass. The new guarded
+  runners pass against an owned local replay stack (API 56321, DB 56322): all 8 persisted schemas match
+  the snapshot, and the fixture runs exactly 16 set vectors and 2 session vectors. Missing AC03 IDs, a
+  mutant bound and changed expectations each fail, and the originals then pass. All 15 migrations
+  replay from empty to head with a strict empty schema diff and a clean lint. The original four backend
+  suites pass separately on the 55321 stack. The bundled `pnpm backend:test` has **not** run, because
+  the new migration is not applied on 55321. Evidence:
+  [`guard-coordinator-gates.md`](../evidence/AR-1/guard-coordinator-gates.md),
+  [`replay-verification.md`](../evidence/AR-1/replay-verification.md),
+  [`real-runner-probes.json`](../evidence/AR-1/real-runner-probes.json).
+- **Reviews:** proposal review 4 independently passed revision 3, with five low findings (N-1 to N-5)
+  applied here and no further re-review requested. The independent review of the guards is still
+  running.
+- **Still open:** the owner's G-1 approval (PENDING); the guard review; merge and a hosted CI run; the
+  lane S2 notice at handoff (§7); the final goal verifier and integration. No box is claimed done, and
+  AR-1 is neither complete nor accepted.
 
 ## 1. How to read this record
 
 - **Decision** is an engineering decision this record takes. The owner has authorised routine,
   reversible engineering, so a decision can be acted on now; phase 2 does not wait for approval. The
-  record as a whole is frozen when the owner approves it (G-1). A later record or an append-only
-  migration can still change any decision.
+  record as a whole is frozen when the owner approves it (G-1). That happened on 26 October 2026 by
+  explicit delegation: Codex, as the owner's delegated decision-maker, approved it (ARCH-01, under
+  AUTH-01). A later record or an append-only migration can still change any decision.
 - **Implemented** means present in the code as read at `9f148c1`. Where a behaviour was proven by a
   test run, the run is QA-1's ([handoff](../plan/runs/QA-1/handoff.md)). No command was run to write
   this record.
@@ -133,12 +188,18 @@
     1. revoke sessions and staff roles, set `profiles.status` to `deletion_pending`, and ban the auth
        user, so that neither an old session nor the password can act again. `member_active()` and
        `complete_onboarding` already refuse both (`20261017161031_member_core.sql:27-28`;
-       `20261017164336_validated_contracts.sql:74,80`), and every upload path checks
-       `member_active()` (§3.4). After step 5 deletes the profile, the ban and `erased_at` still stop a
-       new onboarding until step 6 succeeds (revision 3);
+       `20261017164336_validated_contracts.sql:74,80`), and issuing or finalizing an upload checks
+       `member_active()` (§3.4). An upload URL issued just before step 1 can still deliver bytes
+       until it expires; step 3 handles that (final low finding N-3). After step 5 deletes the
+       profile, the ban and `erased_at` still stop a new onboarding until step 6 succeeds
+       (revision 3);
     2. append the tombstone to the external register and confirm it (below), then set
        `actors.erased_at`. Step 3 does not start until the append is confirmed;
-    3. delete objects;
+    3. delete objects. Step 3 starts only after the longest upload-URL lifetime in force (600 s by
+       decision, §3.4; MB-6 measures the real value) has passed since step 1, so that no
+       already-issued URL can still deliver bytes. It then deletes every object under the account's
+       `<owner id>/` prefix in every personal bucket, whether or not an asset row references it
+       (final low finding N-3);
     4. delete derived rows, then source rows;
     5. delete the profile, which fires the `SET NULL` on the gym link;
     6. delete the auth user.
@@ -188,6 +249,12 @@
       - **Cutover delta.** At cutover, the runbook stops the source project's erasure worker if the
         source still runs, imports the entries appended since the first import, purges those accounts
         as well, and only then switches clients.
+      - **Pending erasures at cutover (final low finding N-2).** Once the source's erasure worker has
+        stopped, the runbook copies the source's pending erasure requests (requested, or past step 1
+        but not yet appended) into the restored project and runs each from step 1 before clients
+        switch over. If the source is unavailable, the residual is stated: erasure requests made
+        inside the RPO window are lost from the restored project, and PL-5 must reconcile them before
+        declaring the restore complete.
       - **Object copies.** Every restore of object copies gets the same import and purge. The check
         also confirms that no object remains under a tombstoned `<owner id>/` prefix (§3.4) in any
         personal bucket, because bytes restored from an object copy may have no database reference.
@@ -226,10 +293,13 @@
   - Database-level immutability for append-only tables (G17.api; QA-1 F-3).
   - The deletion graph above. Today `gym_members.linked_user_id` and every `actor_id` reference
     `profiles(id)` with no `ON DELETE` rule (`20261017164708_gym_operations.sql:9,22,42,47,52,57,62,67,72,83,88,91`).
-    `gym_freezes.decided_by` has no foreign key (`20261019140429_gym_freezes.sql:7`). `profiles`
-    cascades from `auth.users` (`20261017161031_member_core.sql:7`), and personal tables reference
-    `profiles` without a cascade. So deleting an auth user who has any personal row or any staff action
-    fails today (MB-7, G17.api).
+    `gym_freezes.decided_by` also references `profiles(id)` with no `ON DELETE` rule (column at
+    `20261019140429_gym_freezes.sql:7`, constraint `gym_freezes_decided_by_fkey` at `:185-186`). The
+    migration that adds `private.actors` drops `gym_freezes_decided_by_fkey` when it re-points the
+    column to `private.actors(id)` with `RESTRICT`; otherwise erasure step 5 would fail for any owner or
+    manager who has decided a freeze (final low finding N-1). `profiles` cascades from `auth.users`
+    (`20261017161031_member_core.sql:7`), and personal tables reference `profiles` without a cascade. So
+    deleting an auth user who has any personal row or any staff action fails today (MB-7, G17.api).
   - The actor table, the external tombstone register and the restore runbook's import and purge
     (MB-7, PL-5; owner-reserved parts R-2, R-3 and R-4).
   - Created and updated times are missing on `meal_items`, `body_entries`, `goals`,
@@ -1046,7 +1116,8 @@ PostgREST's `response.status` setting (check in AI-3). Today there is no asynchr
     coordinator reports 179 passing tests and passing negative and positive CI-baseline probes. An
     independent code reading of the corrections passed. It ran no command, and its PASS holds only if
     the domain test and typecheck exit 0, which the coordinator's run reports
-    (`docs/evidence/AR-1/p2a-review3.json`, held in the main checkout, not on this branch).
+    ([`docs/evidence/AR-1/p2a-review3.json`](../evidence/AR-1/p2a-review3.json); first read in the
+    main checkout, now copied to this branch).
   - As read in this worktree, `.github/workflows/mobile-ci.yml:19-44` now sets the variable from the
     event, checks out full history and refuses an empty, all-zero or malformed value. No hosted CI run
     has shown it.
@@ -1119,13 +1190,20 @@ files.
 
 ## 11. Approval and owner-reserved items
 
-**One approval, PENDING.**
+**One approval: G-1, approved by delegation on 26 October 2026.** *(Historical: this line read "One
+approval, PENDING" until then.)*
 
-| Gate | Approve | Unblocks |
-|---|---|---|
-| G-1 | This completed record as a whole, or with stated exceptions, as a dated entry in the tracker decision log | AR-1 box 1; QA-2; the technical part of DEC-02 |
+| Gate | Approve | Unblocks | State |
+|---|---|---|---|
+| G-1 | This completed record as a whole, or with stated exceptions, as a dated entry in the tracker decision log | AR-1 box 1; QA-2; the technical part of DEC-02 | **Approved, no exceptions**, by Codex as the owner's explicitly delegated decision-maker: [ARCH-01](../09-PROJECT-TRACKER.md#decision-log), under the delegation AUTH-01. Not a personal owner review |
 
-Phase 2 (boxes 2–4) does not wait for G-1.
+Phase 2 (boxes 2–4) does not wait for G-1. G-1 does not make AR-1 Done: the fresh all-box verifier and
+integration still follow.
+
+**Delegation and the reserved items.** ARCH-01 does not decide R-1 to R-7 below. Under AUTH-01, their
+routine technical and vendor-technical parts can now be decided by Codex, each in its own goal and
+dated record. Opening accounts, payments, external messages, legal and licence positions and device
+proof still need real evidence, which no delegation supplies.
 
 **Engineering decisions taken in this record (no separate gate).** These are routine and reversible,
 made under the owner's standing authorisation, and frozen with G-1. Earlier drafts listed them as
@@ -1166,7 +1244,7 @@ DEC-15 is not reserved: the owner has confirmed a fresh launch (§7), and OW-2 r
 | `db-pre-request` can be configured on hosted Supabase | Staging check | MB-1, PL-2 |
 | `UNLOGGED` rate-window table: behaviour after a crash and with any read replica | Documentation and a local test | MB-1 |
 | **Rejected requests are counted; replays are not; transaction modes stay valid** (§4.3, §4.12) | Integration test against the local stack, with mutation checks. (1) Send 121 v1 commands within one minute. The first 120 are rejected with a mix of 403, 404, `REVISION_CONFLICT` 409, `OPERATION_REUSED` 409 and 422. The 121st must pass scope and both replay lookups, so it is a command that would otherwise get 403, a revision 409 or 422 (revision 3). Expect: the first 120 return their own status with the envelope, the 121st returns 429 with `Retry-After`, `private.rate_windows` holds 121 for the minute window, and no command, outcome or audit row was written. This also shows that PostgREST commits when a function returns normally with a 4xx `response.status`. (2) Replay one applied command 200 times. Every replay returns `meta.replayed: true`, and the count does not move. In SQL, a replay of a committed operation leaves no advisory lock in `pg_locks` for its backend. (3) A `GET` direct table read and a `POST` to a v1 read RPC both succeed with no `25006`, and only the RPC moves the read count. (4) Mutations: move the increment into the inner block, and test (1) must fail; make the fast path take the lock, and test (2)'s `pg_locks` check must fail. Restore each change and prove the restore. (5) Concurrency (revision 3): send N concurrent rejected commands for one account, a mix of 403 and 422. The minute and day windows each rise by exactly N, and no request fails with a deadlock (`40P01`). In SQL, inside an open transaction, after the definer has caught an error, `pg_locks` shows no advisory lock for that backend | MB-1 |
-| **Tombstones survive a restore** (§3.3) | (1) MB-7 test: erase an account, restore a snapshot taken before the erasure into a scratch database, import the external register and purge. No personal row, object reference or auth user for that account remains, and sign-in fails. Mutation: skip the import, and the test must fail. (2) MB-7 test: make the register append fail. Erasure stops before step 3 and retries, and nothing is deleted. (3) Staging check of the chosen store: the worker credential cannot overwrite, shorten or delete an entry; an entry is written with retention of append time + longest backup expiry + 30 days; and the worker can extend that retention when step 2 outlasts the margin (revision 3). (4) PL-5 drill: the runbook imports the register and purges before serving, and no erased test account comes back (AC30). Revision 3 adds: no `pg_cron` job, `pg_net` wakeup, worker or messaging credential is active in the restored project until the check passes; a tombstone appended at the source after the first import is imported and purged at cutover; and every restore of object copies gets the same import and purge, with no object left under a tombstoned `<owner id>/` prefix. (5) MB-7 test (revision 3): after step 5 and before step 6, a sign-in cannot complete onboarding, and `complete_onboarding` refuses an actor whose `erased_at` is set | MB-7, PL-5 (store chosen under R-2, R-3; object copies under R-7) |
+| **Tombstones survive a restore** (§3.3) | (1) MB-7 test: erase an account, restore a snapshot taken before the erasure into a scratch database, import the external register and purge. No personal row, object reference or auth user for that account remains, and sign-in fails. Mutation: skip the import, and the test must fail. (2) MB-7 test: make the register append fail. Erasure stops before step 3 and retries, and nothing is deleted. (3) Staging check of the chosen store: the worker credential cannot overwrite, shorten or delete an entry; an entry is written with retention of append time + longest backup expiry + 30 days; and the worker can extend that retention when step 2 outlasts the margin (revision 3). (4) PL-5 drill: the runbook imports the register and purges before serving, and no erased test account comes back (AC30). Revision 3 adds: no `pg_cron` job, `pg_net` wakeup, worker or messaging credential is active in the restored project until the check passes; a tombstone appended at the source after the first import is imported and purged at cutover; and every restore of object copies gets the same import and purge, with no object left under a tombstoned `<owner id>/` prefix. (5) MB-7 test (revision 3): after step 5 and before step 6, a sign-in cannot complete onboarding, and `complete_onboarding` refuses an actor whose `erased_at` is set. Final low findings: (6) MB-7 test (N-1): the step-5 test erases an owner or manager who has decided a freeze; step 5 succeeds and the `gym_freezes` row keeps its `decided_by` actor key. (7) MB-7 test (N-3): an upload URL issued just before step 1 delivers bytes after step 1; when erasure completes, no object remains under the account's `<owner id>/` prefix in any personal bucket. (8) PL-5 drill (N-2): an erasure request pending at the source when its erasure worker stops is copied into the restored project and runs from step 1 before clients switch; with the source unavailable, the drill records the lost in-RPO requests and their reconciliation | MB-7, PL-5 (store chosen under R-2, R-3; object copies under R-7) |
 | **`operation_result_v1` returns only the §4.4 projection** (§4.3, revision 3) | Integration test: a manager demoted to front desk calls `operation_result_v1` for a freeze approve stored before the trim, and gets only identifiers and status, never the freeze projection. A revoked actor gets 404 | The goal that first ships `operation_result_v1` for gym scope; G17.api |
 | `response.status` 202 from an RPC | Integration test | AI-3 |
 | Signed upload URL lifetime | Read current Supabase docs, then test | MB-6 |
@@ -1183,3 +1261,5 @@ DEC-15 is not reserved: the owner has confirmed a fresh launch (§7), and OW-2 r
 | 26 Oct 2026 | Revision 1 after the independent phase-1 review: F1–F17 and T1–T4 dispositioned in [phase1-dispositions.md](../plan/runs/AR-1/phase1-dispositions.md). The gates become one approval (G-1), engineering decisions in the body and the owner-reserved list R-1 to R-7. 0.1.0 scope reconciled with phase 2A. Approval still PENDING |
 | 26 Oct 2026 | Revision 2 after checkpoint review 2, proposal findings PR-1 to PR-6, dispositioned in [proposal-revision2.md](../plan/runs/AR-1/proposal-revision2.md). An external append-only tombstone register (§3.3, §9). The actor key has no foreign key of its own (§3.3). Rejected requests are counted through an outer and an inner block (§4.3, §4.5, §4.12). A demotion replay policy (§4.3). The CI contract baseline fails closed (§8). New §12 checks. Durable review links. F1–F17 and T1–T4 stay resolved. Still one approval, G-1, PENDING |
 | 26 Oct 2026 | Revision 3 after the proposal re-review, low findings R2-1 to R2-8, dispositioned in [proposal-revision3.md](../plan/runs/AR-1/proposal-revision3.md). Erasure step 1 also blocks sign-in, and an erased actor cannot onboard again (§3.3). Register retention starts at the later of the append and the `erased_at` commit (§3.3, §9). Restores stay quiet until checked, import a cutover delta and cover object copies (§3.3, §9). A lock-free replay fast path, stated lock lifetimes and counting order (§4.3, §4.6, §4.12). `operation_result_v1` is projected from its first release (§4.3). Support and system actors (§3.3). Truthful commit state (header, §8). §12 checks extended. PR-1 to PR-6 stay resolved. Still one approval, G-1, PENDING |
+| 26 Oct 2026 | Final low corrections after proposal review 4 (PASS), N-1 to N-5, dispositioned in [proposal-final-low-dispositions.md](../plan/runs/AR-1/proposal-final-low-dispositions.md). `gym_freezes_decided_by_fkey` is dropped when the column moves to the actor key (§3.3 Missing). Pending erasures are carried across a restore cutover (§3.3). Erasure step 3 waits out the upload-URL lifetime and deletes by prefix (§3.3). §12 tests (6)–(8). Durable review links and a dated current-state addendum. Still one approval, G-1, PENDING |
+| 26 Oct 2026 | G-1 approved by delegation: Codex, as the owner's explicitly delegated decision-maker, approved this record with no exceptions ([ARCH-01](../09-PROJECT-TRACKER.md#decision-log); delegation AUTH-01), after proposal review 4 and the guard review both passed. No architecture changed. The owner did not personally review or sign. Earlier rows in this table that say PENDING are historical. AR-1 is not Done |

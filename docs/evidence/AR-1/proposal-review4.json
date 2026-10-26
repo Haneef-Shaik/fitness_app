@@ -1,0 +1,68 @@
+{
+  "review": "AR-1 proposal revision 3: R2-1 to R2-8 only (proposal-review3.json)",
+  "date": "2026-10-26",
+  "basis": "Read only: proposal-review3.json; proposal-revision3.md; 003 \u00a73.3 (97-214, 225-232), \u00a73.4 (242-273), \u00a74.3 (445-521), \u00a74.6 (592-657), \u00a74.8 (700-718), \u00a74.12 (787-850), \u00a77 (964-985), \u00a78 (1017-1057), \u00a79, \u00a711, \u00a712, \u00a713; checkpoint.md:9-33, 128-135; phase2A-corrections.md:1-9; a grep of phase2C.md. SQL read: validated_contracts.sql:70-85, member_core.sql:1-36, gym_read_models.sql:4-17, freeze_preview_binding.sql:12-29, and the decided_by lines of gym_freezes.sql. The coordinator's technical state was accepted as provided and not re-checked",
+  "verdict": "PASS",
+  "verdict_reason": "All eight R2 corrections resolve what the review raised. Nothing from PR-1 to PR-6 regressed, and no medium, high or critical defect remains. The ADR is ready for the owner's single G-1 review. Five low findings remain. N-4 and N-5 are mechanical doc edits to make before asking for G-1. N-1 to N-3 are each one or two sentences in 003, or can be carried as MB-7 and PL-5 residuals. None needs another re-review",
+  "dispositions": {
+    "R2-1": "Resolved. Step 1 now sets deletion_pending and bans the user (003:133-138). complete_onboarding already refuses a ban (validated_contracts.sql:74) and a non-active profile (:80), and the profile insert at :83 is now guarded by the erased_at refusal (003:111-115). member_active() refuses a ban and a non-active status (member_core.sql:27-28) and will also require erased_at to be null. Every window is closed: before step 2, deletion_pending blocks; after step 2, erased_at blocks; after step 5, the ban and erased_at block. The ban's length does not matter. \u00a712 row (5) covers the gap between steps 5 and 6. The one upload gap left is N-3, which was not caused by re-onboarding",
+    "R2-2": "Resolved. The clock now starts at the later of the append and the erased_at commit (003:163-176). Writing the entry with append + longest backup expiry + 30 days covers backups taken before erased_at whenever step 2 commits within 30 days. When step 2 runs longer, the worker extends the retention before it sets erased_at (169-171). \u00a79:1098-1101, R-4 and \u00a712 (3) are consistent. Non-blocking: 172-173 could say that an exception which lengthens backups already taken also extends the entries already written",
+    "R2-3": "Resolved for (a), (b) and (c): quiet until checked (185-187), a cutover delta after stopping the source worker (188-190), and object copies with a check on tombstoned prefixes (191-194). \u00a79:1095-1098 and \u00a712 (4) match. Non-blocking: cron.job rows and Vault secrets come back with a database restore, so the runbook must make them inert as soon as the restored database starts. The \u00a712 (4) check already tests this. N-2 is a narrow gap next to (b)",
+    "R2-4": "Resolved. (a) The fast path runs after scope and takes no lock. A miss takes the lock and looks up again (461-469); at READ COMMITTED, a volatile definer's next statement sees the previous lock holder's commit. Only a duplicate of an in-flight first attempt waits on the lock, and that is stated as a residual (835-840). (b) Lock lifetimes are stated (804-819). Rolling back a subtransaction releases the advisory and row locks taken in it. The deadlock argument holds: the advisory lock is taken before any window row, the minute row before the day row, the count is the last write, and the sync counter is taken only inside the inner block. (c) The 121st request now passes scope and both lookups (1168). Non-blocking: a 429 still takes the advisory lock (step 4 comes before step 5), but only for two index reads. Either state that, or add a read-only window check at the fast-path miss",
+    "R2-5": "Resolved. operation_result_v1 returns only the \u00a74.4 projection from its first release, whatever trim state the definer is in (486-489, 506-508). freeze_action keeps its check at :22 before replay at :24-27; the citations match the SQL. \u00a712:1170 has the demoted-manager and revoked-actor tests",
+    "R2-6": "Resolved as of when revision 3 was written: the header (003:8), \u00a78 (1044-1057), the checkpoint and the notes in revision 2 and phase 1 all now say committed, independently code-read, not merged, hosted CI unproved. The coordinator's newer state has made several lines stale again; that needs a dated addendum (N-5), not an architecture change",
+    "R2-7": "Resolved. actors.kind is member, support or system. A support principal's row is created when it is provisioned, and a system row is seeded under a reserved non-auth UUID. Job audit rows carry the job ID, and erasure refuses any row that is not a member row (003:98-101, 116-121). Non-blocking: this assumes a support principal is a separate identity from any member account. One sentence would make that explicit",
+    "R2-8": "Resolved. phase2A-corrections.md:5 now links docs/evidence/AR-1/checkpoint-review2.json and keeps /tmp as provenance. Line 7 of the same file is stale (N-5)"
+  },
+  "findings": [
+    {
+      "id": "N-1",
+      "severity": "low",
+      "path": "docs/architecture/003-architecture-freeze.md:229-230 (\u00a73.3 Missing)",
+      "defect": "003 says gym_freezes.decided_by has no foreign key and cites gym_freezes.sql:7. In fact :186 adds gym_freezes_decided_by_fkey REFERENCES public.profiles(id) with no ON DELETE rule, and phase2C.md:229 records the same. If the actor migration adds the private.actors foreign key without dropping this one, erasure step 5 (deleting the profile) fails for any owner or manager who has decided a freeze",
+      "action": "Rewrite the line: decided_by references profiles(id) with no ON DELETE rule (:7 column, :185-186 constraint). Say that the actors migration drops gym_freezes_decided_by_fkey when it re-points the column to private.actors with RESTRICT. Have MB-7's step-5 test include a manager who decided a freeze"
+    },
+    {
+      "id": "N-2",
+      "severity": "low",
+      "path": "003:188-190 (\u00a73.3 Cutover delta); \u00a712 row (4); PL-5",
+      "defect": "The delta carries only tombstones whose append was confirmed. Some erasures are pending at the source when its erasure worker is stopped: requested, or past step 1, but not yet appended. If they were requested after the restore point, they do not exist in the restored project, so the account comes back active and the request is silently dropped",
+      "action": "At cutover, once the source erasure worker has stopped, copy the source's pending erasure requests into the restored project and run them from step 1 before clients switch over. If the source is unavailable, state the residual: requests made inside the RPO are lost and PL-5 must reconcile them. Add both to the \u00a712 (4) drill"
+    },
+    {
+      "id": "N-3",
+      "severity": "low",
+      "path": "003:133-141 (erasure steps 1 and 3), 003:250 (600 s uploads), 003:272 and 1172 (upload URL lifetime unverified)",
+      "defect": "Step 1 stops new upload URLs and finalize, but an upload URL issued just before step 1 still works when the file is sent. Step 3 can run seconds after step 1, so bytes can arrive under <owner id>/ afterwards. Step 4 then deletes the intent rows, so the expiry sweep never finds those bytes. The sentence at 003:136-137, 'every upload path checks member_active()', is true for issuing and finalizing, not for a URL already issued",
+      "action": "Either start step 3 only after the longest upload-URL lifetime (as MB-6 measures it) has passed since step 1, or have step 3 delete every personal bucket's <owner id>/ prefix again once that lifetime has passed. Reword 136-137. Add an MB-7 assertion that no object remains under the prefix when erasure completes, the same check restores use"
+    },
+    {
+      "id": "N-4",
+      "severity": "low (docs only)",
+      "path": "003:6; proposal-revision3.md:5; checkpoint.md:13-14; 003:1049; checkpoint.md:133",
+      "defect": "The 003 header links a review for revisions 1 and 2 but not for revision 3. proposal-revision3.md and checkpoint.md say proposal-review3.json is not on this branch, but it now exists, untracked, at docs/evidence/AR-1/proposal-review3.json. p2a-review3.json, which \u00a78 cites, is still only in the main checkout. This is the same durability gap as R2-8",
+      "action": "Link docs/evidence/AR-1/proposal-review3.json from 003:6, revision3.md:5 and checkpoint.md:13-14, keeping the main-checkout path as provenance. Copy p2a-review3.json and this review into docs/evidence/AR-1/ and link them, or mark them as main-checkout only. Commit them with revision 3"
+    },
+    {
+      "id": "N-5",
+      "severity": "low (docs only, historical state)",
+      "path": "proposal-revision3.md:20-21; checkpoint.md:9, 134, 135; 003:974-985 (\u00a77 'four other files'); 003:1056-1057 (guard 'not built yet'); phase2A-corrections.md:7 ('uncommitted'); the test-plan status lines",
+      "defect": "These lines say what the authors saw when they wrote them: the SQL had never run, the runner did not exist, replay had not started, the four files were still present and the guard was not built. The coordinator now reports otherwise. They are not architecture defects, but the owner would be approving a document with stale status",
+      "action": "Leave the historical lines as they are and add a dated addendum (26 Oct 2026, reported by the coordinator, not independently verified). It should record that the SQL was executed; a full replay of 15 migrations passes with an empty strict diff; all 8 persisted schemas match; 185 tests pass; five obsolete files were removed (the four SQL files plus scripts/backend/contracts.ts), with the comparison table cited at phase2C.md:216ff and the S2 notice still due at handoff under \u00a77; check-sql-sources.mjs is built and its 39 guard tests are being verified; and all new phase files are uncommitted. Claim no box and no AR-1 completion. G-1 stays PENDING"
+    }
+  ],
+  "before_G1": [
+    "Apply N-4 and N-5. Both are docs-only and mechanical",
+    "Apply N-1 to N-3 as one-sentence edits to 003, or list them as MB-7 and PL-5 residuals under G-1's 'stated exceptions'. Either way, no re-review is needed"
+  ],
+  "not_claimed": [
+    "No owner approval: G-1 is PENDING. R-1 to R-7 remain owner-reserved, and R-7 still decides whether R2-3(c) and N-2's object side apply",
+    "AR-1 is not complete. No box, goal, ledger or tracker state was changed"
+  ],
+  "limitations": [
+    "Nothing was executed: no command, git, database or network call, and no delegation. The embedded script was not run",
+    "The lock release on subtransaction rollback, the READ COMMITTED snapshot per statement in volatile PL/pgSQL, and S3-style compliance-lock extension come from PostgreSQL and vendor documentation. \u00a712 rows (1)-(5) are where MB-1, MB-7 and PL-5 prove them",
+    "The coordinator's state (replay, schema match, 185 tests, removed files, 39 guard tests) was accepted as provided",
+    "F1-F17, T1-T4, P2A-1 to P2A-8 and the unchanged sections of 003 were not re-reviewed, apart from the \u00a73.3 Missing line in N-1, which sits inside the deletion graph R2-1 changes"
+  ]
+}

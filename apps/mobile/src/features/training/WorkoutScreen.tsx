@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import * as Crypto from 'expo-crypto';
-import * as Haptics from 'expo-haptics';
 import { previousPerformance, sessionSummary, type PerformedSet, type SessionInstance, type WorkoutSession } from '@fitlog/domain';
 import { useMember } from '@/data/MemberProvider';
 import { t } from '@/lib/i18n';
+import { signalMoment } from '@/motion/moments';
 import { useTheme } from '@/theme';
 import { AppButton, AppText, Card, Choice, Field, Header, Screen } from '@/ui';
 
@@ -20,22 +20,27 @@ function SetEntry({ workout, instance }: { workout: WorkoutSession; instance: Se
   const [duration, setDuration] = useState(String(instance.prescription?.durationSeconds ?? last?.durationSeconds ?? ''));
   const [distance, setDistance] = useState(String(instance.prescription?.distanceMetres ?? last?.distanceMetres ?? ''));
   const [rpe, setRpe] = useState(''); const [rir, setRir] = useState(''); const [notes, setNotes] = useState('');
-  const [type, setType] = useState<PerformedSet['type']>('working'); const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const [type, setType] = useState<PerformedSet['type']>('working'); const [error, setError] = useState('');
   const committing = useRef(false); const mutation = useRef(Crypto.randomUUID());
   const resistance = instance.exercise.type === 'resistance' || instance.exercise.type === 'bodyweight';
   const timed = instance.exercise.type === 'timed' || instance.exercise.type === 'distance';
   async function log() {
+    // The ref blocks a double tap. No spinner: nothing animates before the durable acknowledgement (DS-3).
     if (committing.current) return;
-    committing.current = true; setBusy(true); setError('');
+    committing.current = true; setError('');
+    let durable = false;
     try {
       const number = (value: string) => value.trim() ? Number(value.replace(',', '.')) : null;
+      // Resolves only after the local write, so the set is durable before any feedback.
       await store.logSet(workout.id, { instanceId: instance.id, reps: resistance ? number(reps) : null, loadKg: number(load), durationSeconds: timed ? number(duration) : null,
         distanceMetres: instance.exercise.type === 'distance' ? number(distance) : null, rpe: number(rpe), rir: number(rir), type, notes }, instance.prescription?.restSeconds ?? 90, mutation.current);
+      durable = true;
       mutation.current = Crypto.randomUUID();
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-      void store.sync();
     } catch (e) { setError(e instanceof Error ? e.message : t('loadFailed')); }
-    finally { committing.current = false; setBusy(false); }
+    finally { committing.current = false; }
+    if (!durable) return;
+    signalMoment('setLogged', t('setLogged'));
+    void store.sync();
   }
   return <View style={{ gap: theme.spacing.lg }}>
     <Card><AppText variant="headline">{instance.exercise.name}</AppText><AppText tone="muted">{instance.exercise.equipment} · {instance.exercise.loadBasis}</AppText>
@@ -56,7 +61,7 @@ function SetEntry({ workout, instance }: { workout: WorkoutSession; instance: Se
       {workout.sets.filter((s) => s.instanceId === instance.id && !s.deletedAt).map((s, i) => <Pressable accessibilityRole="button" accessibilityLabel={`${t('edit')} ${i + 1}`} key={s.id} onPress={() => router.push({ pathname: '/set-edit', params: { sessionId: workout.id, setId: s.id } })}><Card tone="tonal" style={{ borderRadius: theme.radius.lg, padding: theme.spacing.md }}><AppText variant="label" style={{ color: theme.colors.onSecondaryContainer }}>{i + 1} · {s.reps ?? s.durationSeconds} {s.reps ? `× ${s.loadKg ?? 0} kg` : 's'}</AppText></Card></Pressable>)}
     </View>
     {!!error && <AppText tone="error" accessibilityLiveRegion="polite">{error}</AppText>}
-    <AppButton label={t('logSet')} large loading={busy} onPress={() => { void log(); }} />
+    <AppButton label={t('logSet')} large onPress={() => { void log(); }} />
   </View>;
 }
 

@@ -1,0 +1,46 @@
+{
+  "goal": "DS-3",
+  "attempt": 1,
+  "verdict": "pass",
+  "verifier": "Codex, independent of local Claude implementer",
+  "verifiedAt": "2026-10-27T14:04:31.321950+00:00",
+  "boxes": [
+    {
+      "box": "Spring tokens and a shared `useReducedMotion` exist, and with Reduce Motion on every animated primitive renders its end state at once (one test per primitive)",
+      "met": true,
+      "evidence": "Reviewed tokens.ts, reduced-motion.ts, ReducedMotionProvider.tsx, useSpringValue.ts, Pop.tsx, Rise.tsx and usePressScale.ts. Fresh pnpm check: tokens, live setting, first-frame and mid-animation tests pass for all three primitives."
+    },
+    {
+      "box": "Haptics map to moments (confirm on set logged; success on rest end, PR and check-in), each with a non-haptic equivalent, and are tested",
+      "met": true,
+      "evidence": "moments.ts defines exactly four mappings and their visual equivalents; every nonempty moment announces its text, including when haptics are disabled. Fresh moments.test.ts/haptics.test.ts pass in pnpm check. Set logged is wired after durability; future SC-1/G19.app screens consume the shared mappings."
+    },
+    {
+      "box": "No animation runs on the set-commit path before the durable acknowledgement (test or trace in the handoff)",
+      "met": true,
+      "evidence": "Independently inspected WorkoutScreen.tsx and real member-store persist ordering. Held-write test proves no spinner/haptic/announcement/chip before durable local acknowledgement; rejected-write test proves no success feedback on failure. Both pass in pnpm check."
+    }
+  ],
+  "ledger": [],
+  "gates": {
+    "check": "pass",
+    "backend": "n/a",
+    "export": "pass",
+    "journeys": "n/a"
+  },
+  "rules": {
+    "scope": "ok; minimal set logger feedback fix is necessary for box3",
+    "quality_bars": "ok",
+    "secrets": "ok",
+    "strings": "ok; existing localized setLogged string reused",
+    "invariants": "ok; durable write precedes feedback; no staff data access change",
+    "status_files": "ok"
+  },
+  "problems": [],
+  "retry_guidance": "",
+  "limits": [
+    "Jest verifies scheduling and feedback; no native-device feel or performance measurement claimed.",
+    "Future screen call sites belong to SC-1/G19.app and stack wiring to DS-5.",
+    "Existing low: injected accessibility announcer can throw; fixed platform announcer is the production caller. Follow up under SC-6; no durable save outcome is reversed."
+  ]
+}

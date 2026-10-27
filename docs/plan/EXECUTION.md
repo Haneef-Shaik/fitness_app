@@ -457,3 +457,12 @@ The clean-checkout rule's purpose is met by a clean tracked tree and explicit di
 before Git's normal fast-forward (which itself refuses overwriting untracked files). This narrow
 execution choice follows the owner's merge instruction and preservation requirements; it changes
 no protected skill. No push or shared database operation is authorized by this integration.
+
+
+## DS-3 closed on local main — 27 October2026
+
+DS-3 independently verified,235-test check and both platform JS exports passed after rebase,
+then fast-forward merged at `fd79c12` and marked Done via status.mjs (no override). Five goals
+are Done. See `runs/review-merge-priority-2026-10-27.md` and DS-3 integration proof.
+No native-device or hosted proof claimed. Scheduled supervision now prioritizes reviews and
+merging completed work; no new goals/optional polish while closure queue remains.

@@ -4,12 +4,12 @@
   "heartbeat": "fitlog-coordinate-local-claude-delivery",
   "decisionAuthority": "AUTH-01: owner explicitly delegated final product/engineering decisions to Codex on2026-10-26; routine technical sign-off requires no owner involvement. External proofs remain actual requirements.",
   "completedMostRecently": {
-    "goal": "AR-1",
-    "integratedCommit": "73e3f63",
-    "bookkeepingCommit": "2a95726",
-    "verdict": "docs/evidence/AR-1/verdict-attempt-1.json",
-    "worktree": "archived, recoverable",
-    "ownedReplay": "stopped/deleted onlyfitlog_ar1_replay_20261026 after0authusers; existing55321healthy"
+    "goal": "DS-3",
+    "integratedCommit": "fd79c12f3765e47b7720cbbcec9ba9b0637fffcc",
+    "verdict": "docs/evidence/DS-3/verdict-attempt-1.json",
+    "integrationProof": "docs/evidence/DS-3/integration-gates.md",
+    "worktree": "retained clean for generated JS export inspection; no active writer",
+    "verifier": "Codex independent of local Claude implementer"
   },
   "workers": [
     {
@@ -118,18 +118,18 @@
     },
     {
       "goal": "DS-3",
-      "phase": "Shared reduced-motion and haptics system; bounded implementation then independent review",
+      "phase": "Done on local main; do not redispatch",
       "sessionId": "43a6e92e-b1fc-4cb8-8e9f-f29aa764f5c5",
       "shortId": "43a6e92e",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds3-motion/fitness_app",
       "branch": "codex/fitlog-ds3-motion",
       "base": "c8a5d57",
-      "state": "done",
+      "state": "integrated",
       "pid": 53588,
-      "writes": "Goal-scoped source/tests/evidence only; exact brief in ready-wave record",
+      "writes": "NONE; integrated",
       "database": "NONE; DB tests and integration serialized by coordinator",
-      "lastObservedAt": "2026-10-27T05:05:09.048489+00:00",
-      "observation": "Complete final saved unchanged to owned evidence final-2026-10-27T0505Z.md; worker STOPPED. Await bounded correction/independent review; not a Done claim."
+      "lastObservedAt": "2026-10-27T14:06:33.600750+00:00",
+      "observation": "Independent review,235-test local check and both platform JS exports PASS after rebase; fast-forward integrated fd79c12; status Done."
     },
     {
       "goal": "G14.app",
@@ -178,9 +178,9 @@
       "observation": "Complete final saved unchanged to owned evidence final-2026-10-27T0505Z.md; worker STOPPED. Await bounded correction/independent review; not a Done claim."
     }
   ],
-  "resume": "Integration owner Review goal status is closing DS-3. Respect .git/fitlog-integration.lock; no overlapping main mutation or DS3 worker. Prioritize closure queue; collect G14 complete final, do not expand implementation. Preserve existing denied-action boundaries and open external proof.",
-  "lastReconciledAt": "2026-10-27T14:03:43.296593+00:00",
-  "checkpoint": "docs/plan/runs/supervision-2026-10-27T1405Z.md",
+  "resume": "Owner priority: close reviews and merge accepted work, freeze new goals/optional polish. DS3 integrated fd79c12 and Done; never restart. Other goals remain incomplete. Collect G14 source review final without runtime acceptance; assess DS2/DS1 local code separately from their required Android-release captures. QA9 awaits bounded backend harness corrections; MB1/PL1/QA2 denied sequences remain parked. Do not conflate hosted proof or optional lows with unrelated local merge blockers. Acquire a fresh serial integration lock before the next merge.",
+  "lastReconciledAt": "2026-10-27T14:06:33.600750+00:00",
+  "checkpoint": "docs/plan/runs/review-merge-priority-2026-10-27.md",
   "parallelReadyWave": {
     "coordinator": "01a17993-375a-77a2-a931-c9f494a30aef",
     "record": "docs/plan/runs/ready-wave-2026-10-27.json",
@@ -201,10 +201,21 @@
   "integration": {
     "ownerThread": "01a17c36-cd40-7783-9911-428c5586b4e0",
     "goal": "DS-3",
-    "phase": "independent review passed; serial integration preparation",
-    "lock": ".git/fitlog-integration.lock",
+    "phase": "complete; DS3 integrated and goal/status/tracker recorded",
+    "lock": "released after bookkeeping commit; future integrations must acquire it",
     "independentVerifier": "Codex; implementation by local Claude",
     "checks": "Node22.23.1 frozen install, pnpm check 37 domain + 176 mobile + 22 planner tests, iOS/Android JS exports pass",
-    "noDatabaseScope": true
-  }
+    "noDatabaseScope": true,
+    "goalCommit": "fd79c12f3765e47b7720cbbcec9ba9b0637fffcc"
+  },
+  "completionHistory": [
+    {
+      "goal": "AR-1",
+      "integratedCommit": "73e3f63",
+      "bookkeepingCommit": "2a95726",
+      "verdict": "docs/evidence/AR-1/verdict-attempt-1.json",
+      "worktree": "archived, recoverable",
+      "ownedReplay": "stopped/deleted onlyfitlog_ar1_replay_20261026 after0authusers; existing55321healthy"
+    }
+  ]
 }

@@ -106,12 +106,12 @@
       "at": "2026-10-26T19:40:31.770Z"
     },
     "DS-3": {
-      "status": "claimed",
+      "status": "done",
       "who": "Codex",
-      "ref": "codex/fitlog-ds3-motion",
-      "note": "Parallel implementation assigned in isolated fitlog-ds3-motion; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "ref": "fd79c12",
+      "note": "Independent Codex verification passed all three boxes; Node22.23.1 pnpm check 235 tests and iOS/Android JS exports pass after rebase; fast-forward integrated on local main. Future screen wiring remains with SC-1/G19.app/DS-5; no device or hosted proof claimed.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:31.953Z"
+      "at": "2026-10-27T14:05:20.508Z"
     },
     "G14.app": {
       "status": "claimed",

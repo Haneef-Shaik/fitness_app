@@ -1,7 +1,14 @@
 # Connected member and gym implementation — 19 October 2026
 
-Status: local implementation in progress. PRD v2.1 and Momentum remain authoritative; this record
-does not close goal cards or release gates. No production provisioning or deployment has occurred.
+Status: historical checkpoint of the local implementation as of 19 October 2026. PRD v2.1 and
+Momentum remain authoritative; this record does not close goal cards or release gates. No production
+provisioning or deployment has occurred.
+
+*Reconciled 27 October 2026 (QA-2):* QA-1 reviewed this implementation and brought it onto `main`
+(25 October, `67e6d1c`). [003 — Architecture freeze](003-architecture-freeze.md) (AR-1, 26 October,
+`73e3f63`) is the frozen target it converges on; 003 §3 and §4 mark what is implemented and what is
+missing. Counts, migration totals and "remaining" lists below are as of 19 October; live goal status
+is on the plan board.
 
 ## Boundaries and decisions
 
@@ -94,11 +101,14 @@ retention, programme offers, challenges, full reports/export and closure remain 
   initial ₹1,200/₹1,000 fixture shows dues ₹0, credit ₹200 and receipt `LOCAL1910/2026/000001`.
   A later sold renewal increases charges to ₹2,000. Approving the 18–21 November freeze moves current
   validity through 22 November and the renewal to 23 November–22 December, leaving dues ₹1,000 and
-  credit ₹200 unchanged. Mobile-width review/outcome screenshots are in `.impeccable/review/`.
+  credit ₹200 unchanged. Mobile-width review/outcome screenshots were kept locally in
+  `.impeccable/review/`. They are not in the tree on `main` (only `.impeccable/config.json` is), because
+  QA-1 did not stage review screenshots.
 - Web and iOS/Android JS/Hermes exports pass. These do not establish native compilation or execution.
 - All 14 recorded migrations replay in a shadow database; schema comparison reports no changes.
 - Database security advisor reports no issues. Device accessibility/performance/encryption tests,
   hosted CI, production operations and PRD §27 release evidence remain open.
 
-Full delivery is not complete. The working checklist remains in `docs/implementation/PROGRESS.md`;
-all unmet required acceptance cases remain gates, including gaps implementable without vendor accounts.
+Full delivery is not complete. The working checklist remains in `docs/implementation/PROGRESS.md`
+(since 25 October a derived view of the plan board); all unmet required acceptance cases remain
+gates, including gaps implementable without vendor accounts.

@@ -19,8 +19,8 @@ node scripts/plan/serve.mjs          # or: pnpm plan:board
 ```
 
 - **Graph:** one lane per session, one column per wave. Hover or select a goal to light up what it
-  needs and what waits on it. The badges **T**, **F** and **L** stand for QA-1, MS-2 and MS-5, which
-  many goals need; their lines appear on hover.
+  needs and what waits on it. The badges **T**, **C**, **F** and **L** stand for QA-1, AR-1, MS-2 and
+  MS-5, which many goals need (the `hubs` in GOALS.md's settings block); their lines appear on hover.
 - **Ready to run**, **All goals** and **Updates:** the same data as a list, a table and a feed.
 - **Saving a status** writes `status.json` and adds an entry to `activity.json` in this folder.
   Changes made in a terminal show up on the page within about two seconds.

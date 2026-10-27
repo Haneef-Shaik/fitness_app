@@ -8,6 +8,13 @@
 > **11 October 2026 reset:** the old implementation was removed from this branch.
 > Read the [fresh baseline](../RESET-BASELINE.md) first; existing-code audits and build entry gates below need reconciliation.
 
+> **27 October 2026 (QA-2), historical labels:** `app/config.py` (§5), reversible migrations with
+> `alembic downgrade` and the `deploy.yml` rollback (§6), and `uv`, `pytest` and Maestro (§7, §11)
+> describe the removed v1 stack and are historical. None of them is part of the rebuild. Migrations are
+> append-only, and a migration on `main` is never edited ([docs/23](../23-MASTER-PLAN.md) §5,
+> [003](../architecture/003-architecture-freeze.md) §7); undo one with a new forward migration. The
+> gates are [docs/23](../23-MASTER-PLAN.md) §7.
+
 
 | Field | Value |
 |---|---|
@@ -277,7 +284,7 @@ isolation's other job: keeping the agent inside its worktree.
 | **A bad attempt**, before it merges | Tag the attempt's branch head `attempt/<ID>/<n>`, then reset the branch to the last good checkpoint, or recreate the worktree from `main`. Nothing is thrown away | Delete commits |
 | **A merged goal that turns out wrong** | The ledger stores `main` before and after every merge. `rollback <ID>` runs `git revert` over exactly that range: new commits that undo the goal, with history intact. The goal returns to Not started (or On hold) with the reason, and every later goal that needs it is listed for triage | `git reset --hard` or a force-push on `main` |
 | **Back to a known-good milestone** | Each passing gate tags `main` as `ms/<MS-ID>`. Diff, bisect or revert back to it | Rewriting history |
-| **A database migration** | Migrations must be reversible (a standing rule), so a rollback includes `alembic downgrade` to the revision before the goal | — |
+| **A database migration** | *Historical (v1) text replaced by QA-2, 27 October 2026.* Migrations are append-only: a rollback adds a new forward migration (docs/23 §5, 003 §7) | Editing or deleting a migration that is already on `main` |
 | **Production** | Already an owner gate. `deploy.yml` rolls back by redeploying an older image | An automatic production rollback |
 | **A wrong status** | `status.mjs set` it back with a note. `activity.json` keeps the trail | Editing `activity.json` |
 

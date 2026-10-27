@@ -69,8 +69,17 @@ That is what makes a later rollback exact. Once the run ledger exists (O2), reco
    Note the goals it reports as now ready. It refuses while a need is open. That should never
    happen here, so report it as `RESULT: refused`. Never pass `--override`.
 5. **Append the handoff to the tracker.** Add the contents of `docs/plan/runs/<ID>/handoff.md`, with
-   the merged commit hash, to the changelog in `docs/09-PROJECT-TRACKER.md`. Start the entry with the
-   marker line `<!-- handoff:<ID>:<short hash> -->`. This is the only file you edit.
+   the merged commit hash, to the handoff log in `docs/09-PROJECT-TRACKER.md`. Start the entry with
+   the marker line `<!-- handoff:<ID>:<short hash> -->`. This is the only file you edit.
+   - **Re-base its links.** Resolve each relative link against `docs/plan/runs/<ID>/` and rewrite it
+     relative to `docs/`. For example `../../../evidence/<ID>/x.md` becomes `evidence/<ID>/x.md`,
+     `../../ACCEPTANCE.md` becomes `plan/ACCEPTANCE.md`, `../../../09-PROJECT-TRACKER.md#decision-log`
+     becomes `#decision-log`, `../<OTHER>/handoff.md` becomes `plan/runs/<OTHER>/handoff.md`, and a
+     bare `checkpoint.md` becomes `plan/runs/<ID>/checkpoint.md`.
+   - **Same-page links.** A link to one of the handoff's own headings (`#gates`, `#box-1`) would jump
+     to an earlier handoff's heading of the same name. Write it as words instead ("this handoff's
+     *Gates* section").
+   - Change nothing else. Say what you re-based in one dated line at the top of the entry.
 6. **Commit the bookkeeping**:
    ```bash
    git add docs/09-PROJECT-TRACKER.md docs/plan/status.json docs/plan/activity.json

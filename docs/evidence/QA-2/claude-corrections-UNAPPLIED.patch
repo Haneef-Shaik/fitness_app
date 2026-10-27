@@ -1,0 +1,332 @@
+QA-2 correction phase 4 hunks; header lines last edited in correction phase 5. STATUS: UNAPPLIED.
+
+This patch is a proposal. Nothing under .claude/ was changed: the coordinator protected .claude/.
+The hunks were written by hand against the files as read in the worktree (branch
+codex/fitlog-qa2-docs at 5fefc31). Eight files, 16 hunks.
+Applying it changes only the checkout it is applied in. It does not end the privacy override in
+docs/plan/SESSION-PROMPT.md. That needs QA-2 merged to main and a corrected security-reviewer.md
+in the checkout that starts the reviewer (all six SESSION-PROMPT checks: P1-P5 and P3b).
+Tool checks on record. Each was "git apply --check --verbose" on this file from the worktree root;
+none applied anything.
+  26 October 23:05Z, the independent reviewer: passed on the 13-hunk version.
+  Codex, the coordinator: reported a pass on the 15-hunk version. The 27 October 00:05Z reviewer
+  final records it as Codex's own result (its line 9). That reviewer's own run was refused (Bash
+  denied), so nobody repeated it. Its exact time and output lines are not in this worktree.
+  27 October, correction phase 3, the QA-2 implementer: passed twice on the phase 3 16-hunk
+  version, with "Checking patch <file>..." for all eight files and no error.
+  27 October 01:05Z final, the reviewer: passed once on that same phase 3 version, with the same
+  eight lines and no error.
+  27 October, correction phases 4 and 5: their results are in stale-paths.md section 4, not
+  here. Phase 5 edited header lines 1, 8 and 19-20 only; every hunk is as in phase 4.
+This version changes four of the 16 phase 3 hunks and adds none (the 01:05Z review's low 5):
+plan-orchestrator hunk 1 and run-plan hunk 1 (live mode only when status.mjs's command dispatch
+has a "next" branch, not when the text appears anywhere in the file), and run-plan hunks 2 and 3
+(each "today" replaced by a reference to Modes). Run-plan hunk 1 now adds 10 lines, not 9, so
+the new-side starts of run-plan hunks 2 and 3 move down one line.
+Before applying, run from the repo root:  git apply --check --verbose <this file>
+Then apply with:  git apply <this file>
+Findings covered: R1 (C4), C1-C3, C5-C9, R5 (C10, C12), R9 (C9, C17), R10 (C14), R11 (C13),
+R12 (C15), R13 (C2, C6), R14 (C16); the 23:05Z review's findings 2 (C10, C12, C18), 3 (C17) and
+4 (C15); the 00:05Z review's lows 2 (C4), 3 (C10, C19) and 4 (C20); and the 01:05Z review's
+low 5 (C21). The C-numbers are defined in stale-paths.md sections 3.5 and 4.
+Text before the first diff line is ignored by git apply.
+
+diff --git a/.claude/agents/code-reviewer.md b/.claude/agents/code-reviewer.md
+--- a/.claude/agents/code-reviewer.md
++++ b/.claude/agents/code-reviewer.md
+@@ -1,6 +1,6 @@
+ ---
+ name: code-reviewer
+-description: Reviews a diff for correctness bugs, regressions and maintainability in the FitLog codebase (FastAPI + Postgres backend, Expo React Native app, shared TS packages). Use proactively after writing or changing code, before handing work back. Reports findings; never edits.
++description: Reviews a diff for correctness bugs, regressions and maintainability in the FitLog codebase (Supabase Postgres backend with RLS and private definer RPCs, Expo React Native app, the shared @fitlog/domain contract package). Use proactively after writing or changing code, before handing work back. Reports findings; never edits.
+ tools: Read, Grep, Glob, Bash
+ disallowedTools: Edit, Write, NotebookEdit, Agent
+ model: claude-opus-5-5
+@@ -17,10 +17,13 @@
+ 1. Get the diff you were asked to review, usually `git diff main...HEAD` in the working directory you
+    were given. Read every changed file in full where the hunk alone is not enough.
+ 2. For each change, look for:
+-   - **Correctness:** wrong logic, off-by-one, null and empty cases, timezone and local-date
+-     handling (I7: the day is the profile's day), unit conversions (I6: kg/cm in storage).
+-   - **Data safety:** append-only rules, idempotency on client keys (I8), migrations that are not
+-     reversible or that `alembic check` would reject.
++   - **Correctness:** wrong logic, off-by-one, null and empty cases, timezone and local-date
++     handling (PRD §4.2: a stable local date in the timezone recorded at creation; gym memberships,
++     visits, reminders and reports use the gym's timezone), unit conversions (PRD §4.2: canonical
++     kg, cm, metres, seconds, kcal and grams; money in integer minor units).
++   - **Data safety:** append-only rules (PRD §4.1, §13), idempotency on operation IDs (003 §4.6), an
++     edited migration that is already on `main` (migrations are append-only, docs/23 §5), and a
++     migration that does not replay from empty to head with an empty schema diff (003 §7).
+    - **Offline and sync:** writes that bypass the outbox, duplicate sets, lost writes.
+    - **Concurrency:** races, missing transactions, unawaited promises.
+    - **Tests:** behaviour changed without a test, tests that cannot fail, assertions on
+diff --git a/.claude/agents/security-reviewer.md b/.claude/agents/security-reviewer.md
+--- a/.claude/agents/security-reviewer.md
++++ b/.claude/agents/security-reviewer.md
+@@ -1,6 +1,6 @@
+ ---
+ name: security-reviewer
+-description: Reviews a diff for security and privacy defects in FitLog, such as authorization, tenant isolation, injection, secrets, PII and health-data handling, and the AI gateway. Use proactively after changes to API routes, auth, storage, imports, AI calls or anything handling user data. Reports findings; never edits.
++description: Reviews a diff for security and privacy defects in FitLog, such as authorization, tenant isolation, injection, secrets, PII and health-data handling, and the AI gateway. Use proactively after changes to RPCs, migrations and policies, Edge Functions, auth, storage, imports, AI calls or anything handling user data. Reports findings; never edits.
+ tools: Read, Grep, Glob, Bash
+ disallowedTools: Edit, Write, NotebookEdit, Agent
+ model: claude-opus-5-5
+@@ -15,27 +15,39 @@
+
+ ## Check, for every changed route, query, job and screen
+
+-- **Authorization:** every read and write is scoped to the caller. For gym data, every query goes
+-  through the policy module, and another tenant's record is a 404, not a 403 (I16). There are no
+-  IDOR paths through ids in URLs or bodies.
+-- **Consent:** gym staff see member content only with the member's consent (I17).
++- **Authorization:** every read and write is scoped to the caller by RLS and by the `private`
++  definers' identity, session and live-role checks (003 §3.2-§3.3, §4.3). Identity comes from the
++  session, never from a body field. Another owner's or tenant's record, or a revoked scope, is
++  `404 NOT_FOUND`, never 403 (003 §4.3, §4.5). There are no IDOR paths through ids in URLs or bodies.
++- **Private health data (PRD §16.1; 003 §6; docs/23 §9 rule 6):** gym staff (owner, manager and
++  front desk) never read or write a member's sessions, food, body entries, goals, private photos or
++  raw AI results, whatever consent, sharing or assignment flag a request carries. There is no
++  trainer role and no switch that enables it, and a gym programme offer is not fitness-data consent
++  (PRD §16.1). Staff never receive URLs for personal health assets (PRD §22.1; 003 §6). A change to
++  staff or gym access needs AC09 tests: every staff read or write of personal data is denied, and a
++  retired trainer role is rejected (003 §6). A staff read or write gated on consent is a critical
++  finding.
+ - **Input:**
+   - parameterised SQL only;
+-  - validation at the boundary (pydantic schemas);
++  - validation at the boundary (the Zod contracts in `@fitlog/domain`, plus JSON Schema and SQL
++    checks in Postgres);
+   - size limits on uploads and imports;
+   - no path traversal in storage keys.
+ - **Secrets:** nothing in code, logs, test fixtures or the repo, which is public. Configuration comes
+   from the environment and is validated at startup.
+ - **PII and health data:**
+-  - not in logs, Sentry events or analytics;
++  - not in logs, error-tracker events or analytics (PRD §22.1);
+   - EXIF stripped from photos;
+   - export and delete cover the new data.
+ - **AI:**
+   - provider calls only through the gateway;
+-  - a server-side Pro entitlement check before any model call once G15 lands (I21);
++  - a server-side Pro entitlement check before every provider call, including a retry (PRD §10.3;
++    003 §3.9 and §4.14 `PRO_REQUIRED`; G15.api);
+   - prompts cannot be steered by user text into revealing other users' data.
+-- **Messaging:** no marketing to gym-supplied numbers (I22); sends are idempotent.
+-- **Location and identity:** no raw coordinates, Aadhaar or biometrics stored (I23).
++- **Messaging:** no marketing to gym-supplied numbers (PRD §14.2); sends are idempotent.
++- **Location and identity:** no raw visit coordinates stored (PRD §15.1; §21.2 Visit). The PRD's
++  entities (§21.2) hold no government ID number or biometric, so a change that collects one is
++  outside the PRD and is a finding.
+ - **Rate limits** on new endpoints that cost money or send messages.
+ - **Dependencies:** a new package needs a reason, and no known high or critical advisories.
+
+diff --git a/.claude/agents/tdd-guide.md b/.claude/agents/tdd-guide.md
+--- a/.claude/agents/tdd-guide.md
++++ b/.claude/agents/tdd-guide.md
+@@ -22,9 +22,10 @@
+   removed.
+
+ Name the existing test file each test belongs in, following the repo's layout:
+-- `scripts/backend/verify*.mjs` (local Supabase integration suites) and `packages/domain/src/*.test.ts`
++- `scripts/backend/verify*.mjs` (local Supabase integration suites), `scripts/backend/*.test.mjs`
++  (backend unit tests) and `packages/domain/src/*.test.ts`
+ - `apps/mobile/**/__tests__/*.test.ts(x)`
+-- `packages/*/test/*`
++- `scripts/plan/lib.test.mjs` (planner)
+
+ ## When asked to audit
+
+@@ -34,8 +35,11 @@
+    mutation check ("seen to fail"), confirm the output is recorded. If it is not, run the test against
+    the code on `main` or reason precisely about whether it could pass without the change.
+ 3. **Quality bars:**
+-   - no `.skip`, `xit`, `it.only`, `@pytest.mark.skip` or `xfail` added;
+-   - thresholds in `apps/mobile/jest.config.cjs` and the domain coverage settings not lowered;
++   - no `.skip`, `xit`, `it.only`, `test.only`, `describe.skip`, `.todo`, or a `node:test` `skip` or
++     `todo` option added;
++   - thresholds in `apps/mobile/jest.config.cjs` and the domain coverage settings not lowered or
++     removed. QA-9 adds these thresholds; until it does there may be none, so read both on `main`
++     before deciding there is nothing to check;
+    - no assertions removed or weakened.
+ 4. **Coverage of the change.** Run the relevant suite with coverage when it is cheap, and report the
+    changed files that stay uncovered.
+diff --git a/.claude/agents/plan-orchestrator.md b/.claude/agents/plan-orchestrator.md
+--- a/.claude/agents/plan-orchestrator.md
++++ b/.claude/agents/plan-orchestrator.md
+@@ -37,9 +37,11 @@
+
+ ## Hard rules
+
+-1. **Code decides readiness, not you.** Start only goals returned by `node scripts/plan/status.mjs
+-   next`. If that command does not exist yet, you are in **advisory mode**: say what you would start
+-   and why, and start nothing.
++1. **Code decides readiness, not you.** In live mode, start only goals returned by
++   `node scripts/plan/status.mjs next`. Live mode needs a `next` branch in that script's command
++   dispatch (phase O2 is to add it); without one you are in **advisory mode** (`run-plan`, *Modes*).
++   Never run `next` to find out, not even to watch it fail: read the dispatch, as `run-plan` says.
++   In advisory mode, say what you would start and why, change no status and start nothing.
+ 2. **You never edit files.** You have no Edit or Write tool, and you must not change files through
+    Bash either: no redirects into files, no `sed -i`, no `git commit`. The only exceptions are the
+    plan's own CLIs.
+diff --git a/.claude/skills/run-goal/SKILL.md b/.claude/skills/run-goal/SKILL.md
+--- a/.claude/skills/run-goal/SKILL.md
++++ b/.claude/skills/run-goal/SKILL.md
+@@ -17,7 +17,7 @@
+   - you end with the summary block from your agent definition.
+ - **By hand** (a person typed `/run-goal <ID>` in the main checkout):
+   - you claim the goal yourself and work on a branch;
+-  - you follow the by-hand close-out in step 9.
++  - you follow the by-hand close-out in step 10.
+
+ **Never write `docs/plan/status.json` or `docs/plan/activity.json` from a worktree.** Statuses live
+ in the main checkout. A worktree's copy is a snapshot from when it branched.
+@@ -28,6 +28,10 @@
+ node scripts/plan/status.mjs show <ID>
+ ```
+
++Statuses are live only in the main checkout (§0). From a worktree, run the main checkout's copy,
++`node /Users/Adya/personals/fitness_app/scripts/plan/status.mjs show <ID>`: the script reads the
++status files beside it, never the worktree's snapshot.
++
+ `show` prints the goal's needs, its **Done when** boxes and the acceptance-ledger rows it helps
+ prove. Every goal under **needs** must be Done. If one is not, **stop**:
+ - under the orchestrator, report `STATUS: blocked`;
+@@ -41,6 +45,9 @@
+ - Branch name: `plan/<id-lowercase>-<short-slug>`, for example `plan/mb-3-durable-outbox`.
+   - Under the orchestrator, rename the worktree's branch: `git branch -m plan/<id>-<slug>`.
+   - By hand: `git switch -c plan/<id>-<slug>` from an up-to-date `main`.
++  - **Keep a coordinator-named branch.** If the coordinator already created the branch (for
++    example `codex/<lane>`) and recorded it as the goal's ref, never rename it: the status files
++    and the verifier use that name (docs/23 §6).
+ - In a fresh worktree, install once: `pnpm install --frozen-lockfile` at the root.
+ - If the goal touches `supabase/`, `packages/domain/`, `scripts/backend/` or `apps/mobile/src/data/`,
+   start the **local** stack: `pnpm exec supabase start`. Backend tests refuse any other backend.
+@@ -193,5 +200,8 @@
+      `node scripts/plan/status.mjs set <ID> done --who <lane> --ref <commit>`. It refuses while a
+      need is open, and it prints which goals that unblocks.
+   4. Append the handoff to the handoff log in `docs/09-PROJECT-TRACKER.md`, starting with
+-     `<!-- handoff:<ID>:<short hash> -->`. Add any decision the goal forced to the decision log.
++     `<!-- handoff:<ID>:<short hash> -->`. Re-base its links first, as in `integrate-goal` step 5:
++     resolve each relative link against `docs/plan/runs/<ID>/` and rewrite it relative to `docs/`,
++     and write a link to one of the handoff's own headings as words. Add any decision the goal
++     forced to the decision log.
+   5. Commit `docs/plan/status.json` and `docs/plan/activity.json` along with the bookkeeping.
+diff --git a/.claude/skills/verify-goal/SKILL.md b/.claude/skills/verify-goal/SKILL.md
+--- a/.claude/skills/verify-goal/SKILL.md
++++ b/.claude/skills/verify-goal/SKILL.md
+@@ -65,7 +65,8 @@
+      belongs to another goal.
+    - **Quality bars:**
+      - an added `.skip`, `xit`, `it.only` or `test.only`;
+-     - lowered thresholds in `apps/mobile/jest.config.cjs` or the domain coverage settings;
++     - lowered or removed thresholds in `apps/mobile/jest.config.cjs` or the domain coverage
++       settings (QA-9 adds them; until it does there may be none, so read both on `main`);
+      - deleted or weakened assertions;
+      - an `eslint-disable` without a reason;
+      - an edited migration that is already on `main`.
+diff --git a/.claude/skills/integrate-goal/SKILL.md b/.claude/skills/integrate-goal/SKILL.md
+--- a/.claude/skills/integrate-goal/SKILL.md
++++ b/.claude/skills/integrate-goal/SKILL.md
+@@ -68,9 +68,18 @@
+    ```
+    Note the goals it reports as now ready. It refuses while a need is open. That should never
+    happen here, so report it as `RESULT: refused`. Never pass `--override`.
+ 5. **Append the handoff to the tracker.** Add the contents of `docs/plan/runs/<ID>/handoff.md`, with
+-   the merged commit hash, to the changelog in `docs/09-PROJECT-TRACKER.md`. Start the entry with the
+-   marker line `<!-- handoff:<ID>:<short hash> -->`. This is the only file you edit.
++   the merged commit hash, to the handoff log in `docs/09-PROJECT-TRACKER.md`. Start the entry with
++   the marker line `<!-- handoff:<ID>:<short hash> -->`. This is the only file you edit.
++   - **Re-base its links.** Resolve each relative link against `docs/plan/runs/<ID>/` and rewrite it
++     relative to `docs/`. For example `../../../evidence/<ID>/x.md` becomes `evidence/<ID>/x.md`,
++     `../../ACCEPTANCE.md` becomes `plan/ACCEPTANCE.md`, `../../../09-PROJECT-TRACKER.md#decision-log`
++     becomes `#decision-log`, `../<OTHER>/handoff.md` becomes `plan/runs/<OTHER>/handoff.md`, and a
++     bare `checkpoint.md` becomes `plan/runs/<ID>/checkpoint.md`.
++   - **Same-page links.** A link to one of the handoff's own headings (`#gates`, `#box-1`) would jump
++     to an earlier handoff's heading of the same name. Write it as words instead ("this handoff's
++     *Gates* section").
++   - Change nothing else. Say what you re-based in one dated line at the top of the entry.
+ 6. **Commit the bookkeeping**:
+    ```bash
+    git add docs/09-PROJECT-TRACKER.md docs/plan/status.json docs/plan/activity.json
+diff --git a/.claude/skills/run-plan/SKILL.md b/.claude/skills/run-plan/SKILL.md
+--- a/.claude/skills/run-plan/SKILL.md
++++ b/.claude/skills/run-plan/SKILL.md
+@@ -10,9 +10,15 @@
+
+ ## Modes
+
+-- **Advisory mode.** You are in advisory mode if `node scripts/plan/status.mjs next --slots 1` fails
+-  (that command arrives with phase O2), or if your task says "advisory" or "dry run". In this mode you
+-  run steps 1–3 and 8 only: report what you would do, and start no agent.
+-- **Live mode.** Otherwise, run every step.
++- **Advisory mode, the default.** You are in advisory mode unless the command dispatch in
++  `scripts/plan/status.mjs` has a `next` branch. Decide by reading that file, never by running
++  `next`, not even to watch it fail. The dispatch is the chain of `if (cmd === …)` and
++  `else if (cmd === …)` lines near its end. Search the file for the fixed text `cmd === "next"`
++  and read each hit: only a hit on one of those dispatch lines counts. No hit, or hits only in a
++  comment, a usage line or a string, means advisory mode. Advisory mode also applies whenever
++  your task says "advisory" or "dry run". In this mode you run steps 1–3 and 8 only: report what
++  you would do, change no status (no `status.mjs set`, in any step) and start no agent.
++- **Live mode.** Only when that dispatch has a `next` branch (phase O2 is to add it), and your
++  task does not say "advisory" or "dry run", run every step.
+
+ ## 1. Look
+@@ -41,32 +47,34 @@
+   on its branch): go to step 5.
+ - **The implementer died or ran out of turns:** its worktree and checkpoint exist. Start a new
+   `goal-implementer` for the same goal and attempt, telling it to resume from the checkpoint.
+-- **Nothing exists for it:** reset it with `status.mjs set <ID> not started --note "reset by
+-  orchestrator: no run found"`. It will be picked again.
++- **Nothing exists for it:** in live mode, reset it with `status.mjs set <ID> not started --note
++  "reset by orchestrator: no run found"`, and it will be picked again. In advisory mode, change no
++  status: report the goal and the reset you would make.
+
+ Once the run ledger exists (O2), it is the source of attempts, session ids and costs. Until then,
+ count attempts from the goal's `activity.json` history.
+
+ ## 3. Pick
+
+-```bash
+-node scripts/plan/status.mjs next --slots <free slots>
+-```
+-
+-That command applies every start rule in code:
++**Advisory mode** (see *Modes*). Run `node scripts/plan/status.mjs ready`. Report which goals you
++would start, in critical-path order (longest remaining chain first), with one line each. `ready`
++lists the goals that are not started and whose needs are all Done; it applies none of the other
++start rules below, so say which of them you checked by hand.
++
++**Live mode** (see *Modes*). Phase O2 is planned to add
++`node scripts/plan/status.mjs next --slots <free slots>`. It is shown for illustration only:
++while the dispatch in `status.mjs` has no `next` branch (see *Modes*), never run it. Once it has
++one, the command is to apply every start rule in code:
+ - every need is Done;
+ - the lane is free;
+ - the parallel cap allows it;
+ - the goal is not a human one;
+ - it is under the attempt limit and the budget;
+ - no needed resource is locked;
+ - `main` is green.
+
+-Take its answer as final. Never start a goal it did not return, and never skip one it did without
+-writing why.
+-
+-In advisory mode, use `node scripts/plan/status.mjs ready` instead. Report which goals you would
+-start, in critical-path order (longest remaining chain first), with one line each.
++In live mode, take its answer as final. Never start a goal it did not return, and never skip one
++it did without writing why.
+
+ ## 4. Dispatch
+
+@@ -131,8 +139,9 @@
+
+ ## 8. End the cycle
+
+-The cycle ends when nothing is running, `next` returns nothing more, and every verdict and
+-integration has been acted on. In advisory mode, it ends after step 3.
++In advisory mode (see *Modes*), the cycle ends after step 3 with the summary below. In live mode,
++it ends when nothing is running, `next` returns nothing more, and every verdict and integration
++has been acted on.
+
+ End with:
+

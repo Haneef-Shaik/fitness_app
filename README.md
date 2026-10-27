@@ -43,11 +43,13 @@ before the backend tests. Production identity providers, legal notices, AI, stor
 unconfigured. Physical devices also need an explicitly configured reachable development API URL.
 
 For future visual changes, start with the [theming guide](docs/THEMING.md). Colors live in one
-dark/light palette; typography, spacing and shapes live in shared tokens. The
-[foundation record](docs/architecture/001-mobile-foundation.md) explains boundaries, checks and
-remaining native validation. CI is defined but has not run on GitHub yet.
-The [connected implementation record](docs/architecture/002-connected-member-and-gym.md) and
-[delivery checklist](docs/implementation/PROGRESS.md) describe current behavior and remaining scope.
+dark/light palette; typography, spacing and shapes live in shared tokens.
+[Record 003](docs/architecture/003-architecture-freeze.md) is the frozen architecture and contract
+(AR-1). The [foundation record 001](docs/architecture/001-mobile-foundation.md) and the
+[connected implementation record 002](docs/architecture/002-connected-member-and-gym.md) are
+historical checkpoints of 17 and 19 October 2026. CI is defined in `.github/workflows/mobile-ci.yml`;
+no hosted run is recorded yet (PL-1). The [delivery checklist](docs/implementation/PROGRESS.md) is a
+derived view of the plan board.
 
 Start with the [PRD](docs/PRD.md), [master plan](docs/23-MASTER-PLAN.md),
 [goal cards](docs/plan/GOALS.md), [project tracker](docs/09-PROJECT-TRACKER.md), and

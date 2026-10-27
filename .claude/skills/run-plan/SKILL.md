@@ -10,10 +10,16 @@ The design is `docs/plan/ORCHESTRATOR.md`. The plan is `docs/plan/GOALS.md`. Sta
 
 ## Modes
 
-- **Advisory mode.** You are in advisory mode if `node scripts/plan/status.mjs next --slots 1` fails
-  (that command arrives with phase O2), or if your task says "advisory" or "dry run". In this mode you
-  run steps 1–3 and 8 only: report what you would do, and start no agent.
-- **Live mode.** Otherwise, run every step.
+- **Advisory mode, the default.** You are in advisory mode unless the command dispatch in
+  `scripts/plan/status.mjs` has a `next` branch. Decide by reading that file, never by running
+  `next`, not even to watch it fail. The dispatch is the chain of `if (cmd === …)` and
+  `else if (cmd === …)` lines near its end. Search the file for the fixed text `cmd === "next"`
+  and read each hit: only a hit on one of those dispatch lines counts. No hit, or hits only in a
+  comment, a usage line or a string, means advisory mode. Advisory mode also applies whenever
+  your task says "advisory" or "dry run". In this mode you run steps 1–3 and 8 only: report what
+  you would do, change no status (no `status.mjs set`, in any step) and start no agent.
+- **Live mode.** Only when that dispatch has a `next` branch (phase O2 is to add it), and your
+  task does not say "advisory" or "dry run", run every step.
 
 ## 1. Look
 
@@ -41,19 +47,24 @@ For each goal that is Running (`claimed`), find out where it is:
   on its branch): go to step 5.
 - **The implementer died or ran out of turns:** its worktree and checkpoint exist. Start a new
   `goal-implementer` for the same goal and attempt, telling it to resume from the checkpoint.
-- **Nothing exists for it:** reset it with `status.mjs set <ID> not started --note "reset by
-  orchestrator: no run found"`. It will be picked again.
+- **Nothing exists for it:** in live mode, reset it with `status.mjs set <ID> not started --note
+  "reset by orchestrator: no run found"`, and it will be picked again. In advisory mode, change no
+  status: report the goal and the reset you would make.
 
 Once the run ledger exists (O2), it is the source of attempts, session ids and costs. Until then,
 count attempts from the goal's `activity.json` history.
 
 ## 3. Pick
 
-```bash
-node scripts/plan/status.mjs next --slots <free slots>
-```
+**Advisory mode** (see *Modes*). Run `node scripts/plan/status.mjs ready`. Report which goals you
+would start, in critical-path order (longest remaining chain first), with one line each. `ready`
+lists the goals that are not started and whose needs are all Done; it applies none of the other
+start rules below, so say which of them you checked by hand.
 
-That command applies every start rule in code:
+**Live mode** (see *Modes*). Phase O2 is planned to add
+`node scripts/plan/status.mjs next --slots <free slots>`. It is shown for illustration only:
+while the dispatch in `status.mjs` has no `next` branch (see *Modes*), never run it. Once it has
+one, the command is to apply every start rule in code:
 - every need is Done;
 - the lane is free;
 - the parallel cap allows it;
@@ -62,11 +73,8 @@ That command applies every start rule in code:
 - no needed resource is locked;
 - `main` is green.
 
-Take its answer as final. Never start a goal it did not return, and never skip one it did without
-writing why.
-
-In advisory mode, use `node scripts/plan/status.mjs ready` instead. Report which goals you would
-start, in critical-path order (longest remaining chain first), with one line each.
+In live mode, take its answer as final. Never start a goal it did not return, and never skip one
+it did without writing why.
 
 ## 4. Dispatch
 
@@ -131,8 +139,9 @@ On the verdict:
 
 ## 8. End the cycle
 
-The cycle ends when nothing is running, `next` returns nothing more, and every verdict and
-integration has been acted on. In advisory mode, it ends after step 3.
+In advisory mode (see *Modes*), the cycle ends after step 3 with the summary below. In live mode,
+it ends when nothing is running, `next` returns nothing more, and every verdict and integration
+has been acted on.
 
 End with:
 

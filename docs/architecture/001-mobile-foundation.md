@@ -4,6 +4,11 @@ Status: historical foundation checkpoint. The [connected implementation record](
 supersedes the original routing, font, backend and feature-scope statements below. Native compilation,
 device QA and hosted CI remain unverified.
 
+*Reconciled 27 October 2026 (QA-2):* QA-1 reviewed this foundation and brought it onto `main`
+(25 October, `67e6d1c`). The backend, API and contract decisions this record leaves open are now made
+in [003 — Architecture freeze](003-architecture-freeze.md) (AR-1, 26 October, `73e3f63`). Test counts,
+"not run on GitHub yet" and *Next delivery gates* below are as of 17 October.
+
 ## Scope and decisions
 
 The owner requested the fresh app implementation with easy future theme changes and good engineering

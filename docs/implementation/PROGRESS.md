@@ -8,13 +8,15 @@ each line are in brackets. A line is ticked only when all of its goals are Done 
 [plan board](../plan/README.md). Completion is decided by the goal contracts in
 [GOALS.md](../plan/GOALS.md) and the [acceptance ledger](../plan/ACCEPTANCE.md), not by this file.
 
-19 October checkpoint: connected member workflows and initial gym register/membership/payment/receipt
+*Historical, 19 October checkpoint:* connected member workflows and initial gym register/membership/payment/receipt
 flows now run locally. Freeze requests, atomic approval/renewal shifts and early returns are also connected. The [implementation record](../architecture/002-connected-member-and-gym.md)
 lists verified behavior, limitations and required remaining work. Broad checkboxes below stay open
-until their entire PRD scope and acceptance gates pass.
+until their entire PRD scope and acceptance gates pass. *(Superseded by the derived-view rule above.)*
 
-- [ ] Expo + strict TypeScript, typed theme contract, system/light/dark settings, initial checks. [QA-1, DS-1] (built locally 17 Oct; not yet on `main` or reviewed)
-- [ ] Versioned domain contracts, equivalent validation and relational ownership constraints. [AR-1]
+Board state as of 27 October 2026 (QA-2 reconciliation): OW-1, OW-2, QA-1 and AR-1 are Done.
+
+- [ ] Expo + strict TypeScript, typed theme contract, system/light/dark settings, initial checks. [QA-1, DS-1] (QA-1 Done 25 Oct: reviewed and on `main` at `67e6d1c`; DS-1 open)
+- [ ] Versioned domain contracts, equivalent validation and relational ownership constraints. [AR-1, MB-2, MB-3, MB-5, MB-6] (AR-1 Done 26 Oct, `73e3f63`: contract 0.1.0 and the frozen rules in [003](../architecture/003-architecture-freeze.md). Write-time assertion of the `exercise`, `food`, `set` and `goal` persisted schemas is decided per command by MB-2, MB-3, MB-5 and MB-6, and later contract versions arrive with the backend goals ([003 §8](../architecture/003-architecture-freeze.md#8-contract-package-and-the-sp3-rule)). The line stays open until all five are Done)
 - [ ] Auth: email/verification/recovery, Google/Apple/+91 provider adapters, session management. [MB-1, SC-5, G13, PL-3]
 - [ ] Adult eligibility, notices, resumable onboarding and preferences/localization. [MB-1, SC-5, G14.app, G14.hi]
 - [ ] Full native member navigation and current Figma component system/fonts. [DS-1–DS-5]

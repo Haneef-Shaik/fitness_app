@@ -65,7 +65,8 @@ commands to read and to test, nothing else.
      belongs to another goal.
    - **Quality bars:**
      - an added `.skip`, `xit`, `it.only` or `test.only`;
-     - lowered thresholds in `apps/mobile/jest.config.cjs` or the domain coverage settings;
+     - lowered or removed thresholds in `apps/mobile/jest.config.cjs` or the domain coverage
+       settings (QA-9 adds them; until it does there may be none, so read both on `main`);
      - deleted or weakened assertions;
      - an `eslint-disable` without a reason;
      - an edited migration that is already on `main`.

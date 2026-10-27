@@ -1,5 +1,12 @@
 # Fresh implementation baseline — 11 October 2026
 
+> **Historical record of the 11 October reset.** Since then QA-1 brought the reset and a new,
+> reviewed foundation onto local `main` (25 October, `67e6d1c`), and AR-1 froze the architecture and
+> contract ([record 003](architecture/003-architecture-freeze.md); 26 October, `73e3f63`). `main`,
+> not `v2/develop`, is the integration branch ([docs/23 §6](23-MASTER-PLAN.md#6-branches-and-integration)).
+> The *Removed* list below names what the reset deleted; today's `apps/`, `packages/` and `supabase/`
+> hold the rebuild, not that removed code.
+
 At the owner's request, `v2/develop` now contains the planning workspace and supporting
 specifications. The previous implementation has been removed to avoid mixing it with the
 new Figma screens and expanded project scope.

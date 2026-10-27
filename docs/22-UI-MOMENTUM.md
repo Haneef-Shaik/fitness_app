@@ -1,7 +1,7 @@
 # UI direction 3 — "Momentum"
 ## An expressive, platform-native UI for people who train, built in Figma
 
-**Status:** selected visual direction; relevant PRD v2.1 Figma journeys updated and reviewed; 4 October counts remain historical · **Updated:** 11 October 2026 · **Where:** Figma file
+**Status:** selected visual direction; relevant PRD v2.1 Figma journeys updated and reviewed; 4 October counts remain historical · **Updated:** 11 October 2026; text reconciled with `main` on 27 October 2026 (QA-2, no Figma change) · **Where:** Figma file
 *FitLog — Momentum (expressive UI)* → <https://www.figma.com/design/wukPwvkAsdpqByti0HNdDs>
 (the owner's Figma team, Professional plan; built with the Figma MCP connector).
 
@@ -31,8 +31,8 @@ card; error red only for errors and dues.
 > the summary tiles, protein but not calories, *You* on the podium).
 >
 > **Accent decision, 4 October 2026 — volt lime.** The accent was first an ember orange picked for
-> warmth. Tested with a colour-vision-deficiency separation check, rather than taste alone,
-> deficiency separation, not taste), it failed: its dark-mode fill was nearly the error red. Six
+> warmth. Tested with a colour-vision-deficiency separation check rather than taste alone, it
+> failed: its dark-mode fill was nearly the error red. Six
 > candidates were run through the same M3 scheme; numbers are CIEDE2000, worst case across normal
 > vision and simulated protan / deutan / tritan (Machado 2009). Under 10 is easy to confuse; over 20
 > is clearly different.
@@ -78,7 +78,10 @@ The spring values come from the Material 3 Expressive motion scheme as implement
 ## Current scope delta — 11 October 2026
 
 The relevant journeys now reflect PRD v2.1 in the existing file. The dedicated trainer page is
-`90 Retired · Trainer (v2.0)`; its prototype entry points and reactions are removed. Current gym
+`90 Retired · Trainer (v2.0)` (page 14 in the historical 4 October numbering below); its prototype
+entry points and reactions are removed. *QA-2 kept the name this section used on 11 October; it has
+not been checked against the live Figma file, so [OW-1 register](evidence/OW-1/figma-gaps.md) check
+T-7 stays open.* Current gym
 permissions expose operational choices, not personal-health sharing. Owner/manager programme offers
 require explicit member acceptance into an owned copy and a separate current-programme selection.
 The gym sees offer status only. Historical retired frames remain available as references, not build targets.
@@ -141,12 +144,15 @@ and gated screens carry a stamp.
 | 11 Settings, Pro & coach (15) | K-01 profile · K-02 security · K-03 units and language · K-04 logging · K-06 notifications · K-07 data and privacy · K-07b delete account · K-08 the coach · K-09 connected apps (P2) · K-10 about · P-01 paywall · P-02 trial · P-03 manage Pro · P-06 weekly review (P2) · P-06b ask your data (P2). K-05 is B-02; K-11 is P-03. |
 | 12 Gym · member (8) | N-02 scanner · N-04 receipts and dues · N-05 operational gym permissions (revised) · N-06 gym programme offer (revised) · N-08 refer · N-09 break mode (P2) · N-10 freeze · N-01 in Hindi |
 | 13 Owner workspace (24) | O-01 create gym · O-01b switcher · O-02 gym today · O-03 members · O-04 member · O-05 add member · O-06 import · O-06b register reader (P2) · O-07 plans · O-08 renew/freeze · O-09 record payment · O-10 receipt · O-11 dues · O-12 visits · O-13 visit import · O-14 today's calls · O-15 staff · O-16 more · O-17 reports · O-18 challenges · O-19 export · O-20 coverage · O-21 Owner Pro (P2) · O-22 AI calling (gated) |
-| 14 Retired historical workspace | T-01–T-05 removed; no replacement staff health workspace or measurement editor. Keep old frames only as marked archival reference. |
+| 14 Trainer workspace, now `90 Retired · Trainer (v2.0)` | T-01–T-05 removed; no replacement staff health workspace or measurement editor. Keep old frames only as marked archival reference. |
 | 15 System states (10) | L-01a empty · L-01b filtered empty · L-02a offline banner · L-02b sync centre · L-03 error · L-04 not found · L-05 session expired · L-06 permission primer · L-07 sync conflict · L-08 maintenance / degraded |
 
 Owner/manager/front-desk use Today · Members · Money · Visits · More with role restrictions; no
-trainer navigation remains. New O-23 Programme templates and O-24 Programme offers under More must be
-drawn in the same system; these frames are not claimed to exist yet. Gym red stays branded only.
+trainer navigation remains. O-23 Programme templates under More is partly drawn: the hub, day editor
+and prescriptions frames are linked in *Live v2.1 screen evidence* above. Its remaining states, and
+O-24 Programme offers, must still be drawn in the same system; the
+[Figma gap register](evidence/OW-1/figma-gaps.md) §1–§2 lists each frame and the goal that needs it
+(G21.app). Gym red stays branded only.
 
 Pages 07, 08, 10 and 12 also hold one extra frame each, to the left of the grid: a labelled
 *prototype copy* of Today, the logger, Food or the gym card from page 02. They exist only so the
@@ -255,7 +261,7 @@ lives on page 07, so the Train tab does nothing here.
 | 11 | Profile and settings · Go Pro · start a trial · Ask your data | Every profile row; data and privacy → delete-account dialog; the coach → weekly review. Paywall → trial sheet → Manage Pro. |
 | 12 | Gym · card, dues and a freeze · Refer a friend · Gym programme offer (revised N-06) · Operational permissions (revised N-05) · Break mode (Phase 2) | Gym card copy: Check in → scanner, Pay or dues → receipts, ⋮ → freeze sheet. Refer sheet closes back to the card. |
 | 13 | Owner · the front desk · Set up a gym | Owner tab bar on all five tabs. Gym name → workspace switcher; Due today → dues; Today's calls; Ask → Owner Pro → AI calling; a member → detail → edit, renew → receipt; Record payment sheet → receipt. Members → add, import → register reader. Visits → visit import. More → plans, staff, reports, challenges, coverage, export. |
-| 14 | Retired | Original prototype is archival; no trainer, client-health or staff-measurement destination is delivered. |
+| 14 (`90 Retired · Trainer (v2.0)`) | Retired | Original prototype is archival; no trainer, client-health or staff-measurement destination is delivered. |
 | 15 | Offline and sync | Offline banner → sync centre. The other states are reference boards with nothing to click. |
 
 Pushes use smart-animate on a gentle spring (450 ms); sheets and dialogs open with a 350 ms
@@ -309,14 +315,19 @@ as stand-ins (noted on each style). On device, use the system fonts.
 4. Use the live v2.1 links above with the PRD. Retired trainer frames are historical references;
    this design pass does not implement application behavior.
 
-For the fresh implementation: generate the tokens into `apps/mobile/src/theme/tokens.ts` (both modes),
-bundle Google Sans Flex and Roboto Condensed, build the primitives in this order — wavy progress
-(linear and circular), the 96 dp button, connected button group, shape badge, ring, coach proposal
-card — then redo B-01, E-03/E-04, E-11 and N-01 first, behind the motion tokens above.
+For the fresh implementation (*11 October guidance; partly done since*): the palette and tokens now
+live in `apps/mobile/src/theme/` (`themes/momentum.json`, `tokens.ts`, `theme.ts`; see the
+[theming guide](THEMING.md)), and Google Sans Flex, Roboto Condensed and Noto Sans Devanagari are
+bundled ([record 002](architecture/002-connected-member-and-gym.md)). Some primitives already exist in
+`apps/mobile/src/ui/` (for example `AppButton` and `ProgressRing`); DS-1 to DS-5 check them against
+Figma and complete the kit. The suggested order stands: wavy progress (linear and circular), the
+96 dp button, connected button group, shape badge, ring, coach proposal card; then redo B-01,
+E-03/E-04, E-11 and N-01 first, behind the motion tokens above.
 
-**The app icon and store art must follow the accent.** Today's icon (`apps/mobile/assets/icon.png`,
-adaptive icon, Play Store icon) and the listing art are Iris violet from D9, and in Momentum violet
-means "the coach". For the selected Momentum direction, create them in volt lime on the near-black ground and
-record the change in the [project tracker](09-PROJECT-TRACKER.md). Keep three
-rules with it: no green "success" colour, no green chart series, and lime never as a thin line or
-small text on Light surfaces.
+**The app icon and store art must follow the accent.** The pre-reset app's icon and listing art were
+Iris violet (decision D9, historical), and in Momentum violet means "the coach". They were removed
+with that app on 11 October. The rebuild has no app icon yet: `apps/mobile/app.config.ts` sets none,
+and `apps/mobile/assets/` holds only font licences and Momentum icon and shape SVGs. DS-6 creates the icon, adaptive
+icon, splash and store art in volt lime on the near-black ground and records the change in the
+[project tracker](09-PROJECT-TRACKER.md). Keep three rules with it: no green "success" colour, no
+green chart series, and lime never as a thin line or small text on Light surfaces.

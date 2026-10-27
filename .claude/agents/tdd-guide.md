@@ -22,9 +22,10 @@ pins. Include:
   removed.
 
 Name the existing test file each test belongs in, following the repo's layout:
-- `scripts/backend/verify*.mjs` (local Supabase integration suites) and `packages/domain/src/*.test.ts`
+- `scripts/backend/verify*.mjs` (local Supabase integration suites), `scripts/backend/*.test.mjs`
+  (backend unit tests) and `packages/domain/src/*.test.ts`
 - `apps/mobile/**/__tests__/*.test.ts(x)`
-- `packages/*/test/*`
+- `scripts/plan/lib.test.mjs` (planner)
 
 ## When asked to audit
 
@@ -34,8 +35,11 @@ Name the existing test file each test belongs in, following the repo's layout:
    mutation check ("seen to fail"), confirm the output is recorded. If it is not, run the test against
    the code on `main` or reason precisely about whether it could pass without the change.
 3. **Quality bars:**
-   - no `.skip`, `xit`, `it.only`, `@pytest.mark.skip` or `xfail` added;
-   - thresholds in `apps/mobile/jest.config.cjs` and the domain coverage settings not lowered;
+   - no `.skip`, `xit`, `it.only`, `test.only`, `describe.skip`, `.todo`, or a `node:test` `skip` or
+     `todo` option added;
+   - thresholds in `apps/mobile/jest.config.cjs` and the domain coverage settings not lowered or
+     removed. QA-9 adds these thresholds; until it does there may be none, so read both on `main`
+     before deciding there is nothing to check;
    - no assertions removed or weakened.
 4. **Coverage of the change.** Run the relevant suite with coverage when it is cheap, and report the
    changed files that stay uncovered.

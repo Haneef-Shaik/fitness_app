@@ -17,7 +17,7 @@ The goal id comes with this skill (`/run-goal DS-1`) or in your task. One goal p
   - you end with the summary block from your agent definition.
 - **By hand** (a person typed `/run-goal <ID>` in the main checkout):
   - you claim the goal yourself and work on a branch;
-  - you follow the by-hand close-out in step 9.
+  - you follow the by-hand close-out in step 10.
 
 **Never write `docs/plan/status.json` or `docs/plan/activity.json` from a worktree.** Statuses live
 in the main checkout. A worktree's copy is a snapshot from when it branched.
@@ -27,6 +27,10 @@ in the main checkout. A worktree's copy is a snapshot from when it branched.
 ```bash
 node scripts/plan/status.mjs show <ID>
 ```
+
+Statuses are live only in the main checkout (§0). From a worktree, run the main checkout's copy,
+`node /Users/Adya/personals/fitness_app/scripts/plan/status.mjs show <ID>`: the script reads the
+status files beside it, never the worktree's snapshot.
 
 `show` prints the goal's needs, its **Done when** boxes and the acceptance-ledger rows it helps
 prove. Every goal under **needs** must be Done. If one is not, **stop**:
@@ -41,6 +45,9 @@ By hand only, claim it:
 - Branch name: `plan/<id-lowercase>-<short-slug>`, for example `plan/mb-3-durable-outbox`.
   - Under the orchestrator, rename the worktree's branch: `git branch -m plan/<id>-<slug>`.
   - By hand: `git switch -c plan/<id>-<slug>` from an up-to-date `main`.
+  - **Keep a coordinator-named branch.** If the coordinator already created the branch (for
+    example `codex/<lane>`) and recorded it as the goal's ref, never rename it: the status files
+    and the verifier use that name (docs/23 §6).
 - In a fresh worktree, install once: `pnpm install --frozen-lockfile` at the root.
 - If the goal touches `supabase/`, `packages/domain/`, `scripts/backend/` or `apps/mobile/src/data/`,
   start the **local** stack: `pnpm exec supabase start`. Backend tests refuse any other backend.
@@ -193,5 +200,8 @@ diff, so make it checkable:
      `node scripts/plan/status.mjs set <ID> done --who <lane> --ref <commit>`. It refuses while a
      need is open, and it prints which goals that unblocks.
   4. Append the handoff to the handoff log in `docs/09-PROJECT-TRACKER.md`, starting with
-     `<!-- handoff:<ID>:<short hash> -->`. Add any decision the goal forced to the decision log.
+     `<!-- handoff:<ID>:<short hash> -->`. Re-base its links first, as in `integrate-goal` step 5:
+     resolve each relative link against `docs/plan/runs/<ID>/` and rewrite it relative to `docs/`,
+     and write a link to one of the handoff's own headings as words. Add any decision the goal
+     forced to the decision log.
   5. Commit `docs/plan/status.json` and `docs/plan/activity.json` along with the bookkeeping.

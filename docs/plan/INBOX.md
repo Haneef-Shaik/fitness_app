@@ -15,7 +15,27 @@ prepared evidence is not a completed goal.
 - The register maps all DEC-01–DEC-17 rows to their goals and gates. External accounts, legal review,
   licensing, device tests and pilot evidence remain open until actual proof is supplied.
 
-**Updated:**11 October2026 after owner-delegated product decisions. Current source: PRD v2.1 and
+## Delegated technical decisions — 26 October 2026
+
+The owner explicitly delegated final product and engineering decisions to Codex (tracker AUTH-01).
+Codex approved architecture record 003 under ARCH-01, the independent verifier passed all four AR-1
+boxes, and AR-1 was integrated on local `main` at `73e3f63`. AR-1 is Done. No personal architecture
+approval is requested.
+
+The integration gates all passed: 185 tests in `pnpm check`; 39 guard tests and the four backend
+integration and isolation suites; all 8 persisted schemas matching; the exact shared TypeScript/SQL
+fixture; a 15-migration replay with a strict empty schema diff; and both platforms' JavaScript
+exports. [Final verdict](../evidence/AR-1/verdict-attempt-1.json),
+[integration proof](../evidence/AR-1/integration-gates.md).
+Codex chooses and assigns the next dependency-ready work to Claude. External proofs in the table
+below remain real-world requirements; no account, licence, device or pilot result is invented by
+delegation.
+
+*(QA-2, 27 October 2026: moved here from below the archived snapshot, with its run-together words
+separated and lightly reworded for readability, for example "ADR003" now reads "architecture record
+003" and "the table above" reads "the table below". No fact, figure or link is changed.)*
+
+**Updated:** 11 October 2026 after owner-delegated product decisions. Current source: PRD v2.1 and
 PROD-01–PROD-12. The trainer role/private gym health access is removed; routine product questions
 are resolved. Statuses remain in status.json and were not changed by the documentation edit.
 
@@ -23,7 +43,7 @@ are resolved. Statuses remain in status.json and were not changed by the documen
 
 | Task | External proof needed | Milestone / goal |
 |---|---|---|
-| Platform/accounts/architecture | Actual hosts/identity/storage/SMTP/regions/keys/backups and API contract, not a claimed legacy deployment | M1; OW-2/OW-3/PL goals |
+| Platform/accounts | Actual hosts/identity/storage/SMTP/regions/keys/backups, not a claimed legacy deployment. The architecture and API contract are already frozen (AR-1 Done; record 003), so no owner action is needed for them | M1; OW-2/OW-3/PL goals |
 | Brand/store/signing | Final cleared name/fonts/assets, store accounts/signing and reviewer evidence | M2/M5; DEC-01/16, OW-4/DS-6 |
 | Phone and approved utility messaging | +91 OTP delivery, required registrations/templates, explicit real-send budgets | M4/M6; OW-5/OW-11 |
 | Member Pro | Actual localized price/SKUs/trial/store sandbox and webhook tests | M4; OW-7/G15 |
@@ -40,7 +60,7 @@ OW-1 records selected Momentum direction, not a request to choose UI again. OW-2
 launch readiness. Read current owner packs, PRD27 and tracker; do not answer historical Q21–Q33 or
 follow deleted code paths as current tasks. No provider, message or purchase was provisioned here.
 
-## Historical inbox snapshot —10 October2026
+## Historical inbox snapshot — 10 October 2026
 
 The former inbox is retained below solely as historical context. Its goal counts, main-branch state,
 question numbers, vendor estimates, approvals/defaults and deleted document/code paths are not live
@@ -281,16 +301,3 @@ OW-2 → OW-5 and OW-9 should start early:
 | Gym pilot | OW-12 | 10 weeks | not started |
 
 </details>
-
-## Delegated technical decisions — 26 October 2026
-
-The owner explicitly delegated final product/engineering decisions to Codex (trackerAUTH-01).
-Codex approved ADR003 underARCH-01, completed independent all-boxverification and integratedAR-1
-onlocalmain73e3f63. AR-1 isDone. No personalarchitectureapproval is requested.
-
-Actualgates allpass:185checktests,39guardtests+4backendintegration/isolation suites,8schema match,
-exactsharedTypeScript/SQLfixture,15migrationreplay/strictemptyschemadiff andbothplatformJSexports.
-[Finalverdict](../evidence/AR-1/verdict-attempt-1.json),
-[integrationproof](../evidence/AR-1/integration-gates.md).
-Codex chooses and assigns the next dependency-ready work to Claude. External proofs in the table
-above remain real-world requirements; noaccount/licence/device/pilotresult is invented bydelegation.

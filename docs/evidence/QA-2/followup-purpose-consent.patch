@@ -1,0 +1,38 @@
+QA-2 follow-up F1 (purpose consent): one bullet for .claude/agents/security-reviewer.md.
+Prepared in QA-2 correction phase 11, 27 October 2026, and not applied when written. Revised in
+correction phase 12 for the 07:05Z review's L-2 and L-3. Its current state is recorded in
+docs/plan/runs/QA-2/handoff.md and stale-paths.md sections 18 and 19, not in this header, so this
+header does not go stale when the patch is applied (the 06:05Z review's L5).
+Why: the 06:05Z review's M2. The corrected Private health data bullet covers the first paragraph
+of PRD section 16.1 only. This bullet adds its second paragraph and every purpose in section 22.2
+(separate, append-only purpose consents), the erasure job's delete (record 003 section 3.3),
+003's CONSENT_REQUIRED (section 4.5) after PRO_REQUIRED on AI entry points (sections 3.9, 4.14)
+and the worker's AI consent recheck (section 3.9), and restates that no consent opens staff access.
+Codex named it a QA-2 follow-up, to be applied before QA-2 is integrated.
+It is additive: one hunk, ten added lines, no removed line. It applies on top of
+claude-corrections-UNAPPLIED.patch, that is, to the corrected security-reviewer.md: the old
+side's lines 27-32 are that file's. It does not apply to an uncorrected file.
+Applying it changes only the checkout it is applied in. It does not end the privacy override in
+docs/plan/SESSION-PROMPT.md, and it does not change what checks P1-P5 and P3b match.
+Text before the first diff line is ignored by git apply.
+
+diff --git a/.claude/agents/security-reviewer.md b/.claude/agents/security-reviewer.md
+--- a/.claude/agents/security-reviewer.md
++++ b/.claude/agents/security-reviewer.md
+@@ -27,6 +27,16 @@
+   staff or gym access needs AC09 tests: every staff read or write of personal data is denied, and a
+   retired trainer role is rejected (003 §6). A staff read or write gated on consent is a critical
+   finding.
++- **Purpose consents (PRD §16.1, §22.2; 003 §3.3, §3.9, §4.5, §4.14):** terms, AI processing, gym
++  operational linking, utility contact, challenge opt-in, future voluntary passport grants and
++  optional future marketing or calls are separate purpose consents. Each grant or revocation is its
++  own append-only event with its purpose and notice version, and no consent stands in for another.
++  Only the erasure job may delete consent events, and only the erased account's (003 §3.3). A gym
++  link without link consent is refused with `CONSENT_REQUIRED` (003 §4.5). On every AI entry point
++  `PRO_REQUIRED` comes first, as the first business check after identity (003 §3.9, §4.14); after
++  it, a request without AI permission is refused with `CONSENT_REQUIRED`, and the worker rechecks
++  AI consent before every provider call. No purpose consent opens staff access to private health
++  data (the bullet above).
+ - **Input:**
+   - parameterised SQL only;
+   - validation at the boundary (the Zod contracts in `@fitlog/domain`, plus JSON Schema and SQL

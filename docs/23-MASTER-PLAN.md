@@ -2,8 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Updated | 25 October 2026 |
+| Updated | 27 October 2026 (QA-2: reconciled with `main` and the frozen architecture) |
 | Product requirements | [PRD](PRD.md) |
+| Architecture and contract | [003 — architecture freeze](architecture/003-architecture-freeze.md), approved by delegation (tracker ARCH-01) and integrated with AR-1 |
 | Design reference | [Momentum](22-UI-MOMENTUM.md) in Figma |
 | Goal source | [plan/GOALS.md](plan/GOALS.md): 114 goals in 10 lanes |
 | Acceptance results | [plan/ACCEPTANCE.md](plan/ACCEPTANCE.md): 94 ledger rows |
@@ -58,6 +59,9 @@ PRD v2.1, with 44 acceptance scenarios. Product decisions are PROD-01 to PROD-12
 external gates are DEC-01 to DEC-17 in PRD §27 and in the ledger.
 
 ## 4. The 25 October reconciliation
+
+*A dated record of the reconciliation as it was made on 25 October. Goal statuses since then are on
+the board, not here.*
 
 The 7 October plan was written as increments on an existing v1 app. After the reset many cards
 pointed at deleted code, and no goal built the member backend that PRD §26.1 says must exist before
@@ -128,13 +132,21 @@ timestamped. Never edit a migration that is already on `main`.
 
 ## 6. Branches and integration
 
-- **`main` is the integration branch.** Until QA-1 is Done, the reset and the foundation live on
-  `v2/develop`. QA-1 brings them onto `main`, and the owner performs or approves that merge.
+- **`main` is the integration branch.** QA-1 brought the reset and the reviewed foundation from
+  `v2/develop` onto local `main` (Done 25 October, `67e6d1c`). `v2/develop` is historical; branch
+  from `main`.
 - Every goal works on `plan/<id-lowercase>-<slug>`, branched from an up-to-date `main`.
 - `goal-integrator` rebases, re-runs the standard gates and fast-forwards `main`. There are no merge
   commits and nothing is forced.
 - Nothing is pushed, deployed or submitted unless the owner allows it
   (`var/orchestrator/config.json` `"push": true`, or a person doing it by hand).
+- **Codex-coordinated lanes (practice recorded by QA-2, 27 October 2026).** The coordinator creates
+  a lane's branch as `codex/<lane>` and records that name as the goal's ref in `status.json` (for
+  example `codex/mb1-identity`). Keep that name; do not apply run-goal's `git branch -m` rename to it.
+  AR-1's integration record states that local `main` was merged into the goal branch (`d624ece`) and
+  that `main` then moved only by fast-forward, as "the coordinator's routine integration choice"
+  ([integration gates](evidence/AR-1/integration-gates.md)). Both differ from the bullets above. This
+  bullet records the practice; whether the written rules change to match it is a coordinator decision.
 
 ## 7. Evidence and gates
 
@@ -145,7 +157,9 @@ pnpm install --frozen-lockfile
 pnpm check                      # types, lint + design guard, domain, mobile and planner tests,
                                 # and the plan build check (contracts and ledger coverage)
 pnpm exec supabase start        # local stack only, never staging or production
-pnpm backend:test               # member, gym and freeze integration suites
+pnpm backend:test               # backend unit tests, the SQL-source guard, the member, gym and freeze
+                                # integration suites, the persisted-contract check and the shared
+                                # AC03 fixture in SQL (package.json "backend:test")
 pnpm --filter @fitlog/mobile exec expo export --platform ios --platform android --output-dir .expo/export-native
 ```
 
@@ -153,6 +167,17 @@ pnpm --filter @fitlog/mobile exec expo export --platform ios --platform android 
 `scripts/backend/` or `apps/mobile/src/data/`. The export is required when a diff touches
 `apps/mobile/`. Once QA-11 is Done, its journey command is a gate for any goal whose card names a
 scenario on a release build.
+
+The database steps of `pnpm backend:test` target only this repository's local project
+(`fitlog_rebuild_20261017`, API `http://127.0.0.1:55321`). Each one except
+`verify-freeze-projection.mjs` first checks that `supabase status` reports that API URL and refuses
+any other; `verify-freeze-projection.mjs` runs `psql` directly in that project's database container. With
+`CI` set, the contract-history guard in `pnpm check` needs `FITLOG_CONTRACT_BASELINE`, and the
+SQL-source guard in `pnpm backend:test` needs `FITLOG_BASE_REF`, each set to the trusted base commit;
+neither falls back to `HEAD` or `main` (003 §8). Locally, without `CI` and with both unset, the
+contract guard compares with `HEAD` and with the fork point from local `main`, and the SQL-source
+guard compares with the merge base of local `main`. The contract guard skips a missing `main`; the
+SQL-source guard fails without one, so `pnpm backend:test` needs a local `main` branch.
 
 **Release build.** A release-variant build of one `main` commit: an Android release APK or AAB, or an
 iOS Release build or TestFlight. A debug build, Expo Go or a web preview is never evidence for a
@@ -211,7 +236,9 @@ the ledger.
 4. **Tokens and strings.** Colours, fonts, radii and sizes come from the theme. Every user-facing
    string goes through `t()`, including on a screen you only touch. The lint guards enforce both.
 5. **Contract first (SP3).** A backend goal merges its migrations, commands and contract before the
-   screens that use them start. Regenerate `database.types.ts` from the migrations.
+   screens that use them start. Regenerate `database.types.ts` from the migrations. The full change
+   set (migrations, commands, contract version bump and snapshot, types, fixture vectors) is in
+   [003 §8](architecture/003-architecture-freeze.md#8-contract-package-and-the-sp3-rule).
 6. **Product invariants.** These hold in every goal:
    - The member owns their personal data (PRD §4.1).
    - Gym staff never read or write private health data (§16.1). There is no trainer role.

@@ -37,9 +37,11 @@ it step by step.
 
 ## Hard rules
 
-1. **Code decides readiness, not you.** Start only goals returned by `node scripts/plan/status.mjs
-   next`. If that command does not exist yet, you are in **advisory mode**: say what you would start
-   and why, and start nothing.
+1. **Code decides readiness, not you.** In live mode, start only goals returned by
+   `node scripts/plan/status.mjs next`. Live mode needs a `next` branch in that script's command
+   dispatch (phase O2 is to add it); without one you are in **advisory mode** (`run-plan`, *Modes*).
+   Never run `next` to find out, not even to watch it fail: read the dispatch, as `run-plan` says.
+   In advisory mode, say what you would start and why, change no status and start nothing.
 2. **You never edit files.** You have no Edit or Write tool, and you must not change files through
    Bash either: no redirects into files, no `sed -i`, no `git commit`. The only exceptions are the
    plan's own CLIs.

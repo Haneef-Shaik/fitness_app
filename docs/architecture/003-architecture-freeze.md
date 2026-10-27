@@ -1,23 +1,23 @@
-# 003 — Architecture and contract freeze (proposal)
+# 003 — Architecture and contract freeze
 
 | Field | Value |
 |---|---|
-| Status | **Approved by delegation on 26 October 2026 (G-1).** Codex, acting as the owner's explicitly delegated decision-maker, approved this record as the AR-1 freeze in [tracker row ARCH-01](../09-PROJECT-TRACKER.md#decision-log). The delegation is recorded as AUTH-01. The owner did not personally review or sign it. AR-1 is not Done. *Historical: until then this row read "Proposal. Owner approval PENDING."* |
-| Goal | AR-1. Phase 1 wrote this record, the [checkpoint](../plan/runs/AR-1/checkpoint.md) and the [next-phase test plan](../plan/runs/AR-1/test-plan.md). Revision 1 answers the independent phase-1 review ([review](../evidence/AR-1/phase1-review.json); [dispositions](../plan/runs/AR-1/phase1-dispositions.md)). Revision 2 answers proposal findings PR-1 to PR-6 of the second checkpoint review ([review](../evidence/AR-1/checkpoint-review2.json); [dispositions](../plan/runs/AR-1/proposal-revision2.md)). Revision 3 answers the eight low findings R2-1 to R2-8 of the proposal re-review ([review](../evidence/AR-1/proposal-review3.json); [dispositions](../plan/runs/AR-1/proposal-revision3.md)). Proposal review 4 passed revision 3; its five low findings N-1 to N-5 are applied ([review](../evidence/AR-1/proposal-review4.json); [dispositions](../plan/runs/AR-1/proposal-final-low-dispositions.md)). Phase 2A is in progress ([phase2A.md](../plan/runs/AR-1/phase2A.md)). AR-1 is **not** complete |
+| Status | **Approved by delegation on 26 October 2026 (G-1).** Codex, acting as the owner's explicitly delegated decision-maker, approved this record as the AR-1 freeze in [tracker row ARCH-01](../09-PROJECT-TRACKER.md#decision-log). The delegation is recorded as AUTH-01. The owner did not personally review or sign it. AR-1 is not Done. *Historical: until then this row read "Proposal. Owner approval PENDING."* *QA-2, 27 Oct: historical. AR-1 was integrated at `73e3f63` and is Done; see Integration outcome.* |
+| Goal | AR-1. Phase 1 wrote this record, the [checkpoint](../plan/runs/AR-1/checkpoint.md) and the [next-phase test plan](../plan/runs/AR-1/test-plan.md). Revision 1 answers the independent phase-1 review ([review](../evidence/AR-1/phase1-review.json); [dispositions](../plan/runs/AR-1/phase1-dispositions.md)). Revision 2 answers proposal findings PR-1 to PR-6 of the second checkpoint review ([review](../evidence/AR-1/checkpoint-review2.json); [dispositions](../plan/runs/AR-1/proposal-revision2.md)). Revision 3 answers the eight low findings R2-1 to R2-8 of the proposal re-review ([review](../evidence/AR-1/proposal-review3.json); [dispositions](../plan/runs/AR-1/proposal-revision3.md)). Proposal review 4 passed revision 3; its five low findings N-1 to N-5 are applied ([review](../evidence/AR-1/proposal-review4.json); [dispositions](../plan/runs/AR-1/proposal-final-low-dispositions.md)). Phase 2A is in progress ([phase2A.md](../plan/runs/AR-1/phase2A.md)). AR-1 is **not** complete. *QA-2, 27 Oct: historical. AR-1 was integrated at `73e3f63` and is Done; see Integration outcome.* |
 | Date | 26 October 2026 (draft, revisions 1–3 and the final low corrections) |
-| Read at | Branch `codex/ar1-contract-freeze`. Code is cited as read at `9f148c1` (QA-1 accepted on local `main`); no cited migration has changed since. Phase 2A's snapshot is committed in `07757a5` and its corrections in `22c5386`, on this branch only: not merged |
+| Read at | Branch `codex/ar1-contract-freeze`. Code is cited as read at `9f148c1` (QA-1 accepted on local `main`); no cited migration has changed since. Phase 2A's snapshot is committed in `07757a5` and its corrections in `22c5386`, on this branch only: not merged. *QA-2, 27 Oct: historical. AR-1 was integrated at `73e3f63` and is Done; see Integration outcome.* |
 | PRD | §§21.1–21.4, 22.1, 22.3, 26.1 (M0), 26.2; DEC-02 (technical part) |
 | Relation | [001](001-mobile-foundation.md) is historical. [002](002-connected-member-and-gym.md) records the 17–19 October implementation. This record sets the target that implementation converges on. Neither earlier record is edited |
 
 ## Integration outcome — 26 October 2026
 
 This architecture is approved by Codex under explicit owner delegation AUTH-01/ARCH-01 and integrated
-onlocalmain73e3f63. AR-1 isDone after independent all-boxverification and fullintegrationgates.
-[Finalverdict](../evidence/AR-1/verdict-attempt-1.json),
-[integrationproof](../evidence/AR-1/integration-gates.md).
-The dated drafting-state notes below are historical; no personal ownerapproval is awaited.
+on local main 73e3f63. AR-1 is Done after independent all-box verification and full integration gates.
+[Final verdict](../evidence/AR-1/verdict-attempt-1.json),
+[integration proof](../evidence/AR-1/integration-gates.md).
+The dated drafting-state notes below are historical; no personal owner approval is awaited.
 
-## Current state — G-1 approved by delegation, 26 October 2026 (read this first)
+## Approval state — 26 October 2026 (historical, before integration)
 
 - **G-1 is approved.** Codex, acting as the owner's explicitly delegated decision-maker, approved this
   record (revision 3 with the final low corrections N-1 to N-5) with no exceptions:
@@ -59,7 +59,7 @@ keep what their authors saw. This addendum supersedes them.
   the snapshot, and the fixture runs exactly 16 set vectors and 2 session vectors. Missing AC03 IDs, a
   mutant bound and changed expectations each fail, and the originals then pass. All 15 migrations
   replay from empty to head with a strict empty schema diff and a clean lint. The original four backend
-  suites pass separately on the 55321 stack. The full bundled `pnpm backend:test` now passes on55321 after the sole additive private-formula
+  suites pass separately on the 55321 stack. The full bundled `pnpm backend:test` now passes on 55321 after the sole additive private-formula
   migration; the fresh independent goal-verifier re-ran it successfully
   ([verdict](../evidence/AR-1/verdict-attempt-1.json)). Earlier split-target statements are historical. Evidence:
   [`guard-coordinator-gates.md`](../evidence/AR-1/guard-coordinator-gates.md),
@@ -1272,3 +1272,4 @@ DEC-15 is not reserved: the owner has confirmed a fresh launch (§7), and OW-2 r
 | 26 Oct 2026 | Revision 3 after the proposal re-review, low findings R2-1 to R2-8, dispositioned in [proposal-revision3.md](../plan/runs/AR-1/proposal-revision3.md). Erasure step 1 also blocks sign-in, and an erased actor cannot onboard again (§3.3). Register retention starts at the later of the append and the `erased_at` commit (§3.3, §9). Restores stay quiet until checked, import a cutover delta and cover object copies (§3.3, §9). A lock-free replay fast path, stated lock lifetimes and counting order (§4.3, §4.6, §4.12). `operation_result_v1` is projected from its first release (§4.3). Support and system actors (§3.3). Truthful commit state (header, §8). §12 checks extended. PR-1 to PR-6 stay resolved. Still one approval, G-1, PENDING |
 | 26 Oct 2026 | Final low corrections after proposal review 4 (PASS), N-1 to N-5, dispositioned in [proposal-final-low-dispositions.md](../plan/runs/AR-1/proposal-final-low-dispositions.md). `gym_freezes_decided_by_fkey` is dropped when the column moves to the actor key (§3.3 Missing). Pending erasures are carried across a restore cutover (§3.3). Erasure step 3 waits out the upload-URL lifetime and deletes by prefix (§3.3). §12 tests (6)–(8). Durable review links and a dated current-state addendum. Still one approval, G-1, PENDING |
 | 26 Oct 2026 | G-1 approved by delegation: Codex, as the owner's explicitly delegated decision-maker, approved this record with no exceptions ([ARCH-01](../09-PROJECT-TRACKER.md#decision-log); delegation AUTH-01), after proposal review 4 and the guard review both passed. No architecture changed. The owner did not personally review or sign. Earlier rows in this table that say PENDING are historical. AR-1 is not Done |
+| 27 Oct 2026 | Status labels only (QA-2): AR-1 integrated at `73e3f63` and Done; earlier PENDING/Not Done text is historical. The title drops "(proposal)", the header rows carry a dated historical note, the 26 October approval-state section is retitled as historical, and run-together words in the integration outcome and the earlier addendum are re-spaced. No decision, rule or contract text changed |

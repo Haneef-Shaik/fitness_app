@@ -365,5 +365,101 @@
     "by": "session:Codex",
     "at": "2026-10-26T03:54:23.454Z",
     "id": "a-1792986863454-dthrtq"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-2",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-qa2-docs",
+    "note": "Started isolated local Claude documentation reconciliation from main5fefc31; MB1 and QA9 remain active. Read-only audit and scoped docs edits first; independent verification and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:00:25.672Z",
+    "id": "a-1793041225672-x6y9t6"
+  },
+  {
+    "kind": "update",
+    "goal": "PL-1",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-pl1-ci",
+    "note": "Parallel implementation assigned in isolated fitlog-pl1-ci; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:31.482Z",
+    "id": "a-1793043631482-m1hs6c"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-1",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds1-theme",
+    "note": "Parallel implementation assigned in isolated fitlog-ds1-theme; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:31.625Z",
+    "id": "a-1793043631625-v878bo"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-2",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds2-type",
+    "note": "Parallel implementation assigned in isolated fitlog-ds2-type; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:31.770Z",
+    "id": "a-1793043631770-ws7oj3"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-3",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds3-motion",
+    "note": "Parallel implementation assigned in isolated fitlog-ds3-motion; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:31.953Z",
+    "id": "a-1793043631953-km378s"
+  },
+  {
+    "kind": "update",
+    "goal": "G14.app",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-g14-i18n",
+    "note": "Parallel implementation assigned in isolated fitlog-g14-i18n; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:32.113Z",
+    "id": "a-1793043632113-dszrro"
+  },
+  {
+    "kind": "update",
+    "goal": "CT-1",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-ct1-content",
+    "note": "Parallel implementation assigned in isolated fitlog-ct1-content; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:32.256Z",
+    "id": "a-1793043632256-l1za5c"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-6",
+    "from": "not started",
+    "to": "claimed",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds6-art",
+    "note": "Parallel implementation assigned in isolated fitlog-ds6-art; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+    "by": "session:Codex",
+    "at": "2026-10-26T19:40:32.409Z",
+    "id": "a-1793043632409-o1w3az"
   }
 ]

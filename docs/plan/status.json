@@ -2,12 +2,12 @@
   "source": "docs/23 audit, 7 Oct 2026",
   "goals": {
     "PL-1": {
-      "status": "not started",
-      "who": "S1",
-      "ref": "",
-      "note": "25 Oct reconciliation: v1 ci.yml/e2e.yml were deleted in the reset. Current CI is .github/workflows/mobile-ci.yml (untracked until QA-1); a backend CI job is still to add.",
-      "by": "session:S1",
-      "at": "2026-10-25T14:35:14.815Z"
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-pl1-ci",
+      "note": "Parallel implementation assigned in isolated fitlog-pl1-ci; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:31.482Z"
     },
     "QA-1": {
       "status": "done",
@@ -80,6 +80,62 @@
       "note": "Phase1 measure full mobile/domain coverage and map exposed RPCs to tests; isolated fitlog-qa9 from green main2a95726. No DB/schema/provider actions; actual baselines before ratchet implementation; hostedCI evidence remains to prove.",
       "by": "session:Codex",
       "at": "2026-10-26T03:54:23.454Z"
+    },
+    "QA-2": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-qa2-docs",
+      "note": "Started isolated local Claude documentation reconciliation from main5fefc31; MB1 and QA9 remain active. Read-only audit and scoped docs edits first; independent verification and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:00:25.672Z"
+    },
+    "DS-1": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-ds1-theme",
+      "note": "Parallel implementation assigned in isolated fitlog-ds1-theme; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:31.625Z"
+    },
+    "DS-2": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-ds2-type",
+      "note": "Parallel implementation assigned in isolated fitlog-ds2-type; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:31.770Z"
+    },
+    "DS-3": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-ds3-motion",
+      "note": "Parallel implementation assigned in isolated fitlog-ds3-motion; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:31.953Z"
+    },
+    "G14.app": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-g14-i18n",
+      "note": "Parallel implementation assigned in isolated fitlog-g14-i18n; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:32.113Z"
+    },
+    "CT-1": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-ct1-content",
+      "note": "Parallel implementation assigned in isolated fitlog-ct1-content; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:32.256Z"
+    },
+    "DS-6": {
+      "status": "claimed",
+      "who": "Codex",
+      "ref": "codex/fitlog-ds6-art",
+      "note": "Parallel implementation assigned in isolated fitlog-ds6-art; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "by": "session:Codex",
+      "at": "2026-10-26T19:40:32.409Z"
     }
   }
 }

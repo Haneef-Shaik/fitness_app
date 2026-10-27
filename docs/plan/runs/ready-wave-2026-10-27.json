@@ -1,0 +1,112 @@
+{
+  "observedAt": "2026-10-27T04:35:57.092749+00:00",
+  "goals": [
+    {
+      "goal": "PL-1",
+      "name": "fitlog-pl1-ci",
+      "phase": "CI backend replay and trusted baseline wiring",
+      "branch": "codex/fitlog-pl1-ci",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-pl1-ci/fitness_app",
+      "config": "/tmp/fitlog-ready-pl-1.json",
+      "sessionId": "aa19c4ec-ae44-4b07-9f8f-ee945f2b7334",
+      "shortId": "aa19c4ec",
+      "state": "working",
+      "pid": 53059,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    },
+    {
+      "goal": "DS-1",
+      "name": "fitlog-ds1-theme",
+      "phase": "Momentum semantic colours and contrast",
+      "branch": "codex/fitlog-ds1-theme",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app",
+      "config": "/tmp/fitlog-ready-ds-1.json",
+      "sessionId": "c34c2497-1d35-4938-98a0-2b7debd933c7",
+      "shortId": "c34c2497",
+      "state": "working",
+      "pid": 53245,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    },
+    {
+      "goal": "DS-2",
+      "name": "fitlog-ds2-type",
+      "phase": "Typography ramp and bundled licence inventory",
+      "branch": "codex/fitlog-ds2-type",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds2-type/fitness_app",
+      "config": "/tmp/fitlog-ready-ds-2.json",
+      "sessionId": "dc4ebb32-2b22-455e-ad05-7ee96ea4eafb",
+      "shortId": "dc4ebb32",
+      "state": "working",
+      "pid": 53515,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    },
+    {
+      "goal": "DS-3",
+      "name": "fitlog-ds3-motion",
+      "phase": "Shared reduced-motion and haptics system",
+      "branch": "codex/fitlog-ds3-motion",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds3-motion/fitness_app",
+      "config": "/tmp/fitlog-ready-ds-3.json",
+      "sessionId": "43a6e92e-b1fc-4cb8-8e9f-f29aa764f5c5",
+      "shortId": "43a6e92e",
+      "state": "working",
+      "pid": 53588,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    },
+    {
+      "goal": "G14.app",
+      "name": "fitlog-g14-i18n",
+      "phase": "English Hindi catalogue and locale spine",
+      "branch": "codex/fitlog-g14-i18n",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-g14-i18n/fitness_app",
+      "config": "/tmp/fitlog-ready-g14-app.json",
+      "sessionId": "3be6bda7-5e72-4f25-bd77-9ba0ddac5d44",
+      "shortId": "3be6bda7",
+      "state": "working",
+      "pid": 53693,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    },
+    {
+      "goal": "CT-1",
+      "name": "fitlog-ct1-content",
+      "phase": "Source-reviewed exercises and starter programmes",
+      "branch": "codex/fitlog-ct1-content",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app",
+      "config": "/tmp/fitlog-ready-ct-1.json",
+      "sessionId": "9029da39-7706-44db-ac3c-866d4c24bb68",
+      "shortId": "9029da39",
+      "state": "working",
+      "pid": 53776,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    },
+    {
+      "goal": "DS-6",
+      "name": "fitlog-ds6-art",
+      "phase": "Reproducible Momentum icon splash and store asset pipeline",
+      "branch": "codex/fitlog-ds6-art",
+      "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds6-art/fitness_app",
+      "config": "/tmp/fitlog-ready-ds-6.json",
+      "sessionId": "82f94c8e-b83b-48ab-94e3-754a6a8d4d65",
+      "shortId": "82f94c8e",
+      "state": "working",
+      "pid": 53914,
+      "status": "busy",
+      "lastObservedAt": "2026-10-27 04:35:56 UTC"
+    }
+  ],
+  "completionClaim": false,
+  "externalReadyGoals": [
+    "OW-3",
+    "OW-4",
+    "OW-5",
+    "OW-8",
+    "OW-9"
+  ],
+  "boundaries": "Goal-scoped implementation; no shared DB, external mutations, main integration or Done claim. Full required checks and independent verifier before integration. Existing three lanes handled by scheduled coordinator."
+}

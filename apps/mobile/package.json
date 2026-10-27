@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0 && node scripts/test-design-rules.cjs",
     "test": "jest --runInBand",
-    "test:ci": "jest --runInBand --ci",
+    "test:ci": "node --test ../../scripts/quality/*.test.mjs && node ../../scripts/quality/coverage-ratchet.mjs && jest --runInBand --ci --coverage --no-watchman",
+    "test:coverage": "jest --runInBand --ci --coverage",
     "export:web": "expo export --platform web",
     "theme:generate": "node --import tsx scripts/generate-palette.ts"
   },

@@ -1,0 +1,10 @@
+--- a/scripts/quality/touched-format.mjs
++++ b/scripts/quality/touched-format.mjs
+@@ -159,6 +159,7 @@ function ruleStart(git, root, env, fork, label) {
+     '--reverse',
+     '--topo-order',
+     '--full-history',
++    '--first-parent',
+     `${fork}..HEAD`,
+     '--',
+     RULE,

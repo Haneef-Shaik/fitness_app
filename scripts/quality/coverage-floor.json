@@ -1,0 +1,8 @@
+{
+  "source": "docs/evidence/QA-9/coverage-baseline.md, measured 26 October 2026 at 2a95726",
+  "mobile": {
+    "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/__tests__/**"],
+    "global": { "statements": 12.23, "branches": 10.57, "functions": 10.23, "lines": 18.67 }
+  },
+  "domain": { "lines": 91.42, "branches": 86.90, "functions": 90.59 }
+}

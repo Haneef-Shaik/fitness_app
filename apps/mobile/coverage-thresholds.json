@@ -1,0 +1,4 @@
+{
+  "collectCoverageFrom": ["src/**/*.{ts,tsx}", "!src/**/__tests__/**"],
+  "global": { "statements": 12.23, "branches": 10.57, "functions": 10.23, "lines": 18.67 }
+}

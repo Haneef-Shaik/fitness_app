@@ -207,7 +207,111 @@ the ledger.
 2. **Test first.** Write the test and see it fail. Mutation-check every guard: break it on purpose and
    see a named test fail.
 3. **Quality only goes up.** Never lower a coverage threshold, skip or weaken a test, or add an
-   unexplained `eslint-disable`. Thresholds rise when coverage rises (QA-9 ratchet).
+   unexplained `eslint-disable`. Thresholds rise when coverage rises (QA-9 ratchet):
+   - **Where the thresholds are.**
+     - Mobile: the thresholds and coverage scope are in `apps/mobile/coverage-thresholds.json`.
+     - Domain: the thresholds are the `--test-coverage-*` flags in the `@fitlog/domain` `test`
+       script. Node alone reads those flags as whole numbers, so
+       `scripts/quality/exact-coverage-reporter.mjs` checks them exactly, in integers. It also fails
+       the run when a file the coverage globs match was never loaded.
+     - `pnpm check` fails when coverage is below any threshold.
+   - **The ratchet guard.** `scripts/quality/coverage-ratchet.mjs` runs three times in `pnpm check`:
+     from the root `check` script, then from the domain `test` and mobile `test:ci` scripts. It reads
+     the trusted baselines as data and never runs them: `FITLOG_CONTRACT_BASELINE` in CI (`CI` set, or
+     `GITHUB_ACTIONS=true`), and `HEAD` and `main` locally. It fails when:
+     - a threshold is below the checked-in floor (`scripts/quality/coverage-floor.json`) or below its
+       value at a baseline;
+     - a metric is removed, or a threshold has more than 2 decimals;
+     - the coverage scope narrows, through any `jest.config.cjs` option outside its allowlist or
+       through a coverage-suppression comment (`istanbul ignore`, `c8 ignore`, `v8 ignore` or
+       `node:coverage`) anywhere in `apps/mobile/src` or `packages/domain/src`. The allowlist pins
+       `prettierPath` to `null`: Jest 29 refuses to write inline snapshots with Prettier 3, the
+       root devDependency, and with `null` it writes them without Prettier;
+     - a mobile coverage include pattern reaches outside `src/`, the folder that scan reads;
+     - any Babel configuration is in `apps/mobile`: a `babel.config.*`, `.babelrc*` or
+       `.babelignore` file anywhere, a `babel` key in its `package.json`, or a nested `package.json`.
+       Jest would transform and count mobile code through it, out of the scan's sight. The domain's
+       only loader is the reviewed `--import tsx --enable-source-maps` in its pinned `test` script;
+     - the floor, the thresholds file or the domain `package.json` is missing, unreadable, not JSON,
+       or JSON that is not an object (`null` included);
+     - coverage, lint, types or any copy of the guard is unwired. `scripts/quality/gate-wiring.mjs`
+       pins the gate scripts, the strict `tsconfig` settings, and the CI job's trusted-baseline line
+       and one-line `pnpm check` step. The mobile Jest run is pinned with `--no-watchman`, so a
+       `.watchmanconfig` cannot hide folders from the files Jest counts;
+     - type checking is switched off by a comment: `@ts-ignore` or `@ts-nocheck` anywhere in a
+       TypeScript file of `apps/mobile` or `packages/domain`, or a `@ts-expect-error` without a
+       reason of at least three different words after it, on its own line and in the same comment
+       (TODO, FIXME, TBD, XXX and HACK do not count). Letter case is matched with Unicode case
+       folding, so it covers every one-character spelling the installed TypeScript reads as
+       `ts-nocheck`, the Kelvin sign (U+212A) for `k` among them; a test checks them against
+       TypeScript itself. The scan reads strings and prose too, so such text must be reworded;
+     - a TypeScript file in either package starts with a UTF-16 byte-order mark (`FF FE` or
+       `FE FF`). TypeScript decodes such a file as UTF-16, while the scan reads UTF-8, so a
+       suppression comment in it would go unseen;
+     - a declaration file is in `apps/mobile/src` or `packages/domain/src`: any name TypeScript
+       calls one, ending `.d.ts`, `.d.mts` or `.d.cts`, or ending `.ts` with `.d.` anywhere in it,
+       line breaks in the name included. With `skipLibCheck` on, TypeScript never checks one.
+       Declaration files elsewhere in the packages, such as a generated `expo-env.d.ts`, are not
+       refused; that narrower residual is S7 Quality's (QA-9, R16);
+     - a JavaScript file (`.js`, `.jsx`, `.mjs` or `.cjs`) is in `apps/mobile/src` or
+       `packages/domain/src`. TypeScript does not type-check it there (`checkJs` is off), and
+       coverage and the design-token lint count only TypeScript files. JavaScript outside `src/`,
+       such as `eslint.config.js`, is not refused.
+   - **Lint scope.** `apps/mobile/eslint.config.js` is pinned as text in
+     `scripts/quality/lint-scope.mjs`. Any other ESLint config source in `apps/mobile` fails. Every
+     `eslint-disable`, `-line` or `-next-line` must name its rules and give a reason after ` -- `,
+     and inline rule configuration (`/* eslint rule: … */`) fails. A rule list ESLint reads as empty,
+     such as `eslint-disable , -- why`, disables every rule and fails too. A `//` comment ends at
+     CR, LF, U+2028 or U+2029, as it does for ESLint. S7 Quality owns the pin. A
+     goal that changes the config, for example a new design-token or string rule under rule 4,
+     updates the pin in the same diff, with the reason and approval below.
+   - **Formatting: Prettier on touched files only.** Root `check` runs
+     `scripts/quality/touched-format.mjs` once, after the guard. It checks the tracked JavaScript
+     and TypeScript files (`.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts`, `.cts`, in any
+     letter case) that the change adds, modifies or renames since its base. The base is the fork
+     point of `FITLOG_CONTRACT_BASELINE` in CI, where it is required, and of `main` locally, or
+     of `FITLOG_CONTRACT_BASELINE` when it is set. The rule applies from the commit that adds the
+     script: a base that predates it, as the first hosted run's will, moves forward to that
+     commit's parent, so files earlier commits touched are never demanded. The script takes its
+     own path as the rule's, so renaming or moving it restarts the rule at that commit. When no
+     commit adding it can be found, CI fails, and so does a local run whose `HEAD` holds it; only
+     before the script is committed do just uncommitted edits count. Merge `main` into a branch
+     only once `main` holds the rule; until then, rebase, or files changed only on `main` count
+     as touched. Locally, committed,
+     staged and unstaged edits all count, and an untracked file counts once it is added.
+     Touching a file means formatting all of it. Untouched files are never checked, so nothing
+     is mass-formatted. Deleted paths, every other file type, `node_modules` paths and the
+     generated `apps/mobile/src/data/database.types.ts` are not checked. A missing base, no Git,
+     a touched link and an unmerged path each fail. The check calls Prettier 3.6.2, the exact
+     root devDependency, with the options pinned in the script, so no Prettier config, ignore
+     file, `.editorconfig` or pragma can switch it off. The root `.prettierrc.json` must hold
+     the same options, which editors and `pnpm exec prettier --write <file>` read. A
+     `prettier-ignore` comment keeps one node as written; review judges it.
+     `apps/mobile/eslint.config.js` is not in this format yet, so a goal that changes it formats
+     it and updates its pin together.
+   - **When the floor holds.** The floor is anchored only once it is on `main`. Until then the
+     reviewer compares it, at the exact commit to be merged, with
+     `docs/evidence/QA-9/coverage-baseline.md` §5.
+   - **What the guard cannot stop.** It stops careless weakening, not hostile code in a change, since
+     `pnpm check` runs that code. Review and the workflow protections that PL-1 owns carry that trust.
+     That includes dependency trust: a force-added `apps/mobile/node_modules` path, which Jest,
+     jest-expo and `eslint.config.js` resolve before the hoisted copy, and the `.npmrc` and
+     `pnpm-workspace.yaml` settings pnpm reads.
+   - **Changing thresholds.** A diff that raises coverage raises its thresholds in the same diff.
+     Changing the floor, the guard, its wiring, the coverage scope, the lint config or the
+     formatting pin (the Prettier version, its options or the generated-file list) needs two
+     things: a reason stated in the handoff, and the approval of the owner or an explicitly
+     delegated decision-maker.
+   - **RPC tests.** `docs/evidence/QA-9/rpc-test-inventory.md` lists every exposed RPC with its tests.
+     A goal that adds or changes an RPC adds its row and its tests. These named gaps stay with their
+     owners:
+     - MB-2: `schedule_programme_v1` and `refresh_schedules_v1` have no test, and neither do the
+       `programme.save` and `programme.archive` kinds;
+     - MB-1: no RPC is tested for refusal without a session;
+     - MB-3: the `session.update`, `set.delete` and `set.restore` kinds have no test;
+     - G16.api: no gym RPC is tested with the `manager` role;
+     - G17.api: the `member.archive`, `membership.cancel` and `credit.apply` kinds have no test,
+       nor does a successful `payment.reverse`.
 4. **Tokens and strings.** Colours, fonts, radii and sizes come from the theme. Every user-facing
    string goes through `t()`, including on a screen you only touch. The lint guards enforce both.
 5. **Contract first (SP3).** A backend goal merges its migrations, commands and contract before the

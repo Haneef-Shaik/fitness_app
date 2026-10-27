@@ -13,7 +13,7 @@
     "typecheck": "pnpm --filter @fitlog/domain typecheck && pnpm --filter @fitlog/mobile typecheck",
     "lint": "pnpm --filter @fitlog/mobile lint",
     "test": "pnpm --filter @fitlog/domain test && pnpm --filter @fitlog/mobile test:ci && pnpm plan:test",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm plan:build --check",
+    "check": "node scripts/quality/coverage-ratchet.mjs && node scripts/quality/touched-format.mjs && pnpm typecheck && pnpm lint && pnpm test && pnpm plan:build --check",
     "backend:env": "node scripts/backend/environment.mjs",
     "backend:test": "node --test scripts/backend/*.test.mjs && node scripts/backend/check-sql-sources.mjs && node scripts/backend/verify.mjs && node scripts/backend/verify-gym.mjs && node scripts/backend/verify-freeze-projection.mjs && node scripts/backend/verify-freezes.mjs && node scripts/backend/verify-contracts.mjs && node scripts/backend/verify-fixtures.mjs",
     "plan:build": "node scripts/plan/build.mjs",
@@ -22,6 +22,7 @@
     "plan:test": "node --test scripts/plan/lib.test.mjs"
   },
   "devDependencies": {
+    "prettier": "3.6.2",
     "supabase": "2.121.0"
   }
 }

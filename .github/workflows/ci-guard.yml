@@ -1,0 +1,37 @@
+name: CI guard
+
+on:
+  pull_request:
+  push:
+    branches: [main, v2/develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-guard-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# PL-1. The required "ci-guard" check. GitHub reports a skipped job as passing, so a guard that ran only inside
+# the job it guards could be skipped with that job. This job runs the same workflow guard as the "backend" job,
+# over all three required workflows, so one edit to a workflow file that skips, empties or redirects "check",
+# "backend" or "ci-guard" is refused by a job in a workflow the edit did not touch. The guard judges workflow
+# files only: what the jobs run or configure (package.json scripts, .npmrc, scripts, tests and the guard itself)
+# is trusted to review and branch protection (docs/evidence/PL-1/hosted-proof-procedure.md).
+# Node only and no install, so it reaches a verdict even when the backend job cannot start.
+jobs:
+  ci-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: The three required workflows are as reviewed (checked here and in the backend job)
+        run: node scripts/ci/workflow-guard.mjs
+      - name: Test the CI helper and the workflow guard
+        run: node --test scripts/ci/*.test.mjs

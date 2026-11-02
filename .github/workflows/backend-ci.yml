@@ -1,0 +1,65 @@
+name: Backend replay
+
+on:
+  pull_request:
+  push:
+    branches: [main, v2/develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# PL-1. The required "backend" check: replay every migration from empty on a fresh runner, prove the replay,
+# then run pnpm backend:test. scripts/ci/workflow-guard.mjs pins this file's shape. It runs here and in the
+# separate required "ci-guard" job (ci-guard.yml), so an edit that skips this job is still refused there.
+# Superseded pull request runs are cancelled; each push has its own group, so every push reaches a verdict.
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: '1'
+      # The trusted base, taken from the event and never from the change (AR-1 L1 and L4): the pull request's
+      # base commit, or the previous head of a push. Any other event gets '' and the base step fails.
+      # FITLOG_BASE_REF is the one this job reads (the SQL-source guard in pnpm backend:test). No step here
+      # reads FITLOG_CONTRACT_BASELINE: it is kept only for parity with mobile-ci.yml's check job, which runs
+      # the contract guard, and the base step holds it equal to FITLOG_BASE_REF. The workflow guard holds both
+      # lines, and mobile-ci.yml's baseline line, to the one reviewed expression.
+      FITLOG_CONTRACT_BASELINE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event_name == 'push' && github.event.before || '' }}
+      FITLOG_BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event_name == 'push' && github.event.before || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: The three required workflows are as reviewed (checked here and in the ci-guard job)
+        run: node scripts/ci/workflow-guard.mjs
+      - name: Require the event's own base, the same commit in both base variables
+        run: node scripts/ci/backend-ci.mjs base
+      - name: Test the CI helper and the workflow guard
+        run: node --test scripts/ci/*.test.mjs
+      - name: Refuse any path Git tracks inside a node_modules folder
+        run: node scripts/ci/backend-ci.mjs vendored
+      - name: Give the repository-wide SQL-source test a local main at the trusted base
+        run: node scripts/ci/backend-ci.mjs local-main
+      - uses: pnpm/action-setup@f520eceda224fe1a4aed5a2a27a194379a409996 # v6
+      - run: pnpm install --frozen-lockfile --strict-peer-dependencies
+      - name: Start the local stack, replaying every migration and seed from empty (its key table is not printed)
+        run: pnpm exec supabase start > /dev/null
+      - name: Every migration file is recorded as applied, and no other
+        run: node scripts/ci/backend-ci.mjs replay
+      - name: The replayed schemas equal a fresh shadow replay
+        run: node scripts/ci/backend-ci.mjs diff
+      - name: The replayed schemas lint clean
+        run: node scripts/ci/backend-ci.mjs lint
+      - run: pnpm backend:test
+      - name: Container states after a failure
+        if: failure()
+        run: docker ps --all --format '{{.Names}} {{.Status}}'

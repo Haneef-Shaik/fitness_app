@@ -5,7 +5,7 @@ import * as Crypto from 'expo-crypto';
 import { exerciseSchema, programmeSchema, type Programme, type Prescription } from '@fitlog/domain';
 import { useMember } from '@/data/MemberProvider';
 import { useDraft } from '@/data/useDraft';
-import { t } from '@/lib/i18n';
+import { formatMeasure, labelWithUnit, t } from '@/lib/i18n';
 import { useTheme } from '@/theme';
 import { AppButton, AppText, Card, Choice, Field, Header, Screen } from '@/ui';
 
@@ -39,14 +39,14 @@ export function ProgrammeScreen() {
           <View style={{ flex: 1 }}><Field label={t('setCount')} value={String(p.sets)} inputMode="numeric" onChangeText={(v) => updatePrescription(day.id, p.id, { sets: Number(v) })} /></View>
           <View style={{ flex: 1 }}><Field label={t('reps')} value={String(p.repsMin)} inputMode="numeric" onChangeText={(v) => updatePrescription(day.id, p.id, { repsMin: Number(v), repsMax: Math.max(Number(v), p.repsMax) })} /></View>
           <View style={{ flex: 1 }}><Field label={t('maximumReps')} value={String(p.repsMax)} inputMode="numeric" onChangeText={(v) => updatePrescription(day.id, p.id, { repsMax: Number(v) })} /></View>
-          <View style={{ flex: 1 }}><Field label={`${t('load')} (kg)`} value={p.loadKg === null ? '' : String(p.loadKg)} inputMode="decimal" onChangeText={(v) => updatePrescription(day.id, p.id, { loadKg: v.trim() ? Number(v) : null })} /></View>
+          <View style={{ flex: 1 }}><Field label={labelWithUnit(t('load'), 'kg')} value={p.loadKg === null ? '' : String(p.loadKg)} inputMode="decimal" onChangeText={(v) => updatePrescription(day.id, p.id, { loadKg: v.trim() ? Number(v) : null })} /></View>
           <View style={{ flex: 1 }}><Field label={t('restSeconds')} value={String(p.restSeconds)} inputMode="numeric" onChangeText={(v) => updatePrescription(day.id, p.id, { restSeconds: Number(v) })} /></View>
           {(p.exercise.type === 'timed' || p.exercise.type === 'distance') && <Field label={t('durationSeconds')} value={p.durationSeconds === null ? '' : String(p.durationSeconds)} inputMode="numeric" onChangeText={(v) => updatePrescription(day.id, p.id, { durationSeconds: v.trim() ? Number(v) : null })} />}
           {p.exercise.type === 'distance' && <Field label={t('distanceMetres')} value={p.distanceMetres === null ? '' : String(p.distanceMetres)} inputMode="decimal" onChangeText={(v) => updatePrescription(day.id, p.id, { distanceMetres: v.trim() ? Number(v) : null })} />}
           <AppButton label={t('moveUp')} variant="secondary" disabled={prescriptionIndex === 0} onPress={() => setProgramme((current) => ({ ...current, days: current.days.map((d) => d.id === day.id ? { ...d, exercises: move(d.exercises, prescriptionIndex, -1) } : d) }))} />
           <AppButton label={t('duplicate')} variant="secondary" onPress={() => setProgramme((current) => ({ ...current, days: current.days.map((d) => d.id === day.id ? { ...d, exercises: [...d.exercises, { ...p, id: Crypto.randomUUID() }] } : d) }))} />
           <AppButton label={t('remove')} variant="secondary" onPress={() => setProgramme((current) => ({ ...current, days: current.days.map((d) => d.id === day.id ? { ...d, exercises: d.exercises.filter((e) => e.id !== p.id) } : d) }))} />
-        </View> : <AppText tone="muted">{p.sets} × {p.repsMin}–{p.repsMax} · {p.restSeconds}s</AppText>}
+        </View> : <AppText tone="muted">{p.sets} × {p.repsMin}–{p.repsMax} · {formatMeasure(p.restSeconds, 's')}</AppText>}
       </View>)}
       {editing ? <AppButton label={t('addExercise')} variant="secondary" onPress={() => { const key = Crypto.randomUUID(); setSelection({ day: day.id, key }); router.push({ pathname: '/exercises', params: { selectionKey: key } }); }} /> : <AppButton label={t('startWorkout')} disabled={!day.exercises.length} onPress={() => { void start(day.id); }} />}
     </Card>)}

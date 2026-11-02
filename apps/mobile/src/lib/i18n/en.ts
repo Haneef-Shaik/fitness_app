@@ -1,6 +1,8 @@
 import { appEn } from './app';
+import { formatCopyEn } from './format-copy';
 export const en = {
   ...appEn,
+  ...formatCopyEn,
   appearance: 'Appearance',
   appearanceIntro: 'Find your focus. Choose how FitLog looks on your device.',
   colorScheme: 'Color theme',

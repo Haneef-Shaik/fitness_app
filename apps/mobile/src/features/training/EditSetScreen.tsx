@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMember } from '@/data/MemberProvider';
 import { useDraft } from '@/data/useDraft';
-import { t } from '@/lib/i18n';
+import { labelWithUnit, t } from '@/lib/i18n';
 import { AppButton, AppText, Card, Choice, Field, Header, Screen } from '@/ui';
 import type { PerformedSet } from '@fitlog/domain';
 
@@ -21,7 +21,7 @@ export function EditSetScreen() {
   return <Screen><Header title={`${t('edit')} · ${instance.exercise.name}`} back />
     {set.deletedAt ? <Card><AppText>{t('workoutDeleted')}</AppText><AppButton label={t('undo')} onPress={() => { void store.deleteSet(sessionId, setId, true).then(() => { void store.sync(); router.back(); }).catch((e: unknown) => setError(e instanceof Error ? e.message : t('loadFailed'))); }} /></Card> : <>
       {(['resistance', 'bodyweight'].includes(instance.exercise.type)) && <Field label={t('reps')} value={draft.value.reps} onChangeText={(v) => change('reps', v)} inputMode="numeric" />}
-      <Field label={`${t('load')} (kg)`} value={draft.value.load} onChangeText={(v) => change('load', v)} inputMode="decimal" />
+      <Field label={labelWithUnit(t('load'), 'kg')} value={draft.value.load} onChangeText={(v) => change('load', v)} inputMode="decimal" />
       {(['timed', 'distance'].includes(instance.exercise.type)) && <Field label={t('durationSeconds')} value={draft.value.duration} onChangeText={(v) => change('duration', v)} inputMode="numeric" />}
       {instance.exercise.type === 'distance' && <Field label={t('distanceMetres')} value={draft.value.distance} onChangeText={(v) => change('distance', v)} inputMode="decimal" />}
       <Field label={t('addRpe')} value={draft.value.rpe} onChangeText={(v) => change('rpe', v)} inputMode="decimal" /><Field label={t('addRir')} value={draft.value.rir} onChangeText={(v) => change('rir', v)} inputMode="numeric" />

@@ -1,0 +1,18 @@
+{
+  "description": "User-facing literals that already existed on 2026-10-27 in screens owned by other lanes. G14.app migrated its own lane's screens and adds nothing new here. Shrink only: copy-literal-scan.cjs fails on any literal not listed and on any entry that no longer matches. The owning goal removes its entries when it moves the text to t() or a lib/i18n formatter (formatMeasure, labelWithUnit, LANGUAGE_NAMES).",
+  "entries": [
+    { "file": "src/features/food/FoodScreen.tsx", "kind": "jsx-expression", "text": "g", "owner": "SC-4" },
+    { "file": "src/features/food/FoodScreen.tsx", "kind": "jsx-expression", "text": "{} kcal", "owner": "SC-4" },
+    { "file": "src/features/food/FoodScreen.tsx", "kind": "jsx-text", "text": "g", "owner": "SC-4" },
+    { "file": "src/features/gym/GymPlansScreen.tsx", "kind": "jsx-text", "text": "· v", "owner": "G17.app" },
+    { "file": "src/features/settings/ProfileScreen.tsx", "kind": "prop:label", "text": "English", "owner": "SC-6" },
+    { "file": "src/features/settings/ProfileScreen.tsx", "kind": "prop:label", "text": "हिन्दी", "owner": "SC-6" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "prop:label", "text": "{} (kg)", "owner": "SC-1" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "jsx-expression", "text": "{}: {} kg × {} · {}", "owner": "SC-1" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "jsx-expression", "text": "× {} kg", "owner": "SC-1" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "jsx-expression", "text": "s", "owner": "SC-1" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "jsx-text", "text": "kg·reps", "owner": "SC-1" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "jsx-expression", "text": "× {} kg", "owner": "SC-1" },
+    { "file": "src/features/training/WorkoutScreen.tsx", "kind": "jsx-expression", "text": "s", "owner": "SC-1" }
+  ]
+}

@@ -1,8 +1,10 @@
 import type { CopyKey } from './en';
 import { appHi } from './app';
+import { formatCopyHi } from './format-copy';
 
 export const hi = {
   ...appHi,
+  ...formatCopyHi,
   appearance: 'दिखावट',
   appearanceIntro: 'अपना ध्यान बनाए रखें। चुनें कि आपके डिवाइस पर FitLog कैसा दिखे।',
   colorScheme: 'रंग थीम',

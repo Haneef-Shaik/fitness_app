@@ -6,7 +6,7 @@ import { goalSchema, localDateAt } from '@fitlog/domain';
 import { useMember } from '@/data/MemberProvider';
 import { useDraft } from '@/data/useDraft';
 import { saveGoal } from '@/data/api';
-import { t } from '@/lib/i18n';
+import { labelWithUnit, t } from '@/lib/i18n';
 import { useTheme } from '@/theme';
 import { AppButton, AppText, Choice, Field, Header, Screen } from '@/ui';
 
@@ -23,8 +23,8 @@ export function NewGoalScreen() {
   } catch (e) { setError(e instanceof Error ? e.message : t('saveFailedDraft')); } finally { setBusy(false); } }
   return <Screen><Header title={t('newGoal')} back /><Field label={t('goalName')} value={draft.value.name} onChangeText={(name) => draft.setValue((d) => ({ ...d, name }))} />
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', gap: theme.spacing.sm }}>{(['loss', 'gain'] as const).map((v) => <Choice key={v} label={t(v)} selected={type === v} onPress={() => setType(v)} />)}</View>
-    <Field label={`${t('baseline')} (kg)`} value={draft.value.baseline} onChangeText={(baseline) => draft.setValue((d) => ({ ...d, baseline }))} inputMode="decimal" />
-    <Field label={`${t('target')} (kg)`} value={draft.value.target} onChangeText={(target) => draft.setValue((d) => ({ ...d, target }))} inputMode="decimal" />
+    <Field label={labelWithUnit(t('baseline'), 'kg')} value={draft.value.baseline} onChangeText={(baseline) => draft.setValue((d) => ({ ...d, baseline }))} inputMode="decimal" />
+    <Field label={labelWithUnit(t('target'), 'kg')} value={draft.value.target} onChangeText={(target) => draft.setValue((d) => ({ ...d, target }))} inputMode="decimal" />
     <Field label={t('deadline')} value={draft.value.deadline} placeholder={t('dateFormat')} onChangeText={(deadline) => draft.setValue((d) => ({ ...d, deadline }))} />
     {!!error && <AppText tone="error">{error}</AppText>}<AppButton label={t('save')} loading={busy} onPress={() => { void save(); }} />
   </Screen>;

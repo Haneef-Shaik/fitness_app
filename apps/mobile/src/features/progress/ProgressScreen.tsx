@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { epley, latestDailyWeights, localDateAt, movingWeight } from '@fitlog/domain';
 import { useMember } from '@/data/MemberProvider';
-import { t } from '@/lib/i18n';
+import { formatCount, formatDate, formatMeasure, t } from '@/lib/i18n';
 import { useTheme } from '@/theme';
 import { AppButton, AppText, Card, Choice, Header, Screen } from '@/ui';
 
@@ -20,14 +20,14 @@ export function ProgressScreen() {
   return <Screen><Header title={t('progress')} action={t('goals')} onAction={() => router.push('/goals')} />
     <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', gap: theme.spacing.sm }}>{(['strength', 'body', 'habits'] as const).map((v) => <Choice key={v} label={t(v)} selected={mode === v} onPress={() => setMode(v)} />)}</View>
     {mode === 'strength' && <>
-      {[...records].map(([key, record]) => <Card key={key}><AppText variant="title">{record.name}</AppText><AppText variant="number">{record.maxLoad} kg</AppText><AppText tone="muted">{t('maxLoad')}</AppText><AppText>{record.e1rm === null ? '—' : record.e1rm.toFixed(1)} kg · Epley e1RM v1</AppText></Card>)}
+      {[...records].map(([key, record]) => <Card key={key}><AppText variant="title">{record.name}</AppText><AppText variant="number">{formatMeasure(record.maxLoad, 'kg')}</AppText><AppText tone="muted">{t('maxLoad')}</AppText><AppText>{formatMeasure(record.e1rm, 'kg')} · {t('e1rmFormula')}</AppText></Card>)}
       {!records.size && <Card><AppText variant="title">{t('noRecords')}</AppText><AppText tone="muted">{t('noRecordsBody')}</AppText></Card>}
       <AppButton label={t('workoutHistory')} variant="secondary" onPress={() => router.push('/history')} />
     </>}
     {mode === 'body' && <>
-      <Card><AppText variant="title">{t('sevenDayAverage')}</AppText><AppText variant="number">{avg ? avg.value.toFixed(1) : '—'} kg</AppText><AppText tone="muted">{avg ? `${avg.count} ${t('measurements')}` : t('notMeasured')}</AppText></Card>
+      <Card><AppText variant="title">{t('sevenDayAverage')}</AppText><AppText variant="number">{formatMeasure(avg?.value, 'kg')}</AppText><AppText tone="muted">{avg ? formatCount('measurementCount', avg.count) : t('notMeasured')}</AppText></Card>
       <AppButton label={t('addBody')} onPress={() => router.push('/body-add')} />
-      {[...weights].reverse().map((w) => <Card key={w.id}><AppText>{w.localDate}</AppText><AppText variant="title">{w.weightKg} kg</AppText>{w.notes && <AppText tone="muted">{w.notes}</AppText>}</Card>)}
+      {[...weights].reverse().map((w) => <Card key={w.id}><AppText>{formatDate(w.localDate)}</AppText><AppText variant="title">{formatMeasure(w.weightKg, 'kg')}</AppText>{w.notes && <AppText tone="muted">{w.notes}</AppText>}</Card>)}
     </>}
     {mode === 'habits' && <><Card><AppText variant="number">{completed.length}</AppText><AppText>{t('sessions')}</AppText></Card><AppButton label={t('workoutHistory')} onPress={() => router.push('/history')} /></>}
   </Screen>;

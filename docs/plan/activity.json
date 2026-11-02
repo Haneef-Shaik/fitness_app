@@ -473,5 +473,113 @@
     "by": "session:Codex",
     "at": "2026-10-27T14:05:20.508Z",
     "id": "a-1793109920508-w56tpc"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-2",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-qa2-docs",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:32.650Z",
+    "id": "a-1793592452650-wzpnav"
+  },
+  {
+    "kind": "update",
+    "goal": "QA-9",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/qa9-quality-ratchets",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:32.739Z",
+    "id": "a-1793592452739-45ndk0"
+  },
+  {
+    "kind": "update",
+    "goal": "PL-1",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-pl1-ci",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:32.810Z",
+    "id": "a-1793592452810-nyh0ua"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-1",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds1-theme",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:32.880Z",
+    "id": "a-1793592452880-5tlcrz"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-2",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds2-type",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:32.955Z",
+    "id": "a-1793592452955-74pry4"
+  },
+  {
+    "kind": "update",
+    "goal": "G14.app",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-g14-i18n",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:33.030Z",
+    "id": "a-1793592453030-r0yrje"
+  },
+  {
+    "kind": "update",
+    "goal": "CT-1",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-ct1-content",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:33.107Z",
+    "id": "a-1793592453107-q62fsi"
+  },
+  {
+    "kind": "update",
+    "goal": "MB-1",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/mb1-identity",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:33.186Z",
+    "id": "a-1793592453186-jzk3fl"
+  },
+  {
+    "kind": "update",
+    "goal": "DS-6",
+    "from": "claimed",
+    "to": "not started",
+    "who": "Codex",
+    "ref": "codex/fitlog-ds6-art",
+    "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
+    "by": "session:Codex",
+    "at": "2026-11-02T04:07:33.265Z",
+    "id": "a-1793592453265-4be9ej"
   }
 ]

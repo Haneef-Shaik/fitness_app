@@ -466,3 +466,226 @@ then fast-forward merged at `fd79c12` and marked Done via status.mjs (no overrid
 are Done. See `runs/review-merge-priority-2026-10-27.md` and DS-3 integration proof.
 No native-device or hosted proof claimed. Scheduled supervision now prioritizes reviews and
 merging completed work; no new goals/optional polish while closure queue remains.
+
+## Review closure checkpoint — 27 October2026, 14:35 UTC label
+
+[Checkpoint](runs/supervision-2026-10-27T1435Z.md): DS3 already integrated fd79c12 and Done;5/114 goals. G14 full independent source final collected, C0/H0/M0/L5; runtime/mutations remain open and lows deferred under polish freeze. Fresh independent DS2 existing-work reviewer c16262fb running exact read/test scope; no edits or new implementation. Collect complete final before next phase. DS2 Android release box remains unproved. Denied MB1/PL1/QA2 sequences remain parked; no retry.
+
+14:35Z final: DS2 reviewer c16262fb STOPPED after generic git diff permission denial and prohibited continuation. Node/status only ran; no tests or completed verdict. Affected sequence parked without alternate retry. See checkpoint for deduplicated audit.
+
+
+## Existing palette independent source review — 27 October 2026, 15:05 UTC label
+
+[Checkpoint](runs/supervision-2026-10-27T1505Z.md). DS3 remains integrated/Done; review and merge priority preserved. Fresh DS1 reviewer463395da uses actual Read/Grep-only tool set; no tests, edits or denied-shell retry. Collect full final before acceptance. Guard wiring and Android-release proof remain open. DS2/MB1/PL1/QA2 denied sequences parked. No new implementation, merge, goal status or acceptance change.
+
+
+## DS1 review collected; material focus correction — 27 October2026, 16:05 UTC label
+
+[Checkpoint](runs/supervision-2026-10-27T1605Z.md): complete independent DS1 source review C0/H1/M2/L6 collected and reviewer stopped. Dark primary focus is invisible; exact shared AppButton prerequisite assigned to DS1 correction8f38b95d, actual Read/Grep/Edit/Write only. No shell/runtime retry or optional polish. New tests UNRUN; no box accepted. Codex approves curated palette under AUTH-01 and preserves decorative coach outline only with visible text/independent interaction/state cues, now explicit in DS4 Done-when. M2 Choice belongs DS4, Today strip SC3; lows named in checkpoint. DS3 remains sole new merged goal fd79c12, five Done. Historical denied sequences remain parked.
+
+
+## Interrupted DS1 correction reconciled — 31 October2026
+
+[Checkpoint](runs/supervision-2026-10-31.md): computer-sleep interruption reconciled without permission denial. Complete correction final collected; restricted continuation finished owned records only and stopped. Independent SOURCE ONLY reviewer2a22ea76 working, Read/Grep only. Tests and mutations UNRUN; guard wiring and Android release evidence open. DS3fd79c12 remains Done, five goals total. No new integration/status/acceptance/DB/external action; historical denied sequences stay parked.
+
+
+## DS1 independent regression finding and correction resume — 1 November2026
+
+[Checkpoint](runs/supervision-2026-11-01.md): reviewer2a22ea76 complete final collected C0/H1/M1/L2. Disabled/loading buttons retain focus but lose the ring; H1 not accepted. Prior correction82e5fcb2 failed with18Read/no edits/denials; restricted continuation copy31943ffe working, sole DS1 writer, actual Read/Grep/Edit/Write only. Collect full final and audit before fresh independent review. Runtime/mutations/guard/release proof open. DS3fd79c12 Done, five total. No new integration/status/acceptance/DB/external action; historical denied sequences remain parked.
+
+
+## DS1 correction final collected; independent source verification — 1 November2026, 08:17 UTC
+
+[Checkpoint](runs/supervision-2026-11-01T0817Z.md): complete31943ffe final collected and writer stopped, no errors/denials. Retained unavailable focus fixed in source; fresh Read/Grep-only verifier ba786a33 working, final pending. Runtime/mutations/guard/release proof UNRUN/open; no box accepted. Main35c84e3/DS3fd79c12 and five Done unchanged. No integration/status/acceptance/DB/external action; historical denied sequences parked.
+
+
+## DS1 independent source review collected — 2026-11-01T08:47:21.504447+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T0847Z.md): ba786a33 complete final collected/stopped, C0/H0/M1/L1. Both focus highs closed in source only; no runtime/mutation proof or Done box accepted. Native Android focus claims exceed JS evidence; bounded records/comments-only correction24d43a89 working, exact final/audit pending. Guard/release proof open. Main35c84e3 and five Done unchanged; no integration/status/acceptance/DB/external action. Historical denied sequences parked.
+
+
+## DS1 evidence correction accepted — 2026-11-01T09:17:48.456831+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T0915Z.md): complete24d43a89 final collected and worker stopped. Codex independently inspected eight scoped paths and reconstructed comments-only source diffs; M1/L1 records and coverage/identifier wording accepted. No further wording review loop required. Both focus highs remain closed in source only;29UI/145contrast/F1-F3 UNRUN, guard/release proof open,0/3 boxes. No new worker, merge/Done/status/ledger/DB/external action. Main35c84e3 and five Done unchanged; historical denied sequences remain parked.
+
+
+## DS1 guard prerequisite source phase — 2026-11-01T09:48:37.641410+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T0945Z.md): sole restricted local Claude b80f400c working on existing DS1 semantic SVG/guard-wiring prerequisite and L2 regressions, exact11 paths, Read/Grep/Edit/Write only. Initial22Read/no errors/denials; no complete final or acceptance. Avoid DS4 dependency cycle; preserve palette/geometry/API. All runtime/mutations/release boxes remain open; denied sequences parked. Planner checks pass; main35c84e3/fiveDone unchanged, no integration/status/ledger/DB/external action. Collect full final and independently review next.
+
+
+## DS1 guard prerequisite collected; independent review — 2026-11-01T10:17:58.594411+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1015Z.md): complete b80f400c final saved/stopped, ten scoped paths, no denials. Coordinator confirms all26SVG keys/geometry preserved with semantic paints and inspected effective guard wiring; source acceptance pending. Fresh Read/Grep-only reviewer6a95ddd3 working, full final pending. Authored101guard/145asset/13script assertions UNRUN; runtime/mutations/release boxes open. Main35c84e3/fiveDone unchanged; no merge/status/ledger/DB/external action. Historical denied sequences parked.
+
+
+## DS1 guard prerequisite source review closed — 2026-11-01T10:47:47.268809+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1045Z.md): complete6a95ddd3 final collected/stopped; C0/H0/M0/L0 accepted in source only by Codex. Audit30Read50Grep/four read errors/no denial; reviewed source hashes recorded. No further source/wording review loop. All runtime/mutations/exports/release gates remain UNRUN,0/3boxes; historical denied sequences parked. Main35c84e3/fiveDone unchanged; no merge/status/ledger/DB/external action or new worker.
+
+
+## Existing harness status safety prerequisite — 2026-11-01T11:18:14.724321+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1115Z.md): DS1 source review remains complete, runtime/goal open. Selected existing MB1/QA9 carried F4/G5 parse-safety prerequisite. Sole restricted local Claude3114ecb3 working, exact six paths, Read/Grep/Edit/Write only; no execution/DB/CLI/network. Complete final pending. Historical denied sequences remain parked; no alternate retry or new goal/polish. Planner checks pass, main35c84e3/fiveDone unchanged. No merge/status/ledger/external action. Collect exact final and audit before independent review.
+
+
+## Existing status-parser independent verification — 2026-11-01T11:47:41.833888+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1145Z.md): collected3114ecb3 complete final/stopped; six scoped paths, no errors/denials. Exact before-diff confirms CLI/loopback/logic preserved. Fresh reviewer e5168dca working, Read/Grep plus only new synthetic parser test authorized; no outcome accepted yet. Historical denied sequences remain parked, no live/backend/DB operations. Command-failure output leak and other harness prerequisites remain open. Main35c84e3/fiveDone unchanged; planner checks pass. No merge/status/ledger/external action.
+
+Final observation: seven synthetic parser tests independently PASS; TAP/audit saved. Extra out-of-scope echo noop executed by reviewer, then stopped, no denial. Tool-free verdict continuation9daf1e83 has zero new calls; final collected. No full-goal acceptance/integration; see checkpoint1145Z.
+
+Final collection 2026-11-01T11:50:46.363050+00:00:9daf1e83 COMPLETE pass-bounded verdict saved/stopped, zero new tool calls. Codex accepts parser-only prerequisite after actual7/7 tests and source/diff inspection; owned MB1 harness-status-accepted-2026-11-01.md records scope deviation, residuals and named owners. No further source/wording/test loop. WholeMB1goal0/4,notintegrated; remaining harness/target/command-failure proof open. No new owner action.
+
+
+## Existing harness command-failure safety prerequisite — 2026-11-01T12:18:49.562520+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1215Z.md): last-cycle parser-only acceptance confirmed; remaining command-failure exposure assigned to restricted local Claude20dca69f, sole writer after original64564907 stopped for scope correction. Seven paths include required parser wiring regression update; all new/updated tests UNRUN, complete final pending. Collect final/audit before independent two-file verification. No live backend/DB authorization; historical denied sequences parked. Main35c84e3/fiveDone unchanged; planner checks pass. No integration/status/ledger/external action or owner action.
+
+
+## Command-failure safety prerequisite independently accepted — 2026-11-01T12:50:36.364685+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1245Z.md): writer20dca69f complete final collected/stopped; coordinator phase-before diff confirmed. Fresh independent Claude0d28a5a0 PASS,14/14 synthetic tests, Read12/Grep13/Bash2, no tool errors/denials; stopped. Codex accepts only bounded F4/G5 fix, no whole-goal box. New environment/preview unguarded status residuals assigned MB1/QA9; projection/other harness/target gaps open. No further accepted-source/test loop. Main35c84e3/fiveDone unchanged; no integration/status/ledger/DB/external action. Historical denied sequences parked; no owner action.
+
+
+## Existing status-consumer safety prerequisite — 2026-11-01T13:19:41.375795+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1315Z.md): prior14/14 command-failure acceptance retained. Sole restricted localClaude e16435ef working on carried environment/preview G5 credential-safety correction, exact four paths, Read/Grep/Edit/Write only. Full final pending, new tests UNRUN; collect exact final/audit before independent verification. No live consumers/CLI/DB execution or historical denied retry. Main35c84e3/fiveDone unchanged; planner checks pass. No integration/status/ledger/external action or owner action.
+
+
+## Status-consumer safety prerequisite independently accepted — 2026-11-01T13:50:02.713074+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1345Z.md): Complete e16435ef implementer final collected/stopped, four scoped paths, zero errors/denials. Codex exact before-source comparison passes. Fresh independent local Claude3eb4a345 COMPLETE PASS, 4/4 pure source-reading tests, no C/H/M findings; audit {'Read': 11, 'Grep': 5, 'Bash': 1}, zero errors/denials. Same-session local print execution completed after background daemon failed before any call, no bypass. Acceptance: docs/evidence/MB-1/harness-status-consumers-accepted-2026-11-01.md. Seven prior accepted source hashes unchanged, seven current reviewed hashes unchanged. No duplicate accepted-test/source review needed. Preview auth-response diagnostics/login.ok and projection diagnostics retain MB1/QA9G5 owners; stale comments nonblocking MB1. WholeMB1 stays0/4, other harness/target/runtime gates open. No merge/newDone/status/GOALS/ledger/DB/push/deploy/external action. User files/environments preserved. No owner action. Main35c84e3/DS3fd79c12 and fiveDone confirmed, OW1/OW2/QA1/AR1 done; no repeat implementation. Integration/ready-wave/status chats completed/inactive; native workers reconciled, no overlap. Build/sync/diff checks pass114goals/230dependencies/94rows; corrected unsupported status sync call recorded. Supabase skill/official CLI reference consulted; no CLI convention change, markdown changelog renderer unsupported.
+
+
+## Existing preview auth-response safety prerequisite — 2026-11-01T14:19:33.643158+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1415Z.md): sole authenticated local Claude596e6e6d print-mode PID40494 working on carried MB1/QA9G5 response diagnostics/login.ok correction, exact five paths, Read/Grep/Edit/Write only. No complete final/writes accepted or tests authorized. Collect full final/audit before independent review; registry may omit print worker, reconcile PID/transcript. Prior4/4 and14/14 accepted prerequisites retained. Historical denied sequences parked; no live consumer/CLI/DB/account creation. Main35c84e3/fiveDone unchanged; plannerchecks pass; no integration/status/ledger/external action or owner action.
+
+
+## Preview auth-response safety review — 2026-11-01T14:49:26.360883+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1445Z.md): implementer final collected, exact five paths and zero errors/denials. Fresh localClaudefb34c471 independent tests13/13 PASS, full verdict pending. Collect exact print session/audit before bounded acceptance; no repeat tests. Main35c84e3/fiveDone unchanged; no integration/status/ledger/DB/external action or owner action.
+
+
+## Final collection and bounded acceptance — 2026-11-01T14:50:59.793027+00:00
+
+Codex acting under explicit owner delegation AUTH-01 accepts the existing preview-auth response safety prerequisite ONLY. Implementer596e6e6d complete final collected; Read10/Grep3/Write3/Edit13, exactlyfive assignedpaths, no errors/denials. Fresh independent authenticated localClaude fb34c471-1f86-4b66-874d-da9f9e6d421f COMPLETE PASS-bounded collected; Read12/Grep6/Bash2, no errors/denials. Exactly two separately authorized synthetic test commands ONCE each: preview-response9/9 and status-consumers4/4,13PASS0FAIL. Full final, implementer/reviewer audits and raw TAP are adjacent harness-preview-response-* records. No live consumer/auth/CLI/DB/network/account execution. Historical denied sequences parked without alternate retry.
+
+Codex independently compared phase-before consumer bytes: only helper import/create/signin substitutions; all loopback/fetch/onboarding/private-file details preserved. Nine source SHA256 hashes rechecked unchanged after review; five prior accepted status-helper/environment hashes retained. Fixed closed-message fresh errors catch JSON failures unread and non-ok sign-in refuses before body parsing/onboarding. Both pure tests independently inspected for safe scope. No RED/mutation/real-auth/release/device proof. Implementer UNRUN statements are historical, superseded only for these two commands. Source tests provide bounded evidence, no general static-analysis guarantee.
+
+Remaining low findings assigned, no optional polish loop: L1 helper purity future regression hardening MB1/QA9; L2 stricter whitespace/own-property validation MB1 (current nonempty-string contract satisfied; do not rely on the review's general claim that JSON can never expose inherited properties); L3 fetch rejection diagnostics/timeouts/cleanup MB1/QA9 G4/F3; L4 existing credential-file/symlink/mode hardening MB1; L5 historical UNRUN/hash evidence covered by this acceptance. These do not block the scoped result. Projection diagnostics and G1-G4/G6/G7/executor/target binding/live isolation/wholeMB1 remain open0/4. No wholeG5/goal/ledger acceptance, no merge/newDone/status/GOALS/DB/push/deploy/external action. Main35c84e3/fiveDone unchanged. Do not repeat accepted source/wording/test review.
+
+Records-only exclusive lock released after write.
+
+
+## CT1 completed final independent source review — 2026-11-01T15:19:43.028411+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1515Z.md): selected existing CT1 backlog; restricted authenticated localClaude808060e3 reviewing source, Read/Grep only, full verdict pending. No tests/DB/edits or historical denied retry. Main35c84e3/fiveDone unchanged; priorMB1preview13/13 accepted prerequisite retained. Planner checks pass. No integration/status/ledger/external action. Collect exact final/audit, no duplicate reviewer.
+
+Final observation 2026-11-01T15:28:42.554604+00:00: Latest actual audit {'Grep': 38, 'Read': 45}; errors0,28source hashes unchanged=True. Process alive=True, complete final PENDING. Preliminary per-side instruction discrepancy under review, no formal finding/acceptance yet. Collect exact session and no duplicate reviewer. No tests/DB/denied sequence retry, no merge or new Done.
+
+
+## CT1 source review collected and material correction — 2026-11-01T15:47:34.037585+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1545Z.md): exact independent final C0/H0/M3/L9 saved with audit;28hashes unchanged. Any-version member-ID conflict and unilateral semantics confirmed. Codex delegated decisions/disposition in isolated CT1 evidence. Source-only M1 correction localClaudeac307e48-357b-4429-89af-612499a0c797 PID45707, sixpaths; collect exact final/audit before fresh verification. No runtime/qualified review or integration proof. All four CT1boxes remain open; fiveDone/main35c84e3 unchanged. No status/ledger/DB/external action or owner approval request. Historical denied sequences remain parked.
+
+
+## CT1 M1 final collected; independent source review — 2026-11-01T16:17:52.129943+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1615Z.md): ac307e48 COMPLETE correction collected, six paths, zero errors/denials; exact diff inspected and other24 reviewed source hashes unchanged. Fresh reviewer76f2aad6 Read/Grep only; Read/Grep-only independent reviewer tools {'Read': 11, 'Grep': 2}; errors0; COMPLETE=False; six source hashes unchanged=True. Exact final/audit collection required before acceptance. Runtime/DB/qualified gates open, historical denied sequences parked. No integration/newDone/status/ledger/external action; main35c84e3/fiveDone unchanged.
+
+
+## CT1 M1 independent source acceptance — 2026-11-01T16:47:03.005054+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1645Z.md): reviewer76f2aad6 COMPLETE C0/H0/M0/L0 introduced, Read12/Grep10/no errors or denials, six source hashes unchanged, process exited. Codex AUTH01 independently inspected source/diff and accepted only the M1 source correction. All CT1 runtime/goal boxes and M2/M3/MB2 concurrency/external gates remain open. Historical denied sequences parked; no duplicate review/new implementation this collection cycle. Main35c84e3/fiveDone unchanged; no integration/status/ledger/DB/external action. No owner action.
+
+
+## Bounded CT-1 M2 correction — 2026-11-01T17:20:38.975101+00:00
+
+Reconciled execution/goals/status/acceptance, PRD6.1, CT1 handoff/checkpoint and prior M1 acceptance. OW1/OW2/QA1/AR1 and DS3 remain Done; main35c84e3, DS3fd79c12 integrated. Three coordination chats completed/inactive; native registry had no busy worker, prior print implementer/reviewer exited; integration lock absent. Preserved all unrelated files/environments.
+
+Assigned existing material CT1 M2 multiplier correction under AUTH01 and review/merge freeze. Sole authenticated localClaude a75367a1-c2f1-4d74-9f48-f8c024d32afd PID 51506 in isolated fitlog-ct1-content; actual Read/Grep/Edit/Write, dontAsk, strict empty MCP. Exact eight writable paths, prompt/before-source/hashes/diff/transcript/session/audit: /tmp/fitlog-ct1-m2-20261101*. Latest audit Read13/Grep15/Edit14, one unsupported-lookahead Grep syntax error, zero permission denials; no unauthorized tools. Six content/script paths changed, none outside assigned source scope. COMPLETE final pending; process alive at audit. Preliminary source diff changes multiplier derivation from singleArm to repsPerSide, clarifies five per-leg/per-hand instructions, and authors catalogue/seed/snapshot regressions. No source acceptance or executed test claim. Collect exact full final and audit before independent source review; do not duplicate writer.
+
+Accepted M1 seed/verifier source preserved; no duplicate review/test loop. Band nominal-load semantics and repsPerSide persistence/snapshot/UI remain MB2; M3 shared wiring S1/CT1, concurrent member claims MB2, qualified/legal OW13/QA5 remain open. All four CT1 boxes/runtime gates unproved. Historical denied test/install and other lane sequences parked without alternate actor/tool/form retry. No execution/tests/imports/CLI/DB/network/commit/status/subagents authorized to worker. No goal/status/GOALS/acceptance changes, merge, push, deployment or external action. No owner action. Project incomplete.
+
+Planner build --check passed114goals/230dependencies/94rows including generated plan/board synchronization; main diff --check passed. Records-only exclusive lock acquired and released. Next collect a75367a1-c2f1-4d74-9f48-f8c024d32afd complete final/audit and independently review exact correction; no new goal implementation or optional polish.
+
+
+## CT1 M2(b) final collected; independent source review — 2026-11-01T17:47:48.198953+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1745Z.md): CT1 M2(b) implementer a75367a1 COMPLETE final collected; actual Read14/Grep16/Edit21, exactly eight allowed paths, one unsupported regex search error and zero permission denials. Full final/audit and phase-before/diff preserved in isolated CT1 evidence. Coordinator independently verified only five instruction changes, 3/3/4/4/4 sentences, metadata/flags/version retained, six source paths changed and all other prior source hashes unchanged. Accepted M1 seed/verifier retained; no tests/imports/DB execution or runtime acceptance.
+
+Fresh independent authenticated localClaude 7dfe6009-9250-411a-a7b4-87defd07dae5 PID55951 reviewing M2(b) source only, Read/Grep/dontAsk/strict empty MCP. Prompt/session/transcript/hashes/audit /tmp/fitlog-ct1-m2-review-20261101*. Full final pending; no duplicate worker. Latest recorded audit {'Grep': 5, 'Read': 7}, no errors, eight hashes unchanged. Collect exact COMPLETE final and tool audit before source acceptance. No test/CLI/DB/network/edits/subagents authorized. Historical denied sequences remain parked, no alternative tool/actor/form retry.
+
+Main35c84e3/fiveDone, OW1/OW2/QA1/AR1 and DS3fd79c12 confirmed. Three coordinator chats completed/inactive; registry has no other busy FitLog worker (unrelated vanij session preserved). Integration lock absent before records-only exclusive acquisition. Planner build --check PASS114goals/230dependencies/94rows and synchronized generated plan/board; main and CT1 diff checks PASS. Preserved unrelated files/environments. No goal/status/GOALS/acceptance changes, commit, merge, DB, push/deployment or external action. No owner action. Band semantics M2(a), MB2 side persistence/snapshot/UI/concurrent claims, M3 S1 wiring, OW13 qualified review and QA5 legal remain open; all four CT1 boxes/runtime gates unproved. Project incomplete.
+
+
+## CT1 M2(b) source-only acceptance — 2026-11-01T17:49:13.534790+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1745Z.md): Collected CT1 M2(b) independent COMPLETE source review 7dfe6009-9250-411a-a7b4-87defd07dae5: C0/H0/M0/L2, Read14/Grep20, zero errors/permission denials, process exited, eight source hashes unchanged. Codex acting under explicit owner delegation AUTH-01 accepts ONLY the M2(b) multiplier source correction after independent review and coordinator before-source comparison. Bilateral per-hand2, unilateral reps-per-side1; five intended records only, 3/3/4/4/4 instruction sentences, metadata/flags/version intact. All other prior content source hashes retained; accepted M1 unchanged. Full implementer/reviewer finals, audits, phase-before/diff and acceptance preserved in isolated docs/evidence/CT-1/m2-*.
+
+Two nonblocking lows assigned CT1 without optional polish dispatch: L-a mutation check9 needs a reproducible caller-side mutation (pass repsPerSide:singleArm at catalogue.mjs call, rather than refer to an absent singleArm helper argument); L-b phase docs name permitted Write although actual audit is Read14/Grep16/Edit21, zero Write. Actual transcripts/audits are authoritative; resolve mutation recipe before eventual mutation proof, no claim it ran. No new review/source/test loop for accepted source.
+
+No tests/imports/DB/runtime executed or accepted. Historical denied sequences remain parked without alternate actor/tool/form retry. All four CT1 Done boxes unproved; no whole M2/CT1 acceptance or integration. M2(a) bands, MB2 side persistence/snapshot/UI and member-claim concurrency, M3 S1/CT1 wiring, OW13 qualified review and QA5/DEC16 legal evidence remain open. First seed blocked. Next reconcile existing material closure backlog; do not repeat accepted M1/M2(b) review or claim runtime/goal completion.
+
+Main35c84e3/fiveDone unchanged (OW1/OW2/QA1/AR1/DS3, DS3fd79c12 integrated). Three coordinator chats completed/inactive; native registry reconciled, no other busy FitLog worker; exact reviewer exited. Planner build --check PASS114goals/230dependencies/94rows, generated plan/board synchronized; main and CT1 diff checks PASS. No goal/status/GOALS/ledger change, commit, merge, DB, push/deploy or external action. Preserved unrelated files/environments. No owner action; project incomplete.
+
+
+## DS6 existing final independent source review — 2026-11-01T18:18:17.004091+00:00
+
+[Checkpoint](runs/supervision-2026-11-01T1815Z.md): localClaude1179b3b7 Read/Grep-only reviewing older completed generator final; Read25/Grep11/zeroerrors/denials/21hashes unchanged; COMPLETE pending. No runtime/generation/tests/denied retry/visual/legal approval. AllDS6boxes open, no integration/status/ledger/external action. Main35c84e3/fiveDone unchanged; collect exact final, no duplicate worker.
+
+
+## Final collection — 2026-11-01T18:22:53.026374+00:00
+
+DS6 independent COMPLETE final collected; no confirmed C/H/M, four lows and speculative zlib portability concern. Actual tools{'Grep': 26, 'Read': 27}, one expected missing-output-path Grep error, zero permission denials.21hashes unchanged before records append. Codex independent source inspection corroborates current output paths/roles/guard flow; source-review completion accepted only. Full final/audit/hash/disposition saved isolated `docs/evidence/DS-6/source-review-*`. Source direction under AUTH01 is not visual approval. Lows named DS6/S1/DEC01; no optional correction. Reviewer suggested runtime steps NOT authorized to retry denied commands. Current Android/Play limited specs refreshed in separate evidence; actual bytes/PNGmaxsize/runtime/legal remain open. BothDS6boxes0/2, allCT1boxes unproved. No duplicate source/test loop. Main35c84e3/fiveDone unchanged, no status/GOALS/ledger/commit/merge/DB/push/deploy/external action. No owner action. Records-only lock released.
+
+
+## Existing MB1 projection diagnostic correction — 2026-11-02T03:36:37.699455+00:00
+
+[Checkpoint](runs/supervision-2026-11-02.md): prior accepted prerequisites retained. Sole restricted localClaude 351f8cee-cdc1-466d-b6c0-e8d4e9f340cb PID66216 correcting existing G5 diagnostic residual, four source/evidence paths only, no execution/DB. Collect exact final/audit, no duplicate writer or denied retry. Main35c84e3/fiveDone unchanged; planner synchronization passes. No integration/newDone/external action or owner action.
+
+
+## QA-2 phase14 records review collected — 2026-11-02T03:36:42.617588+00:00
+
+[Checkpoint](runs/supervision-2026-11-02T0336Z.md): QA-2 phase14 independent records review COMPLETE C0/H0/M0/L2. P13-3..7 written plans adequate only; eight inputs unchanged, Read9/Grep7, zero errors/permission denials. Full final/audit/disposition saved isolated docs/evidence/QA-2/phase14-records-review-2026-11-02T0336Z-*. L1 net-diff versus staged-path union and L2 cross-reference drift assigned QA2 at next necessary integration work, no optional polish dispatch. Historical P13-1/P13-2 protected-write denials and D/proof denials remain parked with no substitute or retry. No whole-goal/box/runtime acceptance. Main35c84e3/fiveDone unchanged; no integration/status/ledger or external action.
+
+
+Final reconciliation 2026-11-02T03:37:19.467529+00:00: a NEW independent concurrent MB1 worker351f8cee-cdc1-466d-b6c0-e8d4e9f340cb PID66217 is busy in fitlog-mb1. Read its actual task: Codex-owned existing MB1/QA9 G5 projection-output diagnostic-safety prerequisite, Read/Grep/Edit/Write only, four scoped paths, no execution/DB/commit/status. This worker appeared after initial reconciliation; preserve its ownership and do not dispatch or mutate its lane. No claim of no currently active FitLog workers. QA2 reviewer0afbf8be has exited. Final planner build --check and main/QA2 diff --check PASS; main35c84e3 remains unchanged; records lock released. No new goal acceptance/integration or owner action. Run time: 2026-11-02T03:37:19.467529+00:00.
+
+
+## Projection implementation collected and independent synthetic proof — 2026-11-02T03:49:09.550708+00:00
+
+Implementer351f8cee COMPLETE final durably collected: Read9/Grep9/Write3/Edit4, zero errors/denials, exactlyfourpaths. Codex phase-before consumer comparison confirms only helper import and parse wrapper; original SQL/args/options/fixtures/assertions retained. Independent reviewer f2879568-0b5a-4303-898c-aafe3e7461c6 PID67542: {"tools": {"Read": 7, "Grep": 3, "Bash": 1}, "errors": 0, "complete": true, "fourHashesUnchanged": true, "commands": ["rtk proxy node --test scripts/backend/projection-output.test.mjs"]}. Exact authorized command ONCE `rtk proxy node --test scripts/backend/projection-output.test.mjs` passed11/11, zero fail. Raw TAP/audit/fourhashes/consumerdiff in isolated docs/evidence/MB-1/harness-projection-*. No live consumer/DB/CLI/network executed. Full review final collected, Codex acceptance pending. No source/wholeG5/goal acceptance or integration yet. Existing false-positive assert.throws and hardcoded target remain MB1/QA9; other runtime/goal gates open0/4. No owner action. Main35c84e3/fiveDone unchanged.
+
+
+## Projection diagnostic prerequisite independently accepted — 2026-11-02T03:49:41.619636+00:00
+
+Codex acting under owner delegation AUTH-01 accepts ONLY the MB1/QA9G5 projection diagnostic-safety prerequisite. Implementer351f8cee COMPLETE, exactlyfourpaths, Read9/Grep9/Write3/Edit4,zeroerrors/denials. Independent reviewerf2879568-0b5a-4303-898c-aafe3e7461c6 COMPLETE PASS: Read7/Grep3/Bash1,zeroerrors/denials,C0/H0/M0/L6. Exact authorized pure test ONCE passed11/11. Fullfinal/audit/rawTAP/fourhashes/consumerdiff durably collected in docs/evidence/MB-1/harness-projection-*. Codex independently verified exact consumer bytes and unchanged four SHA256s. No live consumer/DB/CLI/network executed. No RED/mutation/device/backend proof or wholeG5/goal acceptance.
+
+L1hardcoded target/L2false-positive assert.throws remain MB1/QA9; L3fixed opaque diagnostic is accepted scoped design; L4positive assertion output remains wholeG5; L5consumer fixture coverage resolved for this phase by exact before-source diff; L6historical UNRUN/hash record is superseded only for the one executed pure test and coordinator hash check. No optional polish or accepted test rerun. Other harness/runtime/MB1 boxes open0/4. No integration/newDone/status/GOALS/ledger/push/deploy/external action; main35c84e3/fiveDone unchanged. No owner action, project incomplete.
+
+
+## Owner-requested idle status reconciliation — 2 November 2026
+
+The owner requested that Running goals either have active workers or return to Ready.
+QA-2, QA-9, PL-1, DS-1, DS-2, G14.app, CT-1, MB-1 and DS-6 had no active assigned
+worker and all planner dependencies satisfied. Their claims were released through
+`scripts/plan/status.mjs` to `not started`, which the board derives as Ready.
+Existing branches, implementation, accepted prerequisites, evidence and checkpoints
+are retained; this does not discard progress or satisfy remaining acceptance gates.
+For subsequent supervision, claim a goal only after confirming a bounded worker is
+active; release idle claims when its phase ends. Review/integration backlog priority
+and existing execution restrictions still apply. Five Done goals remain unchanged.
+
+
+## Git progress sync — owner instruction, 2 November 2026
+
+Keep project progress committed and pushed to origin after each bounded phase.
+Push verified integrated work and current planning records on main; preserve
+unfinished lane work on clearly named codex checkpoint branches without merging
+or claiming acceptance. Include source, authored tests and safe evidence; exclude
+credentials, environment files, raw private logs and unrelated personal artifacts.
+Verify remote commit IDs and record failures honestly. Running status still requires
+a confirmed active worker. Checkpoint commits are backups, not goal acceptance.

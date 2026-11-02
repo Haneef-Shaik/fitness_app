@@ -2,12 +2,12 @@
   "source": "docs/23 audit, 7 Oct 2026",
   "goals": {
     "PL-1": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-pl1-ci",
-      "note": "Parallel implementation assigned in isolated fitlog-pl1-ci; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:31.482Z"
+      "at": "2026-11-02T04:07:32.810Z"
     },
     "QA-1": {
       "status": "done",
@@ -66,44 +66,44 @@
       "at": "2026-10-26T03:49:26.192Z"
     },
     "MB-1": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/mb1-identity",
-      "note": "Delegated orchestration: phase1 identity/session authorization audit, regression tests and append-only candidate fix. Isolated fitlog-mb1 worktree from green main2a95726. Claude executes; coordinator serializes any shared DB migration and independently verifies.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T03:54:23.324Z"
+      "at": "2026-11-02T04:07:33.186Z"
     },
     "QA-9": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/qa9-quality-ratchets",
-      "note": "Phase1 measure full mobile/domain coverage and map exposed RPCs to tests; isolated fitlog-qa9 from green main2a95726. No DB/schema/provider actions; actual baselines before ratchet implementation; hostedCI evidence remains to prove.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T03:54:23.454Z"
+      "at": "2026-11-02T04:07:32.739Z"
     },
     "QA-2": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-qa2-docs",
-      "note": "Started isolated local Claude documentation reconciliation from main5fefc31; MB1 and QA9 remain active. Read-only audit and scoped docs edits first; independent verification and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:00:25.672Z"
+      "at": "2026-11-02T04:07:32.650Z"
     },
     "DS-1": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-ds1-theme",
-      "note": "Parallel implementation assigned in isolated fitlog-ds1-theme; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:31.625Z"
+      "at": "2026-11-02T04:07:32.880Z"
     },
     "DS-2": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-ds2-type",
-      "note": "Parallel implementation assigned in isolated fitlog-ds2-type; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:31.770Z"
+      "at": "2026-11-02T04:07:32.955Z"
     },
     "DS-3": {
       "status": "done",
@@ -114,28 +114,28 @@
       "at": "2026-10-27T14:05:20.508Z"
     },
     "G14.app": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-g14-i18n",
-      "note": "Parallel implementation assigned in isolated fitlog-g14-i18n; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:32.113Z"
+      "at": "2026-11-02T04:07:33.030Z"
     },
     "CT-1": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-ct1-content",
-      "note": "Parallel implementation assigned in isolated fitlog-ct1-content; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:32.256Z"
+      "at": "2026-11-02T04:07:33.107Z"
     },
     "DS-6": {
-      "status": "claimed",
+      "status": "not started",
       "who": "Codex",
       "ref": "codex/fitlog-ds6-art",
-      "note": "Parallel implementation assigned in isolated fitlog-ds6-art; scoped files and focused tests; no shared DB or external actions; independent review and integration required.",
+      "note": "Owner-requested idle-state reconciliation: no active assigned worker; return to Ready. Existing implementation, accepted prerequisite evidence, branch and checkpoints retained. Remaining verification/integration and external gates still apply. Claim again only after a bounded worker is confirmed active.",
       "by": "session:Codex",
-      "at": "2026-10-26T19:40:32.409Z"
+      "at": "2026-11-02T04:07:33.265Z"
     }
   }
 }

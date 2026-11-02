@@ -473,6 +473,7 @@ banners, and the building blocks of the §19.3 states.
 
 **Done when.**
 - [ ] Each component has tests for its states, Reduce Motion, 200% text and its screen-reader label and role
+- [ ] Every AI proposal has a visible text label; a tappable proposal has an identifiable text control or a boundary with at least 3:1 contrast, and no proposal state relies on colour or the decorative coach outline alone
 - [ ] Touch targets are at least 48 dp, and the logger sizes (96 dp primary, at least 56 dp secondary) are asserted in tests
 - [ ] The dev gallery is captured in both themes on an Android release build in `docs/evidence/DS-4/`
 

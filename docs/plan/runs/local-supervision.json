@@ -14,22 +14,22 @@
   "workers": [
     {
       "goal": "MB-1",
-      "phase": "SF7e independently accepted; routing observation stopped on denied listing",
-      "sessionId": "8527b83b-758a-4b12-a634-deaefc75ab37",
-      "shortId": "8527b83b",
+      "phase": "Projection diagnostics prerequisite independently accepted11/11; wholeMB1open",
+      "sessionId": "f2879568-0b5a-4303-898c-aafe3e7461c6",
+      "shortId": "f2879568",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
       "branch": "codex/mb1-identity",
       "base": "2a95726",
-      "state": "stopped",
-      "writes": "NONE; stopped",
-      "database": "NONE; no database lane authorized",
-      "previousReviewerSession": "c315be3a-5890-42c5-9c14-55d3ee924dbd STOPPED after full final saved",
-      "previousImplementerSession": "5fc3613a-296d-4cda-9dee-5c9e554c9095 STOPPED after final collected",
-      "lastObservedAt": "2026-10-27T12:34:50Z",
-      "observation": "None; stopped after denial and prohibited Glob substitution; no Docker/DB command ran. R1-R16 UNRUN. Previous independent320/320 accepted.",
+      "state": "done",
+      "writes": "NONE; complete final collected",
+      "database": "NONE; no execution/CLI/DB/network/live account authorized",
+      "previousReviewerSession": "e5168dca-ffc0-484b-a417-29cfac4dc138 STOPPED for extra benign out-of-scope echo command; no denied retry",
+      "previousImplementerSession": "64564907-c219-4534-bc6b-77068be5eb85 STOPPED after coordinator scope correction, no denial",
+      "lastObservedAt": "2026-11-02T03:49:41.619636+00:00",
+      "observation": "COMPLETE PASS collected Read7/Grep3/Bash1 zero errors/denials C0/H0/M0/L6. Fourhashes unchanged; Codex accepts bounded prerequisite only. No active writer/reviewer.",
       "previousAccountLimitSession": "79fb63b0-1deb-4b9c-90a3-dd2279df7f2f",
-      "pid": 41619,
-      "previousCollectedSession": "62fa62be-e686-4bae-9d3c-5d01de3452f4 STOPPED; complete final saved as final-2026-10-27T1235Z-collected.md"
+      "pid": 67542,
+      "previousCollectedSession": "351f8cee COMPLETE Read9/Grep9/Write3/Edit4 zero errors/denials; exactlyfourpaths"
     },
     {
       "goal": "QA-9",
@@ -52,22 +52,22 @@
     },
     {
       "goal": "QA-2",
-      "phase": "Phase14 collected: F2 Edit denied, P13-1 and P13-2 integration skill correction blocked; records-only P13-3..7 await review",
-      "sessionId": "c6128212-2a95-4448-8603-ba6fbdfd1700",
-      "shortId": "c6128212",
+      "phase": "Phase14 independent records review COMPLETE; P13-1/P13-2/D remain blocked",
+      "sessionId": "0afbf8be-580c-4385-8def-4909393c22a5",
+      "shortId": "0afbf8be",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-qa2-docs/fitness_app",
       "branch": "codex/fitlog-qa2-docs",
       "base": "5fefc31",
-      "state": "stopped",
-      "writes": "NONE; parked after denial",
+      "state": "done",
+      "writes": "NONE; Read/Grep-only independent records review",
       "database": "NONE; no database lane authorized",
-      "lastObservedAt": "2026-10-27T10:33:42.997682+00:00",
-      "observation": "Full final saved; worker stopped. No retry/alternate writer authorized; P/M/W/D remain UNRUN.",
+      "lastObservedAt": "2026-11-02T03:36:42.617588+00:00",
+      "observation": "COMPLETE C0/H0/M0/L2; Read9/Grep7; no errors/denials; eight source hashes unchanged. P13-3..7 adequate written plans only, no runtime/goal acceptance. Lows assigned QA2; denied sequences parked.",
       "previousImplementerSession": "4e723f02-f1e2-4bcd-b903-6c408cba60ed STOPPED after final collected",
       "previousReviewerSession": "d3a1e0c5-e376-4236-a060-72fb9aa61057 STOPPED after full final saved",
       "previousAccountLimitSession": "bf4fef77-6064-48fa-8d39-88b0cd35ad25",
-      "pid": 89729,
-      "previousCollectedSession": "97000c11-9b91-483a-a2f0-db22075df683 STOPPED after full final saved as final-2026-10-27T1005Z-collected.md"
+      "pid": 61433,
+      "previousCollectedSession": "c6128212-2a95-4448-8603-ba6fbdfd1700 phase14 implementer final already collected"
     },
     {
       "goal": "PL-1",
@@ -88,33 +88,34 @@
     },
     {
       "goal": "DS-1",
-      "phase": "Momentum semantic colours and contrast; bounded implementation then independent review",
-      "sessionId": "c34c2497-1d35-4938-98a0-2b7debd933c7",
-      "shortId": "c34c2497",
+      "phase": "Guard/semantic SVG independent source review accepted; runtime and goal open",
+      "sessionId": "6a95ddd3-d113-438a-ac7b-90852d157ce6",
+      "shortId": "6a95ddd3",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app",
       "branch": "codex/fitlog-ds1-theme",
       "base": "c8a5d57",
       "state": "stopped",
-      "pid": 53245,
-      "writes": "Goal-scoped source/tests/evidence only; exact brief in ready-wave record",
+      "pid": 13041,
+      "writes": "NONE; source review complete, no active writer",
       "database": "NONE; DB tests and integration serialized by coordinator",
-      "lastObservedAt": "2026-10-27T05:05:09.048489+00:00",
-      "observation": "Complete final saved unchanged to owned evidence final-2026-10-27T0505Z.md; worker STOPPED. Await bounded correction/independent review; not a Done claim."
+      "lastObservedAt": "2026-11-01T10:47:47.268809+00:00",
+      "observation": "Complete final collected10:28:07Z; Read30/Grep50/four distinct read errors/no denial; C0/H0/M0/L0 source-only accepted. All runtime/mutations/exports/release gates UNRUN,0/3boxes. No further source wording loop; historical denied sequences parked.",
+      "previousCollectedSession": "6a95ddd3 full final saved guard-review-2026-11-01-collected.md then stopped"
     },
     {
       "goal": "DS-2",
-      "phase": "Typography ramp and bundled licence inventory; bounded implementation then independent review",
-      "sessionId": "dc4ebb32-2b22-455e-ad05-7ee96ea4eafb",
-      "shortId": "dc4ebb32",
+      "phase": "Independent review stopped on permission denial; no fresh verdict",
+      "sessionId": "c16262fb-ce8c-41d7-81bb-624faf40feb4",
+      "shortId": "c16262fb",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds2-type/fitness_app",
       "branch": "codex/fitlog-ds2-type",
       "base": "c8a5d57",
       "state": "stopped",
-      "pid": 53515,
-      "writes": "Goal-scoped source/tests/evidence only; exact brief in ready-wave record",
+      "pid": 59762,
+      "writes": "NONE; parked after denial",
       "database": "NONE; DB tests and integration serialized by coordinator",
-      "lastObservedAt": "2026-10-27T05:05:09.048489+00:00",
-      "observation": "Complete final saved unchanged to owned evidence final-2026-10-27T0505Z.md; worker STOPPED. Await bounded correction/independent review; not a Done claim."
+      "lastObservedAt": "2026-10-27T14:34:57.008356+00:00",
+      "observation": "Node22.23.1 and git status ran; generic rtk proxy git diff denied once (duplicated stream result). Worker used4Glob calls outside assigned scope and continued Read/Grep after denial; coordinator stopped. No tests/types/lint ran; no complete final. No retry via different command/form/tool/writer authorized."
     },
     {
       "goal": "DS-3",
@@ -133,54 +134,55 @@
     },
     {
       "goal": "G14.app",
-      "phase": "Independent M3/M4 scanner correction source review; runtime checks UNRUN",
+      "phase": "M3/M4 source review collected; execution and goal remain open",
       "sessionId": "5fecc57c-17b4-4bd3-856d-49228dc1e595",
       "shortId": "5fecc57c",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-g14-i18n/fitness_app",
       "branch": "codex/fitlog-g14-i18n",
       "base": "c8a5d57",
-      "state": "working",
+      "state": "stopped",
       "pid": 59753,
-      "writes": "NONE; independent Read/Grep source-only review",
+      "writes": "NONE; parked under review-and-merge priority",
       "database": "NONE; DB tests and integration serialized by coordinator",
-      "lastObservedAt": "2026-10-27T14:03:39.689311+00:00",
-      "observation": "Implementer complete final saved; STOPPED. Transcript Read29/Grep25/Write3/Edit5, no tool errors. Fresh reviewer working; no verdict or execution proof.",
+      "lastObservedAt": "2026-10-27T14:33:36.633283+00:00",
+      "observation": "Complete independent final saved1435Z: C0/H0/M0/L5. Read23/Grep32; one missing-path Read error duplicated in transcript, no permission denial. M3/M4 source accepted only; runtime and mutations UNRUN. N1/N2/N3/N4 G14.app, N5 deferred optional G14.app. Existing M1/M2/M5/M6 retain owners; no optional correction dispatched.",
       "previousCollectedSession": "65070a8e-ab6b-4a6c-9057-06bb8bc31078 STOPPED; full final saved as final-2026-10-27T1405Z-collected.md"
     },
     {
       "goal": "CT-1",
-      "phase": "Source-reviewed exercises and starter programmes; bounded implementation then independent review",
-      "sessionId": "9029da39-7706-44db-ac3c-866d4c24bb68",
-      "shortId": "9029da39",
+      "phase": "M2(b) independently source-accepted; runtime and all four CT1boxes open",
+      "sessionId": "7dfe6009-9250-411a-a7b4-87defd07dae5",
+      "shortId": "7dfe6009",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app",
       "branch": "codex/fitlog-ct1-content",
       "base": "c8a5d57",
-      "state": "stopped",
-      "pid": 53776,
-      "writes": "Goal-scoped source/tests/evidence only; exact brief in ready-wave record",
-      "database": "NONE; DB tests and integration serialized by coordinator",
-      "lastObservedAt": "2026-10-27T05:05:09.048489+00:00",
-      "observation": "Complete final saved unchanged to owned evidence final-2026-10-27T0505Z.md; worker STOPPED. Await bounded correction/independent review; not a Done claim."
+      "state": "done",
+      "pid": 55951,
+      "writes": "NONE; final collected, records-only append by Codex",
+      "database": "NONE; no execution/tests/imports/CLI/DB/network authorized",
+      "lastObservedAt": "2026-11-01T17:49:13.534790+00:00",
+      "observation": "COMPLETE C0/H0/M0/L2; Read14/Grep20, zero errors/denials, eight reviewed hashes unchanged before records append; process exited. No runtime/whole-goal acceptance.",
+      "previousCollectedSession": "a75367a1 M2(b) implementer COMPLETE Read14/Grep16/Edit21, zero denials"
     },
     {
       "goal": "DS-6",
-      "phase": "Reproducible Momentum icon splash and store asset pipeline; bounded implementation then independent review",
-      "sessionId": "82f94c8e-b83b-48ab-94e3-754a6a8d4d65",
-      "shortId": "82f94c8e",
+      "phase": "Existing completed final independent source review collected; wholeDS6open0/2",
+      "sessionId": "1179b3b7-fef3-4190-b831-e17cb29e90ac",
+      "shortId": "1179b3b7",
       "worktree": "/Users/Adya/.codex/worktrees/fitlog-ds6-art/fitness_app",
       "branch": "codex/fitlog-ds6-art",
       "base": "c8a5d57",
-      "state": "stopped",
-      "pid": 53914,
-      "writes": "Goal-scoped source/tests/evidence only; exact brief in ready-wave record",
-      "database": "NONE; DB tests and integration serialized by coordinator",
-      "lastObservedAt": "2026-10-27T05:05:09.048489+00:00",
-      "observation": "Complete final saved unchanged to owned evidence final-2026-10-27T0505Z.md; worker STOPPED. Await bounded correction/independent review; not a Done claim."
+      "state": "done",
+      "pid": 57433,
+      "writes": "NONE; final collected; records append only",
+      "database": "NONE; no code execution/tests/generation/CLI/DB/network authorized",
+      "lastObservedAt": "2026-11-01T18:22:53.026374+00:00",
+      "observation": "COMPLETE no confirmedC/H/M; L4 and speculative portability concern. Actual tools{'Grep': 26, 'Read': 27}, one expected missing-output-path error,zero denials,21hashes unchanged before records append. No tests/art/runtime/visual/legal acceptance."
     }
   ],
-  "resume": "Owner priority: close reviews and merge accepted work, freeze new goals/optional polish. DS3 integrated fd79c12 and Done; never restart. Other goals remain incomplete. Collect G14 source review final without runtime acceptance; assess DS2/DS1 local code separately from their required Android-release captures. QA9 awaits bounded backend harness corrections; MB1/PL1/QA2 denied sequences remain parked. Do not conflate hosted proof or optional lows with unrelated local merge blockers. Acquire a fresh serial integration lock before the next merge.",
-  "lastReconciledAt": "2026-10-27T14:06:33.600750+00:00",
-  "checkpoint": "docs/plan/runs/review-merge-priority-2026-10-27.md",
+  "resume": "Projection safety11/11 independently accepted, final/audit/TAP/hash durable; do not repeat. Reconcile existing material closure backlog; no newgoal/optionalpolish or historically denied retry. WholeMB1open0/4, no integration.",
+  "lastReconciledAt": "2026-11-02T03:49:41.619636+00:00",
+  "checkpoint": "docs/plan/runs/supervision-2026-11-02T0336Z.md",
   "parallelReadyWave": {
     "coordinator": "01a17993-375a-77a2-a931-c9f494a30aef",
     "record": "docs/plan/runs/ready-wave-2026-10-27.json",
@@ -195,7 +197,7 @@
       "DS-6"
     ],
     "rule": "Resume these existing sessions/checkpoints; do not leave them idle merely because a previous coordinator chat is active. Reconcile actual workers. One writer per worktree, independent review and serialized integration; no shared DB in this wave.",
-    "coordinatorState": "idle/completed, cursor cac74853-6eda-4317-923e-63f0f4489b7d:5; all workers reconciled"
+    "coordinatorState": "idle/completed; fresh cursor80bf3d30-bfdf-4485-b5c6-832bae8f5231:1; native registry reconciled"
   },
   "ownerPriority": "27 October owner instruction: prioritize independent reviews and merging completed tasks; freeze new goal implementation and optional polish until closure backlog shrinks.",
   "integration": {
@@ -217,5 +219,32 @@
       "worktree": "archived, recoverable",
       "ownedReplay": "stopped/deleted onlyfitlog_ar1_replay_20261026 after0authusers; existing55321healthy"
     }
-  ]
+  ],
+  "lastFinalReconciliation": {
+    "at": "2026-11-02T03:37:19.467529+00:00",
+    "concurrentWorker": {
+      "goal": "MB-1",
+      "sessionId": "351f8cee-cdc1-466d-b6c0-e8d4e9f340cb",
+      "pid": 66217,
+      "state": "busy",
+      "scope": "Existing G5 projection-output diagnostic-safety source correction; separate coordinator owns worker; no duplicate dispatch"
+    },
+    "qa2ReviewerExited": true,
+    "finalChecks": "planner build check, main and QA2 diff check PASS"
+  },
+  "idleStatusPolicy": {
+    "requestedBy": "Owner, 2 November 2026",
+    "rule": "Running requires a confirmed active assigned worker. Release idle claims to not started (derived Ready when dependencies are done); preserve checkpoints and evidence.",
+    "reconciledGoals": [
+      "QA-2",
+      "QA-9",
+      "PL-1",
+      "DS-1",
+      "DS-2",
+      "G14.app",
+      "CT-1",
+      "MB-1",
+      "DS-6"
+    ]
+  }
 }

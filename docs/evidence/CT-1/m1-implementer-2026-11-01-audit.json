@@ -1,0 +1,381 @@
+{
+  "tools": {
+    "Read": 12,
+    "Grep": 5,
+    "Edit": 27
+  },
+  "errors": [],
+  "permissionDenials": [],
+  "calls": [
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/evidence/CT-1/source-review-2026-11-01-collected.md"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/checkpoint.md"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.mjs"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.test.mjs"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.test.mjs"
+      }
+    },
+    {
+      "name": "Grep",
+      "input": {
+        "pattern": "exercises",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/supabase/migrations",
+        "output_mode": "content",
+        "-n": true
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/sql/seed-check-setup.sql"
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/supabase/migrations/20261017161031_member_core.sql",
+        "offset": 36,
+        "limit": 24
+      }
+    },
+    {
+      "name": "Grep",
+      "input": {
+        "pattern": "member-owned|MEMBER_HELD|PLANT_MEMBER_ROW|Claimed catalogue key|conflict",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app",
+        "output_mode": "content",
+        "-n": true,
+        "glob": "{scripts/content/**,content/**,docs/evidence/CT-1/**,docs/plan/runs/CT-1/**}"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.mjs",
+        "old_string": "// The launch exercise seed (CT-1 box 3; docs/architecture/003 \u00a77; QA-1 F-6). One PL/pgSQL block over one JSON payload:\n// for each catalogue (id, version) it inserts the row when absent, leaves an identical catalogue row alone, and stops\n// the whole block with an error when a member-owned row holds the key or an existing catalogue row differs. It has no\n// other statement, so it cannot change or remove any row, member-owned or not.",
+        "new_string": "// The launch exercise seed (CT-1 box 3; docs/architecture/003 \u00a77; QA-1 F-6). One PL/pgSQL block over one JSON payload:\n// for each catalogue (id, version) it inserts the row when absent, leaves an identical catalogue row alone, and stops\n// the whole block with an error when a member-owned row holds that id at any version (checked first, before the\n// (id, version) lookup and the insert) or an existing catalogue row differs. It has no other statement, so it cannot\n// change or remove any row, member-owned or not."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.mjs",
+        "old_string": "    '-- writing nothing, when a member-owned row holds a catalogue key or when an existing catalogue row differs from',",
+        "new_string": "    '-- writing nothing, when a member-owned row holds any version of a catalogue id or when an existing catalogue row differs from',"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.mjs",
+        "old_string": "    '  existing public.exercises%rowtype;',\n    '  wanted_primary text[];',\n    '  wanted_secondary text[];',\n    '  wanted_aliases text[];',\n    'begin',\n    '  for rec in select value from jsonb_array_elements(seed) loop',\n    `    wanted_primary := ${ordered('primaryMuscles')};`,",
+        "new_string": "    '  existing public.exercises%rowtype;',\n    '  member_version integer;',\n    '  wanted_primary text[];',\n    '  wanted_secondary text[];',\n    '  wanted_aliases text[];',\n    'begin',\n    '  for rec in select value from jsonb_array_elements(seed) loop',\n    \"    select m.version into member_version from public.exercises m where m.id = (rec->>'id')::uuid and m.owner_id is not null order by m.version limit 1;\",\n    '    if found then',\n    \"      raise exception 'CT-1 seed: catalogue key % version % is held by a member-owned row', rec->>'id', member_version using errcode = '23505';\",\n    '    end if;',\n    `    wanted_primary := ${ordered('primaryMuscles')};`,"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.mjs",
+        "old_string": "    '  for rec in select value from jsonb_array_elements(seed) loop',\n    \"    select m.version into member_version",
+        "new_string": "    '  for rec in select value from jsonb_array_elements(seed) loop',\n    // A member may not hold a catalogue id at any version (review M1). The same-version branch below stays as a backstop.\n    \"    select m.version into member_version"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.test.mjs",
+        "old_string": "  assert.match(statements, /with ordinality as t\\(x, n\\) order by t\\.n/, 'array order is preserved when comparing and inserting');\n});\n",
+        "new_string": "  assert.match(statements, /with ordinality as t\\(x, n\\) order by t\\.n/, 'array order is preserved when comparing and inserting');\n});\n\ntest('a member-owned row on any version of a catalogue id stops the seed before the (id, version) lookup and the insert (review M1)', () => {\n  const statements = statementText(buildExerciseSeedSql(catalogue).sql);\n  const precheck = statements.match(/\\n\\s+select m\\.version into member_version from public\\.exercises m where m\\.id = \\(rec->>'id'\\)::uuid and m\\.owner_id is not null order by m\\.version limit 1;\\n\\s+if found then\\n\\s+raise exception 'CT-1 seed: catalogue key % version % is held by a member-owned row', rec->>'id', member_version using errcode = '23505';\\n\\s+end if;\\n/);\n  assert.ok(precheck, 'one id-wide member check, raising the member-owned error with the version the member holds');\n  assert.equal(statements.match(/\\bm\\.owner_id is not null\\b/g)?.length, 1, 'exactly one id-wide member check');\n  assert.doesNotMatch(precheck[0], /rec->>'version'|\\bversion\\s*=/, 'the member check is not limited to the seed row version');\n  const loop = statements.indexOf('for rec in select value from jsonb_array_elements(seed) loop');\n  const lookup = statements.indexOf(\"select e.* into existing from public.exercises e where e.id = (rec->>'id')::uuid and e.version = (rec->>'version')::integer;\");\n  const insert = statements.indexOf('insert into public.exercises');\n  assert.ok(loop >= 0 && lookup >= 0 && insert >= 0);\n  assert.ok(loop < precheck.index && precheck.index < lookup && lookup < insert, 'per record: member check, then the (id, version) lookup, then the insert');\n  assert.match(statements, /if existing\\.owner_id is not null then/, 'the same-version member check stays as a backstop');\n});\n"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "// CT-1 box 3 database proof, for the coordinator's serialized database phase. Three psql runs against the one local\n// stack that scripts/backend/local-stack.mjs accepts (or an injected loopback replay project); each is a single\n// transaction that always ends in rollback, so the database is left as it was:\n//   twice     synthetic member rows, the seed, the seed again; every catalogue key once, nothing else touched,\n//             and each starter template accepted as a member programme by the days contract and snapshot trigger\n//   conflict  a member-owned row planted on a probe catalogue key; the seed must stop with its member-owned error\n//   drift     the probe row changed between two runs; the second run must stop with its drift error",
+        "new_string": "// CT-1 box 3 database proof, for the coordinator's serialized database phase. Four psql runs against the one local\n// stack that scripts/backend/local-stack.mjs accepts (or an injected loopback replay project); each is a single\n// transaction that always ends in rollback, so the database is left as it was:\n//   twice         synthetic member rows, the seed, the seed again; every catalogue key once, nothing else touched,\n//                 and each starter template accepted as a member programme by the days contract and snapshot trigger\n//   conflict      a member-owned row planted on a probe catalogue key; the seed must stop with its member-owned error\n//   crossVersion  a member-owned row planted on the probe id at version 2 while the seed carries version 1; the seed\n//                 must stop with its member-owned error naming the probe id at version 2 (review M1)\n//   drift         the probe row changed between two runs; the second run must stop with its drift error"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "const MEMBER_HELD = /CT-1 seed: catalogue key \\S+ version 1 is held by a member-owned row/;\nconst DRIFTED",
+        "new_string": "const MEMBER_HELD = /CT-1 seed: catalogue key \\S+ version 1 is held by a member-owned row/;\nconst MEMBER_HELD_OTHER_VERSION = `CT-1 seed: catalogue key ${PROBE_ID} version 2 is held by a member-owned row`;\nconst DRIFTED"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "const PLANT_MEMBER_ROW = 'insert into public.exercises (id, version, owner_id, name, logging_type, load_basis, multiplier, equipment, primary_muscles, instructions, source) '\n  + `values (${sqlLiteral(PROBE_ID)}, 1, ${sqlLiteral(SYNTHETIC_MEMBER)}, 'Claimed catalogue key', 'resistance', 'total', 1, 'Barbell', array['Quadriceps'], 'Planted by the CT-1 seed check.', 'member');`;",
+        "new_string": "const PLANT_MEMBER_ROW = 'insert into public.exercises (id, version, owner_id, name, logging_type, load_basis, multiplier, equipment, primary_muscles, instructions, source) '\n  + `values (${sqlLiteral(PROBE_ID)}, 1, ${sqlLiteral(SYNTHETIC_MEMBER)}, 'Claimed catalogue key', 'resistance', 'total', 1, 'Barbell', array['Quadriceps'], 'Planted by the CT-1 seed check.', 'member');`;\nconst PLANT_MEMBER_ROW_OTHER_VERSION = 'insert into public.exercises (id, version, owner_id, name, logging_type, load_basis, multiplier, equipment, primary_muscles, instructions, source) '\n  + `values (${sqlLiteral(PROBE_ID)}, 2, ${sqlLiteral(SYNTHETIC_MEMBER)}, 'Claimed later catalogue version', 'resistance', 'total', 1, 'Barbell', array['Quadriceps'], 'Planted by the CT-1 seed check.', 'member');`;"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "/** The three psql inputs. Each opens one transaction and ends with rollback. */",
+        "new_string": "/** The four psql inputs. Each opens one transaction and ends with rollback. */"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "    conflict: [...open, sqlFile('seed-check-setup.sql'), PLANT_MEMBER_ROW, probeSeed, ...close].join('\\n'),\n    drift:",
+        "new_string": "    conflict: [...open, sqlFile('seed-check-setup.sql'), PLANT_MEMBER_ROW, probeSeed, ...close].join('\\n'),\n    crossVersion: [...open, sqlFile('seed-check-setup.sql'), PLANT_MEMBER_ROW_OTHER_VERSION, probeSeed, ...close].join('\\n'),\n    drift:"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "  else if (!MEMBER_HELD.test(conflict.stderr ?? '')) problems.push(`the member-owned key run failed for another reason: ${psqlFailure(conflict)}`);\n  const drift",
+        "new_string": "  else if (!MEMBER_HELD.test(conflict.stderr ?? '')) problems.push(`the member-owned key run failed for another reason: ${psqlFailure(conflict)}`);\n  const crossVersion = psql(scripts.crossVersion);\n  if (crossVersion.status === 0) problems.push('the seed did not stop when a member-owned row held another version of a catalogue id');\n  else if (!(crossVersion.stderr ?? '').includes(MEMBER_HELD_OTHER_VERSION)) problems.push(`the member-owned other-version run failed for another reason: ${psqlFailure(crossVersion)}`);\n  const drift"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "old_string": "    line: `CT-1 seed check passed: ${notice}; a member-owned catalogue key stopped the seed; a drifted catalogue row stopped the seed [${db.container} at ${db.apiUrl}]`,",
+        "new_string": "    line: `CT-1 seed check passed: ${notice}; a member-owned catalogue key stopped the seed; a member-owned row on another version of a catalogue id stopped the seed; a drifted catalogue row stopped the seed [${db.container} at ${db.apiUrl}]`,"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.test.mjs",
+        "old_string": "  conflict: () => ({ status: 3, stdout: '', stderr: `psql:<stdin>:40: ERROR:  CT-1 seed: catalogue key ${PROBE_ID} version 1 is held by a member-owned row\\n` }),\n  drift: () => ({ status: 3, stdout: '', stderr: `psql:<stdin>:80: ERROR:  CT-1 seed: catalogue row ${PROBE_ID} version 1 differs from this seed; publish a new version instead of editing it\\n` }),\n};\nconst kindOf = (input) => (input.includes('ct1_after_first') ? 'twice' : input.includes('Claimed catalogue key') ? 'conflict' : input.includes('Changed by the CT-1 seed check') ? 'drift' : 'unknown');",
+        "new_string": "  conflict: () => ({ status: 3, stdout: '', stderr: `psql:<stdin>:40: ERROR:  CT-1 seed: catalogue key ${PROBE_ID} version 1 is held by a member-owned row\\n` }),\n  crossVersion: () => ({ status: 3, stdout: '', stderr: `psql:<stdin>:40: ERROR:  CT-1 seed: catalogue key ${PROBE_ID} version 2 is held by a member-owned row\\n` }),\n  drift: () => ({ status: 3, stdout: '', stderr: `psql:<stdin>:80: ERROR:  CT-1 seed: catalogue row ${PROBE_ID} version 1 differs from this seed; publish a new version instead of editing it\\n` }),\n};\nconst kindOf = (input) => (input.includes('ct1_after_first') ? 'twice' : input.includes('Claimed later catalogue version') ? 'crossVersion' : input.includes('Claimed catalogue key') ? 'conflict' : input.includes('Changed by the CT-1 seed check') ? 'drift' : 'unknown');"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.test.mjs",
+        "old_string": "test('three runs, each one transaction that ends in rollback, sent on stdin through psql without a shell', (t) => {\n  const { run, calls } = stack();\n  const result = verifySeed({ projectDir: project(t), run });\n  assert.deepEqual(result.problems, []);\n  const docker = calls.filter(({ command }) => command === 'docker');\n  assert.deepEqual(docker.map(({ options }) => kindOf(options.input)), ['twice', 'conflict', 'drift']);",
+        "new_string": "test('four runs, each one transaction that ends in rollback, sent on stdin through psql without a shell', (t) => {\n  const { run, calls } = stack();\n  const result = verifySeed({ projectDir: project(t), run });\n  assert.deepEqual(result.problems, []);\n  const docker = calls.filter(({ command }) => command === 'docker');\n  assert.deepEqual(docker.map(({ options }) => kindOf(options.input)), ['twice', 'conflict', 'crossVersion', 'drift']);"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.test.mjs",
+        "old_string": "  const driftAt = drift.indexOf('Changed by the CT-1 seed check');\n  assert.ok(drift.indexOf('do $ct1_seed$') < driftAt && driftAt < drift.lastIndexOf('do $ct1_seed$'));\n});",
+        "new_string": "  const driftAt = drift.indexOf('Changed by the CT-1 seed check');\n  assert.ok(drift.indexOf('do $ct1_seed$') < driftAt && driftAt < drift.lastIndexOf('do $ct1_seed$'));\n});\n\ntest('the cross-version run plants the member row at version 2 while the seed carries the probe at version 1 (review M1)', () => {\n  const { conflict, crossVersion } = scripts;\n  const sameVersionPlant = `values ('${PROBE_ID}', 1, '${SYNTHETIC_MEMBER}', 'Claimed catalogue key'`;\n  const otherVersionPlant = `values ('${PROBE_ID}', 2, '${SYNTHETIC_MEMBER}', 'Claimed later catalogue version'`;\n  assert.ok(conflict.includes(sameVersionPlant) && !conflict.includes(otherVersionPlant), 'the existing conflict run is still the same-version case');\n  assert.ok(crossVersion.includes(otherVersionPlant) && !crossVersion.includes(sameVersionPlant), 'the new run plants only version 2');\n  assert.equal(count(crossVersion, `values ('${PROBE_ID}', `), 1, 'one planted member row, no member row at version 1');\n  assert.equal(count(crossVersion, 'do $ct1_seed$'), 1);\n  assert.ok(crossVersion.includes(`\"id\":\"${PROBE_ID}\",\"version\":1,`), 'the seed payload carries the probe at version 1');\n  assert.ok(!crossVersion.includes(`\"id\":\"${PROBE_ID}\",\"version\":2,`), 'the seed never carries the probe at version 2');\n  const setupAt = crossVersion.indexOf('ct1-seed-check@example.invalid');\n  const plantAt = crossVersion.indexOf(otherVersionPlant);\n  assert.ok(setupAt >= 0 && setupAt < plantAt && plantAt < crossVersion.indexOf('do $ct1_seed$'), 'the synthetic member exists before its row is planted, and the row before the seed runs');\n});"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.test.mjs",
+        "old_string": "  assert.ok(scripts.conflict.includes(`'${SYNTHETIC_MEMBER}', 'Claimed catalogue key'`));\n});\n\ntest('the result line carries the notice and the target', (t) => {\n  const result = verifySeed({ projectDir: project(t), run: stack().run });\n  assert.equal(result.line, `CT-1 seed check passed: ${NOTICE}; a member-owned catalogue key stopped the seed; a drifted catalogue row stopped the seed [supabase_db_fitlog_fixture at ${LOCAL_API_URL}]`);\n});\n\ntest('a seed that does not stop on a member-owned key or on drift fails the check', (t) => {\n  const passes = () => ({ status: 0, stdout: '', stderr: '' });\n  const conflict = verifySeed({ projectDir: project(t), run: stack({ override: { conflict: passes } }).run });\n  assert.deepEqual(conflict.problems, ['the seed did not stop when a member-owned row held a catalogue key']);\n  const drift = verifySeed({ projectDir: project(t), run: stack({ override: { drift: passes } }).run });\n  assert.deepEqual(drift.problems, ['the seed did not stop when an existing catalogue row differed from it']);\n});\n\ntest('a run that fails for another reason is not mistaken for the guard', (t) => {\n  const other = () => ({ status: 3, stdout: '', stderr: 'psql:<stdin>:5: ERROR:  null value in column \"aud\" violates not-null constraint\\n' });\n  const result = verifySeed({ projectDir: project(t), run: stack({ override: { conflict: other, drift: other } }).run });\n  assert.equal(result.problems.length, 2);\n  assert.match(result.problems[0], /^the member-owned key run failed for another reason: psql exited 3: /);\n  assert.match(result.problems[1], /^the drift run failed for another reason: psql exited 3: /);\n});",
+        "new_string": "  assert.ok(scripts.conflict.includes(`'${SYNTHETIC_MEMBER}', 'Claimed catalogue key'`));\n  assert.ok(scripts.crossVersion.includes(`'${SYNTHETIC_MEMBER}', 'Claimed later catalogue version'`));\n});\n\ntest('the result line carries the notice and the target', (t) => {\n  const result = verifySeed({ projectDir: project(t), run: stack().run });\n  assert.equal(result.line, `CT-1 seed check passed: ${NOTICE}; a member-owned catalogue key stopped the seed; a member-owned row on another version of a catalogue id stopped the seed; a drifted catalogue row stopped the seed [supabase_db_fitlog_fixture at ${LOCAL_API_URL}]`);\n});\n\ntest('a seed that does not stop on a member-owned key, a member-owned other version or drift fails the check', (t) => {\n  const passes = () => ({ status: 0, stdout: '', stderr: '' });\n  const conflict = verifySeed({ projectDir: project(t), run: stack({ override: { conflict: passes } }).run });\n  assert.deepEqual(conflict.problems, ['the seed did not stop when a member-owned row held a catalogue key']);\n  const crossVersion = verifySeed({ projectDir: project(t), run: stack({ override: { crossVersion: passes } }).run });\n  assert.deepEqual(crossVersion.problems, ['the seed did not stop when a member-owned row held another version of a catalogue id'], 'a seed that checks only (id, version) fails here');\n  const drift = verifySeed({ projectDir: project(t), run: stack({ override: { drift: passes } }).run });\n  assert.deepEqual(drift.problems, ['the seed did not stop when an existing catalogue row differed from it']);\n});\n\ntest('the cross-version run accepts only the member-owned error for exactly the probe id at version 2', (t) => {\n  const error = (text) => () => ({ status: 3, stdout: '', stderr: `psql:<stdin>:40: ERROR:  ${text}\\n` });\n  const otherKey = 'c7100000-0000-4000-8000-0000000000b1';\n  for (const [label, stderr] of [\n    ['the probe at the seed version', error(`CT-1 seed: catalogue key ${PROBE_ID} version 1 is held by a member-owned row`)],\n    ['another key at version 2', error(`CT-1 seed: catalogue key ${otherKey} version 2 is held by a member-owned row`)],\n    ['the probe at version 20', error(`CT-1 seed: catalogue key ${PROBE_ID} version 20 is held by a member-owned row`)],\n    ['the drift error', error(`CT-1 seed: catalogue row ${PROBE_ID} version 1 differs from this seed; publish a new version instead of editing it`)],\n  ]) {\n    const result = verifySeed({ projectDir: project(t), run: stack({ override: { crossVersion: stderr } }).run });\n    assert.equal(result.problems.length, 1, label);\n    assert.match(result.problems[0], /^the member-owned other-version run failed for another reason: psql exited 3: /, label);\n  }\n});\n\ntest('a run that fails for another reason is not mistaken for the guard', (t) => {\n  const other = () => ({ status: 3, stdout: '', stderr: 'psql:<stdin>:5: ERROR:  null value in column \"aud\" violates not-null constraint\\n' });\n  const result = verifySeed({ projectDir: project(t), run: stack({ override: { conflict: other, crossVersion: other, drift: other } }).run });\n  assert.equal(result.problems.length, 3);\n  assert.match(result.problems[0], /^the member-owned key run failed for another reason: psql exited 3: /);\n  assert.match(result.problems[1], /^the member-owned other-version run failed for another reason: psql exited 3: /);\n  assert.match(result.problems[2], /^the drift run failed for another reason: psql exited 3: /);\n});"
+      }
+    },
+    {
+      "name": "Grep",
+      "input": {
+        "pattern": "export (function|const) psqlFailure",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/backend/local-stack.mjs",
+        "output_mode": "content",
+        "-A": 4
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/seed.mjs",
+        "offset": 40,
+        "limit": 60
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.mjs",
+        "offset": 18,
+        "limit": 70
+      }
+    },
+    {
+      "name": "Grep",
+      "input": {
+        "pattern": "holds a catalogue key|writing nothing|member_version|Three psql|three runs",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app",
+        "output_mode": "content",
+        "-n": true,
+        "glob": "!node_modules/**"
+      }
+    },
+    {
+      "name": "Grep",
+      "input": {
+        "pattern": "sha256|split\\('\\\\n'\\)|lines|\\.sql",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/build-seed.test.mjs",
+        "output_mode": "content",
+        "-n": true
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "blocked, not passed. No box is claimed met on runtime evidence.\n\n## Session limits that shape this handoff",
+        "new_string": "blocked, not passed. No box is claimed met on runtime evidence.\n\n## Review M1 correction (1 Nov 2026, owner delegation AUTH-01)\n\nThis fixes only material M1 from `docs/evidence/CT-1/source-review-2026-11-01-collected.md`. **The code is\nwritten, but its tests have not been run.** This session used only Read, Grep, Edit and Write. It used no\nshell and ran no tests or installs. It made no database, Docker, Supabase or network calls, no commits and\nno sub-agent calls. Nothing here is runtime evidence, and no box or goal is claimed Done.\n\n- **Design (`seed.mjs`).** Each record's loop iteration now opens with one check that covers the whole id.\n  It runs before the `(id, version)` lookup and before the insert:\n  `select m.version into member_version from public.exercises m where m.id = <id> and m.owner_id is not null order by m.version limit 1`.\n  If a member-owned row holds that id at any version, the block raises the existing member-owned error\n  (`CT-1 seed: catalogue key % version % is held by a member-owned row`, errcode 23505), naming the lowest\n  version the member holds. The `DO` block is one statement, so it writes nothing.\n  - Unchanged: the same-version `existing.owner_id is not null` branch, which stays as a backstop.\n  - Unchanged: the drift check, the skip of an identical row, the single `insert` with `owner_id` null, and\n    the absence of `on conflict`.\n  - Unchanged: the payload and its sha256. Only the statement text and one header comment line of the\n    generated SQL differ.\n- **Static regression (`seed.test.mjs`).** New test: \"a member-owned row on any version of a catalogue id\n  stops the seed before the (id, version) lookup and the insert (review M1)\". It asserts that:\n  - there is exactly one check covering the whole id;\n  - that check does not filter on the seed row's version, and it reports the member's version;\n  - the order is loop start, then the id check, then the `(id, version)` lookup, then the insert;\n  - the same-version backstop is still present.\n- **Verifier variant (`verify-seed.mjs`).** A fourth rolled-back run, `crossVersion`, runs in one\n  `begin` \u2026 `rollback` transaction. It runs the setup SQL, plants a member-owned row at `(PROBE_ID, 2)`,\n  then runs the probe seed carrying `(PROBE_ID, 1)`.\n  - It passes only if psql fails and stderr contains exactly\n    `CT-1 seed: catalogue key <PROBE_ID> version 2 is held by a member-owned row`.\n  - The existing `twice`, same-version `conflict` and `drift` runs are unchanged, and so is how they are\n    detected. That includes the broader `MEMBER_HELD`/`DRIFTED` patterns; L1 was not acted on.\n  - The runs go in this order: twice \u2192 conflict \u2192 crossVersion \u2192 drift.\n  - The result line gains \"a member-owned row on another version of a catalogue id stopped the seed\".\n- **Fake-runner tests (`verify-seed.test.mjs`).** They cover:\n  - four runs, each `begin` \u2026 `rollback`;\n  - the cross-version run plants only version 2 and seeds the probe at version 1;\n  - a cross-version run that exits 0 (what the seed did before this fix) is reported;\n  - only the exact probe-id, version-2 error is accepted. Each of these is rejected: the probe at version 1,\n    another key at version 2, the probe at version 20, and the drift error;\n  - a failure for another reason is reported for all three guard runs;\n  - the updated result line.\n- **Not changed:** content, logging semantics, multipliers, schema, shared packages, contracts,\n  `scripts/backend/local-stack.mjs`, target selection, and the three `seed-check-*.sql` files.\n- **Gates still unrun:** frozen install, `node --test scripts/content/*.test.mjs` (including the new tests),\n  `build-seed.mjs check`, every mutation check (including new check 8 below) and the database run of\n  `verify-seed.mjs`, now four rolled-back transactions on a target the coordinator chooses.\n- **Unresolved:**\n  - Under READ COMMITTED, the check misses one case: a member insert at another version, committed between\n    this check and the insert. The same version is still caught, by the backstop or by the primary key.\n    Closing that gap needs the member-side half of QA-1 F-6 (MB-2) or a table lock. Both are out of scope\n    here.\n  - If a member has already claimed an id, the seed only stops. Recovery is an operator decision.\n- **Still open:** M2 (the owner's decision on band logging and the unilateral multiplier), M3 (wiring into\n  `test`/`backend:test`), every L finding, and every runtime and external gate in this handoff.\n\n## Session limits that shape this handoff"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "Static proof: `scripts/content/seed.test.mjs` (insert-only, no update, delete or upsert; owner_id null; stops on a member-held key and on drift). Database proof: `scripts/content/verify-seed.mjs` with `scripts/content/sql/seed-check-*.sql` seeds twice over a synthetic member's rows in a rolled-back transaction, plus conflict and drift runs.",
+        "new_string": "Static proof: `scripts/content/seed.test.mjs` (insert-only, no update, delete or upsert; owner_id null; stops on a member-held key at any version of the id, and on drift). Database proof: `scripts/content/verify-seed.mjs` with `scripts/content/sql/seed-check-*.sql` seeds twice over a synthetic member's rows in a rolled-back transaction, plus same-version conflict, cross-version conflict (member at version 2, seed at version 1; added for review M1, 1 Nov) and drift runs."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "| QA-1 F-6 | Seeds must fail loudly on a key they do not own | Implemented: the seed raises on a member-held key or on drift. There is no `on conflict do nothing` |",
+        "new_string": "| QA-1 F-6 | Seeds must fail loudly on a key they do not own | Implemented in source (untested): the seed raises on a member-held key at any version of the id (since the 1 Nov M1 correction) or on drift. There is no `on conflict do nothing` |"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "4. In `seed.mjs`, remove the `existing.owner_id is not null` branch. Expect red: \"an existing key stops\n   the seed\u2026\". In the database phase, the conflict run in `verify-seed.mjs` would also fail.",
+        "new_string": "4. In `seed.mjs`, remove the `existing.owner_id is not null` branch. Expect red: \"an existing key stops\n   the seed\u2026\". In the database phase, the conflict run in `verify-seed.mjs` would also fail. (Since the\n   1 Nov M1 correction, the check across all versions also catches this case. Only the static test turns\n   red; the conflict run still passes.)"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "7. In `checkOutPath`, drop the `supabase/migrations` check. Expect red: \"the seed is never written into\n   supabase/migrations/\u2026\".",
+        "new_string": "7. In `checkOutPath`, drop the `supabase/migrations` check. Expect red: \"the seed is never written into\n   supabase/migrations/\u2026\".\n8. (M1, 1 Nov) In `seed.mjs`, delete the member check that covers the whole id, or scope it with\n   `and m.version = (rec->>'version')::integer`. Expect red: \"a member-owned row on any version of a\n   catalogue id\u2026\". In the database phase, the `crossVersion` run would exit 0 and be reported."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "  - The seed inserts only rows with `owner_id null`. It never reads or writes member data beyond a\n    key-existence check, and it stops instead of overwriting.",
+        "new_string": "  - The seed inserts only rows with `owner_id null`. It never reads or writes member data beyond two\n    existence checks: whether a member holds the id at any version, then whether the `(id, version)` key\n    exists. It stops instead of overwriting."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "    or use server-generated ids. The seed half is done here.",
+        "new_string": "    or use server-generated ids. The seed half is written here: since the 1 Nov M1 correction it checks\n    every version of the id. It is untested, and the race noted in the M1 section stays open until this\n    member-side half lands."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "4. **The seed is insert-only.** It stops on a member-held key or on drift (no `on conflict do nothing`).",
+        "new_string": "4. **The seed is insert-only.** It stops on a member-held key at any version of the id, or on drift (no\n   `on conflict do nothing`)."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/handoff.md",
+        "old_string": "None from sub-agent reviewers, because none ran. All automated review is deferred to the coordinator's\nindependent review.",
+        "new_string": "None from sub-agent reviewers, because none ran. All automated review is deferred to the coordinator's\nindependent review.\n\nIndependent source review of 1 Nov (`docs/evidence/CT-1/source-review-2026-11-01-collected.md`):\n- M1 is fixed in source only; its tests are unrun.\n- M2, M3 and L1\u2013L9 are open and were not acted on."
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/checkpoint.md",
+        "old_string": "resolved to the prototype. Implementation is complete; only runtime proof remains.\n\n## Next step",
+        "new_string": "resolved to the prototype. Implementation is complete; only runtime proof remains.\n\n## M1 correction (1 Nov 2026, owner delegation AUTH-01)\n\nThis fixes only material M1 from `docs/evidence/CT-1/source-review-2026-11-01-collected.md`. It ran under\nthe CT-1 review and merge freeze. It is a correction, not new goal work.\n\n- **Tools:** Read, Grep, Edit and Write only. No shell, tests, installs, database, Docker, Supabase or\n  network, no commits, no sub-agents. **The code is written, but its tests have not been run.**\n- **`scripts/content/seed.mjs`:** each record now first raises the member-owned error if a member-owned\n  row holds the catalogue id at any version. This runs before the `(id, version)` lookup and the insert.\n  The same-version branch, the drift check, the skip of an identical row and the insert-only behaviour are\n  unchanged.\n- **`scripts/content/seed.test.mjs`:** one new static regression test for that check and its position.\n- **`scripts/content/verify-seed.mjs`:** a fourth rolled-back run, `crossVersion`. It plants a member row\n  at `(PROBE_ID, 2)`, seeds `(PROBE_ID, 1)`, and accepts only the error for exactly `PROBE_ID` at version 2.\n  The result line gains one clause. The twice, conflict and drift runs and their detection are unchanged.\n- **`scripts/content/verify-seed.test.mjs`:** the fake-runner tests are updated for four runs. New cases:\n  the cross-version plant, a cross-version run that exits 0, a near-miss error for the probe (rejected),\n  and a failure for another reason in all three guard runs.\n- **No changes to:** content, semantics, multipliers, schema, shared packages, contracts, local-stack or\n  target selection.\n- **Still open:** M2, M3, L1\u2013L9, and every runtime and external gate. A READ COMMITTED race (a member\n  insert at another version, committed between the check and the insert) stays for MB-2's member-side\n  guard. Full detail is in the handoff's \"Review M1 correction\" section. No Done claim.\n\n## Next step"
+      }
+    },
+    {
+      "name": "Edit",
+      "input": {
+        "replace_all": false,
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/docs/plan/runs/CT-1/checkpoint.md",
+        "old_string": "Fix anything they report. Then the coordinator's serialized DB phase runs\n`node scripts/content/verify-seed.mjs` against the local stack (or a disposable replay project).",
+        "new_string": "Fix anything they report. Then the coordinator's serialized DB phase runs\n`node scripts/content/verify-seed.mjs` against the local stack (or a disposable replay project). Since the\n1 Nov M1 correction, that is four rolled-back runs: twice, conflict, crossVersion and drift. They are still\nunrun, and so is the unit-test gate above."
+      }
+    },
+    {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-ct1-content/fitness_app/scripts/content/verify-seed.test.mjs",
+        "offset": 14,
+        "limit": 10
+      }
+    }
+  ]
+}

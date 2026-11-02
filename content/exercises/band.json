@@ -1,0 +1,142 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "band",
+  "exercises": [
+    {
+      "slug": "band-pull-apart", "version": 1, "name": "Band pull-apart", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["rear_delts", "upper_back"], "secondary": [],
+      "instructions": "Hold a band in front of your chest with your arms straight and hands shoulder-width apart. Pull the band apart until it touches your chest. Return slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-face-pull", "version": 1, "name": "Band face pull", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["rear_delts", "upper_back"], "secondary": ["rotator_cuff"],
+      "instructions": "Anchor a band at head height and hold an end in each hand. Pull towards your face, spreading your hands apart. Return slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-row", "version": 1, "name": "Seated band row", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps"],
+      "instructions": "Sit with your legs straight and loop a band around your feet. Pull the ends towards your waist, squeezing your shoulder blades together. Return slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-lat-pulldown", "version": 1, "name": "Kneeling band pulldown", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats"], "secondary": ["biceps"],
+      "instructions": "Anchor a band overhead and kneel facing it, holding an end in each hand. Pull your elbows down to your sides. Let your arms rise slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-chest-press", "version": 1, "name": "Band chest press", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts"],
+      "instructions": "Anchor a band behind you at chest height and hold an end in each hand. Press your hands forward until your arms are straight. Return slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-overhead-press", "version": 1, "name": "Band overhead press", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts"], "secondary": ["triceps"],
+      "instructions": "Stand on a band and hold the ends at shoulder height. Press them overhead until your arms are straight. Lower them slowly to your shoulders.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-lateral-raise", "version": 1, "name": "Band lateral raise", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["side_delts"], "secondary": [],
+      "instructions": "Stand on a band and hold an end in each hand at your sides. Raise your arms out to shoulder height. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-biceps-curl", "version": 1, "name": "Band biceps curl", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps"], "secondary": [],
+      "instructions": "Stand on a band and hold the ends with your palms facing forward. Curl your hands towards your shoulders. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-triceps-pressdown", "version": 1, "name": "Band triceps pressdown", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Anchor a band overhead and hold the ends with your elbows at your sides. Push down until your arms are straight. Let your hands rise slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-squat", "version": 1, "name": "Band squat", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": [],
+      "instructions": "Stand on a band with your feet shoulder-width apart and hold the ends at your shoulders. Squat down, then stand up against the band. Keep your heels down throughout.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-good-morning", "version": 1, "name": "Band good morning", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["hamstrings", "glutes"], "secondary": ["lower_back"],
+      "instructions": "Stand on a band and loop the other end across your upper back. Hinge forward with a flat back. Stand back up by driving your hips forward.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-glute-bridge", "version": 1, "name": "Banded glute bridge", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes"], "secondary": ["abductors"],
+      "instructions": "Lie on your back with a loop band just above your knees, knees bent and feet flat. Press your knees out against the band and lift your hips. Lower slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-lateral-walk", "version": 1, "name": "Banded lateral walk", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["abductors"], "secondary": ["glutes"],
+      "instructions": "Place a loop band around your legs above your knees and bend your knees slightly. Step sideways, keeping tension on the band. Log the steps taken in each direction.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-assisted-pull-up", "version": 1, "name": "Band-assisted pull-up", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "pull_vertical", "loggingType": "bodyweight", "loadBasis": "assistance",
+      "primary": ["lats"], "secondary": ["biceps", "upper_back"],
+      "instructions": "Loop a band over a pull-up bar and place a foot or knee in it. Pull yourself up until your chin clears the bar. Lower yourself slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-pallof-press", "version": 1, "name": "Band Pallof press", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "core", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["obliques", "abs"], "secondary": [],
+      "instructions": "Anchor a band at chest height and stand side-on, holding it at your chest. Press it straight out without letting your torso turn. Bring it back and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-deadlift", "version": 1, "name": "Band deadlift", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "hamstrings"], "secondary": ["lower_back"],
+      "instructions": "Stand on a band and hold the ends with your arms straight. Hinge to lower your hands towards your shins, then stand up tall. Keep your back flat throughout.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "band-external-rotation", "version": 1, "name": "Band external rotation", "aliases": [],
+      "category": "band", "equipment": "band", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["rotator_cuff"], "secondary": ["rear_delts"],
+      "instructions": "Anchor a band at elbow height and stand side-on, holding it in your far hand with the elbow bent and tucked in. Rotate your forearm outwards. Return slowly and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

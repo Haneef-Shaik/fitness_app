@@ -1,0 +1,238 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "cable",
+  "exercises": [
+    {
+      "slug": "cable-lat-pulldown", "version": 1, "name": "Lat pulldown", "aliases": ["Wide-grip lat pulldown"],
+      "category": "cable", "equipment": "cable", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats"], "secondary": ["biceps", "upper_back", "rear_delts"],
+      "instructions": "Sit with your thighs under the pads and grip the bar wider than your shoulders. Pull the bar down to your upper chest, leading with your elbows. Let it rise slowly until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-close-grip-pulldown", "version": 1, "name": "Close-grip lat pulldown", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats"], "secondary": ["biceps", "upper_back"],
+      "instructions": "Attach a close-grip handle and sit with your thighs secured under the pads. Pull the handle down to your upper chest, keeping your elbows close to your body. Return it slowly overhead.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-straight-arm-pulldown", "version": 1, "name": "Straight-arm pulldown", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats"], "secondary": ["triceps"],
+      "instructions": "Stand facing a high pulley holding a straight bar with your arms extended in front of you. Keep your arms straight and pull the bar down to your thighs. Let it return slowly to eye level.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-seated-row", "version": 1, "name": "Seated cable row", "aliases": ["Cable row"],
+      "category": "cable", "equipment": "cable", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps", "rear_delts"],
+      "instructions": "Sit with your feet on the platform and knees slightly bent, holding the handle with your arms straight. Pull it towards your lower ribs while keeping your torso upright. Extend your arms slowly to return.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-single-arm-row", "version": 1, "name": "Single-arm cable row", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["lats", "upper_back"], "secondary": ["biceps"],
+      "instructions": "Stand or sit facing a pulley set at chest height, holding a handle in one hand. Pull it towards your side, keeping your torso square. Return it slowly and finish one arm before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-face-pull", "version": 1, "name": "Face pull", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["rear_delts", "upper_back"], "secondary": ["rotator_cuff"],
+      "instructions": "Set a rope at upper-chest height and hold an end in each hand with your palms facing in. Pull the rope towards your face, spreading your hands apart as it approaches. Return it slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-crossover", "version": 1, "name": "Cable crossover", "aliases": ["Cable fly"],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["front_delts"],
+      "instructions": "Stand between two high pulleys holding a handle in each hand. With a slight bend in your elbows, bring the handles down and together in front of your hips. Open your arms slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-low-to-high-fly", "version": 1, "name": "Low-to-high cable fly", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals", "front_delts"], "secondary": [],
+      "instructions": "Set both pulleys low and hold a handle in each hand. Sweep your arms up and together until your hands meet at chest height. Lower them back along the same arc.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-chest-press", "version": 1, "name": "Standing cable chest press", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts"],
+      "instructions": "Stand facing away from two pulleys set at chest height, holding a handle in each hand. Step forward into a staggered stance and press the handles straight out. Let them return slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-triceps-pressdown", "version": 1, "name": "Cable triceps pressdown", "aliases": ["Triceps pushdown"],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Stand at a high pulley holding a straight bar with your elbows by your sides. Push the bar down until your arms are straight. Let it rise slowly without moving your elbows.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-rope-pressdown", "version": 1, "name": "Cable rope pressdown", "aliases": ["Rope pushdown"],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Hold a rope from a high pulley with your elbows tucked at your sides. Push down and spread the rope ends apart at the bottom. Return slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-overhead-triceps-extension", "version": 1, "name": "Overhead cable triceps extension", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Face away from a pulley holding a rope behind your head with your elbows pointing forward. Straighten your arms to move the rope forward and up. Bend your elbows slowly to return.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-curl", "version": 1, "name": "Cable curl", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps"], "secondary": ["forearms"],
+      "instructions": "Stand at a low pulley holding a straight bar with your palms facing up. Curl the bar towards your shoulders with your elbows still. Lower it slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-rope-hammer-curl", "version": 1, "name": "Cable rope hammer curl", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps", "forearms"], "secondary": [],
+      "instructions": "Hold a rope from a low pulley with your palms facing each other. Curl the rope up towards your shoulders. Lower it under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-lateral-raise", "version": 1, "name": "Single-arm cable lateral raise", "aliases": ["Cable lateral raise"],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["side_delts"], "secondary": [],
+      "instructions": "Stand side-on to a low pulley and hold the handle with your far hand. Raise your arm out to the side until it reaches shoulder height. Lower it slowly and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-front-raise", "version": 1, "name": "Cable front raise", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts"], "secondary": [],
+      "instructions": "Stand facing away from a low pulley, holding a straight bar or rope that runs between your legs. Raise your arms straight in front of you to shoulder height. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-rear-delt-fly", "version": 1, "name": "Cable reverse fly", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["rear_delts"], "secondary": ["upper_back"],
+      "instructions": "Stand between two pulleys set at shoulder height and cross the cables, holding each handle in the opposite hand. Pull your arms out and back until they are level with your shoulders. Return them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-upright-row", "version": 1, "name": "Cable upright row", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["side_delts", "traps"], "secondary": ["biceps"],
+      "instructions": "Stand at a low pulley holding a straight bar in front of your thighs. Pull it up along your body, leading with your elbows, to lower-chest height. Lower it slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-shrug", "version": 1, "name": "Cable shrug", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["traps"], "secondary": [],
+      "instructions": "Stand at a low pulley holding a straight bar with your arms straight. Lift your shoulders straight up towards your ears. Pause, then lower them.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-woodchop", "version": 1, "name": "Cable woodchop", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "core", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["obliques"], "secondary": ["abs", "front_delts"],
+      "instructions": "Stand side-on to a high pulley and hold the handle with both hands. Pull it down and across your body towards the opposite hip, turning your torso. Return slowly and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-pallof-press", "version": 1, "name": "Cable Pallof press", "aliases": ["Pallof press"],
+      "category": "cable", "equipment": "cable", "movement": "core", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["obliques", "abs"], "secondary": [],
+      "instructions": "Stand side-on to a pulley set at chest height and hold the handle at your chest. Press it straight out without letting your torso turn. Bring it back to your chest and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-crunch", "version": 1, "name": "Kneeling cable crunch", "aliases": ["Cable crunch"],
+      "category": "cable", "equipment": "cable", "movement": "core", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["abs"], "secondary": ["obliques"],
+      "instructions": "Kneel facing a high pulley and hold a rope beside your head. Curl your torso down by bringing your ribs towards your hips. Return slowly to upright.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-pull-through", "version": 1, "name": "Cable pull-through", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "hamstrings"], "secondary": ["lower_back"],
+      "instructions": "Face away from a low pulley holding a rope between your legs. Hinge at the hips to let the rope travel back, then drive your hips forward to stand tall. Keep your arms relaxed throughout.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-glute-kickback", "version": 1, "name": "Cable glute kickback", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Attach an ankle strap to a low pulley and face the machine. Kick the strapped leg straight back by squeezing your glute. Return slowly and finish one leg before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-hip-abduction", "version": 1, "name": "Standing cable hip abduction", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["abductors"], "secondary": ["glutes"],
+      "instructions": "Attach an ankle strap to a low pulley and stand side-on with the strap on your far ankle. Lift that leg out to the side. Lower it slowly and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-hip-adduction", "version": 1, "name": "Standing cable hip adduction", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["adductors"], "secondary": [],
+      "instructions": "Attach an ankle strap to a low pulley and stand side-on with the strap on your near ankle. Pull that leg across in front of the other. Return it slowly and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-single-arm-pulldown", "version": 1, "name": "Single-arm cable pulldown", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["lats"], "secondary": ["biceps"],
+      "instructions": "Kneel or sit below a high pulley holding a handle in one hand. Pull it down towards your shoulder, driving your elbow to your side. Return slowly and finish one arm before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-external-rotation", "version": 1, "name": "Cable external rotation", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["rotator_cuff"], "secondary": ["rear_delts"],
+      "instructions": "Set a handle at elbow height and stand side-on, holding it in your far hand with the elbow bent and tucked at your side. Rotate your forearm outwards, keeping your elbow in place. Return slowly and complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "cable-triceps-kickback", "version": 1, "name": "Cable triceps kickback", "aliases": [],
+      "category": "cable", "equipment": "cable", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Hinge forward slightly, holding a handle from a low pulley with your upper arm by your side. Straighten your elbow to move the handle back. Return slowly and finish one arm before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

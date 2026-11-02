@@ -1,0 +1,32 @@
+{
+  "schema": "fitlog.equipment.v1",
+  "equipment": [
+    { "id": "barbell", "name": "Barbell", "category": "barbell", "hi": "G14.hi" },
+    { "id": "ez_bar", "name": "EZ bar", "category": "barbell", "hi": "G14.hi" },
+    { "id": "trap_bar", "name": "Trap bar", "category": "barbell", "hi": "G14.hi" },
+    { "id": "dumbbell", "name": "Dumbbells", "category": "dumbbell", "hi": "G14.hi" },
+    { "id": "machine", "name": "Machine", "category": "machine", "hi": "G14.hi" },
+    { "id": "smith_machine", "name": "Smith machine", "category": "machine", "hi": "G14.hi" },
+    { "id": "back_extension_bench", "name": "Back extension bench", "category": "machine", "hi": "G14.hi" },
+    { "id": "cable", "name": "Cable machine", "category": "cable", "hi": "G14.hi" },
+    { "id": "bodyweight", "name": "Bodyweight", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "bench", "name": "Bench", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "pull_up_bar", "name": "Pull-up bar", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "dip_station", "name": "Dip station", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "low_bar", "name": "Low bar", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "ab_wheel", "name": "Ab wheel", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "plyo_box", "name": "Plyometric box", "category": "bodyweight", "hi": "G14.hi" },
+    { "id": "kettlebell", "name": "Kettlebell", "category": "kettlebell", "hi": "G14.hi" },
+    { "id": "band", "name": "Resistance band", "category": "band", "hi": "G14.hi" },
+    { "id": "treadmill", "name": "Treadmill", "category": "cardio", "hi": "G14.hi" },
+    { "id": "exercise_bike", "name": "Exercise bike", "category": "cardio", "hi": "G14.hi" },
+    { "id": "air_bike", "name": "Air bike", "category": "cardio", "hi": "G14.hi" },
+    { "id": "rowing_machine", "name": "Rowing machine", "category": "cardio", "hi": "G14.hi" },
+    { "id": "elliptical", "name": "Elliptical trainer", "category": "cardio", "hi": "G14.hi" },
+    { "id": "stair_climber", "name": "Stair climber", "category": "cardio", "hi": "G14.hi" },
+    { "id": "jump_rope", "name": "Jump rope", "category": "cardio", "hi": "G14.hi" },
+    { "id": "bicycle", "name": "Bicycle", "category": "cardio", "hi": "G14.hi" },
+    { "id": "pool", "name": "Swimming pool", "category": "cardio", "hi": "G14.hi" },
+    { "id": "none", "name": "No equipment", "category": "cardio", "hi": "G14.hi" }
+  ]
+}

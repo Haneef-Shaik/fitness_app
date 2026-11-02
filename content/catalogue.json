@@ -1,0 +1,40 @@
+{
+  "schema": "fitlog.content.v1",
+  "contentVersion": "2026-10-27.1",
+  "files": {
+    "muscles": "exercises/muscles.json",
+    "equipment": "exercises/equipment.json",
+    "exercises": [
+      "exercises/barbell.json",
+      "exercises/dumbbell.json",
+      "exercises/machine.json",
+      "exercises/cable.json",
+      "exercises/bodyweight.json",
+      "exercises/kettlebell.json",
+      "exercises/band.json",
+      "exercises/cardio.json"
+    ],
+    "programmes": "programmes/starter-programmes.json"
+  },
+  "sources": {
+    "fitlog-original": {
+      "kind": "original",
+      "title": "FitLog original catalogue text, written for CT-1",
+      "licence": "LicenseRef-FitLog-Original",
+      "versions": ["2026-10-27"],
+      "methods": ["authored"],
+      "statement": "Written new for FitLog in CT-1 attempt 1 on 27 October 2026 by the CT-1 implementer (Claude Opus 5.5, an AI model). No external text, data file or media was copied, imported or adapted, and no external source was consulted while writing. Exercise names, muscles and equipment are common descriptive facts. Ownership and registrability of AI-written text is a DEC-16 question for the owner and counsel; see docs/evidence/CT-1/provenance-and-review.md."
+    }
+  },
+  "review": {
+    "technical": [
+      {
+        "by": "Claude Opus 5.5 (CT-1 implementer, AI; self-review, not independent)",
+        "on": "2026-10-27",
+        "method": "Read every record once against the PRD 6.1 logging rules, the muscle and equipment taxonomy, the 2-4 sentence rule and the no-claims rule; the validator in scripts/content/catalogue.mjs enforces the mechanical part.",
+        "scope": "All exercises, muscles, equipment and starter programmes in content version 2026-10-27.1"
+      }
+    ],
+    "qualified": { "status": "pending", "gate": "OW-13" }
+  }
+}

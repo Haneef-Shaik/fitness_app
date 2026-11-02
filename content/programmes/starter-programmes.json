@@ -1,0 +1,174 @@
+{
+  "schema": "fitlog.starter-programmes.v1",
+  "programmes": [
+    {
+      "slug": "full-body-three-day",
+      "version": 1,
+      "name": "Full body, three days",
+      "description": "Three full-body gym sessions a week using dumbbells, cables and machines. Choose a load that lets you finish every set within the rep range with steady form. When you reach the top of the range on every set, add a small amount of load next time.",
+      "level": "introductory",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" },
+      "review": {
+        "technical": [
+          {
+            "by": "Claude Opus 5.5 (CT-1 implementer, AI; self-review, not independent)",
+            "on": "2026-10-27",
+            "method": "Checked every prescription against the PRD 6.2 bounds, the exercise logging type, the weekday spread and the no-claims rule; scripts/content/catalogue.mjs enforces the bounds. Not a qualified coaching or medical review."
+          }
+        ],
+        "qualified": { "status": "pending", "gate": "OW-13" }
+      },
+      "days": [
+        {
+          "slug": "day-1", "name": "Full body 1", "notes": "", "weekdays": [1], "hi": "G14.hi",
+          "items": [
+            { "exercise": "dumbbell-goblet-squat", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-bench-press", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "cable-lat-pulldown", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-romanian-deadlift", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "plank", "sets": 3, "repsMin": 1, "repsMax": 1, "durationSeconds": 30, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-2", "name": "Full body 2", "notes": "", "weekdays": [3], "hi": "G14.hi",
+          "items": [
+            { "exercise": "machine-leg-press", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "cable-seated-row", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-shoulder-press", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "machine-lying-leg-curl", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "dead-bug", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-3", "name": "Full body 3", "notes": "", "weekdays": [5], "hi": "G14.hi",
+          "items": [
+            { "exercise": "dumbbell-reverse-lunge", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "machine-chest-press", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-one-arm-row", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-hip-thrust", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "side-plank", "sets": 2, "repsMin": 1, "repsMax": 1, "durationSeconds": 30, "restSeconds": 60 }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "upper-lower-four-day",
+      "version": 1,
+      "name": "Upper and lower, four days",
+      "description": "Four sessions a week that alternate upper-body and lower-body days, built around barbell lifts with dumbbell, cable and machine accessories. Rest longer between the heavy barbell sets. When you reach the top of a rep range on every set, add a small amount of load next time.",
+      "level": "intermediate",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" },
+      "review": {
+        "technical": [
+          {
+            "by": "Claude Opus 5.5 (CT-1 implementer, AI; self-review, not independent)",
+            "on": "2026-10-27",
+            "method": "Checked every prescription against the PRD 6.2 bounds, the exercise logging type, the weekday spread and the no-claims rule; scripts/content/catalogue.mjs enforces the bounds. Not a qualified coaching or medical review."
+          }
+        ],
+        "qualified": { "status": "pending", "gate": "OW-13" }
+      },
+      "days": [
+        {
+          "slug": "day-1", "name": "Upper 1", "notes": "", "weekdays": [1], "hi": "G14.hi",
+          "items": [
+            { "exercise": "barbell-bench-press", "sets": 4, "repsMin": 6, "repsMax": 10, "restSeconds": 150 },
+            { "exercise": "barbell-bent-over-row", "sets": 4, "repsMin": 6, "repsMax": 10, "restSeconds": 150 },
+            { "exercise": "dumbbell-shoulder-press", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "cable-lat-pulldown", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-curl", "sets": 2, "repsMin": 10, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "cable-triceps-pressdown", "sets": 2, "repsMin": 10, "repsMax": 15, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-2", "name": "Lower 1", "notes": "", "weekdays": [2], "hi": "G14.hi",
+          "items": [
+            { "exercise": "barbell-back-squat", "sets": 4, "repsMin": 6, "repsMax": 10, "restSeconds": 180 },
+            { "exercise": "barbell-romanian-deadlift", "sets": 3, "repsMin": 8, "repsMax": 10, "restSeconds": 150 },
+            { "exercise": "machine-leg-press", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 120 },
+            { "exercise": "machine-seated-leg-curl", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "machine-standing-calf-raise", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "hanging-knee-raise", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-3", "name": "Upper 2", "notes": "", "weekdays": [4], "hi": "G14.hi",
+          "items": [
+            { "exercise": "dumbbell-incline-bench-press", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 120 },
+            { "exercise": "cable-seated-row", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 120 },
+            { "exercise": "machine-assisted-pull-up", "sets": 3, "repsMin": 6, "repsMax": 10, "restSeconds": 120 },
+            { "exercise": "dumbbell-lateral-raise", "sets": 3, "repsMin": 12, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "cable-face-pull", "sets": 3, "repsMin": 12, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "dumbbell-hammer-curl", "sets": 2, "repsMin": 10, "repsMax": 12, "restSeconds": 60 },
+            { "exercise": "cable-overhead-triceps-extension", "sets": 2, "repsMin": 10, "repsMax": 12, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-4", "name": "Lower 2", "notes": "", "weekdays": [5], "hi": "G14.hi",
+          "items": [
+            { "exercise": "barbell-deadlift", "sets": 3, "repsMin": 5, "repsMax": 8, "restSeconds": 180 },
+            { "exercise": "dumbbell-bulgarian-split-squat", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 120 },
+            { "exercise": "machine-leg-extension", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "machine-lying-leg-curl", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "machine-seated-calf-raise", "sets": 3, "repsMin": 12, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "cable-crunch", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 60 }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "home-bodyweight-dumbbell-three-day",
+      "version": 1,
+      "name": "Home, bodyweight and dumbbells",
+      "description": "Three home sessions a week that need only your bodyweight, a pair of dumbbells and a sturdy step or bench. When you reach the top of the rep range on every set, move to heavier dumbbells or a harder variation next time.",
+      "level": "introductory",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" },
+      "review": {
+        "technical": [
+          {
+            "by": "Claude Opus 5.5 (CT-1 implementer, AI; self-review, not independent)",
+            "on": "2026-10-27",
+            "method": "Checked every prescription against the PRD 6.2 bounds, the exercise logging type, the weekday spread and the no-claims rule; scripts/content/catalogue.mjs enforces the bounds. Not a qualified coaching or medical review."
+          }
+        ],
+        "qualified": { "status": "pending", "gate": "OW-13" }
+      },
+      "days": [
+        {
+          "slug": "day-1", "name": "Home 1", "notes": "", "weekdays": [2], "hi": "G14.hi",
+          "items": [
+            { "exercise": "bodyweight-squat", "sets": 3, "repsMin": 12, "repsMax": 20, "restSeconds": 60 },
+            { "exercise": "push-up", "sets": 3, "repsMin": 6, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "dumbbell-bent-over-row", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "glute-bridge", "sets": 3, "repsMin": 12, "repsMax": 20, "restSeconds": 60 },
+            { "exercise": "plank", "sets": 3, "repsMin": 1, "repsMax": 1, "durationSeconds": 30, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-2", "name": "Home 2", "notes": "", "weekdays": [4], "hi": "G14.hi",
+          "items": [
+            { "exercise": "dumbbell-goblet-squat", "sets": 3, "repsMin": 10, "repsMax": 15, "restSeconds": 90 },
+            { "exercise": "dumbbell-floor-press", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-one-arm-row", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dumbbell-romanian-deadlift", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "dead-bug", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 60 }
+          ]
+        },
+        {
+          "slug": "day-3", "name": "Home 3", "notes": "", "weekdays": [6], "hi": "G14.hi",
+          "items": [
+            { "exercise": "reverse-lunge", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 90 },
+            { "exercise": "pike-push-up", "sets": 3, "repsMin": 5, "repsMax": 10, "restSeconds": 90 },
+            { "exercise": "dumbbell-curl", "sets": 2, "repsMin": 10, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "dumbbell-overhead-triceps-extension", "sets": 2, "repsMin": 10, "repsMax": 15, "restSeconds": 60 },
+            { "exercise": "single-leg-glute-bridge", "sets": 3, "repsMin": 8, "repsMax": 12, "restSeconds": 60 },
+            { "exercise": "side-plank", "sets": 2, "repsMin": 1, "repsMax": 1, "durationSeconds": 30, "restSeconds": 60 }
+          ]
+        }
+      ]
+    }
+  ]
+}

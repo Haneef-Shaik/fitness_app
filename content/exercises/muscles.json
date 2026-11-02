@@ -1,0 +1,35 @@
+{
+  "schema": "fitlog.muscles.v1",
+  "regions": [
+    { "id": "chest", "name": "Chest", "hi": "G14.hi" },
+    { "id": "back", "name": "Back", "hi": "G14.hi" },
+    { "id": "shoulders", "name": "Shoulders", "hi": "G14.hi" },
+    { "id": "arms", "name": "Arms", "hi": "G14.hi" },
+    { "id": "core", "name": "Core", "hi": "G14.hi" },
+    { "id": "hips", "name": "Hips", "hi": "G14.hi" },
+    { "id": "legs", "name": "Legs", "hi": "G14.hi" }
+  ],
+  "muscles": [
+    { "id": "pectorals", "name": "Chest", "anatomy": "Pectoralis major and minor", "region": "chest", "hi": "G14.hi" },
+    { "id": "lats", "name": "Lats", "anatomy": "Latissimus dorsi", "region": "back", "hi": "G14.hi" },
+    { "id": "upper_back", "name": "Upper back", "anatomy": "Rhomboids and middle trapezius", "region": "back", "hi": "G14.hi" },
+    { "id": "traps", "name": "Traps", "anatomy": "Upper trapezius", "region": "back", "hi": "G14.hi" },
+    { "id": "lower_back", "name": "Lower back", "anatomy": "Erector spinae", "region": "back", "hi": "G14.hi" },
+    { "id": "front_delts", "name": "Front delts", "anatomy": "Anterior deltoid", "region": "shoulders", "hi": "G14.hi" },
+    { "id": "side_delts", "name": "Side delts", "anatomy": "Lateral deltoid", "region": "shoulders", "hi": "G14.hi" },
+    { "id": "rear_delts", "name": "Rear delts", "anatomy": "Posterior deltoid", "region": "shoulders", "hi": "G14.hi" },
+    { "id": "rotator_cuff", "name": "Rotator cuff", "anatomy": "Infraspinatus, teres minor, supraspinatus and subscapularis", "region": "shoulders", "hi": "G14.hi" },
+    { "id": "biceps", "name": "Biceps", "anatomy": "Biceps brachii and brachialis", "region": "arms", "hi": "G14.hi" },
+    { "id": "triceps", "name": "Triceps", "anatomy": "Triceps brachii", "region": "arms", "hi": "G14.hi" },
+    { "id": "forearms", "name": "Forearms", "anatomy": "Wrist and finger flexors and extensors, brachioradialis", "region": "arms", "hi": "G14.hi" },
+    { "id": "abs", "name": "Abs", "anatomy": "Rectus abdominis and transversus abdominis", "region": "core", "hi": "G14.hi" },
+    { "id": "obliques", "name": "Obliques", "anatomy": "Internal and external obliques", "region": "core", "hi": "G14.hi" },
+    { "id": "glutes", "name": "Glutes", "anatomy": "Gluteus maximus", "region": "hips", "hi": "G14.hi" },
+    { "id": "abductors", "name": "Outer hips", "anatomy": "Gluteus medius and minimus, tensor fasciae latae", "region": "hips", "hi": "G14.hi" },
+    { "id": "adductors", "name": "Inner thighs", "anatomy": "Adductor group", "region": "hips", "hi": "G14.hi" },
+    { "id": "hip_flexors", "name": "Hip flexors", "anatomy": "Iliopsoas and rectus femoris", "region": "hips", "hi": "G14.hi" },
+    { "id": "quads", "name": "Quadriceps", "anatomy": "Quadriceps femoris", "region": "legs", "hi": "G14.hi" },
+    { "id": "hamstrings", "name": "Hamstrings", "anatomy": "Biceps femoris, semitendinosus and semimembranosus", "region": "legs", "hi": "G14.hi" },
+    { "id": "calves", "name": "Calves", "anatomy": "Gastrocnemius and soleus", "region": "legs", "hi": "G14.hi" }
+  ]
+}

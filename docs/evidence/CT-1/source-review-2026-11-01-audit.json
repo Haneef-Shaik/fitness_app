@@ -1,0 +1,41 @@
+{
+  "sessionId": "808060e3-5df9-466f-8569-e0bb079fd549",
+  "tools": {
+    "Grep": 38,
+    "Read": 45
+  },
+  "errors": 0,
+  "permissionDenials": [],
+  "sourceHashesUnchanged": true,
+  "sourceHashes": {
+    "content/README.md": "3a7f12313969289b4bd1adbad8cc8b7175e5ea2c5bf32858c0cd8120c83fca5e",
+    "content/catalogue.json": "26144370fb1f106bec3c7976b545bd261782173efaf49b66a9beac4ff3f2b648",
+    "content/exercises/cardio.json": "a48a91229ca1775f62d4d9b5c550adbd71d599299716502c7c261aa44be299dc",
+    "content/exercises/kettlebell.json": "880815144cf0d3fdf5933fc4c202182d803c731621cd0d95975253a12e6fb005",
+    "content/exercises/cable.json": "d34d39aa77e18d2ea7b9d11fd1be66681384ced3a2396e2d973af86197fbf7e7",
+    "content/exercises/muscles.json": "36d1df4c85e8bfc105aef3ddc39879dbfe42f81bbbd294919f87b93f4ef328eb",
+    "content/exercises/barbell.json": "f5397e6a5d87b8a96419b10400eec50129a290579429f4c35674d48fe8269fdf",
+    "content/exercises/bodyweight.json": "e7c56a6d5358b36c65123d085977cccf4ea8e8312c637c3410ac39cd29b33b58",
+    "content/exercises/dumbbell.json": "364e0ca60ea1b311fc2974da893a37397b36ff9a3cf496eb178b6208fbdcb3e1",
+    "content/exercises/machine.json": "bd39d30f78895e69b84f5517964d9990adcaf7f672e6f4f5355908c021a8a91b",
+    "content/exercises/band.json": "fe17140c0943b837b174fc6148337ac1dfb2441479f5e5aa00c371d728a2e55c",
+    "content/exercises/equipment.json": "ff1260e6af6d4221c48af71e5eeb3d991c540934e00f46a3a03fe4857e623fd9",
+    "content/programmes/starter-programmes.json": "574650ad6ea9ec7f81b9e2d6035b6ba42bab081b7129bf319691769852399146",
+    "scripts/content/seed.mjs": "317a77c93a600ffc3f35d17547c96e9410b6398a13f19219a65da00eae5ec492",
+    "scripts/content/verify-seed.mjs": "89b1c2f0b742902664a7604bf583572d06df63d3a8f722482b269574de5d10a1",
+    "scripts/content/ids.test.mjs": "b59529eb925563d54bbc5538de32b31adc35eb1cb3b26a11bbef82d013d9333c",
+    "scripts/content/catalogue.test.mjs": "21254f251a82ddcfa0a6cef45de085985a1962f2dac126d8bb745dbb9cc770c7",
+    "scripts/content/build-seed.test.mjs": "0bb357e1fbc4ec7ef25413a6da6be34ac4a0061e5a47b04ff636b90357bbd9ef",
+    "scripts/content/verify-seed.test.mjs": "0a0bf0f67fdb30b906dd245537fad5d647252bae4dcff274c7dd9c87fcd093ed",
+    "scripts/content/ids.mjs": "6d9f04a6b2e85d35ffcb0e33dc93ab40aac21b912cbdc17b9af29e10a20266d4",
+    "scripts/content/templates.test.mjs": "0d725a1fcd332d089c73ea4b147beb2693d1b3d3c30b5fc7919a27ae70bd51a7",
+    "scripts/content/catalogue.mjs": "e84f2ae05980d631baf174bad3a6753afeebfcb711a96592a3a45180db8eed2b",
+    "scripts/content/seed.test.mjs": "bfb801f6c4076aef1cc6beea3b903ed6b95fcefe4aa7ed07e1f88045a0c680a7",
+    "scripts/content/build-seed.mjs": "819a71294a67e1cfa8c61bf2ccd674c26f44dadc912ccb5a10426025d80b356c",
+    "scripts/content/templates.mjs": "a41f56eae078c5fbd51b539bca32634329c663ff1b6961c6850be9f9fd142ce8",
+    "scripts/content/sql/seed-check-assert.sql": "19d52cd7bae98b5f527fee86c2078ac1291516eed6aa234e49c86369c4b90a53",
+    "scripts/content/sql/seed-check-after-first.sql": "8d0d2aab45fd6b6e7b0d3088fe7d269d8a113694baef18c1d019b38af03d0339",
+    "scripts/content/sql/seed-check-setup.sql": "72dbe1b75ccb8fdf829ff046a9b596126c33b30b90b4291623fc5aea8f0aeed7"
+  },
+  "complete": true
+}

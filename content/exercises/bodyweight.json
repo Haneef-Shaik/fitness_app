@@ -1,0 +1,374 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "bodyweight",
+  "exercises": [
+    {
+      "slug": "push-up", "version": 1, "name": "Push-up", "aliases": ["Press-up"],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "push_horizontal", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts", "abs"],
+      "instructions": "Start in a high plank with your hands slightly wider than your shoulders. Lower your chest towards the floor, keeping your body in a straight line. Push back up until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "knee-push-up", "version": 1, "name": "Knee push-up", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "push_horizontal", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts"],
+      "instructions": "Kneel and place your hands slightly wider than your shoulders, with your body straight from knees to head. Lower your chest towards the floor. Push back up until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "incline-push-up", "version": 1, "name": "Incline push-up", "aliases": [],
+      "category": "bodyweight", "equipment": "bench", "movement": "push_horizontal", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts"],
+      "instructions": "Place your hands on a bench or sturdy raised surface and walk your feet back until your body is straight. Lower your chest to the edge. Push back up to straight arms.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "decline-push-up", "version": 1, "name": "Decline push-up", "aliases": [],
+      "category": "bodyweight", "equipment": "bench", "movement": "push_horizontal", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["pectorals", "front_delts"], "secondary": ["triceps"],
+      "instructions": "Place your feet on a bench and your hands on the floor slightly wider than your shoulders. Lower your chest towards the floor with your body straight. Push back up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "diamond-push-up", "version": 1, "name": "Close-grip push-up", "aliases": ["Diamond push-up"],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "push_horizontal", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["triceps", "pectorals"], "secondary": ["front_delts"],
+      "instructions": "Start in a high plank with your hands close together under your chest. Lower your chest towards your hands, keeping your elbows close to your sides. Push back up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "pike-push-up", "version": 1, "name": "Pike push-up", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "push_vertical", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["front_delts"], "secondary": ["triceps"],
+      "instructions": "Start in an upside-down V shape with your hips high and your hands on the floor. Bend your elbows to lower the top of your head towards the floor. Press back up to straight arms.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "pull-up", "version": 1, "name": "Pull-up", "aliases": [],
+      "category": "bodyweight", "equipment": "pull_up_bar", "movement": "pull_vertical", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["lats"], "secondary": ["biceps", "upper_back"],
+      "instructions": "Hang from the bar with your hands slightly wider than your shoulders and palms facing away. Pull yourself up until your chin is over the bar. Lower yourself all the way down.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "chin-up", "version": 1, "name": "Chin-up", "aliases": [],
+      "category": "bodyweight", "equipment": "pull_up_bar", "movement": "pull_vertical", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["lats", "biceps"], "secondary": ["upper_back"],
+      "instructions": "Hang from the bar with your hands shoulder-width apart and palms facing you. Pull yourself up until your chin clears the bar. Lower yourself under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "inverted-row", "version": 1, "name": "Inverted row", "aliases": ["Bodyweight row"],
+      "category": "bodyweight", "equipment": "low_bar", "movement": "pull_horizontal", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps", "rear_delts"],
+      "instructions": "Lie under a bar set at about hip height and grip it with your arms straight and heels on the floor. Keeping your body straight, pull your chest up to the bar. Lower yourself slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dip", "version": 1, "name": "Parallel bar dip", "aliases": ["Dip"],
+      "category": "bodyweight", "equipment": "dip_station", "movement": "push_vertical", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["triceps", "pectorals"], "secondary": ["front_delts"],
+      "instructions": "Support yourself on the bars with your arms straight. Lower your body by bending your elbows until your upper arms are about parallel to the floor. Press back up to straight arms.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bench-dip", "version": 1, "name": "Bench dip", "aliases": [],
+      "category": "bodyweight", "equipment": "bench", "movement": "push_vertical", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["triceps"], "secondary": ["front_delts", "pectorals"],
+      "instructions": "Sit on the edge of a bench with your hands beside your hips, then slide your hips off the edge. Bend your elbows to lower your body. Press back up until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bodyweight-squat", "version": 1, "name": "Bodyweight squat", "aliases": ["Air squat"],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "squat", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["adductors"],
+      "instructions": "Stand with your feet shoulder-width apart and your arms in front of you. Sit down by bending your hips and knees as far as you can with your heels down. Stand back up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "jump-squat", "version": 1, "name": "Jump squat", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "power", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["calves"],
+      "instructions": "Squat down to a comfortable depth. Jump straight up as high as you can. Land softly and go straight into the next squat.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "forward-lunge", "version": 1, "name": "Forward lunge", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "lunge", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings"],
+      "instructions": "Stand tall and step one foot forward. Lower until both knees are bent, then push off your front foot to return. Log the repetitions for each leg.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "reverse-lunge", "version": 1, "name": "Bodyweight reverse lunge", "aliases": ["Reverse lunge"],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "lunge", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings"],
+      "instructions": "Stand tall and step one foot back. Lower until both knees are bent, then drive through your front foot to stand. Log the repetitions for each leg.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "walking-lunge", "version": 1, "name": "Bodyweight walking lunge", "aliases": ["Walking lunge"],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "lunge", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+      "instructions": "Step forward into a lunge until both knees are bent. Push through your front foot and bring your back foot forward into the next lunge. Log the number of steps taken with each leg.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bodyweight-bulgarian-split-squat", "version": 1, "name": "Bodyweight Bulgarian split squat", "aliases": [],
+      "category": "bodyweight", "equipment": "bench", "movement": "lunge", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["adductors"],
+      "instructions": "Stand in front of a bench and rest the top of your back foot on it. Lower your back knee towards the floor, keeping your front foot flat. Stand back up and finish one leg before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "step-up", "version": 1, "name": "Bodyweight step-up", "aliases": ["Step-up"],
+      "category": "bodyweight", "equipment": "bench", "movement": "lunge", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["calves"],
+      "instructions": "Place one foot on a sturdy bench or step. Drive through that foot to stand up on it, then step back down. Complete all repetitions on one leg before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "glute-bridge", "version": 1, "name": "Glute bridge", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "hinge", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Lie on your back with your knees bent and feet flat. Push through your heels to lift your hips until your body is straight from shoulders to knees. Lower slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "single-leg-glute-bridge", "version": 1, "name": "Single-leg glute bridge", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "hinge", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Lie on your back with one knee bent and the other leg straight. Push through your planted heel to lift your hips. Lower slowly and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bodyweight-calf-raise", "version": 1, "name": "Bodyweight calf raise", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "isolation_lower", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["calves"], "secondary": [],
+      "instructions": "Stand with the balls of your feet on a step, holding something for balance. Rise onto your toes as high as you can. Lower your heels slowly below the step.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "wall-sit", "version": 1, "name": "Wall sit", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "squat", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["quads"], "secondary": ["glutes"],
+      "instructions": "Lean your back against a wall and slide down until your knees are bent to about a right angle. Hold this position with your feet flat. Stand up when the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "plank", "version": 1, "name": "Plank", "aliases": ["Forearm plank"],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["abs"], "secondary": ["obliques", "glutes"],
+      "instructions": "Rest on your forearms and toes with your elbows under your shoulders. Hold your body in a straight line from head to heels. Breathe steadily until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "side-plank", "version": 1, "name": "Side plank", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "timed", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["obliques"], "secondary": ["abs", "abductors"],
+      "instructions": "Lie on your side and prop yourself up on one forearm with your feet stacked. Lift your hips so your body is straight from head to feet. Hold, then switch sides and log the time for each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "crunch", "version": 1, "name": "Crunch", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs"], "secondary": [],
+      "instructions": "Lie on your back with your knees bent and your hands lightly beside your head. Curl your shoulders off the floor by tightening your abs. Lower slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bicycle-crunch", "version": 1, "name": "Bicycle crunch", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["obliques", "abs"], "secondary": [],
+      "instructions": "Lie on your back with your hands beside your head and your legs raised. Bring one elbow towards the opposite knee as you straighten the other leg, then switch. Log the repetitions for each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "lying-leg-raise", "version": 1, "name": "Lying leg raise", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs"], "secondary": ["hip_flexors"],
+      "instructions": "Lie on your back with your legs straight and your hands under your hips. Raise your legs until they point at the ceiling. Lower them slowly without letting them touch the floor.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "hanging-leg-raise", "version": 1, "name": "Hanging leg raise", "aliases": [],
+      "category": "bodyweight", "equipment": "pull_up_bar", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs", "hip_flexors"], "secondary": ["forearms"],
+      "instructions": "Hang from a bar with your arms straight. Raise your straight legs in front of you to hip height or higher without swinging. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "hanging-knee-raise", "version": 1, "name": "Hanging knee raise", "aliases": [],
+      "category": "bodyweight", "equipment": "pull_up_bar", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs", "hip_flexors"], "secondary": ["forearms"],
+      "instructions": "Hang from a bar with your arms straight. Draw your knees up towards your chest. Lower them under control without swinging.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "mountain-climber", "version": 1, "name": "Mountain climber", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "conditioning", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["abs", "hip_flexors"], "secondary": ["front_delts", "quads"],
+      "instructions": "Start in a high plank. Drive one knee towards your chest, then quickly switch legs in a running motion. Keep your hips level until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "burpee", "version": 1, "name": "Burpee", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "conditioning", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["quads", "pectorals"], "secondary": ["triceps", "abs", "calves"],
+      "instructions": "From standing, squat and place your hands on the floor. Jump your feet back to a plank, then jump them forward again. Stand and jump up with your arms overhead.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "jumping-jack", "version": 1, "name": "Jumping jacks", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "conditioning", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["calves"], "secondary": ["abductors", "side_delts"],
+      "instructions": "Stand with your feet together and your arms by your sides. Jump your feet out wide while raising your arms overhead. Jump back to the start and repeat at a steady pace until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "superman-hold", "version": 1, "name": "Superman hold", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["lower_back"], "secondary": ["glutes"],
+      "instructions": "Lie face down with your arms stretched overhead. Lift your arms, chest and legs a few inches off the floor. Hold the position until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bird-dog", "version": 1, "name": "Bird dog", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["abs", "lower_back"], "secondary": ["glutes"],
+      "instructions": "Start on your hands and knees. Reach one arm forward and the opposite leg back until both are level with your torso. Return and log the repetitions for each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dead-bug", "version": 1, "name": "Dead bug", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["abs"], "secondary": ["hip_flexors"],
+      "instructions": "Lie on your back with your arms pointing up and your knees bent above your hips. Lower one arm and the opposite leg towards the floor while keeping your lower back down. Return and log the repetitions for each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "hollow-body-hold", "version": 1, "name": "Hollow body hold", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["abs"], "secondary": ["hip_flexors"],
+      "instructions": "Lie on your back and lift your shoulders and legs off the floor, with your arms reaching past your head. Press your lower back into the floor. Hold the shape until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "ab-wheel-rollout", "version": 1, "name": "Ab wheel rollout", "aliases": [],
+      "category": "bodyweight", "equipment": "ab_wheel", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs"], "secondary": ["lats", "obliques"],
+      "instructions": "Kneel holding an ab wheel under your shoulders. Roll it forward as far as you can without letting your back sag. Pull it back towards your knees using your abs.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "russian-twist", "version": 1, "name": "Russian twist", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["obliques"], "secondary": ["abs"],
+      "instructions": "Sit with your knees bent and lean back slightly with your hands together at your chest. Turn your torso to touch the floor beside one hip, then the other. Log the repetitions for each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "reverse-crunch", "version": 1, "name": "Reverse crunch", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs"], "secondary": [],
+      "instructions": "Lie on your back with your knees bent and lifted so your thighs are vertical. Curl your hips off the floor towards your ribs. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "bear-crawl", "version": 1, "name": "Bear crawl", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "conditioning", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["abs", "front_delts"], "secondary": ["quads"],
+      "instructions": "Start on your hands and feet with your knees hovering just above the floor. Crawl forward by moving the opposite hand and foot together. Keep your back flat until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "high-knees", "version": 1, "name": "High knees", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "conditioning", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["hip_flexors", "quads"], "secondary": ["calves"],
+      "instructions": "Run on the spot, driving each knee up to hip height. Pump your arms in time with your legs. Keep going at a steady pace until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "skater-jump", "version": 1, "name": "Skater jump", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "power", "loggingType": "bodyweight", "loadBasis": "none", "repsPerSide": true,
+      "primary": ["glutes", "quads"], "secondary": ["abductors", "calves"],
+      "instructions": "Leap sideways from one foot and land on the other, letting the free leg swing behind you. Pause briefly, then leap back to the start. Log the landings on each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dead-hang", "version": 1, "name": "Dead hang", "aliases": [],
+      "category": "bodyweight", "equipment": "pull_up_bar", "movement": "isolation_upper", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["forearms"], "secondary": ["lats"],
+      "instructions": "Grip a pull-up bar with your hands shoulder-width apart. Hang with your arms straight and your feet off the floor. Hold until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "sit-up", "version": 1, "name": "Sit-up", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["abs"], "secondary": ["hip_flexors"],
+      "instructions": "Lie on your back with your knees bent and your feet flat. Curl up until your chest is close to your thighs. Lower back down slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "flutter-kick", "version": 1, "name": "Flutter kicks", "aliases": [],
+      "category": "bodyweight", "equipment": "bodyweight", "movement": "core", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["abs", "hip_flexors"], "secondary": [],
+      "instructions": "Lie on your back with your legs straight and lifted a few inches off the floor. Kick your legs up and down in small, quick movements. Keep your lower back pressed down until the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "box-jump", "version": 1, "name": "Box jump", "aliases": [],
+      "category": "bodyweight", "equipment": "plyo_box", "movement": "power", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["calves"],
+      "instructions": "Stand facing a sturdy box. Swing your arms and jump onto it, landing softly with both feet. Stand tall, then step back down.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

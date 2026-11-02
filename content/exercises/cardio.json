@@ -1,0 +1,118 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "cardio",
+  "exercises": [
+    {
+      "slug": "treadmill-walk", "version": 1, "name": "Treadmill walk", "aliases": [],
+      "category": "cardio", "equipment": "treadmill", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+      "instructions": "Start the belt at a slow pace and step on. Walk upright at a pace you can keep. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "incline-treadmill-walk", "version": 1, "name": "Incline treadmill walk", "aliases": [],
+      "category": "cardio", "equipment": "treadmill", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["glutes", "calves"], "secondary": ["hamstrings", "quads"],
+      "instructions": "Set an incline and a walking pace you can keep. Walk upright without holding the rails. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "treadmill-run", "version": 1, "name": "Treadmill run", "aliases": [],
+      "category": "cardio", "equipment": "treadmill", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+      "instructions": "Start at a walk, then raise the speed to a running pace you can keep. Run with relaxed shoulders. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "outdoor-walk", "version": 1, "name": "Walk", "aliases": ["Outdoor walk", "Walking"],
+      "category": "cardio", "equipment": "none", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+      "instructions": "Walk at a pace you can keep on a route you know. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "outdoor-run", "version": 1, "name": "Run", "aliases": ["Outdoor run", "Running"],
+      "category": "cardio", "equipment": "none", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+      "instructions": "Start with a few minutes of easy jogging, then run at a pace you can keep. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "stationary-bike", "version": 1, "name": "Exercise bike", "aliases": ["Stationary bike"],
+      "category": "cardio", "equipment": "exercise_bike", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads"], "secondary": ["glutes", "hamstrings", "calves"],
+      "instructions": "Adjust the seat so your knee stays slightly bent at the bottom of each pedal stroke. Pedal at a steady cadence and resistance. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "recumbent-bike", "version": 1, "name": "Recumbent bike", "aliases": [],
+      "category": "cardio", "equipment": "exercise_bike", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads"], "secondary": ["glutes", "hamstrings"],
+      "instructions": "Sit back in the seat and set it so your legs are nearly straight at full reach. Pedal at a steady pace. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "outdoor-cycling", "version": 1, "name": "Cycling", "aliases": ["Outdoor cycling"],
+      "category": "cardio", "equipment": "bicycle", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads"], "secondary": ["glutes", "hamstrings", "calves"],
+      "instructions": "Check your bicycle and choose your route before you set off. Ride at a steady effort you can keep. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "rowing-machine", "version": 1, "name": "Rowing machine", "aliases": ["Rower", "Indoor rowing"],
+      "category": "cardio", "equipment": "rowing_machine", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["lats", "upper_back", "quads"], "secondary": ["glutes", "hamstrings", "biceps"],
+      "instructions": "Strap in and push with your legs first, then lean back slightly and pull the handle to your lower ribs. Return in reverse order: arms, body, then legs. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "elliptical", "version": 1, "name": "Elliptical", "aliases": ["Cross trainer"],
+      "category": "cardio", "equipment": "elliptical", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+      "instructions": "Step onto the pedals and hold the handles. Move at a steady rhythm, pushing and pulling with your arms. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "stair-climber", "version": 1, "name": "Stair climber", "aliases": ["Stepmill"],
+      "category": "cardio", "equipment": "stair_climber", "movement": "cardio", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["quads", "glutes"], "secondary": ["calves", "hamstrings"],
+      "instructions": "Step on and choose a speed you can keep. Climb with your whole foot on each step and a light grip on the rails. Log the time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "jump-rope", "version": 1, "name": "Jump rope", "aliases": ["Skipping"],
+      "category": "cardio", "equipment": "jump_rope", "movement": "cardio", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["calves"], "secondary": ["quads", "forearms"],
+      "instructions": "Hold the handles at hip height and turn the rope with your wrists. Jump just high enough to clear it, landing on the balls of your feet. Log the time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "air-bike", "version": 1, "name": "Air bike", "aliases": ["Fan bike"],
+      "category": "cardio", "equipment": "air_bike", "movement": "cardio", "loggingType": "timed", "loadBasis": "none",
+      "primary": ["quads", "front_delts"], "secondary": ["glutes", "triceps"],
+      "instructions": "Push and pull the handles while you pedal. The harder you work, the more resistance the fan gives. Log the time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "swimming", "version": 1, "name": "Swimming", "aliases": [],
+      "category": "cardio", "equipment": "pool", "movement": "cardio", "loggingType": "distance", "loadBasis": "none",
+      "primary": ["lats"], "secondary": ["pectorals", "triceps", "quads"],
+      "instructions": "Swim at a steady pace in a stroke you know well. Rest at the wall whenever you need to. Log the distance and time when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

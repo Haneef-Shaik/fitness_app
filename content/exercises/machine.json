@@ -1,0 +1,262 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "machine",
+  "exercises": [
+    {
+      "slug": "machine-leg-press", "version": 1, "name": "Leg press", "aliases": ["Sled leg press"],
+      "category": "machine", "equipment": "machine", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+      "instructions": "Sit in the leg press with your back flat against the pad and your feet shoulder-width apart on the platform. Release the stops and bend your knees to lower the platform towards your chest. Press it away until your legs are almost straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-single-leg-press", "version": 1, "name": "Single-leg leg press", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "squat", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings"],
+      "instructions": "Set up in the leg press and place one foot in the middle of the platform. Lower the platform by bending that knee, then press it back up. Finish all repetitions with one leg before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-hack-squat", "version": 1, "name": "Hack squat", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads"], "secondary": ["glutes", "adductors"],
+      "instructions": "Stand on the platform with your back and shoulders against the pads. Release the handles and squat down until your thighs are about parallel to the platform. Drive back up through your whole foot.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-leg-extension", "version": 1, "name": "Leg extension", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads"], "secondary": [],
+      "instructions": "Sit with your back against the pad and the roller resting on your lower shins. Straighten your knees to lift the roller. Lower it slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-seated-leg-curl", "version": 1, "name": "Seated leg curl", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["hamstrings"], "secondary": ["calves"],
+      "instructions": "Sit with the lower pad behind your ankles and the thigh pad secured above your knees. Bend your knees to pull the pad down and back. Return it slowly until your legs are almost straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-lying-leg-curl", "version": 1, "name": "Lying leg curl", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["hamstrings"], "secondary": ["calves"],
+      "instructions": "Lie face down with the pad just above your heels and your knees just off the edge of the bench. Curl your heels towards your glutes. Lower the pad under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-standing-calf-raise", "version": 1, "name": "Standing calf raise machine", "aliases": ["Machine calf raise"],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["calves"], "secondary": [],
+      "instructions": "Stand under the shoulder pads with the balls of your feet on the edge of the platform. Rise onto your toes as high as you can. Lower your heels slowly for a full stretch.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-seated-calf-raise", "version": 1, "name": "Seated calf raise", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["calves"], "secondary": [],
+      "instructions": "Sit with the pad resting on your lower thighs and the balls of your feet on the platform. Push up onto your toes, then lower your heels as far as is comfortable. Move slowly through the full range.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-hip-abduction", "version": 1, "name": "Hip abduction machine", "aliases": ["Seated hip abduction"],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["abductors"], "secondary": ["glutes"],
+      "instructions": "Sit in the machine with the pads against the outside of your knees. Push your knees apart as far as you can. Bring them back together slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-hip-adduction", "version": 1, "name": "Hip adduction machine", "aliases": ["Seated hip adduction"],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["adductors"], "secondary": [],
+      "instructions": "Sit with the pads against the inside of your knees and your legs apart. Squeeze your knees together. Let them open slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-chest-press", "version": 1, "name": "Machine chest press", "aliases": ["Seated chest press"],
+      "category": "machine", "equipment": "machine", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["front_delts", "triceps"],
+      "instructions": "Adjust the seat so the handles line up with your mid-chest. Press the handles forward until your arms are straight. Let them return slowly until you feel a stretch across your chest.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-incline-chest-press", "version": 1, "name": "Incline machine chest press", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals", "front_delts"], "secondary": ["triceps"],
+      "instructions": "Sit with your back on the inclined pad and grip the handles at upper-chest height. Press them up and forward until your arms are straight. Return them under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-pec-deck", "version": 1, "name": "Pec deck", "aliases": ["Machine fly"],
+      "category": "machine", "equipment": "machine", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["front_delts"],
+      "instructions": "Sit with your back flat against the pad and hold the handles with your arms out to the sides. Bring the handles together in front of your chest in a wide arc. Open your arms slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-rear-delt-fly", "version": 1, "name": "Reverse pec deck", "aliases": ["Rear delt machine"],
+      "category": "machine", "equipment": "machine", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["rear_delts"], "secondary": ["upper_back"],
+      "instructions": "Sit facing the pad and hold the handles in front of you with your arms straight. Pull your arms back and out until they are level with your torso. Return them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-shoulder-press", "version": 1, "name": "Machine shoulder press", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts"], "secondary": ["triceps", "side_delts"],
+      "instructions": "Adjust the seat so the handles start at about shoulder height. Press them overhead until your arms are straight. Lower them back to the start under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-lateral-raise", "version": 1, "name": "Machine lateral raise", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["side_delts"], "secondary": [],
+      "instructions": "Sit with the pads against the outside of your upper arms. Raise your arms out to the sides until they reach shoulder height. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-seated-row", "version": 1, "name": "Seated machine row", "aliases": ["Chest-supported machine row"],
+      "category": "machine", "equipment": "machine", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps", "rear_delts"],
+      "instructions": "Sit with your chest against the pad and grip the handles with your arms straight. Pull the handles towards your torso, squeezing your shoulder blades together. Return them under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-high-row", "version": 1, "name": "Machine high row", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats", "upper_back"], "secondary": ["biceps"],
+      "instructions": "Sit facing the machine and grip the handles above you. Pull them down and back towards your upper ribs. Let them return slowly until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-assisted-pull-up", "version": 1, "name": "Assisted pull-up", "aliases": ["Assisted pull-up machine"],
+      "category": "machine", "equipment": "machine", "movement": "pull_vertical", "loggingType": "bodyweight", "loadBasis": "assistance",
+      "primary": ["lats"], "secondary": ["biceps", "upper_back"],
+      "instructions": "Kneel or stand on the platform and grip the handles above you. Pull yourself up until your chin passes the handles. Lower yourself until your arms are straight, and log the assistance you used.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-assisted-dip", "version": 1, "name": "Assisted dip", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "push_vertical", "loggingType": "bodyweight", "loadBasis": "assistance",
+      "primary": ["triceps", "pectorals"], "secondary": ["front_delts"],
+      "instructions": "Kneel or stand on the platform and grip the dip handles with your arms straight. Lower yourself by bending your elbows until your upper arms are about parallel to the floor. Press back up and log the assistance you used.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-preacher-curl", "version": 1, "name": "Machine preacher curl", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps"], "secondary": [],
+      "instructions": "Sit with the backs of your upper arms on the pad and grip the handles. Curl them up towards your shoulders. Lower them slowly until your elbows are almost straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-seated-dip", "version": 1, "name": "Seated dip machine", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": ["pectorals"],
+      "instructions": "Sit with your back against the pad and grip the handles beside you. Press the handles down until your arms are straight. Let them rise slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-back-extension", "version": 1, "name": "Back extension", "aliases": ["Hyperextension"],
+      "category": "machine", "equipment": "back_extension_bench", "movement": "hinge", "loggingType": "bodyweight", "loadBasis": "none",
+      "primary": ["lower_back", "glutes"], "secondary": ["hamstrings"],
+      "instructions": "Set the pad just below your hips and hook your feet under the rollers. Lower your torso by bending at the hips. Raise it until your body forms a straight line, without arching past it.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "smith-machine-squat", "version": 1, "name": "Smith machine squat", "aliases": [],
+      "category": "machine", "equipment": "smith_machine", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+      "instructions": "Set the bar on your upper back and place your feet slightly in front of it. Unhook the bar and squat down with control. Stand back up and re-hook the bar when you finish.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "smith-machine-bench-press", "version": 1, "name": "Smith machine bench press", "aliases": [],
+      "category": "machine", "equipment": "smith_machine", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts"],
+      "instructions": "Lie on a bench so the bar lines up with your mid-chest. Unhook it, lower it to your chest and press it back up. Re-hook the bar at the end of the set.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "smith-machine-incline-press", "version": 1, "name": "Smith machine incline press", "aliases": [],
+      "category": "machine", "equipment": "smith_machine", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals", "front_delts"], "secondary": ["triceps"],
+      "instructions": "Set an incline bench under the bar so it lines up with your upper chest. Unhook the bar, lower it to your upper chest and press it back up. Re-hook it when the set is done.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "smith-machine-shoulder-press", "version": 1, "name": "Smith machine shoulder press", "aliases": [],
+      "category": "machine", "equipment": "smith_machine", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts"], "secondary": ["triceps"],
+      "instructions": "Sit on an upright bench under the bar with your hands just outside your shoulders. Unhook the bar and press it overhead, then lower it to chin height. Re-hook it at the end of the set.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "smith-machine-split-squat", "version": 1, "name": "Smith machine split squat", "aliases": [],
+      "category": "machine", "equipment": "smith_machine", "movement": "lunge", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["adductors"],
+      "instructions": "Set the bar on your upper back and stand in a long split stance. Lower your back knee towards the floor, then press up through your front foot. Complete one leg before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "smith-machine-hip-thrust", "version": 1, "name": "Smith machine hip thrust", "aliases": [],
+      "category": "machine", "equipment": "smith_machine", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Sit with your upper back on a bench and the padded bar across your hips. Drive your hips up until your torso and thighs are level. Lower your hips slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-glute-kickback", "version": 1, "name": "Glute kickback machine", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Set up on the machine with one foot on the platform and your torso supported. Push the platform back by extending your hip. Return slowly and finish one leg before the other.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-torso-rotation", "version": 1, "name": "Rotary torso machine", "aliases": ["Torso rotation machine"],
+      "category": "machine", "equipment": "machine", "movement": "core", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["obliques"], "secondary": ["abs"],
+      "instructions": "Sit with your chest against the pad and your legs secured. Turn your torso to one side against the resistance, then return to the centre. Complete one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "machine-ab-crunch", "version": 1, "name": "Ab crunch machine", "aliases": [],
+      "category": "machine", "equipment": "machine", "movement": "core", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["abs"], "secondary": [],
+      "instructions": "Sit with your back against the pad and hold the handles or rest your arms on the pads. Curl your torso forward by tightening your abs. Return slowly to upright.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

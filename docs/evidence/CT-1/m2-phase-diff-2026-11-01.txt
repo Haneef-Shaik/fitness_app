@@ -1,0 +1,422 @@
+--- before/scripts/content/catalogue.mjs
++++ after/scripts/content/catalogue.mjs
+@@ -30,6 +30,12 @@
+ /** External text may enter only under one of these (no non-commercial, no-derivatives or share-alike terms). */
+ export const PERMITTED_EXTERNAL_LICENCES = Object.freeze(['CC0-1.0', 'Unlicense', '0BSD', 'MIT', 'BSD-2-Clause', 'BSD-3-Clause', 'Apache-2.0', 'CC-BY-4.0']);
+ export const MUSCLE_WEIGHTS = Object.freeze({ primary: 1, secondary: 0.5 });
++/**
++ * PRD 6.1 volume multiplier, derived from repsPerSide (never from singleArm alone): bilateral per-hand work is 2;
++ * per-hand reps-per-side work is 1, whether one-arm or two dumbbells worked one leg at a time; every other load basis
++ * is 1. singleArm stays a validated flag (it needs per_hand and repsPerSide), so it always yields 1 here.
++ */
++export const volumeMultiplier = ({ loadBasis, repsPerSide }) => (loadBasis === 'per_hand' && repsPerSide !== true ? 2 : 1);
+ /** Health, medical and safety claims need a primary reference and qualified review, so launch text makes none. */
+ export const CLAIM_TERMS = /\b(?:safe\w*|injur\w*|pain\w*|prevent\w*|cure\w*|treat\w*|heal\w*|rehab\w*|therap\w*|medic\w*|doctor\w*|physio\w*|diseas\w*|diabet\w*|blood pressure|cholesterol|burn\w*|fat loss|weight loss|guarantee\w*|clinical\w*|diagnos\w*)\b/i;
+ /** Characters that could escape the seed's SQL literal or its dollar quoting, or that no catalogue text needs. */
+@@ -431,12 +437,13 @@
+ 
+   const exercises = located.map(({ record }) => {
+     const singleArm = record.singleArm === true;
++    const repsPerSide = record.repsPerSide === true;
+     const equipment = taxonomy.equipment.get(record.equipment);
+     return {
+       slug: record.slug, id: exerciseId(record.slug), version: record.version, name: record.name, aliases: [...record.aliases],
+       category: record.category, equipment: record.equipment, equipmentName: equipment.name, movement: record.movement,
+-      loggingType: record.loggingType, loadBasis: record.loadBasis, multiplier: record.loadBasis === 'per_hand' && !singleArm ? 2 : 1,
+-      singleArm, repsPerSide: record.repsPerSide === true,
++      loggingType: record.loggingType, loadBasis: record.loadBasis, multiplier: volumeMultiplier({ loadBasis: record.loadBasis, repsPerSide }),
++      singleArm, repsPerSide,
+       primary: [...record.primary], secondary: [...record.secondary],
+       muscles: [...record.primary.map((id) => ({ id, role: 'primary', weight: MUSCLE_WEIGHTS.primary })), ...record.secondary.map((id) => ({ id, role: 'secondary', weight: MUSCLE_WEIGHTS.secondary }))],
+       instructions: record.instructions, hi: record.hi, provenance: { ...record.provenance },
+--- before/scripts/content/catalogue.test.mjs
++++ after/scripts/content/catalogue.test.mjs
+@@ -2,7 +2,7 @@
+ import { test } from 'node:test';
+ import {
+   CATEGORIES, HINDI_BACKLOG, MIN_EXERCISES, MIN_PER_CATEGORY, ORIGINAL_LICENCE, QUALIFIED_REVIEW_GATE, STARTER_PROGRAMMES,
+-  loadCatalogue, readContent, summarise, validateContent,
++  loadCatalogue, readContent, summarise, validateContent, volumeMultiplier,
+ } from './catalogue.mjs';
+ 
+ // Every case starts from a deep copy of the repository's real content and breaks one thing, so each guard is shown
+@@ -128,7 +128,7 @@
+   expectProblem(alias, /barbell-front-squat: alias Barbell back squat collides with barbell-back-squat$/);
+ });
+ 
+-test('logging semantics follow PRD 6.1: per-hand bilateral x2, single-arm x1, assistance only for bodyweight', () => {
++test('logging semantics follow PRD 6.1: per-hand bilateral x2, per-hand reps-per-side x1, assistance only for bodyweight', () => {
+   const catalogue = loadCatalogue();
+   const bySlug = new Map(catalogue.exercises.map((item) => [item.slug, item]));
+   assert.equal(bySlug.get('dumbbell-bench-press').multiplier, 2);
+@@ -137,7 +137,8 @@
+   assert.equal(bySlug.get('barbell-back-squat').multiplier, 1);
+   assert.equal(bySlug.get('machine-assisted-pull-up').loadBasis, 'assistance');
+   for (const item of catalogue.exercises) {
+-    assert.equal(item.multiplier, item.loadBasis === 'per_hand' && !item.singleArm ? 2 : 1, item.slug);
++    assert.equal(item.multiplier, item.loadBasis === 'per_hand' && !item.repsPerSide ? 2 : 1, item.slug);
++    if (item.singleArm) assert.equal(item.multiplier, 1, `${item.slug}: single-arm is always reps-per-side, so x1`);
+     if (item.loadBasis === 'assistance') assert.equal(item.loggingType, 'bodyweight', item.slug);
+   }
+   const distance = fresh();
+@@ -152,6 +153,60 @@
+   const perSide = fresh();
+   delete record(perSide, 'dumbbell-one-arm-row').repsPerSide;
+   expectProblem(perSide, /dumbbell-one-arm-row: singleArm needs repsPerSide$/);
++});
++
++/** Two dumbbells, one leg at a time: per-hand load, reps per side, never single-arm (review M2). */
++const TWO_DUMBBELL_PER_LEG = Object.freeze(['dumbbell-bulgarian-split-squat', 'dumbbell-reverse-lunge', 'dumbbell-split-squat', 'dumbbell-step-up', 'dumbbell-walking-lunge']);
++function derived(content, slug) {
++  const { problems, catalogue } = validateContent(content);
++  assert.deepEqual(problems, [], 'the planted change is valid content');
++  return catalogue.exercises.find((item) => item.slug === slug);
++}
++
++test('the multiplier derives from repsPerSide, not singleArm alone: two-dumbbell one-leg work x1, bilateral per-hand x2 (review M2)', () => {
++  assert.equal(volumeMultiplier({ loadBasis: 'per_hand', repsPerSide: false }), 2, 'bilateral per-hand');
++  assert.equal(volumeMultiplier({ loadBasis: 'per_hand', repsPerSide: true }), 1, 'per-hand reps-per-side');
++  for (const loadBasis of ['total', 'assistance', 'none']) {
++    for (const repsPerSide of [false, true]) assert.equal(volumeMultiplier({ loadBasis, repsPerSide }), 1, `${loadBasis}, repsPerSide ${repsPerSide}`);
++  }
++
++  const catalogue = loadCatalogue();
++  const bySlug = new Map(catalogue.exercises.map((item) => [item.slug, item]));
++  const perHandPerSide = catalogue.exercises.filter((item) => item.loadBasis === 'per_hand' && item.repsPerSide);
++  assert.ok(perHandPerSide.length > TWO_DUMBBELL_PER_LEG.length, 'single-arm records are in the per-hand reps-per-side set too');
++  for (const item of perHandPerSide) assert.equal(item.multiplier, 1, `${item.slug}: per-hand reps-per-side is x1`);
++  for (const item of catalogue.exercises.filter((entry) => entry.loadBasis === 'per_hand' && !entry.repsPerSide)) assert.equal(item.multiplier, 2, `${item.slug}: bilateral per-hand is x2`);
++  for (const item of catalogue.exercises.filter((entry) => entry.loadBasis !== 'per_hand')) assert.equal(item.multiplier, 1, `${item.slug}: ${item.loadBasis} is x1`);
++
++  const twoHandOneLeg = perHandPerSide.filter((item) => !item.singleArm).map((item) => item.slug).sort();
++  assert.deepEqual(twoHandOneLeg, TWO_DUMBBELL_PER_LEG, 'exactly the five two-dumbbell one-leg records are per-hand, reps-per-side and not single-arm');
++  for (const slug of TWO_DUMBBELL_PER_LEG) {
++    const item = bySlug.get(slug);
++    assert.deepEqual([item.loadBasis, item.repsPerSide, item.singleArm, item.multiplier], ['per_hand', true, false, 1], slug);
++    assert.equal(item.version, 1, `${slug}: never seeded, so the correction needs no version bump`);
++    assert.match(item.instructions, /\b(?:repetitions|steps) per leg\b/, `${slug}: says repetitions or steps are logged per leg`);
++    assert.match(item.instructions, /\bweight of one dumbbell as the load per hand\b/, `${slug}: says load is logged per hand`);
++    assert.deepEqual(item.provenance, { source: 'fitlog-original', sourceVersion: '2026-10-27', licence: 'LicenseRef-FitLog-Original', method: 'authored' }, `${slug}: provenance kept`);
++  }
++  const row = bySlug.get('dumbbell-one-arm-row');
++  assert.deepEqual([row.loadBasis, row.repsPerSide, row.singleArm, row.multiplier], ['per_hand', true, true, 1], 'existing one-arm row stays x1');
++  const bench = bySlug.get('dumbbell-bench-press');
++  assert.deepEqual([bench.loadBasis, bench.repsPerSide, bench.singleArm, bench.multiplier], ['per_hand', false, false, 2], 'bilateral bench stays x2');
++
++  // Planted: the repsPerSide flag, not the singleArm label, sets the multiplier.
++  const unflagged = fresh();
++  delete record(unflagged, 'dumbbell-split-squat').repsPerSide;
++  assert.equal(derived(unflagged, 'dumbbell-split-squat').multiplier, 2, 'without repsPerSide a two-dumbbell record is bilateral again');
++  const flagged = fresh();
++  record(flagged, 'dumbbell-bench-press').repsPerSide = true;
++  assert.equal(derived(flagged, 'dumbbell-bench-press').multiplier, 1, 'repsPerSide alone gives x1 with no singleArm label');
++  // singleArm validation is unchanged: it still needs per_hand and repsPerSide.
++  const singleArmNoSide = fresh();
++  record(singleArmNoSide, 'dumbbell-one-arm-row').repsPerSide = false;
++  expectProblem(singleArmNoSide, /dumbbell-one-arm-row: singleArm needs repsPerSide$/);
++  const singleArmTotal = fresh();
++  record(singleArmTotal, 'dumbbell-goblet-squat').singleArm = true;
++  expectProblem(singleArmTotal, /dumbbell-goblet-squat: singleArm needs loadBasis per_hand$/);
+ });
+ 
+ test('muscles and equipment resolve against the hierarchy and taxonomy', () => {
+--- before/scripts/content/seed.test.mjs
++++ after/scripts/content/seed.test.mjs
+@@ -94,6 +94,28 @@
+   assert.match(statements, /if existing\.owner_id is not null then/, 'the same-version member check stays as a backstop');
+ });
+ 
++// Review M2: the multiplier the seed writes is the catalogue's repsPerSide-derived one. repsPerSide itself is not a
++// public.exercises column yet, so the row cannot say "per side" on its own; persisting it is MB-2's.
++const M2_MULTIPLIERS = Object.freeze({
++  'dumbbell-walking-lunge': 1, 'dumbbell-reverse-lunge': 1, 'dumbbell-bulgarian-split-squat': 1, 'dumbbell-step-up': 1, 'dumbbell-split-squat': 1,
++  'dumbbell-one-arm-row': 1, 'dumbbell-bench-press': 2,
++});
++
++test('seed rows and the SQL payload carry the PRD 6.1 multiplier: two-dumbbell one-leg x1, one-arm x1, bilateral per-hand x2 (review M2)', () => {
++  const { sql, rows } = buildExerciseSeedSql(catalogue);
++  const payload = payloadOf(sql);
++  for (const [slug, multiplier] of Object.entries(M2_MULTIPLIERS)) {
++    const index = catalogue.exercises.findIndex((exercise) => exercise.slug === slug);
++    assert.ok(index >= 0, `${slug} is in the catalogue`);
++    for (const [label, row] of [['row', rows[index]], ['payload', payload[index]]]) {
++      assert.equal(row.id, catalogue.exercises[index].id, `${slug} ${label} id`);
++      assert.equal(row.loadBasis, 'per_hand', `${slug} ${label} load basis`);
++      assert.equal(row.multiplier, multiplier, `${slug} ${label} multiplier`);
++    }
++  }
++  assert.match(statementText(sql), /rec->>'loadBasis', \(rec->>'multiplier'\)::integer, rec->>'equipment'/, 'the insert writes the payload load basis and multiplier');
++});
++
+ test('literals double apostrophes and refuse NUL; text that could escape the literal or the dollar quote is refused', () => {
+   assert.equal(sqlLiteral("farmer's carry"), "'farmer''s carry'");
+   assert.throws(() => sqlLiteral('a\u0000b'), /NUL/);
+--- before/scripts/content/templates.test.mjs
++++ after/scripts/content/templates.test.mjs
+@@ -61,6 +61,18 @@
+   assert.equal(new Set(ids).size, ids.length, 'template, day and prescription ids are distinct');
+ });
+ 
++test('starter templates snapshot the PRD 6.1 multiplier of the seeded row: two-dumbbell one-leg x1, one-arm x1, bilateral per-hand x2 (review M2)', () => {
++  // The published snapshot has no reps-per-side key, so the template cannot say "per side" yet; that is MB-2's.
++  const expected = { 'dumbbell-reverse-lunge': 1, 'dumbbell-bulgarian-split-squat': 1, 'dumbbell-one-arm-row': 1, 'dumbbell-bench-press': 2 };
++  const snapshots = buildStarterTemplates(catalogue).flatMap((template) => template.days.flatMap((day) => day.exercises.map((p) => p.exercise)));
++  for (const [slug, multiplier] of Object.entries(expected)) {
++    const id = catalogue.exercises.find((exercise) => exercise.slug === slug)?.id;
++    const prescribed = snapshots.filter((snapshot) => snapshot.id === id);
++    assert.ok(id && prescribed.length >= 1, `a starter programme prescribes ${slug}`);
++    for (const snapshot of prescribed) assert.deepEqual([snapshot.loadBasis, snapshot.multiplier], ['per_hand', multiplier], slug);
++  }
++});
++
+ test('template ids and content are deterministic across builds', () => {
+   assert.deepEqual(buildStarterTemplates(loadCatalogue()), buildStarterTemplates(catalogue));
+ });
+--- before/content/exercises/dumbbell.json
++++ after/content/exercises/dumbbell.json
+@@ -214,7 +214,7 @@
+       "slug": "dumbbell-walking-lunge", "version": 1, "name": "Dumbbell walking lunge", "aliases": [],
+       "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+       "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+-      "instructions": "Hold a dumbbell at each side and step forward into a lunge until both knees are bent. Push through your front foot and step straight into the next lunge with the other leg. Log the number of steps taken with each leg.",
++      "instructions": "Hold a dumbbell at each side and step forward into a lunge until both knees are bent. Push through your front foot and step straight into the next lunge with the other leg. Log the steps per leg and the weight of one dumbbell as the load per hand.",
+       "hi": "G14.hi",
+       "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+     },
+@@ -222,7 +222,7 @@
+       "slug": "dumbbell-reverse-lunge", "version": 1, "name": "Dumbbell reverse lunge", "aliases": [],
+       "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+       "primary": ["quads", "glutes"], "secondary": ["hamstrings"],
+-      "instructions": "Hold a dumbbell at each side and step one foot back into a lunge. Lower until both knees are bent, then push through your front foot to stand. Log the repetitions for each leg.",
++      "instructions": "Hold a dumbbell at each side and step one foot back into a lunge. Lower until both knees are bent, then push through your front foot to stand. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+       "hi": "G14.hi",
+       "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+     },
+@@ -230,7 +230,7 @@
+       "slug": "dumbbell-bulgarian-split-squat", "version": 1, "name": "Dumbbell Bulgarian split squat", "aliases": ["Bulgarian split squat"],
+       "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+       "primary": ["quads", "glutes"], "secondary": ["adductors", "hamstrings"],
+-      "instructions": "Stand in front of a bench and rest the top of your back foot on it, holding a dumbbell in each hand. Lower your back knee towards the floor while your front foot stays flat. Stand back up and finish one leg before switching.",
++      "instructions": "Stand in front of a bench and rest the top of your back foot on it, holding a dumbbell in each hand. Lower your back knee towards the floor while your front foot stays flat. Stand back up and finish one leg before switching. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+       "hi": "G14.hi",
+       "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+     },
+@@ -238,7 +238,7 @@
+       "slug": "dumbbell-step-up", "version": 1, "name": "Dumbbell step-up", "aliases": [],
+       "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+       "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+-      "instructions": "Hold a dumbbell at each side and place one foot on a sturdy bench or box. Drive through that foot to step up until your leg is straight. Step down with control and complete all repetitions on one leg before switching.",
++      "instructions": "Hold a dumbbell at each side and place one foot on a sturdy bench or box. Drive through that foot to step up until your leg is straight. Step down with control and complete all repetitions on one leg before switching. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+       "hi": "G14.hi",
+       "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+     },
+@@ -358,7 +358,7 @@
+       "slug": "dumbbell-split-squat", "version": 1, "name": "Dumbbell split squat", "aliases": [],
+       "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+       "primary": ["quads", "glutes"], "secondary": ["adductors"],
+-      "instructions": "Stand in a long split stance holding a dumbbell at each side. Lower your back knee towards the floor, then push back up through your front foot. Complete all repetitions on one leg before switching.",
++      "instructions": "Stand in a long split stance holding a dumbbell at each side. Lower your back knee towards the floor, then push back up through your front foot. Complete all repetitions on one leg before switching. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+       "hi": "G14.hi",
+       "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+     },
+--- before/content/README.md
++++ after/content/README.md
+@@ -23,7 +23,10 @@
+   verification under `docs/evidence/CT-1/`;
+ - duplicate slugs, names or aliases (names and aliases share one search space);
+ - logging semantics PRD §6.1 forbids, for example assistance on a resistance exercise or load on a
+-  distance exercise. The multiplier is derived, never typed: per-hand bilateral is 2, single-arm is 1;
++  distance exercise. The multiplier is derived from `loadBasis` and `repsPerSide`, never typed: per-hand
++  without `repsPerSide` (bilateral) is 2; per-hand with `repsPerSide` is 1, whether one-arm or two
++  dumbbells worked one leg at a time; every other load basis is 1. `singleArm` needs per-hand and
++  `repsPerSide` but does not set the multiplier;
+ - instructions outside 2–4 sentences, or with a health, medical or safety claim;
+ - quotes, backslashes, dollar signs or control characters anywhere (they could break the seed);
+ - a record with neither Hindi text nor the `"G14.hi"` backlog marker;
+--- before/docs/plan/runs/CT-1/handoff.md
++++ after/docs/plan/runs/CT-1/handoff.md
+@@ -61,6 +61,86 @@
+ - **Still open:** M2 (the owner's decision on band logging and the unilateral multiplier), M3 (wiring into
+   `test`/`backend:test`), every L finding, and every runtime and external gate in this handoff.
+ 
++## Review M2(b) correction: unilateral multiplier (1 Nov 2026, owner delegation AUTH-01)
++
++This fixes only the unilateral-multiplier half of material M2 (M2(b) below) from
++`docs/evidence/CT-1/source-review-2026-11-01-collected.md`. It applies the PRD §6.1 decision recorded in
++`docs/evidence/CT-1/source-review-disposition-2026-11-01.md`: bilateral per-hand multiplier 2, unilateral
++reps-per-side multiplier 1. It is a separate bounded phase, not new goal work or polish. **The code is
++written, but its tests have not been run.** This session used only Read, Grep, Edit and Write: no shell,
++tests, installs, imports, database, Docker, Supabase or network calls, no commits, no status changes, no
++sub-agents. Nothing here is runtime evidence, and no box or goal is claimed Done. The accepted M1 source is
++untouched: `seed.mjs`, `verify-seed.mjs`, `verify-seed.test.mjs`, the SQL files, and every existing test in
++`seed.test.mjs`.
++
++- **Derivation (`catalogue.mjs`).** New exported pure function `volumeMultiplier({ loadBasis, repsPerSide })`:
++  `per_hand` without `repsPerSide` gives 2; `per_hand` with `repsPerSide` gives 1; every other load basis
++  gives 1. `validateContent` uses it instead of `loadBasis === 'per_hand' && !singleArm ? 2 : 1`. The
++  `singleArm` validation (needs `per_hand` and `repsPerSide`) is unchanged, so every single-arm record
++  still gets 1.
++- **Effect, by Grep of the content.** 21 records are `per_hand` with `repsPerSide` (kettlebell 9,
++  dumbbell 12). 16 are single-arm and were already 1. The other five change from 2 to 1:
++  `dumbbell-walking-lunge`, `dumbbell-reverse-lunge`, `dumbbell-bulgarian-split-squat`,
++  `dumbbell-step-up` and `dumbbell-split-squat`. No other record's multiplier changes. None of the five is
++  labelled `singleArm`, because each uses two dumbbells.
++- **Content (`content/exercises/dumbbell.json`, those five records only).** Each instruction now ends with
++  an explicit cue: "Log the repetitions per leg and the weight of one dumbbell as the load per hand." The
++  walking lunge says "steps per leg".
++  - Walking and reverse lunge: the old per-leg sentence is replaced, so they stay at 3 sentences.
++  - Bulgarian split squat, step-up and split squat: the cue is added, going from 3 to 4 sentences.
++  - Unchanged: flags, names, aliases, muscles, `version` 1 and provenance.
++  - **No version bump.** These records have never been seeded, so the drift guard has no stored row to
++    compare. The seed payload and its sha256 change; no test pins either.
++- **Docs.** The `content/README.md` formula line, and decision 5 below.
++- **Authored regression source (unrun):**
++  - `catalogue.test.mjs` › "logging semantics follow PRD 6.1…": the all-records formula now uses
++    `repsPerSide` (the old `singleArm` form would turn red on the five) and asserts every single-arm record
++    is 1.
++  - `catalogue.test.mjs` › new "the multiplier derives from repsPerSide, not singleArm alone… (review M2)":
++    - the pure formula for `per_hand`, `total`, `assistance` and `none`, each with and without
++      `repsPerSide`;
++    - every per-hand reps-per-side record is 1, every bilateral per-hand record is 2, every other load basis
++      is 1;
++    - the per-hand, reps-per-side, not-single-arm set is exactly the named five. Each is
++      `per_hand`/`repsPerSide`/not single-arm/1 at version 1, states "repetitions (or steps) per leg" and
++      "weight of one dumbbell as the load per hand", and keeps its provenance;
++    - existing `dumbbell-one-arm-row`: `per_hand`, reps-per-side, single-arm, 1. Bilateral
++      `dumbbell-bench-press`: `per_hand`, not reps-per-side, not single-arm, 2;
++    - planted: removing `repsPerSide` from the split squat gives 2; adding it to the bench gives 1 with no
++      single-arm label;
++    - planted: single-arm with `repsPerSide` false, and single-arm on a `total` record, are still refused.
++  - `seed.test.mjs` › new "seed rows and the SQL payload carry the PRD 6.1 multiplier… (review M2)": the
++    rows and the parsed SQL payload give 1 for the five and the one-arm row and 2 for the bench, all
++    `per_hand`, and the insert writes the payload's load basis and multiplier.
++  - `templates.test.mjs` › new "starter templates snapshot the PRD 6.1 multiplier… (review M2)": the
++    starter snapshots of the reverse lunge, Bulgarian split squat and one-arm row are `per_hand`/1, and the
++    bench is `per_hand`/2. No starter programme prescribes the walking lunge, step-up or split squat.
++- **Not changed:**
++  - bands and every band record (M2(a));
++  - load types, `LOGGING_TYPES`, `LOAD_BASES` and `ALLOWED_LOAD`;
++  - schema, shared packages, contracts and the domain;
++  - `seed.mjs`, `templates.mjs`, `build-seed.mjs`, `verify-seed.mjs` and the SQL files;
++  - other content files, `catalogue.json` and its `contentVersion`.
++
++  The schema (`multiplier in (1,2)`), the domain model and the snapshot trigger already accept `per_hand`
++  with multiplier 1, which the single-arm rows use today.
++- **Gates still unrun:** frozen install, `node --test scripts/content/*.test.mjs` (now including the three
++  M2 tests), `build-seed.mjs check` (its expected line is unchanged, since counts do not move), mutation
++  checks 1–9 and the database run of `verify-seed.mjs`.
++- **Not closed by this correction:**
++  - **M2(a) bands.** 16 band records are still `resistance`/`total`, so the domain can treat a nominal
++    band level as kg in volume and e1RM. No band record, load type or contract was changed, and no nominal
++    band level is claimed to be a valid kg load. Band metrics and the first seed stay blocked until MB-2
++    defines a contract-compatible way to mark unmeasured band resistance and suppress those derived
++    metrics. That is the disposition's Codex-owned technical requirement, not an owner question.
++  - **MB-2 side semantics.** `repsPerSide` is still not persisted: there is no `public.exercises` column and
++    no snapshot key in contract 0.1.0. There is also no logging-UI cue, so the app cannot yet "say so" as
++    PRD §6.1 requires. The five text cues do not close that gate.
++  - **First seed** stays blocked by M2(a), MB-2 and the unrun runtime gates.
++  - Also open: M3 wiring (S1/CT-1), OW-13 qualified review, QA-5/DEC-16 legal evidence, the concurrent
++    member-claim race (MB-2, from M1), L1–L9 (L2 not acted on beyond these five records) and all four Done
++    boxes.
++
+ ## Session limits that shape this handoff
+ 
+ - **Bash was denied** ("don't ask" mode), including `rtk`-prefixed commands. Nothing ran: no
+@@ -130,6 +210,10 @@
+ 8. (M1, 1 Nov) In `seed.mjs`, delete the member check that covers the whole id, or scope it with
+    `and m.version = (rec->>'version')::integer`. Expect red: "a member-owned row on any version of a
+    catalogue id…". In the database phase, the `crossVersion` run would exit 0 and be reported.
++9. (M2(b), 1 Nov) In `catalogue.mjs`, restore the old derivation (`!singleArm` in place of
++   `repsPerSide !== true`). Expect red: "logging semantics follow PRD 6.1…", "the multiplier derives from
++   repsPerSide…", and the two M2 seed and template tests. Separately, removing the per-leg or per-hand cue
++   from any of the five instructions turns only "the multiplier derives from repsPerSide…" red.
+ 
+ ## Self-review (manual; independent review follows)
+ 
+@@ -161,7 +245,8 @@
+ 
+ Independent source review of 1 Nov (`docs/evidence/CT-1/source-review-2026-11-01-collected.md`):
+ - M1 is fixed in source only; its tests are unrun.
+-- M2, M3 and L1–L9 are open and were not acted on.
++- M2(b), the unilateral multiplier, is fixed in source only (1 Nov); its tests are unrun.
++- M2(a) bands (MB-2 contract prerequisite), M3 and L1–L9 are open and were not acted on.
+ 
+ ## Left undone, and why
+ 
+@@ -177,6 +262,12 @@
+ ## Found for other goals
+ 
+ - **MB-2 (S8):**
++  - Side semantics (review M2): persist `repsPerSide` in the exercise row and the prescription snapshot,
++    and show the per-side and per-hand cue in logging, so the app "says so" (PRD §6.1). CT-1 now supplies
++    only the derived multiplier and the text cue in five records.
++  - Bands (review M2(a)): a contract-compatible way to mark unmeasured band resistance and suppress volume
++    and e1RM for it. Until then, band metrics and the first seed stay blocked. CT-1 changed no band record,
++    load type or contract.
+   - A global starter-template store, or catalogue-owned programmes, plus the adoption flow that copies
+     a template into a member programme with fresh ids.
+   - Exercise columns the content already carries but the schema lacks: `category`, `movement`,
+@@ -218,8 +309,12 @@
+ 4. **The seed is insert-only.** It stops on a member-held key at any version of the id, or on drift (no
+    `on conflict do nothing`).
+    A content change needs a version bump.
+-5. **The multiplier is derived:** per-hand and not single-arm gives 2, otherwise 1. Reps-per-side is a
+-   separate flag (PRD §6.1 "says so").
++5. **The multiplier is derived** (corrected 1 Nov for review M2(b), per PRD §6.1). Per-hand without
++   reps-per-side gives 2. Per-hand with reps-per-side gives 1, whether one-arm or two dumbbells worked one
++   leg at a time. Any other load basis gives 1. `singleArm` is a validated label (it needs per-hand and
++   reps-per-side) and no longer sets the multiplier. This supersedes the earlier "per-hand and not
++   single-arm gives 2", which gave 2 to five two-dumbbell, one-leg records. Persisting reps-per-side, so
++   the app "says so", is MB-2's.
+ 6. **Muscle weights:** primary 1, secondary 0.5.
+ 7. **Instructions make no health, medical or safety claims.** This is enforced by a term list.
+ 
+--- before/docs/plan/runs/CT-1/checkpoint.md
++++ after/docs/plan/runs/CT-1/checkpoint.md
+@@ -66,6 +66,36 @@
+   insert at another version, committed between the check and the insert) stays for MB-2's member-side
+   guard. Full detail is in the handoff's "Review M1 correction" section. No Done claim.
+ 
++## M2(b) correction: unilateral multiplier (1 Nov 2026, owner delegation AUTH-01)
++
++This fixes only the unilateral-multiplier half of material M2, under the PRD §6.1 decision in
++`docs/evidence/CT-1/source-review-disposition-2026-11-01.md`. It is a separate bounded phase under the
++review freeze, not new goal work or polish.
++
++- **Tools:** Read, Grep, Edit and Write only. No shell, tests, installs, imports, database, Docker,
++  Supabase or network, no commits, no status changes, no sub-agents. **The code is written, but its tests
++  have not been run.**
++- **`scripts/content/catalogue.mjs`:** the multiplier now comes from the new exported `volumeMultiplier`.
++  Per-hand without `repsPerSide` is 2; per-hand with `repsPerSide` is 1; any other load basis is 1. The
++  `singleArm` validation is unchanged.
++- **`content/exercises/dumbbell.json`:** five two-dumbbell, one-leg records now carry an explicit
++  "per leg" and "load per hand" logging cue: walking lunge, reverse lunge, Bulgarian split squat, step-up
++  and split squat. Their multiplier changes from 2 to 1. They stay at 3–4 sentences, are not single-arm,
++  remain at version 1 (never seeded) and keep their provenance.
++- **Tests (authored, unrun):** an updated formula assertion and one new M2 test in `catalogue.test.mjs`,
++  and one new propagation test each in `seed.test.mjs` and `templates.test.mjs`.
++- **Docs:** the `content/README.md` formula line, plus the handoff's M2(b) section, decision 5, mutation
++  check 9 and MB-2 items.
++- **Not changed:** bands, load types, schema, shared contracts, the domain, the accepted M1 seed and
++  verifier source, and other content.
++- **Still open:**
++  - M2(a) bands: an MB-2 contract prerequisite. Band metrics and the first seed stay blocked.
++  - MB-2: `repsPerSide` persistence, the snapshot key and the UI cue.
++  - M3 wiring (S1/CT-1), OW-13, QA-5/DEC-16, the MB-2 member-claim race, and L1–L9.
++  - Every runtime gate and all four Done boxes.
++
++  No Done claim.
++
+ ## Next step
+ 
+ Run, in this order, from the worktree root (none has run yet):
+@@ -79,7 +109,8 @@
+ Fix anything they report. Then the coordinator's serialized DB phase runs
+ `node scripts/content/verify-seed.mjs` against the local stack (or a disposable replay project). Since the
+ 1 Nov M1 correction, that is four rolled-back runs: twice, conflict, crossVersion and drift. They are still
+-unrun, and so is the unit-test gate above.
++unrun, and so is the unit-test gate above (which since the M2(b) correction includes three M2 tests). The
++first real seed also waits for M2(a) bands and MB-2.
+ 
+ ## Surprises
+ 

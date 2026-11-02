@@ -1,0 +1,302 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "barbell",
+  "exercises": [
+    {
+      "slug": "barbell-back-squat", "version": 1, "name": "Barbell back squat", "aliases": ["Back squat"],
+      "category": "barbell", "equipment": "barbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["adductors", "hamstrings", "lower_back"],
+      "instructions": "Set the bar across your upper back and step out of the rack with your feet about shoulder-width apart. Sit down between your hips and heels, keeping your chest up and your knees tracking over your toes. Drive through your whole foot to stand back up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-front-squat", "version": 1, "name": "Barbell front squat", "aliases": ["Front squat"],
+      "category": "barbell", "equipment": "barbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads"], "secondary": ["glutes", "abs", "upper_back"],
+      "instructions": "Rest the bar on the front of your shoulders with your elbows held high. Squat straight down, keeping your torso upright and your elbows up. Stand by pushing the floor away until your hips and knees are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-box-squat", "version": 1, "name": "Barbell box squat", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+      "instructions": "Place a box or bench behind you at a height you can reach with control. With the bar on your upper back, sit back until you lightly touch the box without relaxing. Stand back up by driving through your feet.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-pause-squat", "version": 1, "name": "Barbell pause squat", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["adductors", "lower_back"],
+      "instructions": "Squat with the bar on your upper back to your usual depth. Hold the bottom position still for a two-second count while staying braced. Stand up without bouncing out of the hold.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-deadlift", "version": 1, "name": "Barbell deadlift", "aliases": ["Conventional deadlift"],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "hamstrings", "lower_back"], "secondary": ["quads", "traps", "forearms"],
+      "instructions": "Stand with the bar over your mid-foot and grip it just outside your legs. Brace your trunk, push the floor away and keep the bar close as you stand tall. Lower it by hinging at the hips, then bend your knees once the bar passes them.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-sumo-deadlift", "version": 1, "name": "Barbell sumo deadlift", "aliases": ["Sumo deadlift"],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "adductors", "quads"], "secondary": ["hamstrings", "lower_back", "forearms"],
+      "instructions": "Take a wide stance with your toes turned out and grip the bar inside your knees. Push your knees out, brace and stand by driving your feet into the floor. Lower the bar along the same path under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-romanian-deadlift", "version": 1, "name": "Barbell Romanian deadlift", "aliases": ["RDL"],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["hamstrings", "glutes"], "secondary": ["lower_back", "forearms"],
+      "instructions": "Stand tall holding the bar at hip height with a slight bend in your knees. Push your hips back and slide the bar down your thighs until you feel a stretch in your hamstrings. Drive your hips forward to return to standing.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-stiff-leg-deadlift", "version": 1, "name": "Barbell stiff-leg deadlift", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["hamstrings"], "secondary": ["glutes", "lower_back"],
+      "instructions": "Hold the bar at hip height with your knees nearly straight. Hinge forward from the hips with a flat back and lower the bar as far as your hamstrings allow. Return to standing by bringing your hips forward.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-good-morning", "version": 1, "name": "Barbell good morning", "aliases": ["Good morning"],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["hamstrings", "lower_back"], "secondary": ["glutes"],
+      "instructions": "Rest the bar on your upper back and unlock your knees slightly. Push your hips back and lean your torso forward with a flat back until you feel a stretch in your hamstrings. Reverse the movement to stand tall.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-hip-thrust", "version": 1, "name": "Barbell hip thrust", "aliases": ["Hip thrust"],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes"], "secondary": ["hamstrings", "quads"],
+      "instructions": "Sit with your upper back against a bench and roll the bar over your hips. Plant your feet and drive your hips up until your body is level from shoulders to knees. Lower your hips under control and repeat.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-glute-bridge", "version": 1, "name": "Barbell glute bridge", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Lie on your back with your knees bent and a bar resting across your hips. Press through your heels to lift your hips until your body forms a straight line from shoulders to knees. Lower back to the floor with control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-bench-press", "version": 1, "name": "Barbell bench press", "aliases": ["Bench press", "Flat bench press"],
+      "category": "barbell", "equipment": "barbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["front_delts", "triceps"],
+      "instructions": "Lie on the bench with your eyes under the bar and your feet flat on the floor. Lower the bar to your mid-chest with your forearms vertical. Press the bar back up over your shoulders until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-incline-bench-press", "version": 1, "name": "Incline barbell bench press", "aliases": ["Incline bench press"],
+      "category": "barbell", "equipment": "barbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals", "front_delts"], "secondary": ["triceps"],
+      "instructions": "Set the bench to a moderate incline and lie back with the bar over your eyes. Lower the bar to your upper chest under control. Press it back up until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-decline-bench-press", "version": 1, "name": "Decline barbell bench press", "aliases": ["Decline bench press"],
+      "category": "barbell", "equipment": "barbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals"], "secondary": ["triceps", "front_delts"],
+      "instructions": "Secure your legs on a decline bench and take the bar from the rack with straight arms. Lower it to your lower chest with control. Press it back up over your shoulders.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-close-grip-bench-press", "version": 1, "name": "Close-grip bench press", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": ["pectorals", "front_delts"],
+      "instructions": "Lie on a flat bench and grip the bar about shoulder-width apart. Lower it to your lower chest with your elbows close to your sides. Press it back up by straightening your arms.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-floor-press", "version": 1, "name": "Barbell floor press", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["pectorals", "triceps"], "secondary": ["front_delts"],
+      "instructions": "Lie on the floor under a bar set low in a rack, with your knees bent. Lower the bar until your upper arms rest on the floor, pause briefly, then press it back up. Keep your wrists stacked over your elbows throughout.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-overhead-press", "version": 1, "name": "Barbell overhead press", "aliases": ["Military press", "Standing press"],
+      "category": "barbell", "equipment": "barbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts"], "secondary": ["side_delts", "triceps", "abs"],
+      "instructions": "Hold the bar at your collarbones with your hands just outside your shoulders. Squeeze your glutes, brace and press the bar straight up, moving your head back slightly to let it pass. Finish with the bar over the middle of your head, then lower it to your collarbones.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-push-press", "version": 1, "name": "Barbell push press", "aliases": ["Push press"],
+      "category": "barbell", "equipment": "barbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts", "triceps"], "secondary": ["quads", "glutes", "side_delts"],
+      "instructions": "Hold the bar at your collarbones and dip a few inches by bending your knees. Drive up through your legs and use that momentum to press the bar overhead. Lower it back to your shoulders before the next repetition.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-seated-overhead-press", "version": 1, "name": "Seated barbell overhead press", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["front_delts"], "secondary": ["triceps", "side_delts"],
+      "instructions": "Sit on an upright bench with the bar at chin height in front of you. Press it straight overhead until your arms are straight. Lower it back to chin height under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-bent-over-row", "version": 1, "name": "Barbell bent-over row", "aliases": ["Barbell row"],
+      "category": "barbell", "equipment": "barbell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats", "upper_back"], "secondary": ["biceps", "rear_delts", "lower_back"],
+      "instructions": "Hinge forward with a flat back until your torso is at about 45 degrees, holding the bar at arm's length. Pull the bar towards your lower ribs, leading with your elbows. Lower it until your arms are straight again.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-pendlay-row", "version": 1, "name": "Pendlay row", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps", "rear_delts", "lower_back"],
+      "instructions": "Bend over until your torso is close to parallel with the floor, with the bar resting on the ground. Pull the bar quickly to your lower chest without lifting your torso. Return the bar to the floor and reset before each repetition.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-upright-row", "version": 1, "name": "Barbell upright row", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["side_delts", "traps"], "secondary": ["biceps"],
+      "instructions": "Hold the bar in front of your thighs with your hands about shoulder-width apart. Lift it along your body, leading with your elbows, until it reaches lower-chest height. Lower it back down with control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-shrug", "version": 1, "name": "Barbell shrug", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["traps"], "secondary": ["forearms"],
+      "instructions": "Stand tall holding the bar at arm's length in front of your thighs. Raise your shoulders straight up towards your ears without bending your elbows. Hold briefly at the top, then lower your shoulders.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-curl", "version": 1, "name": "Barbell curl", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps"], "secondary": ["forearms"],
+      "instructions": "Stand holding the bar with your palms facing forward and your elbows by your sides. Curl the bar up towards your shoulders without swinging your torso. Lower it slowly until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "ez-bar-curl", "version": 1, "name": "EZ-bar curl", "aliases": [],
+      "category": "barbell", "equipment": "ez_bar", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps"], "secondary": ["forearms"],
+      "instructions": "Hold an EZ bar on the angled grips with your palms facing up. Keep your elbows still and curl the bar up towards your shoulders. Lower it under control to full arm extension.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "ez-bar-preacher-curl", "version": 1, "name": "EZ-bar preacher curl", "aliases": ["Preacher curl"],
+      "category": "barbell", "equipment": "ez_bar", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["biceps"], "secondary": [],
+      "instructions": "Sit at a preacher bench with the backs of your upper arms on the pad. Curl the EZ bar up until your forearms are nearly vertical. Lower it slowly until your elbows are almost straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "ez-bar-skull-crusher", "version": 1, "name": "EZ-bar lying triceps extension", "aliases": ["Skull crusher"],
+      "category": "barbell", "equipment": "ez_bar", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Lie on a bench holding an EZ bar above your chest with your arms straight. Bend only at the elbows to lower the bar towards your forehead. Straighten your arms to press it back up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-reverse-curl", "version": 1, "name": "Barbell reverse curl", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["forearms", "biceps"], "secondary": [],
+      "instructions": "Hold the bar with your palms facing down and your elbows by your sides. Curl the bar up towards your shoulders while keeping your wrists straight. Lower it slowly to the start.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-wrist-curl", "version": 1, "name": "Barbell wrist curl", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["forearms"], "secondary": [],
+      "instructions": "Sit with your forearms resting on your thighs and the bar in your hands, palms up, wrists just past your knees. Let the bar roll towards your fingertips, then curl your wrists up as far as they go. Keep your forearms still on your thighs throughout.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-reverse-lunge", "version": 1, "name": "Barbell reverse lunge", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+      "instructions": "With the bar on your upper back, step one foot back and lower until both knees are bent. Push through your front foot to return to standing. Complete all repetitions on one leg, then switch, and log the repetitions per leg.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-split-squat", "version": 1, "name": "Barbell split squat", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["adductors", "hamstrings"],
+      "instructions": "Stand in a long split stance with the bar on your upper back. Lower your back knee towards the floor, keeping your front heel down, then stand back up. Do every repetition on one side before switching legs, and log the repetitions per leg.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-calf-raise", "version": 1, "name": "Standing barbell calf raise", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["calves"], "secondary": [],
+      "instructions": "Stand tall with the bar on your upper back and the balls of your feet on a low step or plate. Rise onto your toes as high as you can, pause, then lower your heels below the step. Keep your knees straight but not locked.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "trap-bar-deadlift", "version": 1, "name": "Trap bar deadlift", "aliases": ["Hex bar deadlift"],
+      "category": "barbell", "equipment": "trap_bar", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes", "hamstrings"], "secondary": ["lower_back", "traps", "forearms"],
+      "instructions": "Stand inside the trap bar and grip the handles at your sides. Brace, push the floor away and stand up tall with the bar balanced. Lower it to the floor by bending at the hips and knees together.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-power-clean", "version": 1, "name": "Barbell power clean", "aliases": ["Power clean"],
+      "category": "barbell", "equipment": "barbell", "movement": "power", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "hamstrings", "traps"], "secondary": ["quads", "upper_back", "calves"],
+      "instructions": "Start as for a deadlift with the bar over your mid-foot. Pull the bar past your knees, then extend your hips, knees and ankles forcefully and pull yourself under it. Catch the bar on the front of your shoulders in a partial squat and stand up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-landmine-press", "version": 1, "name": "Landmine press", "aliases": [],
+      "category": "barbell", "equipment": "barbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["front_delts", "pectorals"], "secondary": ["triceps"],
+      "instructions": "Hold the free end of a barbell anchored in a landmine at shoulder height in one hand. Press it up and forward until your arm is straight, keeping your torso still. Lower it back to your shoulder and finish all repetitions before switching sides.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-rack-pull", "version": 1, "name": "Barbell rack pull", "aliases": ["Rack pull"],
+      "category": "barbell", "equipment": "barbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "lower_back", "traps"], "secondary": ["hamstrings", "forearms"],
+      "instructions": "Set the bar on the rack pins or on blocks at about knee height. Grip it, brace and stand up tall by driving your hips forward. Lower it back to the pins under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "barbell-t-bar-row", "version": 1, "name": "T-bar row", "aliases": ["Landmine row"],
+      "category": "barbell", "equipment": "barbell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps", "rear_delts"],
+      "instructions": "Straddle a barbell anchored at one end and grip the bar or a handle near the loaded end. Hinge forward with a flat back and pull the weight towards your chest. Lower it until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "kettlebell",
+  "exercises": [
+    {
+      "slug": "kettlebell-swing", "version": 1, "name": "Kettlebell swing", "aliases": ["Two-hand kettlebell swing"],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "hamstrings"], "secondary": ["lower_back", "abs", "forearms"],
+      "instructions": "Stand with your feet a little wider than your hips and hold the kettlebell with both hands. Hinge back to swing it between your legs, then snap your hips forward to swing it to chest height. Let it fall back into the next hinge.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-single-arm-swing", "version": 1, "name": "One-arm kettlebell swing", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["glutes", "hamstrings"], "secondary": ["obliques", "forearms"],
+      "instructions": "Hold the kettlebell in one hand and hinge to swing it back between your legs. Drive your hips forward to swing it to chest height without turning your torso. Finish one side before switching hands.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-goblet-squat", "version": 1, "name": "Kettlebell goblet squat", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["adductors", "abs"],
+      "instructions": "Hold a kettlebell by the horns at your chest. Squat down between your knees with your chest up. Stand back up through your whole foot.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-deadlift", "version": 1, "name": "Kettlebell deadlift", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes", "hamstrings"], "secondary": ["lower_back", "forearms"],
+      "instructions": "Stand with the kettlebell between your feet. Hinge at the hips, grip the handle with both hands and stand up tall. Lower it back to the floor along the same path.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-single-leg-deadlift", "version": 1, "name": "Kettlebell single-leg deadlift", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["hamstrings", "glutes"], "secondary": ["lower_back", "abductors"],
+      "instructions": "Hold a kettlebell in one hand and balance on the opposite leg. Hinge forward as your free leg reaches back, keeping your hips square. Stand back up and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-clean", "version": 1, "name": "Kettlebell clean", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "power", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["glutes", "hamstrings"], "secondary": ["forearms", "front_delts"],
+      "instructions": "Swing one kettlebell back between your legs. Drive your hips forward and guide the bell close to your body so it settles in the rack position at your shoulder. Lower it and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-press", "version": 1, "name": "Kettlebell overhead press", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["front_delts"], "secondary": ["triceps", "obliques"],
+      "instructions": "Hold one kettlebell in the rack position at your shoulder. Press it overhead until your arm is straight, without leaning away. Lower it back to your shoulder and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-snatch", "version": 1, "name": "Kettlebell snatch", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "power", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["glutes", "hamstrings", "front_delts"], "secondary": ["traps", "forearms"],
+      "instructions": "Swing one kettlebell back between your legs. Drive your hips forward and pull the bell up close to your body, punching your hand through to lock it out overhead. Lower it in one smooth path and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-turkish-get-up", "version": 1, "name": "Turkish get-up", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "core", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["abs", "front_delts", "glutes"], "secondary": ["obliques", "triceps"],
+      "instructions": "Lie on your back holding a kettlebell straight above your shoulder. Keeping your eyes and arm on the bell, rise step by step to standing, then reverse each step to lie back down. Finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-row", "version": 1, "name": "Kettlebell row", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["lats", "upper_back"], "secondary": ["biceps"],
+      "instructions": "Stagger your stance, hinge forward and hold a kettlebell in one hand. Row it towards your hip, keeping your back flat. Lower it and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-front-squat", "version": 1, "name": "Double kettlebell front squat", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "squat", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["quads", "glutes"], "secondary": ["abs", "upper_back"],
+      "instructions": "Hold two kettlebells in the rack position at your shoulders. Squat down with your chest up and elbows in. Stand back up through your whole foot.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-farmers-carry", "version": 1, "name": "Kettlebell farmer's carry", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "carry", "loggingType": "timed", "loadBasis": "per_hand",
+      "primary": ["forearms", "traps"], "secondary": ["abs"],
+      "instructions": "Pick up a kettlebell in each hand and stand tall. Walk with steady steps, keeping your shoulders level. Put the kettlebells down when the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-halo", "version": 1, "name": "Kettlebell halo", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["front_delts"], "secondary": ["side_delts", "triceps", "obliques"],
+      "instructions": "Hold a kettlebell upside down by the horns at chest height. Circle it around your head, keeping it close. Reverse direction after each circle and log the circles in each direction.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-windmill", "version": 1, "name": "Kettlebell windmill", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "core", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["obliques"], "secondary": ["front_delts", "hamstrings", "glutes"],
+      "instructions": "Press one kettlebell overhead and turn your feet slightly away from it. Push your hip out and slide your free hand down your leg while your eyes stay on the bell. Return to standing and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-reverse-lunge", "version": 1, "name": "Kettlebell goblet reverse lunge", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings"],
+      "instructions": "Hold a kettlebell by the horns at your chest. Step one foot back and lower until both knees are bent. Drive back to standing and log the repetitions for each leg.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-floor-press", "version": 1, "name": "Kettlebell floor press", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["pectorals", "triceps"], "secondary": ["front_delts"],
+      "instructions": "Lie on the floor with your knees bent, holding one kettlebell above your chest. Lower it until your upper arm touches the floor. Press it back up and finish one side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "kettlebell-high-pull", "version": 1, "name": "Kettlebell sumo high pull", "aliases": [],
+      "category": "kettlebell", "equipment": "kettlebell", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["traps", "side_delts"], "secondary": ["glutes", "hamstrings"],
+      "instructions": "Stand wide with a kettlebell between your feet, holding the handle with both hands. Drive up through your legs and pull the bell to chest height, leading with your elbows. Lower it back to the floor.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

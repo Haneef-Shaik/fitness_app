@@ -1,0 +1,374 @@
+{
+  "schema": "fitlog.exercises.v1",
+  "category": "dumbbell",
+  "exercises": [
+    {
+      "slug": "dumbbell-bench-press", "version": 1, "name": "Dumbbell bench press", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["pectorals"], "secondary": ["front_delts", "triceps"],
+      "instructions": "Lie on a flat bench holding a dumbbell in each hand at chest level. Press both dumbbells up until your arms are straight above your chest. Lower them slowly to the sides of your chest.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-incline-bench-press", "version": 1, "name": "Incline dumbbell bench press", "aliases": ["Incline dumbbell press"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["pectorals", "front_delts"], "secondary": ["triceps"],
+      "instructions": "Set a bench to a moderate incline and lie back with a dumbbell in each hand at shoulder level. Press the dumbbells up over your upper chest until your arms are straight. Lower them under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-floor-press", "version": 1, "name": "Dumbbell floor press", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["pectorals", "triceps"], "secondary": ["front_delts"],
+      "instructions": "Lie on the floor with your knees bent and a dumbbell in each hand above your chest. Lower the weights until your upper arms touch the floor. Press them back up until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-fly", "version": 1, "name": "Dumbbell fly", "aliases": ["Dumbbell flye"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["pectorals"], "secondary": ["front_delts"],
+      "instructions": "Lie on a flat bench with the dumbbells held above your chest, palms facing each other and elbows slightly bent. Open your arms in a wide arc until you feel a stretch across your chest. Bring the dumbbells back together along the same arc.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-incline-fly", "version": 1, "name": "Incline dumbbell fly", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["pectorals"], "secondary": ["front_delts"],
+      "instructions": "Lie on an incline bench with the dumbbells above your upper chest and your elbows slightly bent. Lower them out to the sides in a wide arc. Squeeze your chest to bring them back together above your upper chest.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-pullover", "version": 1, "name": "Dumbbell pullover", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["lats", "pectorals"], "secondary": ["triceps"],
+      "instructions": "Lie on a bench holding one dumbbell with both hands above your chest. Keeping a slight bend in your elbows, lower it in an arc behind your head. Pull it back over your chest along the same path.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-shoulder-press", "version": 1, "name": "Seated dumbbell shoulder press", "aliases": ["Dumbbell shoulder press"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["front_delts"], "secondary": ["side_delts", "triceps"],
+      "instructions": "Sit on an upright bench with a dumbbell in each hand at shoulder height. Press both dumbbells overhead until your arms are straight. Lower them back to shoulder height under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-arnold-press", "version": 1, "name": "Arnold press", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["front_delts", "side_delts"], "secondary": ["triceps"],
+      "instructions": "Sit holding the dumbbells in front of your shoulders with your palms facing you. Press up while turning your palms to face forward at the top. Reverse the turn as you lower the dumbbells.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-lateral-raise", "version": 1, "name": "Dumbbell lateral raise", "aliases": ["Side raise"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["side_delts"], "secondary": ["traps"],
+      "instructions": "Stand with a dumbbell in each hand at your sides and a slight bend in your elbows. Raise your arms out to the sides until they reach shoulder height. Lower them slowly without letting the weights swing.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-front-raise", "version": 1, "name": "Dumbbell front raise", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["front_delts"], "secondary": ["side_delts"],
+      "instructions": "Stand with the dumbbells in front of your thighs, palms facing your body. Lift both arms straight in front of you to shoulder height. Lower them under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-rear-delt-fly", "version": 1, "name": "Bent-over dumbbell reverse fly", "aliases": ["Rear delt fly"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["rear_delts"], "secondary": ["upper_back"],
+      "instructions": "Hinge forward with a flat back, holding the dumbbells below your chest with your palms facing each other. Raise your arms out to the sides with a slight elbow bend until they are level with your torso. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-shrug", "version": 1, "name": "Dumbbell shrug", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["traps"], "secondary": ["forearms"],
+      "instructions": "Stand holding a dumbbell at each side with your arms straight. Lift your shoulders straight up towards your ears. Pause, then lower them fully.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-one-arm-row", "version": 1, "name": "One-arm dumbbell row", "aliases": ["Single-arm dumbbell row"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["lats", "upper_back"], "secondary": ["biceps", "rear_delts"],
+      "instructions": "Place one knee and the same-side hand on a bench, holding a dumbbell in the other hand. Pull the dumbbell towards your hip, keeping your back flat. Lower it until your arm is straight, and finish all repetitions before switching sides.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-bent-over-row", "version": 1, "name": "Bent-over dumbbell row", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["upper_back", "lats"], "secondary": ["biceps", "rear_delts"],
+      "instructions": "Hinge forward with a flat back, holding a dumbbell in each hand with your arms straight. Row both dumbbells towards your lower ribs, squeezing your shoulder blades together. Lower them under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-chest-supported-row", "version": 1, "name": "Chest-supported dumbbell row", "aliases": ["Incline dumbbell row"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "pull_horizontal", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["upper_back", "lats"], "secondary": ["rear_delts", "biceps"],
+      "instructions": "Lie face down on an incline bench with a dumbbell in each hand hanging below you. Pull the dumbbells up towards your ribs while keeping your chest on the pad. Lower them until your arms are straight.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-curl", "version": 1, "name": "Dumbbell curl", "aliases": ["Dumbbell biceps curl"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["biceps"], "secondary": ["forearms"],
+      "instructions": "Stand with a dumbbell in each hand, palms facing forward and elbows by your sides. Curl both weights towards your shoulders without moving your upper arms. Lower them slowly to full extension.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-hammer-curl", "version": 1, "name": "Hammer curl", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["biceps", "forearms"], "secondary": [],
+      "instructions": "Hold the dumbbells at your sides with your palms facing each other. Curl them up while keeping your palms facing in. Lower them under control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-incline-curl", "version": 1, "name": "Incline dumbbell curl", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["biceps"], "secondary": [],
+      "instructions": "Sit back on an incline bench with your arms hanging straight down, holding the dumbbells. Curl the weights up while keeping your upper arms still. Lower them all the way down.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-concentration-curl", "version": 1, "name": "Concentration curl", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["biceps"], "secondary": [],
+      "instructions": "Sit on a bench and rest the back of one upper arm against your inner thigh, holding a dumbbell. Curl it towards your shoulder, then lower it to full extension. Complete all repetitions with one arm before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-overhead-triceps-extension", "version": 1, "name": "Overhead dumbbell triceps extension", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Hold one dumbbell overhead with both hands under the top plate. Lower it behind your head by bending your elbows, keeping your upper arms close to your head. Straighten your arms to raise it again.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-triceps-kickback", "version": 1, "name": "Dumbbell triceps kickback", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Support yourself with one hand and knee on a bench, holding a dumbbell with your upper arm parallel to the floor. Straighten your elbow to move the dumbbell back. Return it under control and finish one side before the other.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-lying-triceps-extension", "version": 1, "name": "Lying dumbbell triceps extension", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["triceps"], "secondary": [],
+      "instructions": "Lie on a bench holding the dumbbells above your chest with your palms facing each other. Bend your elbows to lower the weights beside your head. Straighten your arms to bring them back up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-goblet-squat", "version": 1, "name": "Goblet squat", "aliases": ["Dumbbell goblet squat"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "glutes"], "secondary": ["adductors", "abs"],
+      "instructions": "Hold one dumbbell upright against your chest with both hands. Squat down between your knees, keeping your chest up and your elbows inside your knees. Stand back up through your whole foot.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-squat", "version": 1, "name": "Dumbbell squat", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "forearms"],
+      "instructions": "Stand with a dumbbell in each hand at your sides. Sit down by bending your hips and knees until your thighs are about parallel to the floor. Drive back up to standing.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-romanian-deadlift", "version": 1, "name": "Dumbbell Romanian deadlift", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["hamstrings", "glutes"], "secondary": ["lower_back", "forearms"],
+      "instructions": "Stand holding the dumbbells in front of your thighs with a slight knee bend. Push your hips back and lower the weights along your legs until you feel a stretch in your hamstrings. Squeeze your glutes to return to standing.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-single-leg-romanian-deadlift", "version": 1, "name": "Single-leg dumbbell Romanian deadlift", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["hamstrings", "glutes"], "secondary": ["lower_back", "abductors"],
+      "instructions": "Hold a dumbbell in one hand and stand on the opposite leg. Hinge forward, letting your free leg extend behind you, until your torso is close to parallel with the floor. Return to standing, finishing all repetitions before switching sides.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-walking-lunge", "version": 1, "name": "Dumbbell walking lunge", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "adductors"],
+      "instructions": "Hold a dumbbell at each side and step forward into a lunge until both knees are bent. Push through your front foot and step straight into the next lunge with the other leg. Log the steps per leg and the weight of one dumbbell as the load per hand.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-reverse-lunge", "version": 1, "name": "Dumbbell reverse lunge", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings"],
+      "instructions": "Hold a dumbbell at each side and step one foot back into a lunge. Lower until both knees are bent, then push through your front foot to stand. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-bulgarian-split-squat", "version": 1, "name": "Dumbbell Bulgarian split squat", "aliases": ["Bulgarian split squat"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["adductors", "hamstrings"],
+      "instructions": "Stand in front of a bench and rest the top of your back foot on it, holding a dumbbell in each hand. Lower your back knee towards the floor while your front foot stays flat. Stand back up and finish one leg before switching. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-step-up", "version": 1, "name": "Dumbbell step-up", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["hamstrings", "calves"],
+      "instructions": "Hold a dumbbell at each side and place one foot on a sturdy bench or box. Drive through that foot to step up until your leg is straight. Step down with control and complete all repetitions on one leg before switching. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-calf-raise", "version": 1, "name": "Standing dumbbell calf raise", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_lower", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["calves"], "secondary": [],
+      "instructions": "Hold a dumbbell in each hand and stand with the balls of your feet on a step. Rise onto your toes as high as possible. Lower your heels slowly below the step.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-hip-thrust", "version": 1, "name": "Dumbbell hip thrust", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["glutes"], "secondary": ["hamstrings"],
+      "instructions": "Sit with your upper back against a bench and hold one dumbbell on your hips. Drive your hips up until your thighs and torso are level. Lower your hips with control.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-farmers-carry", "version": 1, "name": "Dumbbell farmer's carry", "aliases": ["Farmer's walk"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "carry", "loggingType": "timed", "loadBasis": "per_hand",
+      "primary": ["forearms", "traps"], "secondary": ["abs", "glutes"],
+      "instructions": "Pick up a dumbbell in each hand and stand tall. Walk with short, steady steps while keeping your shoulders back and the weights still. Set the dumbbells down when the time is up.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-suitcase-carry", "version": 1, "name": "Dumbbell suitcase carry", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "carry", "loggingType": "timed", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["obliques", "forearms"], "secondary": ["traps", "abs"],
+      "instructions": "Hold one dumbbell at your side and stand tall without leaning towards it. Walk steadily for the set time, then switch the dumbbell to the other hand. Log the time for each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-thruster", "version": 1, "name": "Dumbbell thruster", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "power", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["quads", "front_delts"], "secondary": ["glutes", "triceps"],
+      "instructions": "Hold the dumbbells at your shoulders and squat down. Drive up out of the squat and use the momentum to press the dumbbells overhead. Lower them to your shoulders as you move into the next squat.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-snatch", "version": 1, "name": "One-arm dumbbell snatch", "aliases": ["Dumbbell snatch"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "power", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["glutes", "hamstrings", "front_delts"], "secondary": ["traps", "quads"],
+      "instructions": "Start in a squat with one dumbbell on the floor between your feet. Stand up quickly and pull the dumbbell close to your body, then punch it overhead in one movement. Lower it with control and finish one arm before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-deadlift", "version": 1, "name": "Dumbbell deadlift", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "hinge", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["glutes", "hamstrings", "quads"], "secondary": ["lower_back", "forearms"],
+      "instructions": "Stand with a dumbbell on each side of your feet. Hinge and bend your knees to grip them, then stand up tall with a flat back. Lower them to the floor along the same path.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-sumo-squat", "version": 1, "name": "Dumbbell sumo squat", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "squat", "loggingType": "resistance", "loadBasis": "total",
+      "primary": ["quads", "adductors", "glutes"], "secondary": [],
+      "instructions": "Stand with your feet wide and toes turned out, holding one dumbbell by its head between your legs. Squat down, pushing your knees out over your toes. Stand back up through your whole foot.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-zottman-curl", "version": 1, "name": "Zottman curl", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["biceps", "forearms"], "secondary": [],
+      "instructions": "Curl a pair of dumbbells up with your palms facing up. At the top, turn your palms to face down. Lower the weights slowly in that position, then turn your palms up again.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-wrist-curl", "version": 1, "name": "Dumbbell wrist curl", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "isolation_upper", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["forearms"], "secondary": [],
+      "instructions": "Sit with your forearms on your thighs, palms up, and a dumbbell in each hand just past your knees. Lower the weights by bending your wrists back. Curl your wrists up as far as they go.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-upright-row", "version": 1, "name": "Dumbbell upright row", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "pull_vertical", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["side_delts", "traps"], "secondary": ["biceps"],
+      "instructions": "Hold the dumbbells in front of your thighs. Lift them along your body, leading with your elbows, until your upper arms are about level with your shoulders. Lower them slowly.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-single-arm-shoulder-press", "version": 1, "name": "Single-arm dumbbell shoulder press", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_vertical", "loggingType": "resistance", "loadBasis": "per_hand", "singleArm": true, "repsPerSide": true,
+      "primary": ["front_delts"], "secondary": ["triceps", "obliques"],
+      "instructions": "Stand tall holding one dumbbell at shoulder height. Press it overhead without leaning to the side. Lower it to your shoulder and finish all repetitions before switching arms.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-squeeze-press", "version": 1, "name": "Dumbbell squeeze press", "aliases": ["Crush press"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "push_horizontal", "loggingType": "resistance", "loadBasis": "per_hand",
+      "primary": ["pectorals", "triceps"], "secondary": [],
+      "instructions": "Lie on a flat bench and press two dumbbells together above your chest. Keep squeezing them against each other as you lower them to your chest. Press them back up while holding the squeeze.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-russian-twist", "version": 1, "name": "Weighted Russian twist", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "core", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["obliques"], "secondary": ["abs"],
+      "instructions": "Sit with your knees bent and lean back slightly, holding one dumbbell at your chest with both hands. Turn your torso to bring the dumbbell beside one hip, then the other. Log the repetitions you complete to each side.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-split-squat", "version": 1, "name": "Dumbbell split squat", "aliases": [],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "per_hand", "repsPerSide": true,
+      "primary": ["quads", "glutes"], "secondary": ["adductors"],
+      "instructions": "Stand in a long split stance holding a dumbbell at each side. Lower your back knee towards the floor, then push back up through your front foot. Complete all repetitions on one leg before switching. Log the repetitions per leg and the weight of one dumbbell as the load per hand.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    },
+    {
+      "slug": "dumbbell-lateral-lunge", "version": 1, "name": "Dumbbell lateral lunge", "aliases": ["Side lunge"],
+      "category": "dumbbell", "equipment": "dumbbell", "movement": "lunge", "loggingType": "resistance", "loadBasis": "total", "repsPerSide": true,
+      "primary": ["adductors", "quads", "glutes"], "secondary": [],
+      "instructions": "Hold one dumbbell at your chest and take a wide step to one side. Bend that knee and sit your hips back while the other leg stays straight. Push back to the centre and repeat on the same side before switching.",
+      "hi": "G14.hi",
+      "provenance": { "source": "fitlog-original", "sourceVersion": "2026-10-27", "licence": "LicenseRef-FitLog-Original", "method": "authored" }
+    }
+  ]
+}

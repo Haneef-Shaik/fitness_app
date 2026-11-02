@@ -1,0 +1,196 @@
+{
+  "$comment": "Source of truth for momentum.json, which `pnpm --filter @fitlog/mobile theme:generate --write` generates; never hand-edit it. Roles come from Material's Vibrant scheme for the seed, alias another role, or are fixed brand values. Curations pin the Figma-approved values (System boards 16:55 dark, 16:200 light) and record the Material value each replaces, so a seed or library change fails `--check`. See docs/THEMING.md.",
+  "id": "momentum",
+  "seed": "#C6F432",
+  "scheme": {
+    "variant": "vibrant",
+    "specVersion": "2025",
+    "platform": "phone",
+    "contrastLevel": 0
+  },
+  "roles": {
+    "surface": "scheme:surface",
+    "surfaceLow": "scheme:surfaceContainerLow",
+    "surfaceContainer": "scheme:surfaceContainer",
+    "surfaceHigh": "scheme:surfaceContainerHigh",
+    "surfaceHighest": "scheme:surfaceContainerHighest",
+    "onSurface": "scheme:onSurface",
+    "onSurfaceVariant": "scheme:onSurfaceVariant",
+    "outline": "scheme:outline",
+    "outlineVariant": "scheme:outlineVariant",
+    "primary": "scheme:primary",
+    "onPrimary": "scheme:onPrimary",
+    "primaryContainer": "scheme:primaryContainer",
+    "onPrimaryContainer": "scheme:onPrimaryContainer",
+    "secondaryContainer": "scheme:secondaryContainer",
+    "onSecondaryContainer": "scheme:onSecondaryContainer",
+    "error": "scheme:error",
+    "errorContainer": "scheme:errorContainer",
+    "onErrorContainer": "scheme:onErrorContainer",
+    "dataTrain": "alias:primary",
+    "dataFuel": "alias:primary",
+    "dataGold": "alias:primary",
+    "dataGoldContainer": "alias:secondaryContainer",
+    "onDataGoldContainer": "alias:onSecondaryContainer",
+    "dataStreak": "alias:onSurfaceVariant",
+    "dataStreakContainer": "alias:surfaceHighest",
+    "coachInk": "brand",
+    "coachContainer": "alias:surfaceHigh",
+    "onCoachContainer": "alias:onSurface",
+    "coachOutline": "brand",
+    "gymBrand": "brand",
+    "onGymBrand": "brand"
+  },
+  "brand": {
+    "dark": {
+      "coachInk": "#CDBDFF",
+      "coachOutline": "#8F74F0",
+      "gymBrand": "#C8262B",
+      "onGymBrand": "#FFFFFF"
+    },
+    "light": {
+      "coachInk": "#6745C7",
+      "coachOutline": "#9B7BFF",
+      "gymBrand": "#C1121F",
+      "onGymBrand": "#FFFFFF"
+    }
+  },
+  "curations": {
+    "dark": {
+      "surface": {
+        "approved": "#0E0F0A",
+        "mcu": "#0F0F00"
+      },
+      "surfaceLow": {
+        "approved": "#13140F",
+        "mcu": "#151400"
+      },
+      "surfaceContainer": {
+        "approved": "#191A15",
+        "mcu": "#1B1B00"
+      },
+      "surfaceHigh": {
+        "approved": "#1F201A",
+        "mcu": "#212100"
+      },
+      "surfaceHighest": {
+        "approved": "#252620",
+        "mcu": "#282700"
+      },
+      "onSurface": {
+        "approved": "#FBF9F1",
+        "mcu": "#F4F1AD"
+      },
+      "onSurfaceVariant": {
+        "approved": "#ACABA4",
+        "mcu": "#B0AE70"
+      },
+      "outline": {
+        "approved": "#76766F",
+        "mcu": "#79783F"
+      },
+      "outlineVariant": {
+        "approved": "#484843",
+        "mcu": "#4B4A16"
+      },
+      "primary": {
+        "approved": "#CAFD00",
+        "mcu": "#D1FF44"
+      },
+      "onPrimary": {
+        "approved": "#516700",
+        "mcu": "#4B6000"
+      },
+      "primaryContainer": {
+        "approved": "#CAFD00",
+        "mcu": "#A5D003"
+      },
+      "onPrimaryContainer": {
+        "approved": "#495E00",
+        "mcu": "#334200"
+      },
+      "secondaryContainer": {
+        "approved": "#414B24",
+        "mcu": "#636100"
+      },
+      "onSecondaryContainer": {
+        "approved": "#CAD6A3",
+        "mcu": "#FFFC9F"
+      },
+      "error": {
+        "approved": "#FF716C",
+        "mcu": "#FF7351"
+      },
+      "errorContainer": {
+        "approved": "#9F0519",
+        "mcu": "#B92902"
+      },
+      "onErrorContainer": {
+        "approved": "#FFA8A3",
+        "mcu": "#FFD2C8"
+      }
+    },
+    "light": {
+      "surface": {
+        "approved": "#FEFCF4",
+        "mcu": "#FFFBFF"
+      },
+      "surfaceLow": {
+        "approved": "#FBF9F1",
+        "mcu": "#FFFCC7"
+      },
+      "surfaceContainer": {
+        "approved": "#F5F4EA",
+        "mcu": "#FAF7A7"
+      },
+      "surfaceHigh": {
+        "approved": "#EFEEE4",
+        "mcu": "#F5F29D"
+      },
+      "surfaceHighest": {
+        "approved": "#E9E9DE",
+        "mcu": "#EFEC93"
+      },
+      "onSurface": {
+        "approved": "#383833",
+        "mcu": "#3A3A06"
+      },
+      "onSurfaceVariant": {
+        "approved": "#65655E",
+        "mcu": "#686730"
+      },
+      "outline": {
+        "approved": "#81817A",
+        "mcu": "#858349"
+      },
+      "outlineVariant": {
+        "approved": "#BAB9B2",
+        "mcu": "#BEBC7D"
+      },
+      "primaryContainer": {
+        "approved": "#CAFD00",
+        "mcu": "#CEFC41"
+      },
+      "secondaryContainer": {
+        "approved": "#DCE8B4",
+        "mcu": "#EBE856"
+      },
+      "onSecondaryContainer": {
+        "approved": "#4C562E",
+        "mcu": "#565400"
+      },
+      "error": {
+        "approved": "#B31B25",
+        "mcu": "#BE2D06"
+      },
+      "errorContainer": {
+        "approved": "#FB5151",
+        "mcu": "#F95630"
+      },
+      "onErrorContainer": {
+        "approved": "#570008",
+        "mcu": "#520C00"
+      }
+    }
+  }
+}

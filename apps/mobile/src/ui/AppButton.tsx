@@ -30,7 +30,13 @@ export function AppButton({ label, onPress, variant = 'primary', disabled = fals
       onBlur={() => setFocused(false)}
       style={({ pressed }) => ({
         backgroundColor: background,
-        borderColor: focused || pressed ? colors.primary : background,
+        // Focus draws the inset border in the label colour, which holds contrast on the fill it sits on in
+        // both schemes; `primary` cannot, because Dark draws it in the primary fill's own lime. The ring
+        // follows the focus and blur events React Native reports, with no availability gate, so focus
+        // reported while disabled or loading shows as onSurfaceVariant on surfaceHigh. RN's JS layer keeps
+        // the button focusable and forwards focus there, but RN Android disables the native view, so whether
+        // a device gives or keeps focus on an unavailable button is unverified.
+        borderColor: focused ? foreground : pressed ? colors.primary : background,
         borderWidth: dimensions.focusRing,
         minHeight: large ? dimensions.loggerButtonHeight : dimensions.buttonHeight,
         borderRadius: radius.full,

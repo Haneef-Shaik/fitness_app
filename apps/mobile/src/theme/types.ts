@@ -25,9 +25,16 @@ export interface ThemeColors {
   readonly dataTrain: string;
   readonly dataFuel: string;
   readonly dataGold: string;
+  /** Tonal win and record cards (docs/22 §4 data/goldContainer). */
+  readonly dataGoldContainer: string;
+  readonly onDataGoldContainer: string;
   readonly dataStreak: string;
+  /** Neutral data chips such as the streak freeze (docs/22 §4 data/streakContainer). */
+  readonly dataStreakContainer: string;
   readonly coachInk: string;
   readonly coachContainer: string;
+  /** Body text on a coach proposal card; the violet ink marks only what the coach proposes. */
+  readonly onCoachContainer: string;
   readonly coachOutline: string;
   readonly gymBrand: string;
   readonly onGymBrand: string;

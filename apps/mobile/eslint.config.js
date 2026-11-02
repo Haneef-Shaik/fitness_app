@@ -1,5 +1,6 @@
 const { defineConfig } = require('eslint/config');
 const expo = require('eslint-config-expo/flat');
+const { colorGuardConfig } = require('./scripts/lint-rules/no-literal-color.cjs');
 
 module.exports = defineConfig([
   expo,
@@ -21,4 +22,6 @@ module.exports = defineConfig([
       ],
     },
   },
+  // DS-1 colour guard: every colour in src/ comes from a theme role; only src/theme/themes/ and tests are exempt.
+  colorGuardConfig(),
 ]);

@@ -1,0 +1,27 @@
+{
+  "sessionId": "6a95ddd3-d113-438a-ac7b-90852d157ce6",
+  "finalAt": "2026-11-01T10:28:07.525Z",
+  "collectedAt": "2026-11-01T10:46:59.002842+00:00",
+  "toolUseCounts": {
+    "Read": 30,
+    "Grep": 50
+  },
+  "distinctToolErrors": {
+    "toolu_01EGk8uTVzUVdQ5qeMjDTZLx": "File content (63321 tokens) exceeds maximum allowed tokens (25000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file. To read it anyway, up to what still fits in your context, call Read again with allow_large: true \u2014 only if you genuinely need all of it or the user asked for the whole file.",
+    "toolu_011CZWw6deBZsCD2xr2vBV8V": "Path does not exist: /Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app/apps/mobile/node_modules/eslint/lib/types/index.d.ts. Note: your current working directory is /Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app.",
+    "toolu_01AZaogE7ZqfkKCbzptR9E1p": "Path does not exist: /Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app/apps/mobile/node_modules/eslint. Note: your current working directory is /Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app.",
+    "toolu_01PRAEL5zDAqb2YGkjzwwwoQ": "Path does not exist: /Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app/GOALS.md. Note: your current working directory is /Users/Adya/.codex/worktrees/fitlog-ds1-theme/fitness_app."
+  },
+  "permissionDenials": 0,
+  "sourceVerdict": "pass C0/H0/M0/L0; source only, no Done box accepted",
+  "gates": "ALL mobile execution/mutation/export/release gates UNRUN",
+  "reviewedSourceSha256": {
+    "apps/mobile/eslint.config.js": "0cbcb14675b059ce579385714d9bf6c56085f911f2d8e5735a952cd9bbe627b2",
+    "apps/mobile/scripts/test-design-rules.cjs": "da7ec37f140ecddf5c19e1ee43a85f650a268d73ea284d949a4e2e6e8bcd72af",
+    "apps/mobile/scripts/lint-rules/no-literal-color.cjs": "037f0a407a1855072a6f1148f0dc5c1b74408ad3fbfded1f59ff37a61fec9330",
+    "apps/mobile/src/theme/__tests__/color-guard.test.ts": "0275ac8c13f85bb7f4c0c0d60fb09b2f2b8af827d861c6e9aef580ec62e03069",
+    "apps/mobile/src/ui/momentum-assets.ts": "cb02ea312b034c29104d550f677610059ff28fd9e3d64d3ff2442be4521473a1",
+    "apps/mobile/src/ui/MomentumAsset.tsx": "a936806f21523e159269c93188eab51036688ba64e2299933125dbb6a558879a",
+    "apps/mobile/src/ui/__tests__/momentum-asset.test.tsx": "6da645866c2728a39ad0c92e64d4543f2aa97da43206c326ce69798f8aef1ffc"
+  }
+}

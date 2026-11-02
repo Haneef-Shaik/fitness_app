@@ -1,4 +1,5 @@
-import { dimensions, fontFamilies, fontWeights, radius, spacing, typeRamp } from './tokens';
+import { dimensions, radius, spacing } from './tokens';
+import { createTypography } from './typography';
 import type { ColorScheme, ThemeDefinition, ThemePlatform, ThemePreference } from './types';
 
 export function resolveColorScheme(
@@ -9,7 +10,7 @@ export function resolveColorScheme(
 }
 
 export function createTheme(definition: ThemeDefinition, scheme: ColorScheme, platform: ThemePlatform) {
-  const family = fontFamilies[platform];
+  const type = createTypography(platform);
   return {
     id: definition.id,
     scheme,
@@ -17,15 +18,11 @@ export function createTheme(definition: ThemeDefinition, scheme: ColorScheme, pl
     spacing,
     radius,
     dimensions,
-    typography: {
-      display: { ...typeRamp.display, fontFamily: fontWeights.bold },
-      headline: { ...typeRamp.headline, fontFamily: fontWeights.bold },
-      title: { ...typeRamp.title, fontFamily: fontWeights.medium },
-      body: { ...typeRamp.body, fontFamily: family.body, ...(platform === 'ios' ? { fontSize: 17 } : {}) },
-      label: { ...typeRamp.label, fontFamily: fontWeights.medium },
-      caption: { ...typeRamp.caption, fontFamily: family.body },
-      number: { ...typeRamp.number, fontFamily: family.numbers },
-    },
+    /** Latin text styles by variant; Hindi text uses `devanagariTypography` with the same names. */
+    typography: type.latin,
+    devanagariTypography: type.devanagari,
+    /** Pass as `<Text maxFontSizeMultiplier>` for the same variant (PRD §23.1 text scaling). */
+    maxFontSizeMultiplier: type.maxFontSizeMultiplier,
   } as const;
 }
 

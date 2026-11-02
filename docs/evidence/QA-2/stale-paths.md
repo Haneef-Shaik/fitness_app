@@ -2,14 +2,14 @@
 
 | Field | Value |
 |---|---|
-| Goal and attempt | QA-2 · Reconcile the docs with the code · attempt 1: first pass, correction phase 1, correction phase 2 (answering the 23:05Z review), correction phase 3 (the coordinator's "phase 4", answering the 27 October 00:05Z review), correction phase 4 (the coordinator's "phase 5", answering the 27 October 01:05Z review), correction phase 5 (Codex's task `qa2-fix0205`, answering the 27 October 02:05Z review), correction phase 6 (Codex's task `qa2-fix0235`: Codex's decision on the D7 setup question in the 02:35Z implementer final), correction phase 7 (the 03:35Z review's three Lows, then Codex's authorised apply, M checks and one D run, §14), correction phase 8 (Codex's renewed authorisation after phase 7's 04:05Z final, with a read-command allowlist added; the patch applied in this worktree, M19 re-run, the saved script verified but not run, §15) correction phase 9 (Codex's task `qa2-proof0435` after phase 8's 04:35Z final: P1 and P2, M1–M15 and the D proof only; P1, P2, M1 and M3–M15 ran, M2 and the D run line were denied, §16) correction phase 10 (Codex's task `qa2-proof0505` after phase 9's 05:05Z final: M2 and the guarded D proof only; M2 ran, and the D run line was denied again although its exact text was on the allowlist, §17) and correction phase 11 (this update: docs-only corrections for the 06:05Z review's five Mediums and six Lows, with no M, W, D or P command, §18) |
+| Goal and attempt | QA-2 · Reconcile the docs with the code · attempt 1: first pass, correction phase 1, correction phase 2 (answering the 23:05Z review), correction phase 3 (the coordinator's "phase 4", answering the 27 October 00:05Z review), correction phase 4 (the coordinator's "phase 5", answering the 27 October 01:05Z review), correction phase 5 (Codex's task `qa2-fix0205`, answering the 27 October 02:05Z review), correction phase 6 (Codex's task `qa2-fix0235`: Codex's decision on the D7 setup question in the 02:35Z implementer final), correction phase 7 (the 03:35Z review's three Lows, then Codex's authorised apply, M checks and one D run, §14), correction phase 8 (Codex's renewed authorisation after phase 7's 04:05Z final, with a read-command allowlist added; the patch applied in this worktree, M19 re-run, the saved script verified but not run, §15) correction phase 9 (Codex's task `qa2-proof0435` after phase 8's 04:35Z final: P1 and P2, M1–M15 and the D proof only; P1, P2, M1 and M3–M15 ran, M2 and the D run line were denied, §16) correction phase 10 (Codex's task `qa2-proof0505` after phase 9's 05:05Z final: M2 and the guarded D proof only; M2 ran, and the D run line was denied again although its exact text was on the allowlist, §17) and correction phase 11 (this update: docs-only corrections for the 06:05Z review's five Mediums and six Lows, with no M, W, D or P command, §18). *(Correction phase 12: F1 applied, commits 1 and 2, §19. Correction phase 13: the 09:05Z review's M-1, M-2 and L-1 to L-7; F2 applied, the integrate-goal Edit denied, records fixed, nothing staged or committed, §20. Correction phase 14: the 10:05Z review's P13-1 to P13-7; the F2-sentence Edit denied, so P13-1 is open; P13-2 an integration blocker; P13-3 to P13-7 fixed in the records only; nothing staged or committed, §21.)* |
 | Date | 27 October 2026 |
-| Tree searched | Worktree `/Users/Adya/.codex/worktrees/fitlog-qa2-docs/fitness_app` on branch `codex/fitlog-qa2-docs` at `5fefc31`. The coordinator created that branch from `5fefc31` and checked it out 50 s after the worktree was created detached (worktree reflog `.git/worktrees/fitness_app3/logs/HEAD`, lines 1–2; `HEAD` reads `ref: refs/heads/codex/fitlog-qa2-docs`). All changes are uncommitted. `main` is now at `c8a5d57`, one commit ahead (read from `.git/refs/heads/main`) |
+| Tree searched | Worktree `/Users/Adya/.codex/worktrees/fitlog-qa2-docs/fitness_app` on branch `codex/fitlog-qa2-docs` at `5fefc31`. The coordinator created that branch from `5fefc31` and checked it out 50 s after the worktree was created detached (worktree reflog `.git/worktrees/fitness_app3/logs/HEAD`, lines 1–2; `HEAD` reads `ref: refs/heads/codex/fitlog-qa2-docs`). All changes are uncommitted. `main` is now at `c8a5d57`, one commit ahead (read from `.git/refs/heads/main`). *(Correction phase 13, the 09:05Z review's L-5: since phase 12 the branch holds commit 1 `173eff0` and commit 2 `7a01395` on `5fefc31`, not rebased; phase 13's changes, §20, are uncommitted.)* |
 | Tool | Claude Code's Grep tool, which runs ripgrep. Each search below gives its pattern and file glob, then the equivalent `rg` command line for a re-run |
 | Not used | Bash was denied in the first three sessions ("don't ask" mode), so no shell, git, `pnpm` or `node` command ran in them. In correction phases 3 and 4 the first Bash call was denied the same way and was not retried: phase 3's was a `git status`/`git log`/`ls` compound, and phase 4's was `rtk proxy git -C <worktree> status --short`. The one command the coordinator permitted, `git apply --check`, then ran: twice in phase 3 and once in phase 4, passing each time (§4). No other command ran in those phases. In correction phase 5 the first Bash call, `rtk proxy git status --short` in this worktree, **ran**: a read-only query, made for orientation before this phase's "only `git apply --check`" rule was applied to it. Its output matched the session-start snapshot (14 tracked files modified; `docs/evidence/QA-2/` and `docs/plan/runs/QA-2/` untracked). Like M2, it may have refreshed this worktree's index stat cache; it changed no tracked content, staging or ref. The second call, `rtk proxy cat /Users/Adya/.codex/RTK.md`, was denied ("don't ask" mode) and not retried; the file was read with Read. Then `git apply --check` ran once, on the final file, and passed (§4). In correction phase 6 the only command was `rtk proxy git apply --check --verbose …`, once, on the unchanged final patch (§4); no other Bash command was run or attempted. In correction phase 7 six Bash calls ran and four were denied ("don't ask" mode), none retried: §14 lists each as typed. The ones that ran were three read-only `git rev-parse` calls and one `git status --short` in this worktree, M19, and the D procedure's `mktemp -d`. The denied ones were the `GIT_OPTIONAL_LOCKS=0` status form, the patch's SHA-256, M1, and the script's diff check. So no `git apply --check`, no `git apply` and no D run happened. In correction phase 8 thirteen Bash calls ran and three were denied, none retried and none replaced (§15). The ones that ran were three `git rev-parse` calls and two `GIT_OPTIONAL_LOCKS=0 git status --short` calls, two SHA-256 reads of the patch, `git apply --check --verbose`, `git apply` (**the patch is applied in this worktree**), `git diff --stat -- .claude`, M19, the script's diff against the block, and its SHA-256. The denied ones were P1, M1 and the script's `test -f`. So P2, M2–M15 and the D run did not happen. Line numbers come from Grep and Read. Until correction phase 8, nothing under `.claude/` was edited: the first pass's Edit was denied there, and in every correction phase the coordinator protected `.claude/` and asked for a patch instead (§4). In phase 8, under Codex's explicit authorisation, `git apply` wrote the reviewed patch into this worktree's `.claude/` once; no Edit or Write touched `.claude/` (§15). In correction phase 9, 23 Bash calls were made: 20 ran and 3 were denied ("don't ask" mode). None was retried, and none was replaced by another form (§16). The ones that ran were P1 and P2, M1 and M3–M15 in the main checkout, the script's diff against the block and its SHA-256, one `date -u`, and `test -f`. The denied ones were my first orientation compound, M2 (the `GIT_OPTIONAL_LOCKS=0` form) and the D run line. So the D script has still not run. Phase 9 wrote nothing under `.claude/` and did not touch the patch file. In correction phase 10, 23 Bash calls were made: 22 ran and 1 was denied ("don't ask" mode), not retried and not replaced (§17). The ones that ran were four orientation reads, three `date -u`, the before and after reads of `main`, the main checkout's branch, its `origin/main` tracking ref and the live status hashes, the script's diff against the block and its SHA-256, **M2**, `test -f`, and the worktree's `HEAD`. The denied one was the D run line, whose exact text was on the allowlist. So the D script has still not run. Phase 10 wrote nothing under `.claude/`, in the patch file or outside this worktree. In correction phase 11 (docs only), 10 Bash calls were made: 7 ran and 3 were denied ("don't ask" mode), none retried or replaced (§18). The ones that ran were an orientation `git status --short` (disclosed), two `git rev-parse` reads, two `date -u`, `git apply --check` on the new F1 patch, and a `--no-optional-locks` status for the inventory. The denied ones were two `shasum` reads, so no hash was read, and the `cp` for the history move, so the handoff was not compacted. No M, W, D or P command ran. Phase 11 wrote nothing under `.claude/`, in the historical patch, in the finals or outside this worktree |
 | `.claude/` line numbers | *(Correction phase 8.)* The `.claude/` "Before" numbers in §3.5, and the skill lines the §6.3 D table cites, are the **unpatched** files' at `5fefc31`. Phase 8 applied the patch here, so this worktree's `.claude/` files now carry the patched numbers (the 03:35Z final lists the D table's, *inherited*; none was re-read in phase 8). The `docs/` numbers in the next row are unaffected |
 | Line numbers | "Before" numbers were read before any edit in the first pass. "After" numbers are as read at the end of correction phase 5; phases 6 and 7 edited no `docs/` file outside QA-2's own records, so they still hold. Phases 2–5 edited only `docs/plan/SESSION-PROMPT.md` among the `docs/` files (D4–D8), so every other "after" number is unchanged from phase 1. SESSION-PROMPT numbers are given as of phase 5 unless a row says otherwise; phase 5 added seven lines (the P3b and P5 rows, and a four-line note with a blank line before it), so numbers up to :43 are unchanged from phase 4, P4's row moved from :44 to :45, and everything from phase 4's :45 on moved down by seven. *(Correction phase 9.)* Phase 9 reworded SESSION-PROMPT :16–19 in place, as the same four lines, so no SESSION-PROMPT line number moved |
-| Reviews answered | [Independent review, 26 October 20:00Z](independent-review-2026-10-26T2000Z.md), findings R1–R15, handled as listed in §8. [Reviewer final, 26 October 23:05Z](reviewer-final-2026-10-26T2305Z.md), findings 1–5, handled as listed in §9. [Reviewer final, 27 October 00:05Z](reviewer-final-2026-10-27T0005Z.md), High 1, High 2 and Lows 1–6, handled as listed in §10. [Reviewer final, 27 October 01:05Z](reviewer-final-2026-10-27T0105Z.md), High 1, Medium 2 and Lows 3–5, handled as listed in §11. [Reviewer final, 27 October 02:05Z](reviewer-final-2026-10-27T0205Z.md), Medium 1 and Lows 2–5, handled as listed in §12. Codex's phase 6 decision on the D7 question in the [02:35Z implementer final](implementer-final-2026-10-27T0235Z.md) (:19), handled as listed in §13. [Independent review final, 27 October 03:35Z](final-2026-10-27T0335Z.md), Lows 1–3, accepted by Codex, handled as listed in §14. Phase 7's own [04:05Z final](final-2026-10-27T0405Z.md) (the permission denials) and Codex's renewed authorisation, handled as listed in §15. Phase 8's own [04:35Z final](final-2026-10-27T0435Z.md) (the apply, and the three forms still refused) and Codex's phase 9 task, handled as listed in §16. Phase 9's own [05:05Z final](final-2026-10-27T0505Z.md) (M2 and the run line refused) and Codex's phase 10 task, handled as listed in §17. The [06:05Z independent review final](final-2026-10-27T0605Z.md), Mediums M1–M5 and Lows L1–L6, and Codex's phase 11 rulings, handled as listed in §18 |
+| Reviews answered | [Independent review, 26 October 20:00Z](independent-review-2026-10-26T2000Z.md), findings R1–R15, handled as listed in §8. [Reviewer final, 26 October 23:05Z](reviewer-final-2026-10-26T2305Z.md), findings 1–5, handled as listed in §9. [Reviewer final, 27 October 00:05Z](reviewer-final-2026-10-27T0005Z.md), High 1, High 2 and Lows 1–6, handled as listed in §10. [Reviewer final, 27 October 01:05Z](reviewer-final-2026-10-27T0105Z.md), High 1, Medium 2 and Lows 3–5, handled as listed in §11. [Reviewer final, 27 October 02:05Z](reviewer-final-2026-10-27T0205Z.md), Medium 1 and Lows 2–5, handled as listed in §12. Codex's phase 6 decision on the D7 question in the [02:35Z implementer final](implementer-final-2026-10-27T0235Z.md) (:19), handled as listed in §13. [Independent review final, 27 October 03:35Z](final-2026-10-27T0335Z.md), Lows 1–3, accepted by Codex, handled as listed in §14. Phase 7's own [04:05Z final](final-2026-10-27T0405Z.md) (the permission denials) and Codex's renewed authorisation, handled as listed in §15. Phase 8's own [04:35Z final](final-2026-10-27T0435Z.md) (the apply, and the three forms still refused) and Codex's phase 9 task, handled as listed in §16. Phase 9's own [05:05Z final](final-2026-10-27T0505Z.md) (M2 and the run line refused) and Codex's phase 10 task, handled as listed in §17. The [06:05Z independent review final](final-2026-10-27T0605Z.md), Mediums M1–M5 and Lows L1–L6, and Codex's phase 11 rulings, handled as listed in §18. The [07:05Z independent review final](final-2026-10-27T0705Z.md), M-A, M-B and L-1 to L-6, handled as listed in §19. The [09:05Z independent review final](final-2026-10-27T0905Z-collected.md), M-1, M-2 and L-1 to L-7, and Codex's phase 13 rulings, handled as listed in §20. The [10:05Z independent review final](final-2026-10-27T1005Z-collected.md), P13-1 to P13-7, and Codex's phase 14 rulings, handled as listed in §21 |
 
 ## 1. Scope
 
@@ -747,7 +747,7 @@ text, not a shell variable. Wherever it appears, type the literal absolute path 
    stays open for those two commands unless the verifier accepts that. *(Correction phase 11, the 06:05Z review's L4.)* Whoever types step 4, for example a person in an interactive, approved session, first re-checks the copy **in the same terminal, straight before it**: `shasum -a 256 <P>/qa2-box3-proof.sh` must print exactly the recorded hash (`1e64c8653b662967285123bd5f0f7319fb5ddbd5326cc2614a6a8e8f0cfe92e5` while the block is unchanged), and the `sed … | diff -` against the block, found by its fences, must print nothing. On any difference, or if either check is refused, do not type step 4.
 5. Keep `<P>/qa2-box3-proof.log` as evidence (for example, copy it to
    `docs/evidence/QA-2/box3-disposable-run.log`), and record the exit code and each step's result
-   line in this section. *(Correction phase 11, the 06:05Z review's M3.)* Also record the log's `main in the clone: <hash>` line as **the D pin**. At integration, re-run D only if `git diff --quiet <pin> <integration base> -- scripts/plan .claude/skills` exits 1 (a difference); exit 0 means the log still holds; any other exit, stop and ask Codex (§18). *(Correction phase 12, the 07:05Z review's L-4 and M-A: both this check and a new pre-D drift check now cover five paths, `scripts/plan .claude/skills docs/plan/GOALS.md docs/plan/status.json docs/plan/ACCEPTANCE.md`, and Codex runs the pin check before launching the integrator. The current rule is in §18, *The D pin rule*.)*
+   line in this section. *(Correction phase 11, the 06:05Z review's M3.)* Also record the log's `main in the clone: <hash>` line as **the D pin**. At integration, re-run D only if `git diff --quiet <pin> <integration base> -- scripts/plan .claude/skills` exits 1 (a difference); exit 0 means the log still holds; any other exit, stop and ask Codex (§18). *(Correction phase 12, the 07:05Z review's L-4 and M-A: both this check and a new pre-D drift check now cover five paths, `scripts/plan .claude/skills docs/plan/GOALS.md docs/plan/status.json docs/plan/ACCEPTANCE.md`, and Codex runs the pin check before launching the integrator. The current rule is in §18, *The D pin rule*.)* *(Correction phase 13, the 09:05Z review's L-3: the drift check now compares `5fefc31` with the actual `main`, read straight before D, and the D pin must equal that hash; §18, *The D pin rule*, phase 13 paragraph.)*
 6. Delete both folders by hand afterwards: `<P>`, and the script's own working folder, whose path
    the log prints as `D=…`. Before removing each one, check that its path starts with
    `/tmp/fitlog-qa2-` or `/private/tmp/fitlog-qa2-`.
@@ -2401,16 +2401,16 @@ command forms it needs must also be permitted by the harness.
 | 2 | 13 | **F1:** `git apply --check --verbose` on it, then `git apply`, once, in this worktree. Then P1 and P2 again (P2 must still print line 28), and a Grep for the new bullet | A `.claude/` write | Codex, explicitly | *(Phase 12:)* **Applied** in correction phase 12, once, after L-2 and L-3 were folded into the patch and its hunk recounted (§19). P1 was denied, so P2 was not attempted. The Grep found the new bullet |
 | 4 | 13 | **The commit (commit 1):** *(phase 12, the 07:05Z review's L-5)* re-take the inventory read-only with `git --no-optional-locks status`, straight before staging, listing every saved final. `git add --` with exact paths only, never `-A` or a folder. Check `git diff --cached --name-status` against the inventory, then `git commit`, with the L5 note and the F1 line in the body, under a unique subject. No push. After it, record `git ls-tree -r HEAD -- docs/evidence/QA-2/` as the blob-ID anchor: the state at commit time, not proof that nothing changed earlier | Staging and a commit | Codex | *(Phase 12:)* authorised and run in correction phase 12 (§19). The hashes and blob IDs are in the compact handoff |
 | 3 | 13 | **M5, commit then cut** (Codex's ruling on the 07:05Z review's M-B; this replaces the history move, so no copy and no `history.md`). After commit 1 keeps the full record, Edit the handoff down to its current state, run-goal §9's sections with current values, and a pointer to "the previous version of this file", the commit with commit 1's unique subject. Stage only the handoff; commit 2. Check: `git diff <c1> <c2> -- docs/plan/runs/QA-2/handoff.md` shows only the compaction | Edit and a commit | Codex | *(Phase 12:)* authorised and run in correction phase 12 (§19). It now comes after step 4, so the tracker receives only the short file |
-| 5 | after a fresh review | Post-commit reads: M16, M17, M18, M20 and M21, in their exact forms | Read-only | Codex | Not run. *(Phase 12: Codex moved steps 5–7 to a separate phase after a fresh review.)* |
+| 5 | after a fresh review | Post-commit reads: M16, M17, M18, M20 and M21, in their exact forms. *(Phase 13, the 09:05Z review's L-2 and L-6:)* also the exact subject lookup, `git log --format='%H %s' -- docs/plan/runs/QA-2/handoff.md`, keeping the one line whose subject equals `docs(QA-2): preserve reviewed reconciliation phase history`; and, once the skill edit lands, M22 and M23 (§20) | Read-only | Codex | Not run. *(Phase 12: Codex moved steps 5–7 to a separate phase after a fresh review.)* *(Phase 13: the subject lookup and the L-6 hash chain ran once before the rebase, §20; the post-commit reads did not)* |
 | 6 | after a fresh review | **The rebase:** `git rebase main`. On any conflict, `git rebase --abort` and stop | A rebase | Codex | Not run. `c8a5d57` touches no QA-2 file (the 06:05Z review, *inherited*) |
-| 7 | after a fresh review | After the rebase: M1–M15 and M19 again, then M16–M18, M20 and M21 again | Read-only | Codex | Not run |
+| 7 | after a fresh review | After the rebase: M1–M15 and M19 again, then M16–M18, M20 and M21 again. *(Phase 13:)* the subject lookup again (the hashes change; the one subject match must remain), and M22 and M23 once the skill edit lands | Read-only | Codex | Not run |
 | 8 | 14 | W1 and W2, as integrate-goal :53 writes them, then W3, the export | Local gates. W1 may need the package registry | Codex. If the network is not permitted, record W1 as "not run, needs network", with no added flag | Not run |
 | 9 | 15 | W4 (`supabase status` showing 55321), W5 (`pnpm backend:test`), and W6 if the stack policy allows it | The shared DB | The DB lane, serialized separately | Not run |
-| 10 | 16 | **D:** one run of the exact line, after steps 3–7, with L4's hash and diff check straight before it, in an approved interactive session. *(Phase 12, the 07:05Z review's L-4:)* before it, the drift check in *The D pin rule* below must exit 0 | A permission route | **Blocked** | Never run |
+| 10 | 16 | **D:** one run of the exact line, after steps 3–7, with L4's hash and diff check straight before it, in an approved interactive session. *(Phase 12, the 07:05Z review's L-4:)* before it, the drift check in *The D pin rule* below must exit 0. *(Phase 13, the 09:05Z review's L-3:)* the drift check reads the actual `main` straight before D and compares `5fefc31` with that hash, and the D pin must equal it (*The D pin rule*, phase 13 paragraph) | A permission route | **Blocked** | Never run |
 | 11 | 16 | The D pin, recorded from the log (below), with the five pinned paths | — | Codex | Waits for step 10 |
 | 12 | 17 | The three reviews on `git diff main...codex/fitlog-qa2-docs`: `code-reviewer`, `security-reviewer` (with the override text) and `tdd-guide` | Sub-agents | Codex | Not run |
 | 13 | 18 | A fresh `goal-verifier`. It rules on box 3's reading, and on D if step 10 is still blocked | A verifier session | Codex | Not run |
-| 14 | 19 | Integration (integrate-goal): the gates, the fast-forward of `main`, Done, and the tracker append. *(Phase 12, the 07:05Z review's M-A:)* three conditions come first. **(a) Main-checkout state, preserved:** integrate-goal's precondition 2 (:15–19) refuses unless the main checkout shows nothing but `docs/plan/status.json` and `docs/plan/activity.json`. At 07:05Z it also had `EXECUTION.md` and `runs/local-supervision.json` modified and 29 untracked paths. Codex settles its **own** coordinator files first, by committing them or by its own decision on each, and preserves every file: never a stash, reset, clean or delete to make the precondition pass (integrate-goal :22–23). Any file that is not Codex's is left as it is, and if it still blocks the precondition the integrator refuses. **(b) The pin check, by Codex, before the launch:** integrate-goal has no pin check, and its `MAIN_BEFORE` (:39) is known only after its own rebase and gates. So Codex runs the pin check (below) against the current `main`, `H`, just before launching `goal-integrator`, and passes `H` in the task as the expected `MAIN_BEFORE`. The task tells the integrator to report `RESULT: refused` if its `MAIN_BEFORE` differs from `H`, before step 3's fast-forward. A refusal leaves `main` untouched; Codex then re-runs the pin check on the new `main`, and D again if it exits 1 (which needs step 10's route). **(c) Gate prerequisites:** integrate-goal step 2 runs all three gates whatever the diff touched (:50–56). `pnpm backend:test` needs the local stack, so integration needs the DB lane's slot (W5; serialized, never stopping, resetting or reconfiguring 55321). `pnpm install --frozen-lockfile` may need the package registry (W1) | `main` and status changes; the DB lane; possibly the network | Codex, through `goal-integrator`, not QA-2. QA-2 does not edit integrate-goal for (b): the expected hash goes in the task text | Not started |
+| 14 | 19 | Integration (integrate-goal): the gates, the fast-forward of `main`, Done, and the tracker append. *(Phase 12, the 07:05Z review's M-A:)* three conditions come first. **(a) Main-checkout state, preserved:** integrate-goal's precondition 2 (:15–19) refuses unless the main checkout shows nothing but `docs/plan/status.json` and `docs/plan/activity.json`. At 07:05Z it also had `EXECUTION.md` and `runs/local-supervision.json` modified and 29 untracked paths. Codex settles its **own** coordinator files first, by committing them or by its own decision on each, and preserves every file: never a stash, reset, clean or delete to make the precondition pass (integrate-goal :22–23). Any file that is not Codex's is left as it is, and if it still blocks the precondition the integrator refuses. **(b) The pin check, by Codex, before the launch:** integrate-goal has no pin check, and its `MAIN_BEFORE` (:39) is known only after its own rebase and gates. So Codex runs the pin check (below) against the current `main`, `H`, just before launching `goal-integrator`, and passes `H` in the task as the expected `MAIN_BEFORE`. The task tells the integrator to report `RESULT: refused` if its `MAIN_BEFORE` differs from `H`, before step 3's fast-forward. A refusal leaves `main` untouched; Codex then re-runs the pin check on the new `main`, and D again if it exits 1 (which needs step 10's route). **(c) Gate prerequisites:** integrate-goal step 2 runs all three gates whatever the diff touched (:50–56). `pnpm backend:test` needs the local stack, so integration needs the DB lane's slot (W5; serialized, never stopping, resetting or reconfiguring 55321). `pnpm install --frozen-lockfile` may need the package registry (W1). *(Phase 13, the 09:05Z review's M-1 and L-4, under Codex's ruling: (a) and (b) above are **replaced** by §20 *Integration preconditions*. They tolerate explicit, pre-existing, unrelated untracked paths only after a read-only full inventory and an empty incoming-path overlap, failing closed on anything else; they check the expected `MAIN_BEFORE` before any rebase or gate and again straight before the fast-forward; and they reconcile a resumed run's record before changing anything. The sentence "A refusal leaves `main` untouched" above is withdrawn as a blanket claim. The integrate-goal Edit that would encode this was **denied** (§20), so until a permitted route lands it, precondition 2 as written still refuses on any untracked path, and this step cannot pass in the main checkout as it stands.)* | `main` and status changes; the DB lane; possibly the network | Codex, through `goal-integrator`, not QA-2. QA-2 does not edit integrate-goal for (b): the expected hash goes in the task text. *(Phase 13: superseded. Codex ruled that QA-2 updates integrate-goal; the Edit was denied, and Codex decides the writer route.)* | Not started |
 | 15 | after 19 | P3, P3b, P4 and P5 before each later `security-reviewer` launch | Read-only | Whoever launches it | Not run |
 | 16 | — | A push to the real origin | External | The owner, explicitly and specifically | Never by QA-2 |
 | 17 | optional | T-7, a Figma metadata read | Figma | Codex | Not run |
@@ -2457,6 +2457,25 @@ the record.)*
   - `1`: re-run D by the same route, record a new pin, and check again.
   - Anything else: stop and ask Codex.
 - No D execution in phase 12.
+
+*(Phase 13, the 09:05Z review's L-3: this replaces the drift-check bullet above, which is kept for
+the record. D clones whatever `main` is when it runs (script :1001, `--branch main` from the main
+checkout; :1019 logs it), not the rebase base, so the check must read that `main`.)*
+- **Straight before D (step 10),** as separate single calls:
+  1. `git rev-parse main`, recording the printed hash as `M_D`.
+  2. `git diff --quiet 5fefc31 <M_D> -- scripts/plan .claude/skills docs/plan/GOALS.md docs/plan/status.json docs/plan/ACCEPTANCE.md; echo $?`,
+     with `M_D` typed out.
+     - `0`: run D as reviewed.
+     - `1`: do not run D. Its forms and expected rows need a fresh review against `M_D` first.
+     - Anything else: stop and ask Codex.
+- **After D,** the D pin (the log's `main in the clone: <hash>`) must equal `M_D`. If it differs,
+  `main` moved between the check and the clone: that run does not count for box 3, and Codex
+  decides the next step. Never edit the log to fit.
+- The pin check at integration is unchanged (above), apart from the resume rule in §20.
+  *(Phase 14, P13-7: item 2 above and the pin check are now typed as single commands, with no
+  `; echo $?`. The exit code is read from the tool's result (§21). The resume rule is §21's
+  `H_orig` rule.)*
+- No D execution in phase 13.
 
 ### L3: P5's form, considered and not changed
 
@@ -2660,5 +2679,553 @@ The finals and `claude-corrections-UNAPPLIED.patch` were not written in this pha
   (M16–M18, M20, M21), the rebase and the M re-runs; W1–W6; D (**blocked**), with the drift check
   first; the three reviews; the verifier; integration under step 14's conditions; then P3, P3b, P4
   and P5. P1 and P2 on the post-F1 file are open too (call 8).
+- **The override** stays in every `security-reviewer` launch.
+- **Not independent:** no sub-agent ran, by rule.
+
+## 20. The 09:05Z review: F2, the integration rule and records (correction phase 13)
+
+The [09:05Z independent review final](final-2026-10-27T0905Z-collected.md) reviewed phase 12, both
+commits included. It found no Critical or High, two Mediums (M-1, M-2) and seven Lows (L-1 to
+L-7). Codex gave correction phase 13 under AUTH-01 (task `qa2-fix0935`). Two files carry a 09:05Z
+name, and both are kept verbatim and untracked:
+- `final-2026-10-27T0905Z-collected.md` is the 09:05Z review itself, the one this phase answers.
+- `final-2026-10-27T0905Z.md` is older. It is phase 12's own implementer final, from the 08:35
+  cycle, saved under a 09:05Z name by mistake (Codex's statement, *inherited*). Its content agrees:
+  it reports phase 12's commits and asks for the review that the collected file is.
+
+The rules, as given:
+- **Scope:** one bounded phase, with no sub-agents. Correct M-1, M-2 and L-1 to L-5. Run L-6's
+  read-only hash proof if it is allowed, with no workaround after a denial.
+- **Codex's rulings:**
+  - **M-1:** the integration precondition may tolerate explicit, pre-existing, unrelated untracked
+    paths, but only after a read-only full inventory and an empty incoming-path overlap. Never
+    stash, reset, clean, move or delete. Encode this general preserves-unrelated rule in the
+    integrate-goal skill and in the proof matrix, with the exact tolerated set in the launch brief
+    and a fail-closed refusal on unexpected paths and collisions.
+  - **L-4:** check the expected `MAIN_BEFORE` before any rebase or gate, and again immediately
+    before the fast-forward. A resume reconciles the recorded `MAIN_BEFORE` and integration result
+    before changing anything. No blanket claim that a refusal always leaves `main` untouched.
+  - **M-2 and L-1:** a new additive patch, F2, for `security-reviewer` only. Retention of consent
+    events after erasure (R-4, DEC-04) is unresolved, and until it is resolved, deleting them is a
+    finding. The AI guard covers create, retry and reanalyse, with the exceptions for confirming a
+    ready proposal and for manual food. Write it under `docs/evidence/QA-2/`, run
+    `git apply --check`, then apply it once. No retry after a denial. Keep F1 and the historical
+    patch. Invent no legal decision, and keep DEC-04's external-proof requirement.
+  - **L-2, L-3 and L-5, records:** the exact subject lookup, by `git log --format` and subject
+    equality; the drift check from `5fefc31` against the actual `main` straight before D, with D's
+    logged pin equal to it; the full history is phases 1–11, plus phase 12's sources; the current
+    committed state, and Codex's acceptance of the Write; the D-script assumptions Low restored; and
+    the untracked finals in the inventory.
+  - **L-7:** named, deferred to G29. The absolute privacy rule is unchanged.
+- **Not allowed:** a P, M, W or D proof, a rebase, tests, staging or a commit; any `main`, status,
+  GOALS, ACCEPTANCE or integration edit; DB, SQL, Docker, Supabase, network, replay, runner or
+  `backend:test`; a push, PR, branch protection, deploy, provider, paid API, overage or
+  credentials; a permission bypass. A denial stops its sequence, with no alternate tool, form,
+  writer or coordinator substitute, and nothing denied before is retried. A new protected-write
+  denial stops F2, with no alternate writer, while other independent, ordinary records fixes go on
+  if permitted. Commands are separate single `rtk proxy` commands. No Done claim.
+- **The privacy override stands** (PRD §16.1; ADR 003): gym staff never read or write private
+  health data, whatever consent. It stays until QA-2 is integrated **and** the launching checkout
+  is corrected. An independent review comes next.
+
+### The phase 13 command record
+
+Each Bash call as typed, in order. None was denied. The one denial was an Edit (below).
+
+| # | Command, as typed | Result |
+|---|---|---|
+| 1 | `rtk proxy git status --porcelain=v1 -uall` | *Executed*: the session's first call, an orientation read made before the phase rules were applied to it. Typed without `--no-optional-locks`, so it may have refreshed this worktree's index stat cache, the incidental kind Codex accepted in phases 8 and 9. It printed only the two untracked 09:05Z files. Disclosed; not a QA-2 result |
+| 2 | `rtk proxy git rev-parse --abbrev-ref HEAD` | *Executed*: `codex/fitlog-qa2-docs` |
+| 3 | `rtk proxy git rev-parse HEAD` | *Executed*: `7a01395f1688df7901f804f72c9e3c12267253d2` |
+| 4 | `rtk proxy date -u +%Y-%m-%dT%H:%M:%SZ` | *Executed*: `2026-10-27T09:05:02Z` |
+| 5 | `rtk proxy git grep -n -e "--template=" 173eff0 -- docs/plan/runs/QA-2/handoff.md` | *Executed*: eight lines, among them :806 and :812 of the previous handoff (L-5's dropped Low) |
+| 6 | `rtk proxy git grep -n -e "phases 1" -e "phase 12" 173eff0 -- docs/plan/runs/QA-2/handoff.md` | *Executed*: four lines, among them :32 and :110 |
+| 7 | `rtk proxy git show 173eff0:docs/plan/runs/QA-2/handoff.md --textconv -- ` | *Executed*: the previous handoff, 134.7 KB. The harness saved it to a session file, which I read with Read: :5–8 say it is "the full phase 1–11 record" with phase 12 in §19 and checkpoint step 67, and :797–814 hold the D-script assumptions Low |
+| 8 | `rtk proxy git diff 5fefc31 HEAD -- .claude/skills/integrate-goal/SKILL.md` | *Executed*: QA-2's committed change to that skill is step 5's link re-basing only (one hunk) |
+| 9 | `rtk proxy git log --format='%H %s' -- docs/plan/runs/QA-2/handoff.md` | *Executed* (L-2): two lines, `7a01395f… docs(QA-2): compact current verification handoff` and `173eff04cbf6a9c3384ae02c217ef218ada99f02 docs(QA-2): preserve reviewed reconciliation phase history`. Exactly one subject equals the commit-1 subject |
+| 10 | `rtk proxy git rev-parse 173eff0:docs/evidence/QA-2/claude-corrections-UNAPPLIED.patch` | *Executed* (L-6): `364e2f3353b5869b56e8d6ecea74d6ba6e60904c` |
+| 11 | `rtk proxy git hash-object docs/evidence/QA-2/claude-corrections-UNAPPLIED.patch` | *Executed* (L-6): `364e2f3353b5869b56e8d6ecea74d6ba6e60904c`. Without `-w` it writes nothing |
+| 12 | `rtk proxy sha256sum docs/evidence/QA-2/claude-corrections-UNAPPLIED.patch` | *Executed* (L-6): `4f9ed884360edfbb8f32142264c3ad068aeaaddb3ead298ff2f7fc2a9a382169` |
+| 13 | `rtk proxy git config --show-origin --get-all core.autocrlf` | *Executed*: exit 1 with no output, so `core.autocrlf` is unset (L-6's conversion question) |
+| 14 | `rtk proxy sha256sum docs/evidence/QA-2/final-2026-10-27T0905Z-collected.md` | *Executed*: `511be56cefdf90ad2bcd4d69f112dcb560dfa990f0c5e169065a82b061458056` |
+| 15 | `rtk proxy sha256sum docs/evidence/QA-2/final-2026-10-27T0905Z.md` | *Executed*: `ddfe5e2e5026b0bee232f26b0ee716806a0cb6f998baa653cb077fe2efb702c0` |
+| 16 | `rtk proxy git rev-parse main` | *Executed*: `c8a5d57c3a0999760ad21fd1aca4899ca76b5adf`, the shared ref read from this worktree. Orientation only, not M15, which runs in the main checkout |
+| 17 | `rtk proxy sha256sum docs/evidence/QA-2/followup-consent-retention-ai-scope.patch` | *Executed*, before the check: `14d71b1782a5da9f8e276dd782fcd67a91e9661f19085679e31b1cf61a9dc4fa` |
+| 18 | `rtk proxy git apply --check --verbose docs/evidence/QA-2/followup-consent-retention-ai-scope.patch` | *Executed*: `Checking patch .claude/agents/security-reviewer.md...`, with no error line, and the tool reported no non-zero exit |
+| 19 | `rtk proxy git apply --verbose docs/evidence/QA-2/followup-consent-retention-ai-scope.patch` | *Executed*, once: `Checking patch .claude/agents/security-reviewer.md...` then `Applied patch .claude/agents/security-reviewer.md cleanly.` No `--3way` or `--reject` |
+| 20 | `rtk proxy sha256sum docs/evidence/QA-2/followup-consent-retention-ai-scope.patch` | *Executed*, after the apply: the same `14d71b17…61a9dc4fa`, so the bytes applied are the bytes hashed |
+| 21 | `rtk proxy git --no-optional-locks status --porcelain=v1 -uall` | *Executed*, after the record edits: 4 modified (`security-reviewer.md`, this file, the checkpoint, the handoff) and 4 untracked (both 09:05Z files, F2, the review response). `integrate-goal/SKILL.md` is not among them |
+| 22 | `rtk proxy git --no-optional-locks diff --stat` | *Executed*: `4 files changed, 471 insertions(+), 66 deletions(-)`; `security-reviewer.md` `+6` |
+| 23 | `rtk proxy git --no-optional-locks diff --cached --name-only` | *Executed*: no output, so nothing is staged |
+| 24 | `rtk proxy git rev-parse HEAD` | *Executed*: `7a01395f1688df7901f804f72c9e3c12267253d2`, unchanged |
+| 25 | `rtk proxy date -u +%Y-%m-%dT%H:%M:%SZ` | *Executed*: `2026-10-27T09:18:41Z`. The handoff's inventory section and this row were written after it |
+| 26 | `rtk proxy git --no-optional-locks diff --check` | *Executed*, in self-review: exit 2, one trailing-whitespace line in this section (a blank line holding two spaces). Fixed with Edit |
+| 27 | `rtk proxy git --no-optional-locks diff --check` | *Executed*: no output, so no whitespace error remains in the tracked changes |
+
+**The one denial: an Edit.** After call 20, the Edit tool's first change to
+`.claude/skills/integrate-goal/SKILL.md` (the preconditions, for M-1 and L-4) was ***denied***
+("don't ask" mode). **That sequence ended there.** Nothing else wrote the skill: no Write, no
+`git apply`, no patch to apply later and no other tool. The edits planned after it were not
+attempted: the skill's resume section, its `MAIN_BEFORE` paragraph and its milestone
+preconditions, and a two-line consistency edit to `.claude/agents/goal-integrator.md`, whose rule
+"Main must be clean" would otherwise still read as refusing on any untracked path. The denied
+Edit's new text, as typed, is below for the record. It is not applied, and it is not a patch.
+
+Calls 21–25, the final inventory and `date -u`, came after the record edits (*Inventory*, below). Read, Grep and Glob did the reading. Write made two new files: the F2 patch
+and `review-response-2026-10-27T0905Z.md`. Edit changed this file, the checkpoint and the
+handoff. Edits above the script block are on existing lines only, so its fences stay at :917 and
+:1149. Nothing under `.claude/` was written except by call 19. The historical patch, F1, both
+09:05Z files and every other final were not written. Nothing was written outside this worktree,
+and the main checkout was not read.
+
+### M-1 and L-4: the integration rule
+
+**The skill (denied, not applied).** The denied Edit's new text for integrate-goal's preconditions,
+as typed, replacing the end of precondition 2, precondition 3 and the refusal paragraph:
+
+```text
+   - `docs/09-PROJECT-TRACKER.md`, but only when you are resuming this same goal and the uncommitted
+     change is its own `<!-- handoff:<ID>:… -->` entry.
+   - Untracked (`??`) paths, but only as precondition 4 allows.
+3. No other integration is running. Once `var/orchestrator/` locks exist, take the `integrate` lock.
+4. **Unrelated untracked paths stay where they are.** An untracked path may remain only if your task
+   names it in an exact tolerated set, as pre-existing and unrelated to this goal. Check it with two
+   read-only commands in the main checkout:
+   (code block) git --no-optional-locks status --porcelain=v1 -uall
+                git diff --name-only main...<branch>
+   The first lists each untracked file on its own line, and the second lists the branch's incoming
+   paths. Refuse if the first prints an untracked path that is not in the set, as printed (an
+   unexpected path). Refuse too if a tolerated path equals an incoming path, or either one is a
+   folder holding the other (a collision). With no tolerated set in the task, every untracked path is
+   unexpected.
+5. If your task gives an expected `MAIN_BEFORE`, `git rev-parse main` prints exactly that hash. Check
+   it here, before any rebase or gate.
+
+On a refusal, report `RESULT: refused` and the reason, listing any unexpected or colliding paths.
+Never stash, reset, clean, move or delete anything to make a precondition pass, a tolerated path
+included.
+```
+
+(The two commands were typed inside a fenced `bash` block; they are shown here as `(code block)`
+lines so that this record does not nest fences.) Precondition 2 keeps `git status --porcelain`
+unchanged, so D14's form, and with it the D script and its hash, would not change.
+
+**Until a permitted route lands the skill edit,** integrate-goal as committed still refuses on any
+untracked path (precondition 2), and its `MAIN_BEFORE` is still noted only before step 3. So the
+rule below cannot yet pass in the main checkout as it stands, which is the 09:05Z reviewer's M-1
+scenario: M-1 is **not resolved** in the skill. Codex decides the writer route. A launch brief
+cannot override a skill precondition.
+
+**Integration preconditions (matrix step 14, replacing its (a) and (b)).** This is the rule, as
+the proof matrix now encodes it:
+- **(a) Unrelated paths, preserved.** Codex settles its own tracked coordinator changes in the
+  main checkout, by committing them or by its own decision on each. Pre-existing, unrelated
+  untracked paths may stay only when all of these hold:
+  1. Straight before the launch, Codex takes two read-only reads in the main checkout: the full
+     inventory, M22, and the incoming paths, M23 (below).
+  2. Every untracked path M22 prints is named, exactly as printed, in the integrator's task as the
+     **tolerated set**. Any other untracked path is **unexpected**, and so is any tracked change
+     other than the two status files and the resume-case tracker entry.
+  3. No tolerated path equals an incoming path, and neither is a folder holding the other. Codex
+     records the empty overlap with the two outputs.
+
+  The integrator re-takes both reads at its preconditions and again straight before the
+  fast-forward, and refuses on any unexpected path or collision (fail closed), listing the paths.
+  Nobody stashes, resets, cleans, moves or deletes any file to pass, tolerated or not.
+  *(Phase 14, P13-5: the denied skill text has no re-check before the fast-forward. It is in §21's
+  next skill-edit scope. M22 now covers ignored entries too, and the comparison is in §21.)*
+- **(b) The expected `MAIN_BEFORE`.** Codex runs the pin check against the current `main`, `H`,
+  just before the launch, and passes `H` in the task. The integrator compares `main` with `H`
+  before step 1, that is, before the rebase and every gate, and again straight before step 3's
+  fast-forward. A refusal at either point is made before this run changes `main`, so `main` is as
+  this run found it.
+- **(b2) A resumed integration.** *(Phase 14, P13-4: replaced by §21's `H_orig` rule. This text
+  compares with the wrong `H` and is kept for the record only.)* Before changing anything (no relaunch, no pin-check re-run and no
+  `rebase --abort`), Codex reconciles the interrupted run's recorded `MAIN_BEFORE` and result, and
+  passes both in the task. If `main` already contains the branch, the earlier run's fast-forward
+  has already moved `main`. Then do not re-run the pin check against the new `main` (it holds
+  QA-2's own skill edits, so it would exit 1 and demand D again); compare the recorded
+  `MAIN_BEFORE` with `H` instead. Equal: continue from integrate-goal step 4. Missing or
+  different: the integrator refuses, and its report says the earlier run already moved `main`.
+  Nothing undoes that fast-forward. So a refusal does **not** always mean `main` is untouched.
+- **(c) Gate prerequisites:** unchanged from step 14 (c): the DB lane's slot for W5, and possibly
+  the network for W1.
+- **(d) Not covered, Low, open for Codex:** *(Phase 14, P13-2: raised to a Medium integration
+  blocker, §21.)* ignored files. M22 lists untracked files, not ignored
+  ones, and `git merge` overwrites an ignored file at an incoming path by default
+  (`--overwrite-ignore`, from git's documentation: *expected*, not observed). EXECUTION.md:40-41
+  records ignored environments as preserved. QA-2 adds no check for this.
+
+**New M rows for box 3** (they extend §6.3's table; they are defined here so that the script
+block's fences do not move). Both read only. They count once the skill edit is on `main`.
+*(Phase 14, the 10:05Z review's P13-3: replaced by §21's M22a, M22b, M22 and M23, which run before
+the verifier from the branch's skill text. These two rows, "once the skill edit is on `main`" and
+"48 paths" are kept for the record only.)*
+
+| # | Command (exactly as to be typed) | Where the text asks for it | Expected |
+|---|---|---|---|
+| M22 | `git --no-optional-locks status --porcelain=v1 -uall`, in the main checkout (one call, with the `cd /Users/Adya/personals/fitness_app &&` prefix) | integrate-goal precondition 4, as proposed | Every changed and untracked path, one per line; exit 0. `--no-optional-locks` keeps it from refreshing the index |
+| M23 | `git diff --name-only main...codex/fitlog-qa2-docs`, in the main checkout (same prefix) | integrate-goal precondition 4, as proposed | The branch's paths since its merge base with `main`; exit 0. At commit 2, before the rebase, that should be commit 1's 48 paths (*expected*, not run) |
+
+### F2: the consent-retention and AI-scope follow-up (M-2, L-1)
+
+- **File:** [`followup-consent-retention-ai-scope.patch`](followup-consent-retention-ai-scope.patch).
+  One `diff --git`, one hunk `@@ -37,6 +37,12 @@`: three context lines, six `+` lines, three
+  context lines, and no `-` line, tab, CR or trailing space (Grep). Its header keeps its state out,
+  as F1's does.
+- **What it adds**, at the end of F1's bullet (`security-reviewer.md:40-45` after the apply):
+  - **M-2:** whether consent events must instead be kept after erasure is still open. It is R-4,
+    reserved to the owner and counsel under DEC-04 (003 §3.3 :159–160; §11 :1239; PRD §27 :1893).
+    No review or code change decides it; it stays open until DEC-04's external review is recorded
+    (PRD §27 :1885–1886; ACCEPTANCE's two DEC-04 rows, both open). Until then, a change that
+    deletes consent events, even in the erasure job, is a finding. It decides nothing legal.
+  - **L-1:** the AI entry points are create, retry and reanalyse (003 §4.14 :951–952). Confirming
+    a proposal that is already ready, and manual food, need neither `PRO_REQUIRED` nor AI
+    permission (PRD §10.3 :541–543; 003 §4.14 :957).
+- **Applied** once (calls 17–20), on top of F1. F1's text and the historical patch are unchanged.
+  F2 contains neither P1's nor P2's sentence (Grep), so the six SESSION-PROMPT checks match as
+  before. The privacy bullet and the absolute rule are unchanged.
+- **Not independent:** nobody else has read F2 yet. P1 and P2 have not run on the post-F1 or the
+  post-F2 file (no P proof this phase).
+
+### L-2 and L-6 (*executed*, before the rebase)
+
+- **L-2:** call 9 is the exact lookup. It printed two lines, and exactly one subject equals
+  `docs(QA-2): preserve reviewed reconciliation phase history`: `173eff04…ada99f02`. Matrix steps 5
+  and 7 repeat it after the commit and after the rebase. The handoff now gives this lookup.
+- **L-6:** calls 10–13 link phase 8's hash to the committed blob. The blob at commit 1 is
+  `364e2f33…6e60904c` (call 10). The working-tree file hashes to that same blob ID (call 11), so its
+  bytes are the committed blob's: `core.autocrlf` is unset (call 13), there is no `.gitattributes`
+  outside `node_modules/` (phase 10, *inspected*) and the file has no CR (Grep). Its SHA-256 is
+  `4f9ed884…a382169` (call 12), the value phase 8 read before its check and before its apply. So
+  the committed patch is the one phase 8 applied. The chain is used because a single `git show …
+  | sha256sum` is a pipe, not a single command; the direct form was not attempted, so nothing was
+  denied or worked around.
+
+### Where each finding is handled
+
+| Finding | Disposition | Where |
+|---|---|---|
+| **M-1** | **Not resolved in the skill:** the integrate-goal Edit was denied, and no other writer was used. The proof matrix encodes the rule (*Integration preconditions*; step 14's phase 13 marker), with M22 and M23 | above; §18 step 14 |
+| **M-2** | **F2**, applied once | above |
+| **L-1** | In F2 | above |
+| **L-2** | The exact lookup ran (call 9). The handoff gives it, and matrix steps 5 and 7 repeat it | handoff; §18 steps 5 and 7 |
+| **L-3** | The drift check now reads the actual `main` straight before D, and the D pin must equal it | §18 *The D pin rule*; §6.3 step 5 marker; step 10 |
+| **L-4** | **(b)** and **(b2)** above in the matrix. Not in the skill (the same denied sequence) | above; §18 step 14 |
+| **L-5** | The handoff's "phase 1–12" claim corrected to phases 1–11 plus phase 12's sources; the D-script assumptions Low restored; checkpoint :6 and step 67 corrected; the handoff's request for the Write ruling closed (Codex accepted the in-place Write); the untracked finals in the inventory | handoff; checkpoint; *Inventory* below |
+| **L-6** | The hash chain ran (calls 10–13) | above |
+| **L-7** | Named, deferred to G29, which needs its own approved scope (PRD :1054–1055). F1 and F2 are unchanged on it, and the absolute rule stands | handoff *Found for other goals* |
+
+### Inventory
+
+**The 09:05Z files, untracked and kept verbatim** (calls 14 and 15; neither was written in this
+phase):
+- `final-2026-10-27T0905Z-collected.md`, the 09:05Z review: SHA-256 `511be56c…61458056`.
+- `final-2026-10-27T0905Z.md`, phase 12's implementer final, misnamed: SHA-256 `ddfe5e2e…fb702c0`.
+
+**New in phase 13:** `followup-consent-retention-ai-scope.patch` (F2) and
+`review-response-2026-10-27T0905Z.md`.
+
+**Modified tracked in phase 13:** `.claude/agents/security-reviewer.md` (F2, by call 19), this
+file, `docs/plan/runs/QA-2/checkpoint.md` and `docs/plan/runs/QA-2/handoff.md`. The final read-only
+inventory (call 21) printed exactly these 4 modified and 4 untracked paths. It is in the handoff's
+*Inventory at the end of phase 13*. Nothing is staged or committed.
+
+### What this leaves
+
+- **Boxes:** 1 and 2 met on the branch (commit 1), not integrated. Box 3 **not** met.
+- **M-1 and L-4 in the skill** wait for Codex's writer route. Until then, matrix step 14 cannot
+  pass in the main checkout as it stands.
+- **Open, in order:** an independent review of phase 13 (F2, the records, and this denial); a
+  phase to stage and commit phase 13's files; the post-commit reads (M16–M18, M20, M21, the subject
+  lookup), the rebase and the M re-runs; P1 and P2 on the post-F2 file; W1–W6; D (**blocked**),
+  with the phase 13 drift check; the three reviews; the verifier; integration under §20's
+  preconditions, once the skill carries them; then P3, P3b, P4 and P5.
+- **The override** stays in every `security-reviewer` launch.
+- **Not independent:** no sub-agent ran, by rule.
+
+## 21. The 10:05Z review: the F2 sentence denied, records corrected (correction phase 14)
+
+The [10:05Z independent review final](final-2026-10-27T1005Z-collected.md) read phase 13: F2 as
+applied, the records and the denied integrate-goal Edit. It found no Critical or High, two Mediums
+(P13-1, P13-2) and five Lows (P13-3 to P13-7). Codex gave correction phase 14 under AUTH-01. Three
+files now carry a `-collected` name, and they are not all reviews (P13-6). Each is kept verbatim,
+untracked and unrenamed:
+- `final-2026-10-27T0905Z-collected.md` is the 09:05Z review, of phase 12.
+- `final-2026-10-27T0935Z-collected.md` is **phase 13's own implementer final**, not a review. That
+  is the 10:05Z reviewer's reading (*inherited*). Its content agrees (*inspected*): a phase 13
+  report ending in the `GOAL: QA-2` block with `HEAD` `7a01395…` and `STATUS: blocked`.
+- `final-2026-10-27T1005Z-collected.md` is the 10:05Z review, the one this phase answers. Codex's
+  task names it (*inherited*), and its title, "QA-2 phase 13: independent read-only review",
+  agrees (*inspected*).
+
+The rules, as given:
+- **Scope:** one bounded phase, with no sub-agents or dispatchers. Fix P13-1 **only** by a normal
+  Edit of the existing F2 sentence in `.claude/agents/security-reviewer.md`. The rule must be
+  symmetric and unresolved under R-4 and DEC-04: a change that decides either erasure-job deletion
+  or post-erasure retention is an unresolved finding that names R-4 and needs DEC-04's real
+  external review. Deletion elsewhere, or of another account's events, stays a finding under F1.
+  F1's erasure-job exception is linked explicitly as subject to R-4. Neither retention nor deletion
+  is chosen. If that Edit is denied, the sequence stops, with no substitute. Fix the records for
+  P13-3 to P13-7 only. P13-2 stays an integration blocker until the denied skill correction is
+  resolved. The matrix is a plan, not executed code.
+- **Not allowed:**
+  - stage, commit, rebase or integration;
+  - any `main`, status, GOALS or ACCEPTANCE change;
+  - DB, SQL, Docker, Supabase, network, replay, runner or `backend:test`;
+  - external, provider, push, PR, deploy, paid API, overage or credentials;
+  - any command proof: P, M, W, D, hash, rebase, stage or commit;
+  - integrate-goal or goal-integrator edits, since phase 13's denial stands;
+  - retrying anything denied before: the integrate-goal Edit, P1, P2, D, `mkdir` and `cp`
+    mutations, `shasum`, a formatter, `perl`, U+2028.
+
+  A denial stops its sequence, with no other tool, form, writer or coordinator substitute. An
+  account limit stops the phase. Commands are separate single `rtk proxy` commands. Read, Edit and
+  Write touch only QA-2's own records and the one F2 sentence. Each item is labelled executed,
+  inspected, inherited or UNRUN. No Done or box claim.
+- **The privacy override stands** (PRD §16.1; ADR 003): gym staff never read or write private
+  health data, whatever consent. It stays until QA-2 is integrated **and** the launching checkout
+  is corrected. A fresh independent review comes next.
+
+### The phase 14 command record
+
+Each tool call that ran a command or wrote a protected file, as typed, in order. Read, Grep and
+Glob did the reading.
+
+| # | Tool and command, as typed | Result |
+|---|---|---|
+| 1 | Edit, on `.claude/agents/security-reviewer.md`: the F2 sentence (below) | ***Denied*** ("don't ask" mode). **The P13-1 sequence ended there.** No Write, `git apply`, patch file or other writer was used, and nothing was retried |
+| 2 | `rtk proxy git rev-parse --abbrev-ref HEAD` | *Executed*: `codex/fitlog-qa2-docs` |
+| 3 | `rtk proxy git rev-parse HEAD` | *Executed*: `7a01395f1688df7901f804f72c9e3c12267253d2` |
+| 4 | `rtk proxy date -u +%Y-%m-%dT%H:%M:%SZ` | ***Denied*** ("don't ask" mode), although phase 13 ran the same form twice. Not retried or replaced, so this phase has no executed timestamp |
+| 5 | `rtk proxy git --no-optional-locks status --porcelain=v1 -uall` | *Executed*, before any record edit: 4 modified (`security-reviewer.md`, this file, the checkpoint, the handoff) and 6 untracked (the three `-collected` finals, `final-2026-10-27T0905Z.md`, F2 and the 09:05Z review response) |
+| 6 | `rtk proxy git --no-optional-locks status --porcelain=v1 -uall` | *Executed*, after the record edits: the same 4 modified and 7 untracked (call 5's six plus `review-response-2026-10-27T1005Z.md`). `integrate-goal/SKILL.md` is not among them |
+| 7 | `rtk proxy git --no-optional-locks diff --cached --name-only` | *Executed*: no output, so nothing is staged |
+| 8 | `rtk proxy git --no-optional-locks diff --check` | *Executed*: no output |
+| 9 | `rtk proxy git --no-optional-locks diff --stat` | *Executed*: `4 files changed, 899 insertions(+), 66 deletions(-)`; `security-reviewer.md` `+6`, phase 13's F2 only |
+| 10 | `rtk proxy git --no-optional-locks diff --check` | *Executed*, after the last record edit but this row: no output |
+
+Calls 6–9 came after the record edits. The handoff's *Inventory at the end of phase 14* and rows
+6–9 were written after them. After call 5, a Grep for "Until then" or "erasure-job exception"
+matched only `security-reviewer.md:42`, which still ends "Until then,". The new text is absent, so
+the denied Edit wrote nothing (*inspected*). Call 9's `+6` agrees (*executed*).
+
+### P13-1: the F2 sentence (Medium, open; the Edit was denied)
+
+The denied Edit would have replaced only the sentence "Until then, a change that deletes consent
+events, even in the erasure job, is a finding." Its new text, as typed, is below. It is not
+applied, and it is not a patch:
+
+```text
+Until then,
+  the erasure-job exception above is subject to R-4: a change that settles it either way, so that
+  the erasure job deletes the erased account's consent events or keeps them after erasure, is an
+  unresolved finding that names R-4 and needs DEC-04's real external review; deleting consent
+  events by anything other than the erasure job, or deleting another account's, stays a finding
+  under that rule.
+```
+
+- **What it would do.** "The erasure-job exception above" is F1's sentence at
+  `security-reviewer.md:34`: "Only the erasure job may delete consent events, and only the erased
+  account's (003 §3.3)." The new sentence makes that exception subject to R-4, and treats both of
+  R-4's answers alike. It chooses neither retention nor deletion. It contains neither P1's nor
+  P2's fixed text (*inspected*), so the six SESSION-PROMPT checks would match as before.
+- **State: open.** The live F2 text is still one-sided. A reviewer following `:34` passes MB-7's
+  003 §3.3 step 4 deletion, while one following `:43` flags it, and only keeping consent events
+  clears `:43`. That is R-4's other answer, reserved to the owner and counsel (003 :159–160,
+  :1239; PRD :1893).
+- **Before phase 13's files are committed**, the 10:05Z review asks for this fix. Codex decides a
+  writer route for the sentence, or rules otherwise. The records here decide nothing legal.
+
+### P13-2: ignored paths at integration (Medium, an integration blocker)
+
+This replaces §20 (d)'s Low, which is kept for the record. Codex's ruling: P13-2 stays an
+integration blocker until the denied skill correction is resolved.
+- **The rule:** the tolerated set covers ignored entries as well as untracked ones, and paths
+  collide whatever their case or Unicode form (*P13-3*, below).
+- **Committed skill unchanged:** integrate-goal precondition 2 still refuses on any untracked path,
+  and step 3's `git merge --ff-only <branch>` is unchanged. By default that merge overwrites an
+  ignored file at an incoming path. That is *expected* from git's documentation; nobody has
+  observed it. The `--no-overwrite-ignore` safeguard is not proposed, because it changes a form
+  that D tests.
+- **It is a plan, not executed code.** No skill carries it, and nothing below has run.
+
+### P13-3: M22 and M23, replaced (a plan; UNRUN)
+
+These rows replace §20's M22 and M23, which are kept for the record.
+- **When they run:** after a permitted route lands the skill edit on this branch, and before the
+  verifier (step 13), in the main checkout, typed from **the branch's** skill text. This replaces
+  §20's "They count once the skill edit is on `main`": the verifier comes before integration, so
+  that wording could never close box 3. The integrator runs the same reads again, at its
+  preconditions and straight before the fast-forward (*P13-5*).
+- **How:** each is a separate single call, with the established
+  `cd /Users/Adya/personals/fitness_app && rtk proxy` prefix.
+
+| # | Command (exactly as to be typed) | Expected |
+|---|---|---|
+| M22a | `git rev-parse main` | One full hash, recorded as `H` |
+| M22b | `git rev-parse codex/fitlog-qa2-docs` | One full hash, recorded as `T` |
+| M22 | `git --no-optional-locks status --porcelain=v1 --untracked-files=all --ignored=matching` | Tracked changes, then every untracked file (`??`) and every ignored entry (`!!`; a wholly ignored folder appears once, ending in `/`). Exit 0 |
+| M23 | `git diff --name-only --no-renames <H>...<T>`, with `H` and `T` typed out as the full hashes | The incoming paths, one per line. Exit 0. With `--no-renames`, a rename lists both its old and its new path |
+
+- **M23's expected set** comes from the commits' actual paths, not from a count fixed in advance.
+  It is the union of the paths each QA-2 commit recorded in its staged-set check
+  (`git diff --cached --name-status`) before it was made:
+  - commit 1's 48;
+  - commit 2's one, which is among them;
+  - the next commit's own set: at least the four modified tracked files in *Inventory* (below),
+    plus the files it stages.
+
+  §20's "48 paths" is withdrawn. After the rebase, M23 is typed again with `<H>` and the rebased
+  tip `<T′>`.
+- **The comparison:**
+  - **The tolerated set:** every `??` and `!!` line M22 prints is named, exactly as printed, in the
+    integrator's task. Any other line is unexpected. So is any tracked change other than
+    `docs/plan/status.json`, `docs/plan/activity.json` and, on a resume, the goal's own tracker
+    entry.
+  - **Collisions:** take each tolerated entry p, without a trailing `/`, and each incoming path q.
+    Normalise both to Unicode NFC and fold their case. Refuse if p equals q, if q starts with p
+    plus `/` (p is a folder holding q), or if p starts with q plus `/`. Compare this way always,
+    not only when `core.ignorecase` is `true`. The main checkout is on macOS, whose default file
+    system usually ignores case and Unicode normalisation. A looser comparison can only add
+    refusals.
+  - **Parsing:** every line must parse. Git prints a path in double quotes when it holds special
+    or non-ASCII characters (`core.quotePath`). Such a path is unquoted, by git's C-style escapes,
+    before the comparison. A line that does not parse or unquote is a refusal.
+  - **Exits:** every command exits 0. Any other exit is a refusal.
+  - **Nothing is moved:** nothing is stashed, reset, cleaned, moved or deleted, tolerated or not.
+- **Not executed code.** No skill carries this. The phase 13 Edit was denied, and this phase may
+  not edit integrate-goal. No M22 or M23 has run.
+
+### P13-4: the resume rule with `H_orig` (replaces §20 (b2))
+
+§20 (b2) compared the recorded `MAIN_BEFORE` with `H`. But (b) defines `H` as `main` just before
+*this* launch, and after an earlier fast-forward that is the new `main`. So a resume after a good
+fast-forward could never match. §20 (b2) is kept for the record; this replaces it.
+- **`H_orig`** is the `H` Codex passed to the interrupted run as its expected `MAIN_BEFORE`,
+  recorded with that run's brief. The resume task carries three things:
+  - `H_orig`;
+  - the interrupted run's recorded `MAIN_BEFORE`, from its report (or from the run ledger once O2
+    exists);
+  - its result.
+- **Before changing anything** (no gate, no pin-check re-run, no `rebase --abort`), the integrator
+  reads `main` and runs the skill's own `git merge-base --is-ancestor <branch> main`:
+  1. **`main` does not contain the branch:** no fast-forward happened. `main` must equal `H_orig`.
+     Equal: carry on as a fresh run, with every check against `H_orig`. Different: refuse. Codex
+     treats it as a new launch, with a new `H`, the pin check, and D again if the pin check exits 1.
+  2. **`main` contains the branch and equals its tip:** the earlier fast-forward happened. The
+     recorded `MAIN_BEFORE` must equal `H_orig`. Equal: continue from integrate-goal step 4.
+     Missing or different: refuse, reporting that the earlier run already moved `main`.
+  3. **`main` contains the branch and has moved past its tip** (other commits have landed since
+     the fast-forward): refuse. Report the tip, `main` and `H_orig`, and that the earlier
+     fast-forward already moved `main`. Codex decides whether steps 4–7 are finished; the
+     integrator does not.
+- **Nothing undoes an earlier fast-forward,** so a refusal does not mean `main` is untouched.
+
+### P13-5: the re-check straight before the fast-forward
+
+The matrix (§20 (a) and (b)) has the integrator re-take the inventory, the incoming paths and the
+`MAIN_BEFORE` comparison straight before step 3. The denied text (§20) checks them only at the
+preconditions, and the edits planned but never attempted left the re-check out too. Meanwhile the
+gates can run for a long time, and another lane can write into the main checkout.
+- **What the re-check is:** straight before step 3, after the gates, the integrator repeats
+  - M22a (`main` must still equal `H`);
+  - M22;
+  - M23, typed as `<H>...<T′>`, where `T′` is the rebased tip.
+
+  It applies the same comparison and refuses on any difference. This sits with the second
+  `MAIN_BEFORE` check.
+- **It goes into the next skill-edit scope** (below). It is not implemented.
+
+### The next skill-edit scope (named; none of it is implemented)
+
+The integration blocker. It needs a writer route that Codex names in advance, then a fresh
+independent read. It contains no P, M, W or D proof, no staging and no commit.
+1. **`.claude/skills/integrate-goal/SKILL.md`:**
+   - preconditions 2–5 and the refusal paragraph, extended to ignored entries and the NFC, case
+     and path-prefix comparison (P13-2, P13-3);
+   - the `MAIN_BEFORE` check before step 1;
+   - the re-check straight before step 3, with the inventory and the incoming paths (P13-5);
+   - `H_orig` in the resume section (P13-4);
+   - the milestone preconditions.
+2. **`.claude/agents/goal-integrator.md`:** its "Main must be clean" line, for consistency.
+3. **The F2 sentence (P13-1):** the text above, before phase 13's files are committed.
+
+### P13-7: the drift and pin checks as single commands
+
+The `git diff --quiet … ; echo $?` forms (phase 12's :2447, phase 13's :2466, and the pin check at
+:2454) are compound commands. The rule is separate single commands, and compound forms have been
+denied before. They are kept for the record and replaced by the forms below. The exit code is read
+from the tool's result. `rtk proxy` passes it through: the 10:05Z reviewer's `git config` call
+returned exit 1 (*inherited*), as did phase 13's call 13 (*executed* then).
+- **The drift check, straight before D (step 10).** This replaces item 2 of *The D pin rule*'s
+  phase 13 paragraph. Run it in this worktree, with `M_D` typed out:
+  `rtk proxy git diff --quiet 5fefc31 <M_D> -- scripts/plan .claude/skills docs/plan/GOALS.md docs/plan/status.json docs/plan/ACCEPTANCE.md`
+  - exit 0: run D as reviewed;
+  - exit 1: do not run D;
+  - any other exit: stop and ask Codex.
+- **The pin check, before the integrator's launch (step 14).** Run it in the main checkout, with
+  the pin and `H` typed out:
+  `cd /Users/Adya/personals/fitness_app && rtk proxy git diff --quiet <pin> <H> -- scripts/plan .claude/skills docs/plan/GOALS.md docs/plan/status.json docs/plan/ACCEPTANCE.md`
+  - exit 0: the D log still holds;
+  - exit 1: re-run D by the same route;
+  - any other exit: stop and ask Codex.
+- **Unchanged:** D's own run line, the reviewed and allowlisted line with `; echo "exit $?"`. It is
+  blocked, and outside this phase's scope.
+
+### Where each finding is handled
+
+| Finding | Disposition | Where |
+|---|---|---|
+| **P13-1** · Medium | **Open.** The F2-sentence Edit was **denied**, and no other writer was used. The text as typed is above. Codex decides the writer route before phase 13's files are committed | above |
+| **P13-2** · Medium | **An integration blocker.** §20 (d)'s Low is raised. The ignored-entry inventory and the comparison are a plan, not executed code | above; *P13-3* |
+| **P13-3** · Low | M22 and M23 replaced: run before the verifier from the branch's skill text; pinned `H` and `T`; `--no-renames`; the expected set from the commits' actual paths; the ignored entries; the NFC, case and path-prefix comparison | above; §20's M rows (marker) |
+| **P13-4** · Low | `H_orig`, with the three resume cases, including `main` moved past the tip | above; §20 (b2) (marker) |
+| **P13-5** · Low | The re-check straight before the fast-forward, in the next skill-edit scope | above; §20 (a) (marker) |
+| **P13-6** · Low | The inventory re-taken. The two new files' roles recorded. Their SHA-256 values are UNRUN, and the stage phase records them. No rename | *Inventory*, below; handoff |
+| **P13-7** · Low | The drift and pin checks as single commands, with the exit code read from the tool | above; *The D pin rule* (markers); handoff *Left undone* item 7 |
+
+### Inventory
+
+- **Modified tracked (4):** `.claude/agents/security-reviewer.md`, unchanged in this phase (F2
+  from phase 13's call 19); this file; `docs/plan/runs/QA-2/checkpoint.md`; and
+  `docs/plan/runs/QA-2/handoff.md`.
+- **Untracked, from earlier phases:**
+  - `final-2026-10-27T0905Z-collected.md`, the 09:05Z review: SHA-256 `511be56c…61458056`;
+  - `final-2026-10-27T0905Z.md`, phase 12's final, misnamed: SHA-256 `ddfe5e2e…fb702c0`;
+  - `followup-consent-retention-ai-scope.patch`, F2: SHA-256 `14d71b17…61a9dc4fa`;
+  - `review-response-2026-10-27T0905Z.md`.
+
+  The three hashes are phase 13's (*executed* then, *inherited* now). None was re-read in phase 14.
+- **Untracked, new since phase 13's inventory, both kept verbatim:**
+  - `final-2026-10-27T0935Z-collected.md`, phase 13's own implementer final. It was saved after
+    phase 13's call 21 (the 10:05Z reviewer's reading, *inherited*).
+  - `final-2026-10-27T1005Z-collected.md`, the 10:05Z review.
+
+  **Both SHA-256 values are UNRUN.** No hash command ran in this phase, and none was inherited for
+  these files. The stage phase records them.
+- **New in phase 14:** `review-response-2026-10-27T1005Z.md`.
+- **Nothing staged or committed.** The final read-only inventory, run after the record edits, is
+  in the handoff's *Inventory at the end of phase 14*.
+
+### What this leaves
+
+- **Boxes:** 1 and 2 are met on the branch (commit 1), and not integrated. Box 3 is **not** met.
+  This phase makes no box claim.
+- **Before phase 13's files are committed:** P13-1, by a writer route Codex names.
+- **The integration blocker:** the next skill-edit scope above, covering P13-2 to P13-5, by a
+  writer route Codex names, then its review. Until then the matrix rules are plans only.
+- **Open, in order:**
+  1. a fresh independent review of phase 14;
+  2. the writer routes above;
+  3. staging and committing phases 13 and 14 by exact path, recording each file's role and
+     SHA-256;
+  4. the post-commit reads, the rebase and the M re-runs, with M22 and M23 as above;
+  5. P1 and P2 on the post-F2 file;
+  6. W1–W6;
+  7. D (**blocked**), with the single-command drift check;
+  8. the three reviews and the verifier;
+  9. integration under §20 as amended here;
+  10. P3, P3b, P4 and P5.
 - **The override** stays in every `security-reviewer` launch.
 - **Not independent:** no sub-agent ran, by rule.

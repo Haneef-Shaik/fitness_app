@@ -1,0 +1,35 @@
+QA-2 follow-up F2 (consent-event retention and the AI entry points): six lines added to the
+purpose-consents bullet of .claude/agents/security-reviewer.md.
+Prepared in QA-2 correction phase 13, 27 October 2026, for the 09:05Z review's M-2 and L-1, as
+Codex directed. Its current state is recorded in docs/plan/runs/QA-2/handoff.md and
+stale-paths.md section 20, not in this header, so this header does not go stale.
+Why, M-2: F1 says only the erasure job may delete consent events, but record 003 section 3.3
+leaves open whether consent events must be kept after erasure. That is R-4, reserved to the owner
+and counsel under DEC-04 (003 section 11; PRD section 27). These lines keep it open and make a
+deleting change a finding until DEC-04's external review is recorded. They decide nothing legal.
+Why, L-1: they name the AI entry points (create, retry and reanalyse; 003 section 4.14) and the
+exceptions: confirming a proposal that is already ready, and manual food, need neither check
+(PRD section 10.3; 003 section 4.14).
+It is additive: one hunk, six added lines, no removed line, at the end of F1's bullet. It applies
+on top of F1, that is, to security-reviewer.md with claude-corrections-UNAPPLIED.patch and
+followup-purpose-consent.patch applied: the old side's lines 37-42 are that file's.
+Applying it changes only the checkout it is applied in. It does not end the privacy override in
+docs/plan/SESSION-PROMPT.md, and it contains neither sentence that checks P1-P5 and P3b match.
+Text before the first diff line is ignored by git apply.
+
+diff --git a/.claude/agents/security-reviewer.md b/.claude/agents/security-reviewer.md
+--- a/.claude/agents/security-reviewer.md
++++ b/.claude/agents/security-reviewer.md
+@@ -37,6 +37,12 @@
+   it, a request without AI permission is refused with `CONSENT_REQUIRED`, and the worker rechecks
+   AI consent before every provider call. No purpose consent opens staff access to private health
+   data (the bullet above).
++  Whether consent events must instead be kept after erasure is still open: it is R-4, a legal
++  position reserved to the owner and counsel under DEC-04 (003 §3.3, §11; PRD §27). No review or
++  code change decides it, and it stays open until DEC-04's external review is recorded. Until then,
++  a change that deletes consent events, even in the erasure job, is a finding. The AI entry points
++  above are create, retry and reanalyse (003 §4.14). Confirming a proposal that is already ready,
++  and manual food, need neither `PRO_REQUIRED` nor AI permission (PRD §10.3; 003 §4.14).
+ - **Input:**
+   - parameterised SQL only;
+   - validation at the boundary (the Zod contracts in `@fitlog/domain`, plus JSON Schema and SQL

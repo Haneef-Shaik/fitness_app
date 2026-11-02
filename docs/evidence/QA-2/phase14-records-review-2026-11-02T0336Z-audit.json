@@ -1,0 +1,25 @@
+{
+  "sessionId": "0afbf8be-580c-4385-8def-4909393c22a5",
+  "pid": 61433,
+  "tools": {
+    "Read": 9,
+    "Grep": 7
+  },
+  "toolErrors": [],
+  "permissionDenials": [],
+  "complete": true,
+  "subtype": "success",
+  "sourceHashesUnchanged": true,
+  "hashes": {
+    "docs/evidence/QA-2/stale-paths.md": "cbb772a3c153147dab1e3109fac99d6254243924793517f8bbb696ce9f55137b",
+    "docs/plan/runs/QA-2/handoff.md": "e7f271f0e92e1b8dfc1930c44dc2fbec4b97a42016a94fcb2f9fb18ad4805b6d",
+    "docs/plan/runs/QA-2/checkpoint.md": "d01894dfcab996b1f836cd3739db268d9fd30e59ad6afc506491186442338de0",
+    "docs/evidence/QA-2/final-2026-10-27T1005Z-collected.md": "9223f112da13a6dc0a2be9e0e40821eec8fcaa87ea8edc8142a3dccb746a7d7c",
+    "docs/evidence/QA-2/final-2026-10-27T1105Z-collected.md": "7e877b9dc2373f4fed71c85dbdaf734bd07c9eda289fc1639af4527ed3e016c5",
+    ".claude/agents/security-reviewer.md": "4383e3524efad479dc4d0a4c45b3e4a5060c83d438a4c31c0fd51cedcd063b33",
+    ".claude/skills/integrate-goal/SKILL.md": "5605a9e2a440aa1eee30280061be94549216f7edddd8855a9d2d47bf40828a00",
+    ".claude/agents/goal-integrator.md": "58c41d895ab74fa9a72a9986980915555bf0b6cc9a89eb56588aa0114fd4f9ad"
+  },
+  "collectedAt": "2026-11-02T03:36:42.617588+00:00",
+  "scope": "Read/Grep only; no command/test/proof execution"
+}

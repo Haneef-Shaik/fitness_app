@@ -37,6 +37,12 @@ finding as if a real user's data were at stake.
   it, a request without AI permission is refused with `CONSENT_REQUIRED`, and the worker rechecks
   AI consent before every provider call. No purpose consent opens staff access to private health
   data (the bullet above).
+  Whether consent events must instead be kept after erasure is still open: it is R-4, a legal
+  position reserved to the owner and counsel under DEC-04 (003 §3.3, §11; PRD §27). No review or
+  code change decides it, and it stays open until DEC-04's external review is recorded. Until then,
+  a change that deletes consent events, even in the erasure job, is a finding. The AI entry points
+  above are create, retry and reanalyse (003 §4.14). Confirming a proposal that is already ready,
+  and manual food, need neither `PRO_REQUIRED` nor AI permission (PRD §10.3; 003 §4.14).
 - **Input:**
   - parameterised SQL only;
   - validation at the boundary (the Zod contracts in `@fitlog/domain`, plus JSON Schema and SQL

@@ -1,0 +1,23 @@
+{
+  "apps/mobile/scripts/store-art/brand.config.json": "59a417a9e4638c9ff4597ee71c18bcb39741761c7b30ca25f1983977dc782577",
+  "apps/mobile/scripts/store-art/brand.mjs": "6315a6b3469ff0ea60bec71d625fb7f3b907478714b773b2635f363e507b0153",
+  "apps/mobile/scripts/store-art/generate.mjs": "c43900681a3177579c78a2a1d7476acaad3e27453525b518e5089f17e51a1fd1",
+  "apps/mobile/scripts/store-art/geometry.mjs": "2507aa747b71df42b88e7698c0bcde2331f4b2778eaad3565fcdb8aee710a865",
+  "apps/mobile/scripts/store-art/png.mjs": "a60db54d43b0e8bb05c3088e5bbc6c501e2d707a8455184c9fc812122a53ba98",
+  "apps/mobile/scripts/store-art/raster.mjs": "1d1adf91d76d9a684bf5418a55f38519f4e58ee2de109145de75c184e1997dd7",
+  "apps/mobile/scripts/store-art/scenes.mjs": "3f5f11b6e5ac1683f989b6791451402903629377be5c360fd1a97bf51d424803",
+  "apps/mobile/scripts/store-art/svg.mjs": "f8497d4d21fd9440b0832098b45eed744ab009c92985676b5402cb2ab4a50c42",
+  "apps/mobile/scripts/store-art/tests/brand.test.mjs": "01483ae394bb5d5ce71dc17541e46e3b607ced397c8ae64b262d5ccd991d696e",
+  "apps/mobile/scripts/store-art/tests/geometry.test.mjs": "6ef0e5c70ac4f74023565cd30b96e213d3c7fd9e8b45961cca4342cddf8f0d3e",
+  "apps/mobile/scripts/store-art/tests/helpers.mjs": "2fbc2294181cd3461f1c6f46c3a94fe16c5352ef3318a4210105ddc558c53974",
+  "apps/mobile/scripts/store-art/tests/png.test.mjs": "0e6a0c9045a0dfadcb546a92738e067a0d201e9a08535ad659df149c11a592d6",
+  "apps/mobile/scripts/store-art/tests/raster.test.mjs": "94a70b337383c721a50edf18fddbc174825f52879f5a67f0562f43c09d79a0f1",
+  "apps/mobile/scripts/store-art/tests/store-art.test.mjs": "023bcc6ef4f3285a773eafecaccb94c550dd9eb5451b19a0709e397aa72467e7",
+  "docs/evidence/DS-6/approval.md": "8d0025db9af68e98d45fd1345d922d673d8cc17ee91295f3ef780f0496c58b6f",
+  "docs/evidence/DS-6/art-direction.md": "1e4eac7f86c2c920f234fe930cc13b196d9e28b8c6c120366c95c807c18566b8",
+  "docs/evidence/DS-6/brand-clearance.md": "1a8f457d54bbe338e532ecbcf47924bc2cf3763ed544f86d7ac8b527c8768fd6",
+  "docs/evidence/DS-6/final-2026-10-27T0505Z.md": "03dc06182744b3f31c16d65f8cc154c978976cd6b8cc7b476a103ae6f15af7a5",
+  "docs/evidence/DS-6/integration-patch.md": "fd2c24257d7d7aa696268eed9c7e8dc81471e2847a1faded832af68ec86f0b4e",
+  "docs/plan/runs/DS-6/checkpoint.md": "ba54c281ce2d3622cb30f0e76abf96b49999b0980f15e38f8eb52983a6f1617c",
+  "docs/plan/runs/DS-6/handoff.md": "bc11106fdccd4d33c2102da11ee52da820eab5182e29ed2afb5cdbce657d8096"
+}

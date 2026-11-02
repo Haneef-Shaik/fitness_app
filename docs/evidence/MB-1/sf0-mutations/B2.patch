@@ -1,0 +1,19 @@
+MB-1 SF-0 guard mutation B2, regenerated for the SF-0 layout from phase1i-mutations/B2.patch: SF-0 did not change this file,
+so the diff is the same; only its killers moved to the split test files. The M2 stop requires a complete run again (review
+2026-10-26T2305Z finding 1).
+Applies to scripts/backend/mb1-replay-evidence.mjs at sha256 6d52d70ce4c059ce89e32efa5d0d6162b9b59f2cf0c106ba3195bac6f681bb89.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: docs/plan/runs/MB-1/sf0.md section 5.
+
+diff --git a/scripts/backend/mb1-replay-evidence.mjs b/scripts/backend/mb1-replay-evidence.mjs
+--- a/scripts/backend/mb1-replay-evidence.mjs
++++ b/scripts/backend/mb1-replay-evidence.mjs
+@@ -289,7 +289,7 @@
+  * logout failure outside check(), or a signal) has already shown it; a setup failure that printed no check has not.
+  */
+ function unkilled(log) {
+-  return log.checks.some((check) => check.name === M2_CHECK && check.ok);
++  return completeRun(log) && log.checks.some((check) => check.name === M2_CHECK && check.ok);
+ }
+ export const m2RunUnkilled = (text) => unkilled(parseSuiteLog(text));
+

@@ -1,0 +1,18 @@
+MB-1 SF-0 guard mutation X, regenerated for the SF-0 layout from phase1i-mutations/X.patch (same changed line, new file and
+line numbers): the STOP after migration up, db diff or db lint is printed but not recorded in state.json, so it is not durable.
+Applies to scripts/backend/mb1-replay-commands.mjs at sha256 967a6fccd3fa6931a098475a27fd2faf0db334565d147c28ae1f66c51059c99c.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: docs/plan/runs/MB-1/sf0.md section 5.
+
+diff --git a/scripts/backend/mb1-replay-commands.mjs b/scripts/backend/mb1-replay-commands.mjs
+--- a/scripts/backend/mb1-replay-commands.mjs
++++ b/scripts/backend/mb1-replay-commands.mjs
+@@ -72,7 +72,7 @@
+ function stopAfter(ctx, op, label) {
+   try { replayGuards(ctx, `after ${label}`); return null; } catch (error) {
+     ctx.print(`# STOP: after ${label} on the replay: ${reason(error)}; the replay's input changed while the CLI ran, so where ${label} wrote is unknown (55321 included): nothing more runs on this replay until the coordinator reviews it (state.json records the STOP)\n`);
+-    return { code: 1, state: { ...ctx.state, stopRecorded: { at: ctx.now(), op } } };
++    return { code: 1, state: ctx.state };
+   }
+ }
+ async function start(ctx) {

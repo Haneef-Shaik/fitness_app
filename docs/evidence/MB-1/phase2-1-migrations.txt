@@ -1,0 +1,7 @@
+$ node_modules/.bin/supabase migration list --local --workdir /tmp/fitlog-mb1-replay-20261026
+   Local            | Remote           | Time (UTC)
+  ------------------|------------------|-----------------------
+Connecting to local database...
+# 17 line(s) withheld (not on the migrations allowlist, or secret-shaped)
+# exit 0
+# mb1-replay migrations: exit 0

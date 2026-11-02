@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: a JSON object, as a string or as a Buffer, comes back exactly as JSON.parse gives it
+ok 1 - a JSON object, as a string or as a Buffer, comes back exactly as JSON.parse gives it
+  ---
+  duration_ms: 1.637875
+  type: 'test'
+  ...
+# Subtest: the helper decides no target: values come back unchanged, so each suite's loopback assertion still refuses a near miss
+ok 2 - the helper decides no target: values come back unchanged, so each suite's loopback assertion still refuses a near miss
+  ---
+  duration_ms: 0.1935
+  type: 'test'
+  ...
+# Subtest: malformed output fails closed with one fixed message that shows no input, parse detail, key or cause
+ok 3 - malformed output fails closed with one fixed message that shows no input, parse detail, key or cause
+  ---
+  duration_ms: 3.018625
+  type: 'test'
+  ...
+# Subtest: JSON that is not an object (null, an array, a scalar) fails closed with its own fixed message
+ok 4 - JSON that is not an object (null, an array, a scalar) fails closed with its own fixed message
+  ---
+  duration_ms: 1.708875
+  type: 'test'
+  ...
+# Subtest: anything but a string or a Buffer is refused before any parse, with the fixed message
+ok 5 - anything but a string or a Buffer is refused before any parse, with the fixed message
+  ---
+  duration_ms: 0.382834
+  type: 'test'
+  ...
+# Subtest: all three suites parse their captured status through the helper, and the unguarded parse is gone (read as text, never imported)
+ok 6 - all three suites parse their captured status through the helper, and the unguarded parse is gone (read as text, never imported)
+  ---
+  duration_ms: 0.742333
+  type: 'test'
+  ...
+# Subtest: the helper is pure and narrow: one export, node:buffer its only import, and no file, network, child, console or process use
+ok 7 - the helper is pure and narrow: one export, node:buffer its only import, and no file, network, child, console or process use
+  ---
+  duration_ms: 0.36575
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 71.578375

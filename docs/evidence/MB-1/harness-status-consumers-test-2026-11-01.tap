@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: each consumer is its before-source with exactly two lines replaced in place: the child import by the wrapper import, the inline status parse by one wrapper call (read as text, never loaded)
+ok 1 - each consumer is its before-source with exactly two lines replaced in place: the child import by the wrapper import, the inline status parse by one wrapper call (read as text, never loaded)
+  ---
+  duration_ms: 1.035709
+  type: 'test'
+  ...
+# Subtest: each consumer reads status through the wrapper alone: one wrapper import, one call with no argument, and no child process, status command or JSON.parse of its own
+ok 2 - each consumer reads status through the wrapper alone: one wrapper import, one call with no argument, and no child process, status command or JSON.parse of its own
+  ---
+  duration_ms: 0.427458
+  type: 'test'
+  ...
+# Subtest: the existing exact guard follows the wrapper call at once, unchanged, nothing runs before it, and every side effect after it is the before-source byte for byte
+ok 3 - the existing exact guard follows the wrapper call at once, unchanged, nothing runs before it, and every side effect after it is the before-source byte for byte
+  ---
+  duration_ms: 0.2345
+  type: 'test'
+  ...
+# Subtest: this file reads both consumers as text only: its sole imports are assert, fs and test, and it has no run-time load
+ok 4 - this file reads both consumers as text only: its sole imports are assert, fs and test, and it has no run-time load
+  ---
+  duration_ms: 0.113208
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 39.44125

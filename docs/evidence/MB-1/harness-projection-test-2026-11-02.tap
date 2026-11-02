@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: a successful run gives the parsed projection object, unchanged, after exactly one call with no arguments
+ok 1 - a successful run gives the parsed projection object, unchanged, after exactly one call with no arguments
+  ---
+  duration_ms: 1.0055
+  type: 'test'
+  ...
+# Subtest: without a callback nothing is run and one fixed refusal is raised: the helper has no real default
+ok 2 - without a callback nothing is run and one fixed refusal is raised: the helper has no real default
+  ---
+  duration_ms: 5.491125
+  type: 'test'
+  ...
+# Subtest: a failed command raises one new fixed error that shows no message, stack, cause, field or output of what it threw
+ok 3 - a failed command raises one new fixed error that shows no message, stack, cause, field or output of what it threw
+  ---
+  duration_ms: 0.785333
+  type: 'test'
+  ...
+# Subtest: a thrown primitive gives the same fixed error and shows nothing of the value
+ok 4 - a thrown primitive gives the same fixed error and shows nothing of the value
+  ---
+  duration_ms: 0.753083
+  type: 'test'
+  ...
+# Subtest: the thrown value is never read: poisoned message, stack, stdout, stderr, output and cause getters and watched proxies see no access
+ok 5 - the thrown value is never read: poisoned message, stack, stdout, stderr, output and cause getters and watched proxies see no access
+  ---
+  duration_ms: 0.454791
+  type: 'test'
+  ...
+# Subtest: the callback is never retried: a first failure stays a failure even when a second call would succeed
+ok 6 - the callback is never retried: a first failure stays a failure even when a second call would succeed
+  ---
+  duration_ms: 0.463375
+  type: 'test'
+  ...
+# Subtest: output that is not JSON gets one fixed parse refusal that shows none of it, and the parse error is never shown
+ok 7 - output that is not JSON gets one fixed parse refusal that shows none of it, and the parse error is never shown
+  ---
+  duration_ms: 0.891375
+  type: 'test'
+  ...
+# Subtest: output that is not a string is refused as not JSON without being converted, awaited or read
+ok 8 - output that is not a string is refused as not JSON without being converted, awaited or read
+  ---
+  duration_ms: 0.817167
+  type: 'test'
+  ...
+# Subtest: JSON that is not an object gets one fixed shape refusal: null, arrays and bare values
+ok 9 - JSON that is not an object gets one fixed shape refusal: null, arrays and bare values
+  ---
+  duration_ms: 0.846875
+  type: 'test'
+  ...
+# Subtest: the helper exports readProjectionResult alone, and its four refusals are distinct fixed texts that quote nothing
+ok 10 - the helper exports readProjectionResult alone, and its four refusals are distinct fixed texts that quote nothing
+  ---
+  duration_ms: 0.395542
+  type: 'test'
+  ...
+# Subtest: the consumer reads the projection through the helper alone, with its command, arguments, SQL, options and checks unchanged (read as text, never imported)
+ok 11 - the consumer reads the projection through the helper alone, with its command, arguments, SQL, options and checks unchanged (read as text, never imported)
+  ---
+  duration_ms: 0.551042
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 83.901334

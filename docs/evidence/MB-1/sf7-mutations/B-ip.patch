@@ -1,0 +1,12 @@
+diff --git a/scripts/backend/mb1-replay-binding.mjs b/scripts/backend/mb1-replay-binding.mjs
+--- a/scripts/backend/mb1-replay-binding.mjs
++++ b/scripts/backend/mb1-replay-binding.mjs
+@@ -51,7 +51,7 @@ function containerResult(line, want, projectId) {
+   if (!ports) return { problems: [...problems, `${want.name}: its ports are not Docker's port map`] };
+   const published = ports[want.port] ?? [];
+   if (!published.length) problems.push(`${want.name}: ${want.port} is not published`);
+-  else if (!published.every((entry) => HOST_IPS.includes(entry.HostIp) && entry.HostPort === want.hostPort)) problems.push(`${want.name}: ${want.port} is published other than only at ${HOST_IPS.join(' or ')} port ${want.hostPort}`);
++  else if (!published.every((entry) => entry.HostPort === want.hostPort)) problems.push(`${want.name}: ${want.port} is published other than only at ${HOST_IPS.join(' or ')} port ${want.hostPort}`);
+   const others = Object.keys(ports).filter((key) => key !== want.port && ports[key]?.length).sort();
+   if (others.length) problems.push(`${want.name}: it also publishes ${others.join(', ')}`);
+   const at = published.map((entry) => `${entry.HostIp}:${entry.HostPort}`).sort().join(',');

@@ -1,0 +1,6 @@
+{
+  "scripts/backend/verify-freeze-projection.mjs": "e0755ad13a4646c28d05ebd884d2e61d9186f26022dee8e72f7efd673b0278f7",
+  "scripts/backend/projection-output.mjs": "a793c471591c56c5a5ddc2ddd166679287425506dbc0dc95a7e60b3ab92ce139",
+  "scripts/backend/projection-output.test.mjs": "a4fb4f425bc6b09a84725187c9f021fef80d21d2bb01b1b3388266cc64d2527e",
+  "docs/evidence/MB-1/harness-projection-output-2026-11-02.md": "eec1b30f49c471079885470cf2ec89879f4354bb09cd02559f45445cc79b564c"
+}

@@ -1,0 +1,10 @@
+# supabase CLI: node_modules/.bin/supabase, run directly by node (never through pnpm)
+# child environment: PATH, HOME, USER, LOGNAME, TMPDIR, LANG, LC_ALL, LC_CTYPE (an allowlist; values are not printed; no SUPABASE_* variable is set)
+supabase 2.121.0 start --help: lists --exclude, studio, edge-runtime, logflare, vector, imgproxy, --workdir
+supabase 2.121.0 status --help: lists --output, --workdir
+supabase 2.121.0 migration list --help: lists --local, --workdir
+supabase 2.121.0 migration up --help: lists --local, --workdir
+supabase 2.121.0 db diff --help: lists --local, --schema, --strict-coverage, --workdir
+supabase 2.121.0 db lint --help: lists --local, --schema, --level, --workdir
+supabase 2.121.0 stop --help: lists --project-id, --no-backup, --workdir
+# mb1-replay verify-cli: exit 0

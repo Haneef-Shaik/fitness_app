@@ -1,0 +1,6 @@
+# sql/restore-member-active.sql sha256 37d4e00b606283b69e3f99ab9d9203beedbe29b29363e1b56bf227205941c904, as manifest.json records; sent to supabase_db_fitlog_mb1_replay_20261026 only
+$ docker exec -i supabase_db_fitlog_mb1_replay_20261026 psql --single-transaction -f - < sql/restore-member-active.sql
+CREATE FUNCTION
+# 0 line(s) withheld (not on the psql allowlist, or secret-shaped)
+# exit 0
+# mb1-replay mutate: exit 0

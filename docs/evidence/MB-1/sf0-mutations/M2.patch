@@ -1,0 +1,17 @@
+MB-1 SF-0 guard mutation M2, regenerated for the SF-0 layout from phase1i-mutations/M2.patch (same removed line, new file and
+line numbers): the replay recheck without refuseEnvFiles (phase 1H mutation M).
+Applies to scripts/backend/mb1-replay-commands.mjs at sha256 967a6fccd3fa6931a098475a27fd2faf0db334565d147c28ae1f66c51059c99c.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: docs/plan/runs/MB-1/sf0.md section 5.
+
+diff --git a/scripts/backend/mb1-replay-commands.mjs b/scripts/backend/mb1-replay-commands.mjs
+--- a/scripts/backend/mb1-replay-commands.mjs
++++ b/scripts/backend/mb1-replay-commands.mjs
+@@ -62,7 +62,6 @@
+  */
+ function replayGuards(ctx, at) {
+   refuseSupabaseVariables(ctx);
+-  refuseEnvFiles(ctx);
+   const now = checkOwnedDir(ctx.target, ctx.fs);
+   const changed = [...new Set([...Object.keys(ctx.manifest.files), ...Object.keys(now.files)])].filter((rel) => ctx.manifest.files[rel] !== now.files[rel]).sort();
+   if (changed.length) throw refuse(`${MANIFEST} changed while this command ran (${changed.join(', ')}): its pins are not the ones checked under the lock`);

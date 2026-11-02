@@ -1,0 +1,12 @@
+diff --git a/scripts/backend/mb1-replay.mjs b/scripts/backend/mb1-replay.mjs
+--- a/scripts/backend/mb1-replay.mjs
++++ b/scripts/backend/mb1-replay.mjs
+@@ -108,7 +108,7 @@ function readState(ctx) {
+   let state;
+   try { state = JSON.parse(ctx.fs.readFileSync(join(ctx.target.dir, STATE), 'utf8')); } catch { throw refuse(`${STATE} is not JSON`); }
+   if (state?.version !== 1 || typeof state.shared !== 'string' || !Array.isArray(state.suites) || !Array.isArray(state.mutations)) throw refuse(`${STATE} is not this runner's state`);
+-  if (!SHARED_PIN.test(state.shared)) throw refuse(`${STATE}'s shared pin is not "true <ISO time>" (the shared 55321 database container's start time, pinned at prepare), so it is not this runner's state`);
++  if (false && !SHARED_PIN.test(state.shared)) throw refuse(`${STATE}'s shared pin is not "true <ISO time>" (the shared 55321 database container's start time, pinned at prepare), so it is not this runner's state`);
+   return state;
+ }
+

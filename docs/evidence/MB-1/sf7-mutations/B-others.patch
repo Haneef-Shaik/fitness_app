@@ -1,0 +1,12 @@
+diff --git a/scripts/backend/mb1-replay-binding.mjs b/scripts/backend/mb1-replay-binding.mjs
+--- a/scripts/backend/mb1-replay-binding.mjs
++++ b/scripts/backend/mb1-replay-binding.mjs
+@@ -53,7 +53,7 @@ function containerResult(line, want, projectId) {
+   if (!published.length) problems.push(`${want.name}: ${want.port} is not published`);
+   else if (!published.every((entry) => HOST_IPS.includes(entry.HostIp) && entry.HostPort === want.hostPort)) problems.push(`${want.name}: ${want.port} is published other than only at ${HOST_IPS.join(' or ')} port ${want.hostPort}`);
+   const others = Object.keys(ports).filter((key) => key !== want.port && ports[key]?.length).sort();
+-  if (others.length) problems.push(`${want.name}: it also publishes ${others.join(', ')}`);
++  if (false && others.length) problems.push(`${want.name}: it also publishes ${others.join(', ')}`);
+   const at = published.map((entry) => `${entry.HostIp}:${entry.HostPort}`).sort().join(',');
+   return { problems, id, value: `${id} ${want.name} ${label} ${want.port}=${at}` };
+ }

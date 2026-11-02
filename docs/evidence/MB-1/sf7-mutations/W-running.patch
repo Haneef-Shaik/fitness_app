@@ -1,0 +1,12 @@
+diff --git a/scripts/backend/mb1-replay-live.mjs b/scripts/backend/mb1-replay-live.mjs
+--- a/scripts/backend/mb1-replay-live.mjs
++++ b/scripts/backend/mb1-replay-live.mjs
+@@ -122,7 +122,7 @@ async function sharedRunning(ctx) {
+   if (status?.API_URL !== LOCAL_API_URL) throw refuse(`the repository's project answers at ${loopbackUrl(status?.API_URL)}, not ${LOCAL_API_URL}`);
+   if (!loopbackDb(status.DB_URL, SHARED.dbPort)) throw refuse(`the repository's database is not at 127.0.0.1:${SHARED.dbPort}; its DB_URL is not printed, because it holds credentials`);
+   if (!(await containerNames(ctx)).includes(SHARED.container)) throw refuse(`${SHARED.container} is not running`);
+-  const binding = await sharedBinding(ctx); // SF-7: the container the snapshots read is the one Docker publishes at 55322
++  const binding = null; // mutated: no binding read
+   ctx.print(`${bindingLine(SHARED_BINDING)}\n`);
+   return { container: SHARED.container, binding };
+ }

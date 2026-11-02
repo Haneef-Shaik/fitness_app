@@ -1,0 +1,11 @@
+diff --git a/scripts/backend/mb1-replay-shared.mjs b/scripts/backend/mb1-replay-shared.mjs
+--- a/scripts/backend/mb1-replay-shared.mjs
++++ b/scripts/backend/mb1-replay-shared.mjs
+@@ -131,7 +131,6 @@
+   await stagedRunning(ctx);
+   inputGuards(ctx, 'apply nothing'); // SF-7: the route proof's list reads the staged input too
+   await stagedRoute(ctx);
+-  await bindingUnchanged(ctx, binding); // SF-7: the last child before the apply; then no await until migration up starts
+   guardsBeforeMigrate(ctx);
+   recordApplyAttempt(ctx);
+   const args = supabaseArgs(ctx, 'migrate', stagingWorkdir(ctx));

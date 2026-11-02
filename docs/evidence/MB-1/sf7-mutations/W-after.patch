@@ -1,0 +1,11 @@
+diff --git a/scripts/backend/mb1-replay-shared.mjs b/scripts/backend/mb1-replay-shared.mjs
+--- a/scripts/backend/mb1-replay-shared.mjs
++++ b/scripts/backend/mb1-replay-shared.mjs
+@@ -154,7 +154,6 @@
+   if (changed) return stop(changed);
+   try { guardsBeforeMigrate(ctx, 'after'); } catch (error) { return stop(`after migration up: ${reason(error)}`); }
+   // SF-7: whatever the exit, Docker's binding must still be the one proved before; a change, or no answer, is a STOP.
+-  try { await bindingUnchanged(ctx, binding, 'after'); } catch (error) { return stop(`after migration up: ${reason(error)}`); }
+   if (run.status !== 0) return stop(`migration up ${run.status === null ? `did not finish (${redact(String(run.error ?? 'no exit status'))})` : `exited ${run.status}`}`);
+   const applied = appliedMigrations(`${run.stdout}\n${run.stderr}`);
+   if (applied.length && applied.join(',') !== CANDIDATE) return stop(`55321 applied ${applied.join(', ')}, not only ${CANDIDATE}`);

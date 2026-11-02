@@ -1,0 +1,6 @@
+# sql/m3.sql sha256 16a9542b90971163d930fed68e5f14be2bce2a549014695479d583626cddbb50, as manifest.json records; sent to supabase_db_fitlog_mb1_replay_20261026 only
+$ docker exec -i supabase_db_fitlog_mb1_replay_20261026 psql --single-transaction -f - < sql/m3.sql
+CREATE FUNCTION
+# 0 line(s) withheld (not on the psql allowlist, or secret-shaped)
+# exit 0
+# mb1-replay mutate: exit 0

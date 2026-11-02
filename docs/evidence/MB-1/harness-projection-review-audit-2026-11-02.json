@@ -1,0 +1,13 @@
+{
+  "tools": {
+    "Read": 7,
+    "Grep": 3,
+    "Bash": 1
+  },
+  "errors": 0,
+  "complete": true,
+  "fourHashesUnchanged": true,
+  "commands": [
+    "rtk proxy node --test scripts/backend/projection-output.test.mjs"
+  ]
+}

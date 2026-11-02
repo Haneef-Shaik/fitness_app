@@ -1,0 +1,45 @@
+# MB-1 phase 1 — RED baseline of scripts/backend/verify-identity.mjs
+# Date: 2026-10-26. Worktree /Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app, branch codex/mb1-identity,
+# base local main 2a95726 (session-start status), working tree uncommitted.
+# Target: local stack API http://127.0.0.1:55321 (asserted by the script against `supabase status -o json`; status not printed).
+# Database state: the 15 migrations on local main (applied to 55321 per the AR-1 coordinator gate update; not
+# re-checked here, no psql was run); candidate 20261026040045_mb1_live_session_guard.sql NOT written yet and NOT applied.
+# Fixtures: 3 disposable accounts fitlog-mb1-identity-<uuid>@example.invalid, created through the local admin API with
+# email_confirm, 7 password sign-ins, 1 body entry; all deleted in `finally` (no "cleanup needs attention" line printed).
+# Command: rtk proxy node scripts/backend/verify-identity.mjs        Exit code: 1
+# Output, verbatim:
+ok - a live session reads its own profile
+ok - a guessed ID of another member's profile returns no row
+ok - an unfiltered profile read returns only the caller
+ok - another member's profile cannot be updated
+ok - the anonymous role cannot read profiles
+ok - a member cannot insert their own profile directly
+ok - the private onboarding definer is not reachable over the API
+ok - a revoked session cannot complete onboarding
+ok - a new session of the same account can complete onboarding
+not ok - a disabled account reads no profile
+  HTTP 200, 1 row(s)
+ok - a disabled account cannot update its profile
+ok - a disabled account cannot re-run onboarding
+ok - the auth server rejects a revoked session
+not ok - a revoked session reads no profile
+  HTTP 200, 1 row(s)
+ok - a revoked session cannot update its profile
+ok - a revoked session cannot complete onboarding
+ok - a revoked session cannot start a sync
+ok - a revoked session reads no personal rows
+ok - a revoked session cannot write personal rows
+ok - revoking one session leaves the account's other sessions live
+ok - the auth server rejects a session revoked from another device
+not ok - a session revoked from another device reads no profile
+  HTTP 200, 1 row(s)
+ok - the revoking session stays live
+ok - GraphQL is closed: pg_graphql is not enabled
+ok - GraphQL serves no profile to a revoked session
+
+3 identity check(s) failed: a disabled account reads no profile; a revoked session reads no profile; a session revoked from another device reads no profile
+
+# Earlier runs of the same session (same stack, same 3 RED checks) differed only in the GraphQL control:
+# run 1 printed `not ok - GraphQL serves the own profile to a live session` / `HTTP 200 {"code":null,"message":null}`;
+# run 2, with error messages surfaced, printed `HTTP 200 {"code":null,"message":"pg_graphql extension is not enabled."}`.
+# That control was then replaced by the tripwire `GraphQL is closed: pg_graphql is not enabled` (phase1.md, decision D4).

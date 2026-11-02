@@ -1,0 +1,34 @@
+ok - a live session reads its own profile
+ok - a guessed ID of another member's profile returns no row
+ok - an unfiltered profile read returns only the caller
+ok - another member's profile cannot be updated
+ok - the anonymous role cannot read profiles
+ok - a member cannot insert their own profile directly
+ok - the private onboarding definer is not reachable over the API
+ok - a session revoked before onboarding cannot complete it
+ok - a new session of the same account can complete onboarding
+ok - a disabled account reads no profile
+ok - a disabled account cannot update its profile
+ok - a disabled account cannot re-run onboarding
+ok - a deletion-pending account reads no profile
+ok - an active account reads its own profile before it is banned
+# after the ban, GoTrue answers member C's session with HTTP 403 {"code":"user_banned","message":"User is banned"}
+ok - a banned account reads no profile
+ok - the auth server rejects a revoked session
+ok - a revoked session reads no profile
+ok - a revoked session cannot update its profile
+ok - a revoked session cannot complete onboarding
+ok - a revoked session cannot start a sync
+ok - a revoked session reads no personal rows
+ok - a revoked session cannot write personal rows
+ok - revoking one session leaves the account's other sessions live
+ok - the auth server rejects a session revoked from another device
+ok - a session revoked from another device reads no profile
+ok - the revoking session stays live
+ok - tripwire: GraphQL is closed (pg_graphql is not enabled)
+
+Local identity integration passed, 27 checks: profile ownership; no direct or private onboarding path; disabled, deletion-pending and banned accounts and revoked sessions refused on GoTrue and PostgREST; GraphQL closed (tripwire).
+# suite exit 0; GoTrue's answer after the ban: banned
+# verdict: the green expectation is met
+# ban answer "banned" (GoTrue HTTP 403 user_banned): the user is banned, but whether its session row still exists is not shown, so this is neither "live" nor "ended"; RED, GREEN, M1 and M3 do not depend on it, and M2 holds only when exactly "a banned account reads no profile" fails with HTTP 200, 1 row(s): with the ban clause removed, that row shows member C's session row still existed
+# mb1-replay suite: exit 0

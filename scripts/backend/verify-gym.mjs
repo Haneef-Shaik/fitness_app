@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
-const config = JSON.parse(execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+import { readLocalStatus } from './status-command.mjs';
+const config = readLocalStatus();
 assert.equal(config.API_URL, 'http://127.0.0.1:55321', 'Tests only run on the isolated local stack');
 const accounts = []; const gyms = [];
 async function call(path, { method = 'GET', body, token, admin = false } = {}) {

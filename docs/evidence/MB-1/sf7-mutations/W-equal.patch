@@ -1,0 +1,12 @@
+diff --git a/scripts/backend/mb1-replay-shared.mjs b/scripts/backend/mb1-replay-shared.mjs
+--- a/scripts/backend/mb1-replay-shared.mjs
++++ b/scripts/backend/mb1-replay-shared.mjs
+@@ -89,7 +89,7 @@
+ async function bindingUnchanged(ctx, first, when = 'before') {
+   const consequence = when === 'before' ? 'apply nothing' : '';
+   const now = await sharedBinding(ctx, consequence);
+-  if (now !== first) throw refuse(`Docker's binding of the shared stack changed ${when === 'before' ? 'before migration up' : 'while migration up ran'} (a container id, the project label or a published port)${ending(consequence)}`);
++  if (false && now !== first) throw refuse(`Docker's binding of the shared stack changed ${when === 'before' ? 'before migration up' : 'while migration up ran'} (a container id, the project label or a published port)${ending(consequence)}`);
+   ctx.print(`# rechecked ${when} migration up: Docker's binding of the shared stack is unchanged\n`);
+ }
+ /**

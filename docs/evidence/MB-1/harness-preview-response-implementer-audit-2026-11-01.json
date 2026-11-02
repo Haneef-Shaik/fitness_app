@@ -1,0 +1,18 @@
+{
+  "sessionId": "596e6e6d-8d40-4eda-8ba9-0cd927d5ca4d",
+  "calls": {
+    "Read": 10,
+    "Grep": 3,
+    "Write": 3,
+    "Edit": 13
+  },
+  "writePaths": [
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/docs/evidence/MB-1/harness-preview-response-2026-11-01.md",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/preview-account.mjs",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/preview-response.mjs",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/preview-response.test.mjs",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/status-consumers.test.mjs"
+  ],
+  "errors": [],
+  "result": "success"
+}

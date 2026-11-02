@@ -1,0 +1,31 @@
+{
+  "at": "2026-11-01T11:48:33.050413+00:00",
+  "session": "e5168dca-ffc0-484b-a417-29cfac4dc138",
+  "tools": {
+    "Read": 15,
+    "Grep": 7,
+    "Bash": 2
+  },
+  "errors": {},
+  "shell": [
+    {
+      "command": "rtk proxy node --test scripts/backend/status-output.test.mjs",
+      "result": {
+        "tool_use_id": "toolu_019BfZJbf9u3VHjF9S8smCem",
+        "type": "tool_result",
+        "content": "TAP version 13\n# Subtest: a JSON object, as a string or as a Buffer, comes back exactly as JSON.parse gives it\nok 1 - a JSON object, as a string or as a Buffer, comes back exactly as JSON.parse gives it\n  ---\n  duration_ms: 1.637875\n  type: 'test'\n  ...\n# Subtest: the helper decides no target: values come back unchanged, so each suite's loopback assertion still refuses a near miss\nok 2 - the helper decides no target: values come back unchanged, so each suite's loopback assertion still refuses a near miss\n  ---\n  duration_ms: 0.1935\n  type: 'test'\n  ...\n# Subtest: malformed output fails closed with one fixed message that shows no input, parse detail, key or cause\nok 3 - malformed output fails closed with one fixed message that shows no input, parse detail, key or cause\n  ---\n  duration_ms: 3.018625\n  type: 'test'\n  ...\n# Subtest: JSON that is not an object (null, an array, a scalar) fails closed with its own fixed message\nok 4 - JSON that is not an object (null, an array, a scalar) fails closed with its own fixed message\n  ---\n  duration_ms: 1.708875\n  type: 'test'\n  ...\n# Subtest: anything but a string or a Buffer is refused before any parse, with the fixed message\nok 5 - anything but a string or a Buffer is refused before any parse, with the fixed message\n  ---\n  duration_ms: 0.382834\n  type: 'test'\n  ...\n# Subtest: all three suites parse their captured status through the helper, and the unguarded parse is gone (read as text, never imported)\nok 6 - all three suites parse their captured status through the helper, and the unguarded parse is gone (read as text, never imported)\n  ---\n  duration_ms: 0.742333\n  type: 'test'\n  ...\n# Subtest: the helper is pure and narrow: one export, node:buffer its only import, and no file, network, child, console or process use\nok 7 - the helper is pure and narrow: one export, node:buffer its only import, and no file, network, child, console or process use\n  ---\n  duration_ms: 0.36575\n  type: 'test'\n  ...\n1..7\n# tests 7\n# suites 0\n# pass 7\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 71.578375",
+        "is_error": false
+      }
+    },
+    {
+      "command": "echo noop",
+      "result": {
+        "tool_use_id": "toolu_01R59EkxD7JB7xNVc6zUSujc",
+        "type": "tool_result",
+        "content": "noop",
+        "is_error": false
+      }
+    }
+  ],
+  "scopeDeviation": "Extra echo noop executed; returned noop, no denial. Stopped promptly. No retry of historical denied sequence. Verdict-only continuation has no tools; saved flags required new copy, old stopped."
+}

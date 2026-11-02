@@ -1,0 +1,18 @@
+MB-1 phase 1I guard mutation W: the halt looks the op up without requiring a string, so a hand-edited op of ["diff"]
+(coerced to "diff") names db diff.
+Applies to scripts/backend/mb1-replay-order.mjs at sha256 fb6edb395cfe01edfc99e4ef70c8bcdfc6d6d206af0f0963aee4c42d248c3b37.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: phase1i.md section 5.4.
+
+diff --git a/scripts/backend/mb1-replay-order.mjs b/scripts/backend/mb1-replay-order.mjs
+--- a/scripts/backend/mb1-replay-order.mjs
++++ b/scripts/backend/mb1-replay-order.mjs
+@@ -29,7 +29,7 @@
+ export function haltNeeds(state) {
+   if (!state.stopRecorded) return null;
+   const { op } = Object(state.stopRecorded);
+-  const ran = typeof op === 'string' && Object.hasOwn(STOP_OPS, op) ? STOP_OPS[op] : STOP_OPS.migrate;
++  const ran = Object.hasOwn(STOP_OPS, op) ? STOP_OPS[op] : STOP_OPS.migrate;
+   return `a STOP was recorded at ${isoAt(state.stopRecorded.at)}: the replay's input changed while ${ran} ran, so where it wrote is unknown (55321 included), and nothing runs on this replay until the coordinator reviews it and removes stopRecorded from state.json by hand (review 2026-10-26T2000Z finding 2)`;
+ }
+ /** Review 2026-10-26T2000Z finding 1: the first M2 run of a kind (`m2Stopped` or a pass), which no later run may replace. */

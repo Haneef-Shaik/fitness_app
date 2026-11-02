@@ -1,0 +1,10 @@
+# rechecked immediately before migration up on the replay: no SUPABASE_* variable, no .env file, the 24 file(s) pinned in manifest.json each sha256 equal and unchanged since this command began, nothing else in /tmp/fitlog-mb1-replay-20261026, and its config.toml naming fitlog_mb1_replay_20261026 at the eight 564xx ports
+$ node_modules/.bin/supabase migration up --local --workdir /tmp/fitlog-mb1-replay-20261026
+Local database is up to date.
+Connecting to local database...
+Applying migration 20261026040045_mb1_live_session_guard.sql...
+# 2 line(s) withheld (not on the migrate allowlist, or secret-shaped)
+# exit 0
+# rechecked after migration up on the replay: no SUPABASE_* variable, no .env file, the 24 file(s) pinned in manifest.json each sha256 equal and unchanged since this command began, nothing else in /tmp/fitlog-mb1-replay-20261026, and its config.toml naming fitlog_mb1_replay_20261026 at the eight 564xx ports
+# migration up: 20261026040045_mb1_live_session_guard.sql; the after snapshot (P3) is the proof
+# mb1-replay migrate: exit 0

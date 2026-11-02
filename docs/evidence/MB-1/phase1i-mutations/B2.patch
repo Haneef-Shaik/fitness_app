@@ -1,0 +1,18 @@
+MB-1 phase 1I guard mutation B2 (replaces phase 1H mutation B, whose effect is now the intended behaviour): the M2 stop
+requires a complete run again (review 2026-10-26T2305Z finding 1).
+Applies to scripts/backend/mb1-replay-evidence.mjs at sha256 6d52d70ce4c059ce89e32efa5d0d6162b9b59f2cf0c106ba3195bac6f681bb89.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: phase1i.md section 5.4.
+
+diff --git a/scripts/backend/mb1-replay-evidence.mjs b/scripts/backend/mb1-replay-evidence.mjs
+--- a/scripts/backend/mb1-replay-evidence.mjs
++++ b/scripts/backend/mb1-replay-evidence.mjs
+@@ -289,7 +289,7 @@
+  * logout failure outside check(), or a signal) has already shown it; a setup failure that printed no check has not.
+  */
+ function unkilled(log) {
+-  return log.checks.some((check) => check.name === M2_CHECK && check.ok);
++  return completeRun(log) && log.checks.some((check) => check.name === M2_CHECK && check.ok);
+ }
+ export const m2RunUnkilled = (text) => unkilled(parseSuiteLog(text));
+

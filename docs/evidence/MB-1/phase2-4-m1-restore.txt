@@ -1,0 +1,6 @@
+# supabase/migrations/20261026040045_mb1_live_session_guard.sql sha256 ac262f39fc6962345f64982e36c6b2aa7f8f3418829fd653684002f2f2c1bdc3, as manifest.json records; sent to supabase_db_fitlog_mb1_replay_20261026 only
+$ docker exec -i supabase_db_fitlog_mb1_replay_20261026 psql --single-transaction -f - < supabase/migrations/20261026040045_mb1_live_session_guard.sql
+ALTER POLICY
+# 0 line(s) withheld (not on the psql allowlist, or secret-shaped)
+# exit 0
+# mb1-replay mutate: exit 0

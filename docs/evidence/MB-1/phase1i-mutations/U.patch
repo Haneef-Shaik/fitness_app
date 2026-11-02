@@ -1,0 +1,17 @@
+MB-1 phase 1I guard mutation U (review 2026-10-26T2305Z findings 2 and 4): db diff and db lint return on a failed or timed-out
+CLI before their after-recheck, the diff/lint form of mutation P.
+Applies to scripts/backend/mb1-replay.mjs at sha256 fd76c04b0fa656d811831c6b103ef652313e281d77a648e23a0b368b73e83334.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: phase1i.md section 5.4.
+
+diff --git a/scripts/backend/mb1-replay.mjs b/scripts/backend/mb1-replay.mjs
+--- a/scripts/backend/mb1-replay.mjs
++++ b/scripts/backend/mb1-replay.mjs
+@@ -441,6 +441,7 @@
+ async function checked(ctx, name, judge) {
+   replayGuards(ctx, `immediately before db ${name}`); // review 2026-10-26T2305Z finding 4: before the child, and after it
+   const run = await supabase(ctx, name);
++  if (run.status !== 0) return { code: 1 };
+   const stopped = stopAfter(ctx, name, `db ${name}`);
+   if (stopped) return stopped;
+   const result = judge(`${run.stdout}\n${run.stderr}`);

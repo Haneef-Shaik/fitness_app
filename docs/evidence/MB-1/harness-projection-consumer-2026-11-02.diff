@@ -1,0 +1,19 @@
+--- 
++++ 
+@@ -1,6 +1,7 @@
+ import assert from 'node:assert/strict';
+ import { execFileSync } from 'node:child_process';
+ import { randomUUID } from 'node:crypto';
++import { readProjectionResult } from './projection-output.mjs';
+ const id = randomUUID(); const renewal = randomUUID(); const freeze = randomUUID();
+ const terms = [
+   { id, starts_on: '2026-10-01', ends_on: '2026-11-01', original_ends_on: '2026-11-01', cancelled_on: null, revision: 1, snapshot: { freeze_days: 7, duration_value: 1, duration_unit: 'months' } },
+@@ -9,7 +10,7 @@
+ const freezes = [{ id: freeze, membership_id: id, starts_on: '2026-10-30', ends_on: '2026-11-03', status: 'pending', revision: 1 }];
+ function project(t, f, mode, returns = null, shift = true, today = '2026-10-19') {
+   const args = [`$terms$${JSON.stringify(t)}$terms$::jsonb`, `$freezes$${JSON.stringify(f)}$freezes$::jsonb`, `'${id}'::uuid`, `'${freeze}'::uuid`, `'${mode}'`, returns ? `'${returns}'::date` : 'null::date', `'${today}'::date`, shift ? 'true' : 'false'];
+-  return JSON.parse(execFileSync('docker', ['exec', 'supabase_db_fitlog_rebuild_20261017', 'psql', '-U', 'postgres', '-d', 'postgres', '-At', '-v', 'ON_ERROR_STOP=1', '-c', `select private.freeze_projection(${args.join(',')})`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }));
++  return readProjectionResult(() => execFileSync('docker', ['exec', 'supabase_db_fitlog_rebuild_20261017', 'psql', '-U', 'postgres', '-d', 'postgres', '-At', '-v', 'ON_ERROR_STOP=1', '-c', `select private.freeze_projection(${args.join(',')})`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }));
+ }
+ const approved = project(terms, freezes, 'approve');
+ assert.equal(approved.changes[0].endsOn, '2026-11-05'); assert.equal(approved.changes[1].startsOn, '2026-11-05'); assert.equal(approved.changes[1].endsOn, '2026-12-05'); assert.equal(approved.remainingDays, 3);

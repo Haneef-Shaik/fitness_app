@@ -1,0 +1,2 @@
+ac262f39fc6962345f64982e36c6b2aa7f8f3418829fd653684002f2f2c1bdc3  supabase/migrations/20261026040045_mb1_live_session_guard.sql (equals the repository file and the pinned candidate); added to manifest.json
+# mb1-replay add-candidate: exit 0

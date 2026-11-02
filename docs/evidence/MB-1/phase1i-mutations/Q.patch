@@ -1,0 +1,16 @@
+MB-1 phase 1I guard mutation Q (review 2026-10-26T2305Z finding 4): no recheck before migration list.
+Applies to scripts/backend/mb1-replay.mjs at sha256 fd76c04b0fa656d811831c6b103ef652313e281d77a648e23a0b368b73e83334.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: phase1i.md section 5.4.
+
+diff --git a/scripts/backend/mb1-replay.mjs b/scripts/backend/mb1-replay.mjs
+--- a/scripts/backend/mb1-replay.mjs
++++ b/scripts/backend/mb1-replay.mjs
+@@ -398,7 +398,6 @@
+  * empty or unreadable list is refused, even when the CLI exits 0.
+  */
+ async function migrations(ctx) {
+-  replayGuards(ctx, 'immediately before migration list'); // review 2026-10-26T2305Z finding 4: no await before the child
+   const run = await supabase(ctx, 'migrations');
+   if (run.status !== 0) return { code: 1 };
+   const files = manifestMigrations(ctx.manifest);

@@ -1,0 +1,16 @@
+MB-1 phase 1I guard mutation T (review 2026-10-26T2305Z finding 4): no recheck before stop (stop and teardown).
+Applies to scripts/backend/mb1-replay.mjs at sha256 fd76c04b0fa656d811831c6b103ef652313e281d77a648e23a0b368b73e83334.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: phase1i.md section 5.4.
+
+diff --git a/scripts/backend/mb1-replay.mjs b/scripts/backend/mb1-replay.mjs
+--- a/scripts/backend/mb1-replay.mjs
++++ b/scripts/backend/mb1-replay.mjs
+@@ -498,7 +498,6 @@
+   return { code: verdict.ok ? 0 : 1, state: { ...ctx.state, suites: [...ctx.state.suites, entry], ban: ctx.state.ban ?? (verdict.ok ? verdict.ban : null) } };
+ }
+ async function stopReplay(ctx) {
+-  replayGuards(ctx, 'immediately before stop'); // review 2026-10-26T2305Z finding 4; teardown stops through here too
+   const run = await supabase(ctx, 'stop');
+   if (run.status !== 0) return false;
+   const left = await replayContainers(ctx);

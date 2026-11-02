@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
-
+import { readLocalStatus } from './status-command.mjs';
 // Integration tests run against this project's isolated LOCAL stack only.
-const status = JSON.parse(execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));
+const status = readLocalStatus();
 assert.equal(status.API_URL, 'http://127.0.0.1:55321', 'Refusing to run against any other backend');
 const users = [];
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());

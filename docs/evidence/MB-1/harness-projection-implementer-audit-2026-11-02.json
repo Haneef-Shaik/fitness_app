@@ -1,0 +1,16 @@
+{
+  "tools": {
+    "Read": 9,
+    "Grep": 9,
+    "Write": 3,
+    "Edit": 4
+  },
+  "errors": 0,
+  "paths": [
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/docs/evidence/MB-1/harness-projection-output-2026-11-02.md",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/projection-output.mjs",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/projection-output.test.mjs",
+    "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/verify-freeze-projection.mjs"
+  ],
+  "complete": true
+}

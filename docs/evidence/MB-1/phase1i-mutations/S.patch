@@ -1,0 +1,18 @@
+MB-1 phase 1I guard mutation S (review 2026-10-26T2305Z finding 4): no recheck after db diff or db lint, so a change while
+the CLI ran is never a STOP.
+Applies to scripts/backend/mb1-replay.mjs at sha256 fd76c04b0fa656d811831c6b103ef652313e281d77a648e23a0b368b73e83334.
+Apply from the worktree root with `git apply <this file>`; restore with `git apply -R <this file>`, after which the file must
+hash to the value above again. Text before the diff header is ignored by git apply. Result: phase1i.md section 5.4.
+
+diff --git a/scripts/backend/mb1-replay.mjs b/scripts/backend/mb1-replay.mjs
+--- a/scripts/backend/mb1-replay.mjs
++++ b/scripts/backend/mb1-replay.mjs
+@@ -441,7 +441,7 @@
+ async function checked(ctx, name, judge) {
+   replayGuards(ctx, `immediately before db ${name}`); // review 2026-10-26T2305Z finding 4: before the child, and after it
+   const run = await supabase(ctx, name);
+-  const stopped = stopAfter(ctx, name, `db ${name}`);
++  const stopped = null;
+   if (stopped) return stopped;
+   const result = judge(`${run.stdout}\n${run.stderr}`);
+   for (const problem of result.problems) ctx.print(`# problem: ${problem}\n`);

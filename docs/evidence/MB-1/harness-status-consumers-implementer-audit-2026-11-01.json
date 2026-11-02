@@ -1,0 +1,175 @@
+{
+  "tools": {
+    "Read": 10,
+    "Grep": 7,
+    "Write": 2,
+    "Edit": 3
+  },
+  "calls": {
+    "toolu_015Fn6F4hC9rBdubDWqRkaxo": {
+      "name": "Read",
+      "input": {
+        "file_path": "/tmp/fitlog-mb1-status-consumers-before.json"
+      }
+    },
+    "toolu_01L3XwF2Tm8Q7CLPqsik1pp3": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/docs/evidence/MB-1/harness-command-failure-accepted-2026-11-01.md"
+      }
+    },
+    "toolu_01MLf2x3c6HdEKKesD2kCrCb": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/status-command.mjs"
+      }
+    },
+    "toolu_01GV4mpH3GJ9sDKyXF8i3naV": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/status-output.mjs"
+      }
+    },
+    "toolu_01TvnCtNdgwDgn5DbcmFquJV": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/environment.mjs"
+      }
+    },
+    "toolu_011bcYgroaw21hkGBQY1Aax9": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/preview-account.mjs"
+      }
+    },
+    "toolu_013pDXAJpfuxcGCp1Vp3YPcF": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/status-command.test.mjs"
+      }
+    },
+    "toolu_01YD28ZkeX1xwCZacZrY8p7x": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/status-output.test.mjs"
+      }
+    },
+    "toolu_015MGV1zGrry4BE9QsBQ4oBF": {
+      "name": "Grep",
+      "input": {
+        "pattern": "readLocalStatus|status-command",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend",
+        "output_mode": "content"
+      }
+    },
+    "toolu_01DjBeHG4jd7jDw78GeFwA4q": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/verify-gym.mjs",
+        "limit": 6
+      }
+    },
+    "toolu_01Drok8KJJmqjZizspDm1ZRi": {
+      "name": "Read",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/verify.mjs",
+        "limit": 7
+      }
+    },
+    "toolu_018rVRMhgCBoEKrUXLy8HkCA": {
+      "name": "Grep",
+      "input": {
+        "pattern": "environment\\.mjs|preview-account\\.mjs",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
+        "glob": "!**/node_modules/**",
+        "output_mode": "content",
+        "head_limit": 30
+      }
+    },
+    "toolu_01RFfm5vTNHuRzDKYgUqLeGd": {
+      "name": "Grep",
+      "input": {
+        "pattern": "no-template-curly-in-string|scripts/backend|ignores",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app",
+        "glob": "{eslint.config.*,.eslintrc*,package.json}",
+        "output_mode": "content"
+      }
+    },
+    "toolu_01VmP6m4csLb8Yp61Mey8iDx": {
+      "name": "Write",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/status-consumers.test.mjs",
+        "content": "import assert from 'node:assert/strict';\nimport { readFileSync } from 'node:fs';\nimport { test } from 'node:test';\n\n// The two local consumers of `supabase status -o json` outside the integration suites (QA-9 phase 3N gap G5; the MB-1\n// residual named in docs/evidence/MB-1/harness-command-failure-accepted-2026-11-01.md): environment.mjs, which writes the\n// mobile app's private local config, and preview-account.mjs, which creates a synthetic local account. Each ran the status\n// command and parsed its output inline, so a failed command or bad output could throw an error that quotes keys (PRD 22.1:\n// never log tokens). Each now reads status only through readLocalStatus in status-command.mjs, whose fixed refusals\n// status-command.test.mjs and status-output.test.mjs already cover; this file does not test the wrapper again. It proves\n// the change is that substitution and nothing more. Both consumers have real side effects, so they are read here as text\n// and never loaded or run. Nothing here starts a process, reads a real status or credential, or reaches the network.\n\nconst read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');\nconst occurrences = (text, part) => text.split(part).length - 1;\nconst lineCount = (lines, wanted) => lines.filter((line) => line === wanted).length;\n/** The specifier of every whole-line static import, in order. */\nconst staticImports = (source) => [...source.matchAll(/^import\\s.*\\sfrom\\s'([^']+)';$/gm)].map((match) => match[1]);\n\nconst CHILD_IMPORT = \"import { execFileSync } from 'node:child_process';\";\nconst INLINE_STATUS = \"const status = JSON.parse(execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));\";\nconst WRAPPER_IMPORT = \"import { readLocalStatus } from './status-command.mjs';\";\nconst WRAPPER_STATUS = 'const status = readLocalStatus();';\n// The only two edits allowed, each in place: the child import becomes the wrapper import, the inline parse one wrapper call.\nconst SUBSTITUTIONS = new Map([[CHILD_IMPORT, WRAPPER_IMPORT], [INLINE_STATUS, WRAPPER_STATUS]]);\nconst LOOPBACK_CHECK = \"status.API_URL !== 'http://127.0.0.1:55321'\";\n\nconst ENVIRONMENT_GUARD = \"if (status.API_URL !== 'http://127.0.0.1:55321' || !status.PUBLISHABLE_KEY?.startsWith('sb_publishable_')) throw new Error('Expected this rebuild\\u2019s isolated local stack');\";\nconst PREVIEW_GUARD = \"if (status.API_URL !== 'http://127.0.0.1:55321') throw new Error('Local rebuild only');\";\n\n// Each consumer's source before this change, one string per line, as in the phase-before snapshot kept outside the\n// repository. The last empty string is the file's closing line break.\nconst CONSUMERS = Object.freeze([\n  {\n    file: 'environment.mjs',\n    imports: ['./status-command.mjs', 'node:fs'],\n    guard: ENVIRONMENT_GUARD,\n    checks: [LOOPBACK_CHECK, \"!status.PUBLISHABLE_KEY?.startsWith('sb_publishable_')\"],\n    effects: [\"writeFileSync('apps/mobile/.env.local',\", '{ mode: 0o600 }', 'console.log('],\n    before: Object.freeze([\n      CHILD_IMPORT,\n      \"import { writeFileSync } from 'node:fs';\",\n      INLINE_STATUS,\n      ENVIRONMENT_GUARD,\n      \"writeFileSync('apps/mobile/.env.local', `EXPO_PUBLIC_SUPABASE_URL=${status.API_URL}\\\\nEXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${status.PUBLISHABLE_KEY}\\\\n`, { mode: 0o600 });\",\n      \"console.log('Wrote the local mobile environment with a publishable key. Restart Expo after changing configuration.');\",\n      '',\n    ]),\n  },\n  {\n    file: 'preview-account.mjs',\n    imports: ['node:crypto', './status-command.mjs', 'node:fs', 'node:os', 'node:path'],\n    guard: PREVIEW_GUARD,\n    checks: [LOOPBACK_CHECK],\n    effects: ['randomUUID()', 'fetch(', 'apikey: status.SECRET_KEY', \"writeFileSync(join(tmpdir(), 'fitlog-preview-account.json'),\", '{ mode: 0o600 }', 'console.log('],\n    before: Object.freeze([\n      \"import { randomUUID } from 'node:crypto';\",\n      CHILD_IMPORT,\n      \"import { writeFileSync } from 'node:fs';\",\n      \"import { tmpdir } from 'node:os';\",\n      \"import { join } from 'node:path';\",\n      '',\n      INLINE_STATUS,\n      PREVIEW_GUARD,\n      \"const email = `preview-${randomUUID()}@example.invalid`; const password = randomUUID() + 'aA1!';\",\n      \"const response = await fetch(status.API_URL + '/auth/v1/admin/users', { method: 'POST', headers: { apikey: status.SECRET_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, email_confirm: true }) });\",\n      \"if (!response.ok) throw new Error('Could not create local preview account');\",\n      'const user = await response.json();',\n      \"const login = await fetch(status.API_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: status.PUBLISHABLE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });\",\n      'const session = await login.json();',\n      \"const profile = await fetch(status.API_URL + '/rest/v1/rpc/complete_onboarding', { method: 'POST', headers: { apikey: status.PUBLISHABLE_KEY, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_name: 'Local preview', p_dob: '1995-01-01', p_timezone: 'Asia/Kolkata', p_locale: 'en', p_terms: 'test-notice', p_privacy: 'test-notice' }) });\",\n      \"if (!profile.ok) throw new Error('Could not initialize preview profile');\",\n      \"writeFileSync(join(tmpdir(), 'fitlog-preview-account.json'), JSON.stringify({ email, password, id: user.id }), { mode: 0o600 });\",\n      \"console.log('Created a synthetic local preview account. Credentials saved privately for browser testing.');\",\n      '',\n    ]),\n  },\n]);\n\ntest('each consumer is its before-source with exactly two lines replaced in place: the child import by the wrapper import, the inline status parse by one wrapper call (read as text, never loaded)', () => {\n  for (const { file, before } of CONSUMERS) {\n    assert.equal(lineCount(before, CHILD_IMPORT), 1, `${file}: the before-source held one child import`);\n    assert.equal(lineCount(before, INLINE_STATUS), 1, `${file}: the before-source held one inline status parse`);\n    const lines = read(file).split('\\n');\n    const expected = before.map((line) => SUBSTITUTIONS.get(line) ?? line);\n    assert.deepEqual(lines, expected, `${file}: only those two lines differ; every other byte, line and line break is kept`);\n    const changed = before.flatMap((line, index) => (line === lines[index] ? [] : [index]));\n    assert.deepEqual(changed, [before.indexOf(CHILD_IMPORT), before.indexOf(INLINE_STATUS)], `${file}: exactly the two substituted lines changed`);\n  }\n});\n\ntest('each consumer reads status through the wrapper alone: one wrapper import, one call with no argument, and no child process, status command or JSON.parse of its own', () => {\n  for (const { file, imports } of CONSUMERS) {\n    const source = read(file);\n    const lines = source.split('\\n');\n    assert.equal(lineCount(lines, WRAPPER_IMPORT), 1, `${file}: imports the wrapper once`);\n    assert.equal(lineCount(lines, WRAPPER_STATUS), 1, `${file}: calls it once with no argument, so the wrapper runs its fixed status command`);\n    assert.equal(occurrences(source, 'readLocalStatus('), 1, `${file}: status is read once`);\n    assert.equal(occurrences(source, 'readLocalStatus'), 2, `${file}: named only in its import and its one call`);\n    assert.deepEqual(staticImports(source), imports, `${file}: the child import is replaced by the wrapper import, the rest kept in order`);\n    assert.equal(lines.filter((line) => /^\\s*import\\b/.test(line)).length, imports.length, `${file}: every import is a whole-line static import`);\n    assert.doesNotMatch(source, /child_process|execFileSync|execSync|\\bspawn|\\bfork\\s*\\(|\\bexec\\s*\\(/, `${file}: no direct child process remains`);\n    assert.doesNotMatch(source, /JSON\\.parse/, `${file}: no inline parse remains; the wrapper parses through the guarded helper`);\n    assert.doesNotMatch(source, /'supabase', 'status'|supabase status/, `${file}: the status command is named only inside the wrapper`);\n    assert.doesNotMatch(source, /parseStatusOutput|status-output\\.mjs/, `${file}: the helper is reached only through the wrapper`);\n    assert.doesNotMatch(source, /\\bimport\\s*\\(|\\brequire\\s*\\(/, `${file}: nothing is loaded at run time`);\n  }\n});\n\ntest('the existing exact guard follows the wrapper call at once, unchanged, nothing runs before it, and every side effect after it is the before-source byte for byte', () => {\n  for (const { file, guard, checks, effects, before } of CONSUMERS) {\n    for (const check of checks) assert.ok(guard.includes(check), `${file}: the pinned guard holds ${check}`);\n    const source = read(file);\n    const lines = source.split('\\n');\n    const call = lines.indexOf(WRAPPER_STATUS);\n    assert.notEqual(call, -1, `${file}: reads status through the wrapper`);\n    assert.deepEqual(lines.slice(0, call).filter((line) => line !== '' && !line.startsWith('import ')), [], `${file}: only imports come before the status read`);\n    assert.equal(lines[call + 1], guard, `${file}: the guard follows the status read at once, unchanged`);\n    assert.equal(occurrences(source, guard), 1, `${file}: one guard`);\n    const body = lines.slice(call + 2);\n    assert.deepEqual(body, before.slice(before.indexOf(guard) + 1), `${file}: the side-effect body after the guard is unchanged`);\n    for (const effect of effects) {\n      assert.ok(body.some((line) => line.includes(effect)), `${file}: ${effect} still happens after the guard`);\n      assert.equal(lines.slice(0, call + 2).some((line) => line.includes(effect)), false, `${file}: ${effect} never happens before the guard`);\n    }\n  }\n});\n\ntest('this file reads both consumers as text only: its sole imports are assert, fs and test, and it has no run-time load', () => {\n  const own = readFileSync(new URL(import.meta.url), 'utf8');\n  assert.deepEqual(staticImports(own), ['node:assert/strict', 'node:fs', 'node:test'], 'no consumer, child process, network or other module is imported');\n  assert.equal(own.split('\\n').filter((line) => /^\\s*import\\b/.test(line)).length, 3, 'every import is one of those three');\n  assert.doesNotMatch(own, /\\bimport\\s*\\(|\\brequire\\s*\\(/, 'no consumer can be loaded at run time');\n});\n"
+      }
+    },
+    "toolu_01WNrUq1jv7NuhAhEE3issyJ": {
+      "name": "Edit",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/environment.mjs",
+        "old_string": "import { execFileSync } from 'node:child_process';\nimport { writeFileSync } from 'node:fs';\nconst status = JSON.parse(execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));",
+        "new_string": "import { readLocalStatus } from './status-command.mjs';\nimport { writeFileSync } from 'node:fs';\nconst status = readLocalStatus();"
+      }
+    },
+    "toolu_01QRiX95UdXSfPpR1ULEbm1D": {
+      "name": "Edit",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/preview-account.mjs",
+        "old_string": "import { execFileSync } from 'node:child_process';",
+        "new_string": "import { readLocalStatus } from './status-command.mjs';"
+      }
+    },
+    "toolu_011mdXKSxaQBupzeDR1nQcob": {
+      "name": "Edit",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend/preview-account.mjs",
+        "old_string": "const status = JSON.parse(execFileSync('pnpm', ['exec', 'supabase', 'status', '-o', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }));",
+        "new_string": "const status = readLocalStatus();"
+      }
+    },
+    "toolu_01B9AT38MJCZiJuMmfTFmC5M": {
+      "name": "Grep",
+      "input": {
+        "pattern": "child_process|execFileSync|JSON\\.parse|readLocalStatus|status\\.API_URL !==",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend",
+        "glob": "{environment,preview-account}.mjs",
+        "output_mode": "content"
+      }
+    },
+    "toolu_019Tfce5UqFgL3vKqYYmQLPz": {
+      "name": "Grep",
+      "input": {
+        "pattern": "^",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend",
+        "glob": "{environment,preview-account}.mjs",
+        "output_mode": "count"
+      }
+    },
+    "toolu_011MoNZxbQF5dzQ7zLGseMAu": {
+      "name": "Grep",
+      "input": {
+        "pattern": "\\r",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/scripts/backend",
+        "glob": "{environment,preview-account,status-consumers.test}.mjs",
+        "output_mode": "count"
+      }
+    },
+    "toolu_01EvbTV6SWqKRK1XUxbjM5Qv": {
+      "name": "Grep",
+      "input": {
+        "pattern": "BOXES:|Done-when boxes",
+        "path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/docs/plan/runs/MB-1",
+        "output_mode": "content",
+        "head_limit": 5
+      }
+    },
+    "toolu_01KH9tvVdY7G2NVRiWbDRugT": {
+      "name": "Write",
+      "input": {
+        "file_path": "/Users/Adya/.codex/worktrees/fitlog-mb1/fitness_app/docs/evidence/MB-1/harness-status-consumers-2026-11-01.md",
+        "content": "# G5 residual: status consumers now read through the wrapper (source change, tests UNRUN). 2026-11-01\n\nCodex assigned this bounded phase under explicit owner delegation AUTH-01. A local Claude goal-implementer wrote it,\nlimited to Read, Grep, Edit and Write. It ran nothing: no process, test, CLI, database, network, environment or credential\nread, and no commit. This record claims no Done-when box, no acceptance-ledger result, no whole-G5 closure and no MB-1\nacceptance. It covers one named residual from `harness-command-failure-accepted-2026-11-01.md`.\n\n## Why\n\nQA-9 phase 3N gap G5 says status diagnostics can expose keys, and PRD 22.1 says never log tokens. The accepted F4\nprerequisite moved the three integration suites onto `readLocalStatus` in `status-command.mjs`. That wrapper drops the\nthrown value of a failed command without binding it, throws one fixed message, and parses through `parseStatusOutput`,\nwhich has fixed refusals. Two consumers still ran `pnpm exec supabase status -o json` and parsed it inline:\n\n- `scripts/backend/environment.mjs` (`pnpm backend:env`) writes the mobile app's private `apps/mobile/.env.local`.\n- `scripts/backend/preview-account.mjs` creates a synthetic local account and writes its credentials privately to tmpdir.\n\nIn both, a failed command could throw Node's child-process error, which carries the printed output (keys) in its message,\n`stdout` and `output`. Bad output could throw a V8 `SyntaxError` that quotes the input. With no handler, either one would\nprint to the terminal.\n\n## What changed\n\nTwo lines changed in each consumer, each in place, so the line count and every line number stay the same:\n\n| File | Line | Before | After |\n| --- | --- | --- | --- |\n| `scripts/backend/environment.mjs` | 1 | `import { execFileSync } from 'node:child_process';` | `import { readLocalStatus } from './status-command.mjs';` |\n| `scripts/backend/environment.mjs` | 3 | `const status = JSON.parse(execFileSync('pnpm', [...status -o json], {...}));` | `const status = readLocalStatus();` |\n| `scripts/backend/preview-account.mjs` | 2 | `import { execFileSync } from 'node:child_process';` | `import { readLocalStatus } from './status-command.mjs';` |\n| `scripts/backend/preview-account.mjs` | 7 | `const status = JSON.parse(execFileSync('pnpm', [...status -o json], {...}));` | `const status = readLocalStatus();` |\n\nNothing else changed: not the exact loopback guard, not environment's `sb_publishable_` guard, not the file paths, modes\n(`0o600`), messages, `randomUUID` IDs, fetch calls, apikey/secret handling or the tmpdir credential file. Both files\nstill have no other imports to touch, so there was no cleanup. The wrapper runs the same command, arguments and options\nas before, so the success path is unchanged; `status-command.test.mjs` already covers that. Only the failure surface\nchanged: it now raises the wrapper's fixed messages. The wrapper also refuses JSON that is not an object; before, a JSON\n`null` would have thrown a `TypeError` with no key in it.\n\n`docs/architecture/003-architecture-freeze.md` cites `environment.mjs:4-5`, which still points at the guard and the write.\n\n## Regression test (written first, UNRUN)\n\nNew `scripts/backend/status-consumers.test.mjs`, pure `node:test`. It imports only `node:assert/strict`, `node:fs` and\n`node:test`. It reads both consumers as text through `readFileSync`, never loads either one (they have real side\neffects), has no run-time load, starts no process and makes no network call. Its four tests:\n\n1. **Exact scoped change.** The before-source is pinned as explicit per-line strings, copied from the out-of-repo snapshot\n   `/tmp/fitlog-mb1-status-consumers-before.json`. Each consumer must equal that source with the child import replaced by\n   the wrapper import and the inline parse replaced by `const status = readLocalStatus();`, and nothing else. The test\n   also checks that only those two line indexes differ.\n2. **Wrapper only.** Each consumer has one wrapper import line, one no-argument call, and `readLocalStatus` named exactly\n   twice. Its static import list is exact and in order. No `child_process`, exec/spawn/fork call, `JSON.parse`, status\n   command text, direct helper import, run-time load or `require` remains.\n3. **Guard and body.** Only imports come before the status read. The existing exact guard follows it on the next line,\n   unchanged, and appears once. The pinned guard contains the exact loopback check, plus the publishable-key check for\n   environment. Everything after the guard matches the before-source byte for byte. Every listed side effect (writes,\n   modes, logs, `randomUUID()`, `fetch(`, secret-key header, tmpdir file) appears after the guard and never before it.\n4. **Self-check.** The test file's own static imports are exactly the three above, and it contains no run-time load.\n\nTDD order: the test was written before either consumer was edited. Expected against the before-source, by reading only:\ntests 1\u20133 fail and test 4 passes. Expected after the change: 4/4 pass. Neither result was observed, because nothing was run.\n\nThe proposed future command needs separate authorization. It is pure, uses no process, network or database, and loads\nneither consumer:\n\n```\nnode --test scripts/backend/status-consumers.test.mjs\n```\n\nThe repository's usual prefix gives `rtk proxy node --test scripts/backend/status-consumers.test.mjs`. The\n`backend:test` script's `scripts/backend/*.test.mjs` glob will also pick the file up, but that script goes on to run the\nlive suites, so it is not the proposed command.\n\n## Unchanged by design\n\n`status-command.mjs`, `status-output.mjs`, `status-command.test.mjs` and `status-output.test.mjs` were read only. They\nshould still match the reviewed SHA256 values in `harness-command-failure-accepted-2026-11-01.md`. No hashes were\ncomputed this phase because no execution tool was available, so the verifier should record them. The snapshot was read,\nnot written.\n\n## Residual owners (open)\n\n- **MB-1 / QA-9 G5:** triage the `verify-freeze-projection.mjs` raw child-process and parse diagnostics. These were\n  already named and are untouched here.\n- **MB-1 / QA-9 G5:** in `preview-account.mjs`, `response.json()` and `login.json()` could throw a V8 `SyntaxError` that\n  quotes part of a local auth response that isn't JSON. Token-bearing success bodies are valid JSON, so exposure is\n  unlikely. This is out of scope for this phase, which allows no other security changes. It is named for triage.\n- **MB-1 / QA-9:** G1\u2013G4, G6, G7 (cleanup, timeout, target binding and the others), F1\u2013F3, F5, F6, the allowlisted\n  executor, exact shared-target binding, backend isolation suites and the whole of MB-1 stay open. Historical denied\n  sequences stay parked.\n\n## Self-review (C/H/M/L)\n\nThe `code-reviewer`, `security-reviewer` and `tdd-guide` sub-agents were not used: this phase's tool scope forbids\nsubagents.\n\n- **Critical:** none.\n- **High:** none.\n- **M1:** no independent review yet. An independent verifier must cover the code, security and TDD review.\n- **M2:** the tests have not been run. The fixture strings were checked against the snapshot by hand only, including the\n  `\\u2019` apostrophe, the escaped `\\\\n` inside the template text, and `${\u2026}` written literally in plain strings. A\n  fixture typo would give a false failure, not a false pass, because test 1 compares the whole file.\n- **L1:** test 3's body check overlaps test 1, on purpose, so failures name the cause.\n- **L2:** the checks are lexical and do not parse the JavaScript. Mistakes fail closed, and the whole-file pin is the\n  strong check.\n- **L3:** the self-check cannot rule out use of the global `fetch`, because the fixture strings contain `fetch(`.\n  Reading the file shows no call.\n- **L4:** the consumers now refuse JSON that is not an object with the helper's fixed message. This is stricter and\n  intended.\n- **L5:** the `response.json()` residual above.\n- **L6:** `${\u2026}` written literally in plain strings would trip `no-template-curly-in-string` if `scripts/backend` were\n  ever linted. Today ESLint covers only `apps/mobile`.\n"
+      }
+    }
+  },
+  "errors": [],
+  "final": "COMPLETE: both consumers now read `supabase status` only through `readLocalStatus`. The new regression test is written but has not been run. Nothing was executed, including the test, any CLI, the database or the network, and nothing was committed. Both consumers were read as text only.\n\n**What changed:** each consumer had two lines replaced in place, so line counts (6 and 18) and every line number are the same:\n- `environment.mjs` lines 1 and 3: the `node:child_process` import became `import { readLocalStatus } from './status-command.mjs';`, and the inline `JSON.parse(execFileSync(\u2026))` became `const status = readLocalStatus();`.\n- `preview-account.mjs` lines 2 and 7: the same two substitutions.\n\nThe loopback guard, the publishable-key guard and everything after them (writes, `0o600` modes, messages, random IDs, fetch and credential handling) are unchanged. `status-command.mjs`, `status-output.mjs` and their two test files were only read.\n\n**The new test** (`status-consumers.test.mjs`) was written before either consumer was edited. It reads both consumers as text and never loads them. It imports only assert, fs and test, starts no process and makes no network call. Its four tests check:\n1. Each file equals its pinned before-source with exactly the two substituted lines changed.\n2. Each file has one wrapper import and one call, and no `child_process`, `execFileSync`, `JSON.parse` or status-command text of its own.\n3. The original guard comes straight after the status read, and every side effect comes after the guard, unchanged.\n4. The test file itself loads nothing else.\n\nBy reading only, tests 1\u20133 should fail on the old source and all four should pass now; neither result has been observed. The proposed command, which needs separate approval, is `node --test scripts/backend/status-consumers.test.mjs` (with the repo's usual `rtk proxy` prefix). Don't use `backend:test` for this: it also runs the live suites.\n\n**Paths written (all four permitted, nothing else touched):**\n- `scripts/backend/environment.mjs`\n- `scripts/backend/preview-account.mjs`\n- `scripts/backend/status-consumers.test.mjs` (new)\n- `docs/evidence/MB-1/harness-status-consumers-2026-11-01.md` (new)\n\n**Self-review:**\n- **Critical / High:** none.\n- **M1:** the `code-reviewer`, `security-reviewer` and `tdd-guide` sub-agents were not used, because this phase's tools exclude sub-agents. An independent verifier needs to do those reviews.\n- **M2:** I checked the pinned before-source lines in the test against the `/tmp` snapshot by hand only. A copying mistake would make the test fail wrongly, not pass wrongly.\n- **L1:** test 3 overlaps test 1 on purpose, so a failure names its cause.\n- **L2:** the checks match text rather than parsing JavaScript, so mistakes fail closed.\n- **L3:** the self-check can't prove the test never calls `fetch`, because the pinned source text contains `fetch(`; reading the file shows no call.\n- **L4:** JSON output that isn't an object is now refused with the helper's fixed message. That is stricter, and intended.\n- **L5:** new, not fixed: in `preview-account.mjs`, `response.json()` and `login.json()` could print a `SyntaxError` quoting part of a non-JSON local auth response. Named for MB-1/QA-9 G5 triage.\n- **L6:** the pinned strings contain literal `${\u2026}`, which a lint rule would flag if `scripts/backend` were ever linted. Today only `apps/mobile` is linted.\n\nStill open:\n- `verify-freeze-projection.mjs` diagnostics, owned by MB-1/QA-9.\n- G1\u2013G4 and G6\u2013G7.\n- MB-1 as a whole.\n\nNo Done-when box is claimed. File hashes weren't computed because I had no way to run anything.\n\n```\nGOAL: MB-1\nBRANCH: codex/mb1-identity\nHEAD: 2a95726 (uncommitted working-tree changes on top; no commit per phase scope)\nHANDOFF: docs/evidence/MB-1/harness-status-consumers-2026-11-01.md (handoff.md not in this phase's four permitted write paths)\nBOXES: 0/\u2014 Done-when boxes met (none claimed or changed; bounded G5 residual phase)\nSTATUS: ready-for-verification\nNOTES: G5 status-consumer residual only; 2-line in-place swap per consumer; new test UNRUN (proposed: node --test scripts/backend/status-consumers.test.mjs); sub-agent reviews not run (tools excluded) so the verifier must do them; helper and test files unchanged\n```"
+}

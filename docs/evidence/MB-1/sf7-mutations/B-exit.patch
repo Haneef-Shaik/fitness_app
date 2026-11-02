@@ -1,0 +1,12 @@
+diff --git a/scripts/backend/mb1-replay-binding.mjs b/scripts/backend/mb1-replay-binding.mjs
+--- a/scripts/backend/mb1-replay-binding.mjs
++++ b/scripts/backend/mb1-replay-binding.mjs
+@@ -76,7 +76,7 @@ export function bindingProblems(stdout, binding) {
+ /** The inspect's run: one that failed or did not finish proves nothing, and is never read as a binding or as "absent". */
+ export function bindingResult(run, binding) {
+   if (run.status === null) return { problems: [`docker inspect did not finish (${run.error ?? 'no exit status'})`], value: null };
+-  if (run.status !== 0) return { problems: [`docker inspect failed (exit ${run.status})`], value: null };
++  if (false && run.status !== 0) return { problems: [`docker inspect failed (exit ${run.status})`], value: null };
+   return bindingProblems(run.stdout, binding);
+ }
+

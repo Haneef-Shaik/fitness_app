@@ -1,0 +1,23 @@
+# sql/preconditions.sql sha256 ca683771f22935ff97c26f3101e93634f1611132963d2e44db7bc9d913ed769a, as manifest.json records and the reviewed constant; read-only check passed
+# session: default_transaction_read_only=on, transaction_read_only=on
+P1 table_owner=postgres relrowsecurity=t relforcerowsecurity=f fn_owner=postgres prosecdef=t provolatile=s proconfig={"search_path=\"\""} rolsuper=f rolbypassrls=t fn_owner_has_owner_privs=t fn_definition_md5=e446cfc1e224dec2a5439fef806a22cc
+P2 profile_read PERMISSIVE {authenticated} SELECT qual=((id = ( SELECT auth.uid() AS uid)) AND ( SELECT private.member_active() AS member_active)) with_check=
+P2 profile_update PERMISSIVE {authenticated} UPDATE qual=((id = ( SELECT auth.uid() AS uid)) AND ( SELECT private.member_active() AS member_active)) with_check=((id = ( SELECT auth.uid() AS uid)) AND ( SELECT private.member_active() AS member_active))
+P3 20261017161031 member_core 6e0b2455b96fe2f197ae0d94353ebdfa
+P3 20261017161225 member_operations ac7c85bddd7df2e5fa78ba07c11c706a
+P3 20261017162313 explicit_api_grants 14139d383d259e8701a198f7b77f7ad4
+P3 20261017163754 scheduling_and_history 8f36beff1c488fa409c1eb8cfa3df03b
+P3 20261017164212 workout_correction_commands 2a94ad9abebe67a5dcef37550b863c02
+P3 20261017164336 validated_contracts 1ddb4b52c0446da1b6868c918d834fa2
+P3 20261017164445 contract_trigger_dispatch 9998d25fa5eb90b6065d29112a3ed28b
+P3 20261017164708 gym_operations 3ca5ca9e1e5b4aa795f6c3f6fe158262
+P3 20261019120627 gym_command_guards a2fa01077d9cb9b9e05e0b991bf94ff1
+P3 20261019120824 gym_api_errors 77d4d1e5a48e7ea555c3d7e5046fd4f9
+P3 20261019121035 gym_read_models 8f24916e9f37d7a1c3d466c1e5650944
+P3 20261019122347 function_lint_cleanup 93a61d03dbb3aaa768821b5b44da045b
+P3 20261019140429 gym_freezes 6e347a51b056b25a3c7b65976323c201
+P3 20261019140839 freeze_preview_binding 59f6d90279c85fd6c74d00926ac456aa
+P3 20261025234317 training_formula_v1 0f34724e7128f97646a841a5b2ee7af5
+P3 20261026040045 mb1_live_session_guard ddcb1b5c06928c2226450c7f3f1f8128
+# snapshot after: 16 applied migration(s); no rule broken; changes from before: P2.profile_read.qual, P3.+20261026040045
+# mb1-replay snapshot: exit 0
